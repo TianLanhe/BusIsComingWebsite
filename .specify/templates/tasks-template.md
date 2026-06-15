@@ -64,6 +64,7 @@ description: "功能实现任务清单模板"
 - [ ] T010 配置外部服务超时、缓存或降级策略
 - [ ] T011 配置日志和错误处理基础设施
 - [ ] T012 记录范围排除规则，确认不实现完整出行路线规划和非香港巴士交通查询
+- [ ] T013 定义手机与电脑 viewport 验证基线，路径：specs/[###-feature-name]/quickstart.md
 
 **检查点**：基础能力完成，可以开始用户故事并行实现。
 
@@ -79,18 +80,19 @@ description: "功能实现任务清单模板"
 
 > 如果包含自动化测试，先写测试并确认失败；如果是视觉或内容验证，先定义可执行检查步骤。
 
-- [ ] T013 [P] [US1] 为 [契约或组件] 增加测试，路径：frontend/tests/[name].test.ts
-- [ ] T014 [P] [US1] 为 [API] 增加契约或集成测试，路径：backend/tests/[name].test.ts
-- [ ] T015 [US1] 定义三语和响应式视觉验证步骤，路径：specs/[###-feature-name]/quickstart.md
-- [ ] T016 [US1] 生成或保存 UI 图片、截图、设计稿或可视化 mock，路径：[artifact path]
+- [ ] T014 [P] [US1] 为 [契约或组件] 增加测试，路径：frontend/tests/[name].test.ts
+- [ ] T015 [P] [US1] 为 [API] 增加契约或集成测试，路径：backend/tests/[name].test.ts
+- [ ] T016 [US1] 定义三语、手机和电脑双端视觉验证步骤，路径：specs/[###-feature-name]/quickstart.md
+- [ ] T017 [US1] 生成或保存手机与电脑 UI 图片、截图、设计稿或可视化 mock，路径：[artifact path]
 
 ### 用户故事 1 的实现
 
-- [ ] T017 [P] [US1] 在 `frontend/src/pages/[page].*` 实现页面结构
-- [ ] T018 [P] [US1] 在 `frontend/src/i18n/` 补齐三语文案
-- [ ] T019 [US1] 在 `backend/src/api/[route].*` 实现所需内容或数据接口
-- [ ] T020 [US1] 将前端服务调用接入后端契约
-- [ ] T021 [US1] 增加加载、空状态、错误和降级状态
+- [ ] T018 [P] [US1] 在 `frontend/src/pages/[page].*` 实现页面结构
+- [ ] T019 [P] [US1] 在 `frontend/src/i18n/` 补齐三语文案
+- [ ] T020 [US1] 在 `backend/src/api/[route].*` 实现所需内容或数据接口
+- [ ] T021 [US1] 将前端服务调用接入后端契约
+- [ ] T022 [US1] 增加加载、空状态、错误和降级状态
+- [ ] T023 [US1] 验证手机与电脑布局下核心内容和主要操作均可见可用
 
 **检查点**：用户故事 1 可以独立运行、展示和验证。
 
@@ -104,15 +106,15 @@ description: "功能实现任务清单模板"
 
 ### 用户故事 2 的测试或验证
 
-- [ ] T022 [P] [US2] 为 [组件或交互] 增加测试，路径：frontend/tests/[name].test.ts
-- [ ] T023 [US2] 补充三语和响应式验证步骤
-- [ ] T024 [US2] 若涉及 UI，生成或保存图片、截图、设计稿或可视化 mock
+- [ ] T024 [P] [US2] 为 [组件或交互] 增加测试，路径：frontend/tests/[name].test.ts
+- [ ] T025 [US2] 补充三语、手机和电脑双端验证步骤
+- [ ] T026 [US2] 若涉及 UI，生成或保存手机与电脑图片、截图、设计稿或可视化 mock
 
 ### 用户故事 2 的实现
 
-- [ ] T025 [P] [US2] 实现 [前端组件]，路径：frontend/src/components/[component].*
-- [ ] T026 [US2] 实现 [后端能力或内容配置]，路径：backend/src/[location]/[file].*
-- [ ] T027 [US2] 与用户故事 1 的既有能力集成
+- [ ] T027 [P] [US2] 实现 [前端组件]，路径：frontend/src/components/[component].*
+- [ ] T028 [US2] 实现 [后端能力或内容配置]，路径：backend/src/[location]/[file].*
+- [ ] T029 [US2] 与用户故事 1 的既有能力集成
 
 **检查点**：用户故事 1 和 2 都能独立工作。
 
@@ -126,12 +128,12 @@ description: "功能实现任务清单模板"
 
 ### 用户故事 3 的测试或验证
 
-- [ ] T028 [P] [US3] 为 [功能] 增加测试或验证步骤
+- [ ] T030 [P] [US3] 为 [功能] 增加测试或验证步骤
 
 ### 用户故事 3 的实现
 
-- [ ] T029 [P] [US3] 实现 [前端能力]，路径：frontend/src/[location]/[file].*
-- [ ] T030 [US3] 实现 [后端能力]，路径：backend/src/[location]/[file].*
+- [ ] T031 [P] [US3] 实现 [前端能力]，路径：frontend/src/[location]/[file].*
+- [ ] T032 [US3] 实现 [后端能力]，路径：backend/src/[location]/[file].*
 
 **检查点**：目标用户故事全部可独立验证。
 
@@ -149,6 +151,7 @@ description: "功能实现任务清单模板"
 - [ ] TXXX 清理代码和重复逻辑
 - [ ] TXXX 优化图片、首屏加载和响应式表现
 - [ ] TXXX 确认所有 UI 讨论和展示均有图片、截图、设计稿或可视化 mock 作为用户可见依据
+- [ ] TXXX 验证手机和电脑 viewport 下布局、交互和内容展示均正常
 - [ ] TXXX 验证网站没有暗示提供完整路线规划、地铁或其他非香港巴士交通查询
 - [ ] TXXX [P] 补充单元测试或契约测试
 - [ ] TXXX 检查安全边界，确认无密钥或私有 token 下发到前端
@@ -179,6 +182,7 @@ description: "功能实现任务清单模板"
 - 契约先于前后端实现
 - 内容来源清单先于页面文案落地
 - 范围排除和 UI 可视化产物先于用户确认页面方案
+- 手机与电脑双端布局策略先于页面实现和用户确认
 - i18n 文案与组件实现同步完成
 - 加载、错误和降级状态必须随核心实现一起完成
 - 故事完成后先独立验证，再进入下一个故事
