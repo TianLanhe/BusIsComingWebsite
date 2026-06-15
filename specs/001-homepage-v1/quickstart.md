@@ -7,6 +7,7 @@
 - 实施计划：`specs/001-homepage-v1/plan.md`
 - Figma 文件：https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU
 - 实现阶段应在 `frontend/` 下创建前端应用，并在 `shared/contracts/` 下放置稳定契约副本。
+- 本 feature 不产出服务端代码；如需记录未来后端边界，仅创建说明文档，技术栈为 Go 1.26 + Gin + MySQL。
 
 ## 本阶段产物验证
 

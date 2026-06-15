@@ -8,6 +8,12 @@
 
 **输入**：用户描述："初始化第一版 BusIsComing 网站主页。主页需要展示软件基本信息并提供 App 下载功能；视觉和交互采用现代、简洁、优雅的平衡型布局。已最终确认：首屏左侧讲清产品和下载，右侧展示 App 功能截图轮播；下载按钮为 Android/iPhone 分段交互；在线查询第一版仅做静态演示；页面顺序为 Hero、核心功能、在线查询演示、下载区、常见问题、反馈与联系。"
 
+## Clarifications
+
+### Session 2026-06-16
+
+- Q: 本功能是否产出服务端代码，以及后续服务端技术栈如何记录？ → A: 本功能不产出服务端代码；后续服务端技术栈按 Go 1.26、Gin、MySQL 规划。
+
 ## 用户场景与测试（必填）
 
 ### 用户故事 1 - 了解产品并下载 App（优先级：P1）
@@ -90,7 +96,7 @@
 - **产品来源**：Android 主项目 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/AGENTS.md`、`README.md`、`docs/ui-style-guide.md`、`openspec/specs/app-ui-style-system/spec.md`、`openspec/specs/route-query-results-layout/spec.md`、`openspec/specs/notification-bar-monitoring/spec.md`；用户提供的三张 UI 参考图和最终确认结论。
 - **产品范围**：本功能服务软件功能介绍、在线查询静态演示、下载 App、常见问题、问题反馈和联系开发者；下载和产品理解为第一优先级，在线查询为静态演示入口。
 - **排除范围**：不提供完整出行路线规划；不提供地铁、铁路、渡轮、步行或其他非香港巴士交通工具路线查询；第一版不提供真实在线查询服务。
-- **前后端边界**：前端负责主页展示、三语切换、轮播、下载按钮状态、静态在线查询演示和响应式布局；后端或内容服务负责后续下载资源、内容配置、未来在线查询服务边界和外部数据代理；本 feature 的在线查询不要求接入实时后端能力，后续真实在线查询作为独立 feature 规划。
+- **前后端边界**：前端负责主页展示、三语切换、轮播、下载按钮状态、静态在线查询演示和响应式布局；本 feature 不产出服务端代码；后续后端或内容服务负责下载资源、内容配置、未来在线查询服务边界和外部数据代理；后续真实在线查询作为独立 feature 规划。
 - **三语范围**：用户可见文字必须覆盖 `zh-Hant`、`zh-Hans`、`en`，包括导航、首屏标题、副标题、功能要点、下载按钮、平台状态、轮播标题与说明、在线查询演示、限制提示、下载区、FAQ、反馈与联系入口。默认香港语境优先 `zh-Hant`。
 - **UI 可视化**：已生成并用于确认的视觉参考包括用户提供的三张参考图、下载按钮三状态对比图、首页单页结构预览图；后续实现以 Figma 设计文件为主要视觉源。
 - **Figma 设计**：Figma 文件：[BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU)。关键节点：`01 Desktop Homepage / 1440`（node `4:2`）、`02 Mobile Homepage / 390`（node `4:183`）、`03 Download Button Interaction States`（node `4:326`）、`04 Hero Carousel States`（node `4:357`）。版本说明：2026-06-15 v1，根据最终确认的首页结构、下载交互、轮播内容和静态在线查询范围生成；App 截图区域允许作为临时高保真 mock，但实现前应替换为真实 Android App 截图。
