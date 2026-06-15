@@ -29,7 +29,7 @@
 
 **关键要求**：此阶段完成前不能开始用户故事实现；前端不得读取后端内部路径，后端不得把领域规则写入 handler。
 
-- [ ] T009 同步 OpenAPI 3.1 权威契约到共享入口，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
+- [ ] T009 同步并核对 OpenAPI 3.1 权威契约的无认证策略、无请求参数、`Cache-Control: no-store`、降级行为、错误示例和共享入口，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
 - [ ] T010 同步下载 manifest JSON Schema 到共享契约，路径：`shared/contracts/download-manifest.schema.json`
 - [ ] T011 同步下载按钮 UI 状态契约到共享契约，路径：`shared/contracts/ui-state-contract.md`
 - [ ] T012 从 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/release/BusIsComing.apk` 复制当前 APK 到服务端受管空间，路径：`backend/downloads/android/BusIsComing.apk`
@@ -53,7 +53,7 @@
 - [ ] T017 [P] [US1] 增加当前 APK、校验和下载结果领域测试，路径：`backend/internal/downloads/domain/artifact_test.go`、`backend/internal/downloads/domain/checksum_test.go`
 - [ ] T018 [P] [US1] 增加“下载当前 Android APK”应用用例测试，路径：`backend/internal/downloads/application/download_current_apk_test.go`
 - [ ] T019 [P] [US1] 增加文件系统 APK 读取和 SHA-256 计算测试，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository_test.go`、`backend/internal/downloads/infrastructure/filesystem/checksum_calculator_test.go`
-- [ ] T020 [P] [US1] 增加下载端点成功响应、响应头和二进制内容测试，路径：`backend/internal/downloads/interfaces/http/handler_test.go`
+- [ ] T020 [P] [US1] 增加下载端点成功响应、`Cache-Control: no-store`、响应头和二进制内容测试，路径：`backend/internal/downloads/interfaces/http/handler_test.go`
 - [ ] T021 [P] [US1] 增加 Android 下载端到端测试并校验下载文件哈希，路径：`frontend/playwright/android-download.spec.ts`
 
 ### 用户故事 1 的实现
@@ -83,7 +83,7 @@
 
 - [ ] T032 [P] [US2] 增加当前 APK 元数据读取和字段完整性测试，路径：`backend/internal/downloads/infrastructure/filesystem/metadata_repository_test.go`
 - [ ] T033 [P] [US2] 增加 APK 缺失、不可读和校验不一致的应用层测试，路径：`backend/internal/downloads/application/download_current_apk_test.go`
-- [ ] T034 [P] [US2] 增加 `404`、`409`、`500` JSON 错误格式测试，路径：`backend/internal/downloads/interfaces/http/handler_test.go`
+- [ ] T034 [P] [US2] 增加 `404`、`409`、`500` JSON 错误格式、错误示例字段和 `Cache-Control: no-store` 测试，路径：`backend/internal/downloads/interfaces/http/handler_test.go`
 - [ ] T035 [P] [US2] 增加共享 manifest schema 对当前 APK 元数据字段的契约测试，路径：`frontend/src/tests/content-contract.test.ts`
 
 ### 用户故事 2 的实现
@@ -133,7 +133,7 @@
 - [ ] T053 运行前端单元测试和构建并修正失败项，路径：`frontend/package.json`、`frontend/src/tests/`
 - [ ] T054 运行 Playwright 端到端测试并保存双端截图，路径：`frontend/playwright/`、`specs/002-android-apk-download/visual-review/`
 - [ ] T055 使用 `curl` 和 `shasum -a 256` 验证后端下载文件与当前 APK 一致，路径：`backend/downloads/android/BusIsComing.apk`、`backend/downloads/android/current.json`
-- [ ] T056 运行 OpenAPI lint 和 bundle 并修正契约问题，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
+- [ ] T056 运行 OpenAPI lint 和 bundle，并核对 `security: []`、无请求参数、`Cache-Control: no-store`、降级行为、错误示例和共享契约路径，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
 - [ ] T057 检查 DDD 依赖方向，确保 `domain` 不依赖 Gin、文件系统、HTTP 包、前端代码或共享契约，路径：`backend/internal/downloads/domain/`
 - [ ] T058 检查前端 bundle 和 manifest 不暴露 Android 主项目本机来源路径，路径：`frontend/src/content/downloadManifest.ts`、`frontend/dist/`
 - [ ] T059 复核页面文案没有新增完整路线规划、非香港巴士查询、iPhone 下载或历史版本浏览暗示，路径：`frontend/src/content/homepageContent.ts`、`frontend/src/content/sectionsContent.ts`

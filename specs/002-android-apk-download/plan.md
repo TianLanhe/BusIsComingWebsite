@@ -11,7 +11,7 @@
 本功能把首页 Android 下载入口从“资源待接入”升级为真实可下载：将 Android 主项目的当前 `BusIsComing.apk` 复制到网站后端受管空间并纳入仓库管理，后端通过稳定下载入口返回当前 APK，前端只消费公开契约和同源下载路径。用户在首屏或下载区点击 Android 下载即可获得同一个当前 APK；iPhone 继续保持暂未支持。
 
 技术路线采用最小前后端分离实现：前端仍为 React + Vite 首页，更新下载 manifest、三语文案、按钮测试和桌面/手机下载验证；后端新增 Go 1.26 + Gin 服务，只提供 APK 下载和当前文件校验，不引入数据库。后端代码按 DDD bounded context 组织，把当前 APK、校验规则和下载结果放在领域层，把下载用例放在应用层，把文件系统与哈希计算放在基础设施层，把 HTTP 路由放在接口适配层。共享契约记录下载 API、APK 元数据和 UI 状态，确保前端不依赖后端内部文件路径。
-下载 API 采用 OpenAPI-first：`download-api.openapi.yaml` 是接口文档和前后端协作的权威来源，Swagger UI 或 Redocly 只用于本地预览、试接口、lint 和 bundle。
+下载 API 采用 OpenAPI-first：`download-api.openapi.yaml` 是接口文档和前后端协作的权威来源，必须记录无认证公开下载策略、无请求参数、`Cache-Control: no-store` 缓存策略、降级行为、错误示例和共享契约路径；Swagger UI 或 Redocly 只用于本地预览、试接口、lint 和 bundle。
 
 ## 技术背景
 
@@ -39,7 +39,7 @@
 
 **前后端契约**：本功能契约位于 `specs/002-android-apk-download/contracts/`，实现阶段同步到 `shared/contracts/`。`download-api.openapi.yaml` 固定下载端点、响应头和错误格式；`download-manifest.schema.json` 固定前端下载 manifest 与 APK 元数据；`ui-state-contract.md` 固定下载按钮状态和双端不变量。
 
-**OpenAPI 接口文档**：feature 阶段权威源为 `specs/002-android-apk-download/contracts/download-api.openapi.yaml`，使用 OpenAPI 3.1 描述 `GET /api/downloads/android/latest`、`downloadLatestAndroidApk`、APK 二进制响应、响应头和 JSON 错误 schema。实现阶段同步到 `shared/contracts/` 下的长期契约入口；若建立 `shared/contracts/openapi/` 子目录，保留或迁移现有 `shared/contracts/download-api.openapi.yaml` 的兼容路径并在任务中记录。验证方式为 Redocly CLI 或等价工具 lint/bundle，Swagger UI、Swagger Editor 或 Redocly 用于本地预览和试接口。
+**OpenAPI 接口文档**：feature 阶段权威源为 `specs/002-android-apk-download/contracts/download-api.openapi.yaml`，使用 OpenAPI 3.1 描述 `GET /api/downloads/android/latest`、`downloadLatestAndroidApk`、无请求参数、无认证公开下载、`Cache-Control: no-store`、APK 二进制响应、响应头、JSON 错误 schema、降级行为和错误示例。实现阶段同步到 `shared/contracts/` 下的长期契约入口；若建立 `shared/contracts/openapi/` 子目录，保留或迁移现有 `shared/contracts/download-api.openapi.yaml` 的兼容路径并在任务中记录。验证方式为 Redocly CLI 或等价工具 lint/bundle，Swagger UI、Swagger Editor 或 Redocly 用于本地预览和试接口。
 
 **服务端 DDD 边界**：bounded context 为 `downloads`。领域层包含当前 APK、APK 元数据、校验错误和下载结果等领域概念；应用层包含“下载当前 Android APK”用例和端口；基础设施层包含受管 APK 文件读取、元数据读取和 SHA-256 计算适配；接口适配层包含 Gin HTTP handler、路由注册和错误映射。依赖方向只能是 interfaces/infrastructure -> application -> domain，domain 不依赖外层。
 
@@ -58,7 +58,7 @@
 | 产品定位与范围边界：覆盖软件介绍、试用查询、下载 App，反馈和联系为次要功能 | 通过 | 本功能只增强“下载 App”核心范围；不改变首页其他信息架构。 |
 | 范围排除：不提供完整出行路线规划，也不提供地铁等其他交通工具查询 | 通过 | `spec.md` FR-014 明确排除；计划不增加任何查询能力。 |
 | 前后端分离与契约优先：边界、契约和错误格式已记录 | 通过 | 前端、后端和共享契约边界已记录；契约位于 `contracts/`。 |
-| OpenAPI 驱动的服务端接口文档：服务端 HTTP API 已有 OpenAPI 3.1 YAML、共享沉淀路径和验证方式 | 通过 | `contracts/download-api.openapi.yaml` 是 feature 权威源；实现阶段同步到 `shared/contracts/`，用 Redocly CLI 或等价工具 lint/bundle，并可用 Swagger UI/Redocly 预览。 |
+| OpenAPI 驱动的服务端接口文档：服务端 HTTP API 已有 OpenAPI 3.1 YAML、共享沉淀路径和验证方式 | 通过 | `contracts/download-api.openapi.yaml` 是 feature 权威源，已记录无认证、无请求参数、缓存策略、降级行为、错误示例和共享路径；实现阶段同步到 `shared/contracts/`，用 Redocly CLI 或等价工具 lint/bundle，并可用 Swagger UI/Redocly 预览。 |
 | 三语国际化：所有用户可见文字覆盖 `zh-Hant`、`zh-Hans`、`en` | 通过 | 新增下载可用、版本大小、失败和不可用文案必须进入现有 i18n 内容模型。 |
 | 试用查询与可靠降级：外部服务、缓存、超时和失败状态已设计 | 通过 | 不接入实时交通服务；APK 缺失或校验失败时返回错误并展示不可用状态。 |
 | 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 沿用 Figma 下载按钮设计；实现阶段保存双端截图证据。 |
@@ -166,7 +166,7 @@ shared/
 | 产品定位与范围边界 | 通过 | 数据模型和契约均限制为 Android App 下载。 |
 | 范围排除 | 通过 | 契约没有任何路线规划、非巴士查询或 iPhone 下载能力。 |
 | 前后端分离与契约优先 | 通过 | OpenAPI、manifest schema 和 UI 状态契约已定义；前端只使用公开下载 URL。 |
-| OpenAPI 驱动的服务端接口文档 | 通过 | `download-api.openapi.yaml` 已定义 endpoint、operationId、响应头、二进制响应和错误 schema；计划要求实现阶段同步到共享契约并进行 lint/bundle 或等价验证。 |
+| OpenAPI 驱动的服务端接口文档 | 通过 | `download-api.openapi.yaml` 已定义 endpoint、operationId、无认证、无请求参数、缓存策略、降级行为、响应头、二进制响应、错误 schema 和示例；计划要求实现阶段同步到共享契约并进行 lint/bundle 或等价验证。 |
 | 三语国际化 | 通过 | `downloadManifest` schema 要求所有用户可见文案覆盖三语。 |
 | 试用查询与可靠降级 | 通过 | 不接入实时交通服务；下载错误格式覆盖缺失、不可读和校验失败。 |
 | 现代界面与可视化评审 | 通过 | Figma 引用保留；quickstart 要求保存桌面与手机截图。 |
