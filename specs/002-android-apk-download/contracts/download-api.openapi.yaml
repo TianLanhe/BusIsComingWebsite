@@ -1,0 +1,101 @@
+openapi: 3.1.0
+info:
+  title: BusIsComing Android Download API
+  version: 2026-06-16
+  description: Stable backend contract for downloading the current Android APK.
+paths:
+  /api/downloads/android/latest:
+    get:
+      summary: Download the current BusIsComing Android APK
+      operationId: downloadLatestAndroidApk
+      responses:
+        "200":
+          description: Current Android APK file
+          headers:
+            Content-Disposition:
+              description: Attachment filename for the APK.
+              schema:
+                type: string
+                example: attachment; filename="BusIsComing.apk"
+            Content-Length:
+              description: APK size in bytes.
+              schema:
+                type: integer
+                example: 5009547
+            X-APK-SHA256:
+              description: SHA-256 hash of the returned APK.
+              schema:
+                type: string
+                pattern: "^[a-f0-9]{64}$"
+                example: 93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470
+            X-APK-Version-Name:
+              description: Android versionName of the current APK.
+              schema:
+                type: string
+                example: "1.0"
+            X-APK-Version-Code:
+              description: Android versionCode of the current APK.
+              schema:
+                type: string
+                example: "1"
+          content:
+            application/vnd.android.package-archive:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Current APK is missing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadError"
+        "409":
+          description: Current APK exists but does not match expected metadata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadError"
+        "500":
+          description: Current APK cannot be read or served.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadError"
+components:
+  schemas:
+    DownloadError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - APK_MISSING
+            - APK_UNREADABLE
+            - APK_CHECKSUM_MISMATCH
+            - DOWNLOAD_INTERNAL_ERROR
+        message:
+          type: string
+          minLength: 1
+        expectedSha256:
+          type:
+            - string
+            - "null"
+          pattern: "^[a-f0-9]{64}$"
+        actualSha256:
+          type:
+            - string
+            - "null"
+          pattern: "^[a-f0-9]{64}$"
+        expectedSizeBytes:
+          type:
+            - integer
+            - "null"
+        actualSizeBytes:
+          type:
+            - integer
+            - "null"
+      additionalProperties: false
+
