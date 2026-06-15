@@ -104,9 +104,9 @@ export const faq: FAQItem[] = [
       en: "How do I install the Android app?",
     },
     answer: {
-      "zh-Hant": "網站會在正式 APK 接入後提供下載。若 Android 系統提示安裝來源，請按你的裝置安全設定完成確認。",
-      "zh-Hans": "网站会在正式 APK 接入后提供下载。若 Android 系统提示安装来源，请按你的设备安全设置完成确认。",
-      en: "The site will provide the APK when the official file is connected. If Android asks about the install source, follow your device security settings.",
+      "zh-Hant": "網站已提供目前 Android APK 下載。若 Android 系統提示安裝來源，請按你的裝置安全設定完成確認。",
+      "zh-Hans": "网站已提供当前 Android APK 下载。若 Android 系统提示安装来源，请按你的设备安全设置完成确认。",
+      en: "The current Android APK is available from this site. If Android asks about the install source, follow your device security settings.",
     },
   },
   {

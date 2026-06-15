@@ -23,6 +23,19 @@ export interface DownloadPlatform {
   actionLabel: LocalizedString;
   downloadUrl: string | null;
   disabledReason: LocalizedString | null;
+  artifact: DownloadArtifact | null;
+}
+
+export interface DownloadArtifact {
+  appName: string;
+  applicationId: string;
+  versionName: string;
+  versionCode: number;
+  fileName: string;
+  sizeBytes: number;
+  sizeLabel: LocalizedString;
+  sha256: string;
+  lastUpdated: string;
 }
 
 export interface DownloadManifest {

@@ -1,0 +1,9 @@
+extends:
+  - recommended
+
+apis:
+  android-download:
+    root: ../shared/contracts/openapi/download-api.openapi.yaml
+
+rules:
+  no-unused-components: warn

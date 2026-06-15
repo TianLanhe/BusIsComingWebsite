@@ -1,11 +1,9 @@
 export const sourceReferences = {
-  androidReadme: "/Users/jianglijie/AndroidStudioProjects/BusIsComming/README.md",
-  androidAgents: "/Users/jianglijie/AndroidStudioProjects/BusIsComming/AGENTS.md",
-  uiStyleGuide: "/Users/jianglijie/AndroidStudioProjects/BusIsComming/docs/ui-style-guide.md",
-  routeResultsSpec:
-    "/Users/jianglijie/AndroidStudioProjects/BusIsComming/openspec/specs/route-query-results-layout/spec.md",
-  notificationSpec:
-    "/Users/jianglijie/AndroidStudioProjects/BusIsComming/openspec/specs/notification-bar-monitoring/spec.md",
+  androidReadme: "Android project README",
+  androidAgents: "Android project AGENTS",
+  uiStyleGuide: "Android project UI style guide",
+  routeResultsSpec: "Android project route query results spec",
+  notificationSpec: "Android project notification monitoring spec",
   figma: "https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU",
 } as const;
 

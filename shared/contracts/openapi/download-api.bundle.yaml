@@ -1,0 +1,201 @@
+openapi: 3.1.0
+info:
+  title: BusIsComing Android Download API
+  version: '2026-06-16'
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+  description: |
+    Stable backend contract for downloading the current Android APK.
+    Feature contract source: specs/002-android-apk-download/contracts/download-api.openapi.yaml.
+    Shared contract targets: shared/contracts/openapi/download-api.openapi.yaml and shared/contracts/download-api.openapi.yaml.
+servers:
+  - url: /
+    description: Same-origin website backend.
+paths:
+  /api/downloads/android/latest:
+    get:
+      summary: Download the current BusIsComing Android APK
+      description: |
+        Public unauthenticated endpoint with no request parameters.
+        The endpoint always represents the single current Android APK.
+        The server must return a JSON error instead of a partial APK when the current APK is missing, unreadable, or fails metadata validation.
+      operationId: downloadLatestAndroidApk
+      security: []
+      parameters: []
+      x-authentication:
+        required: false
+        reason: Public APK download endpoint; no cookie, API key, bearer token, or session is required.
+      x-cache-policy:
+        responseHeader: Cache-Control
+        value: no-store
+        reason: The stable latest endpoint must not serve stale APK bytes or stale error responses after the current APK is replaced.
+      x-degradation-behavior:
+        missingApk:
+          status: 404
+          code: APK_MISSING
+          userState: temporarily-unavailable
+        unreadableApk:
+          status: 500
+          code: APK_UNREADABLE
+          userState: temporarily-unavailable
+        checksumMismatch:
+          status: 409
+          code: APK_CHECKSUM_MISMATCH
+          userState: temporarily-unavailable
+        internalError:
+          status: 500
+          code: DOWNLOAD_INTERNAL_ERROR
+          userState: temporarily-unavailable
+      responses:
+        '200':
+          description: Current Android APK file
+          headers:
+            Cache-Control:
+              description: Prevent stale current APK downloads after replacement.
+              schema:
+                type: string
+                example: no-store
+            Content-Disposition:
+              description: Attachment filename for the APK.
+              schema:
+                type: string
+                example: attachment; filename="BusIsComing.apk"
+            Content-Length:
+              description: APK size in bytes.
+              schema:
+                type: integer
+                example: 5009547
+            X-APK-SHA256:
+              description: SHA-256 hash of the returned APK.
+              schema:
+                type: string
+                pattern: ^[a-f0-9]{64}$
+                example: 93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470
+            X-APK-Version-Name:
+              description: Android versionName of the current APK.
+              schema:
+                type: string
+                example: '1.0'
+            X-APK-Version-Code:
+              description: Android versionCode of the current APK.
+              schema:
+                type: string
+                example: '1'
+          content:
+            application/vnd.android.package-archive:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Current APK is missing.
+          headers:
+            Cache-Control:
+              description: Prevent stale unavailable states.
+              schema:
+                type: string
+                example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DownloadError'
+              examples:
+                missing:
+                  summary: Current APK is not present in managed storage.
+                  value:
+                    code: APK_MISSING
+                    message: Current Android APK is not available.
+                    expectedSha256: 93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470
+                    actualSha256: null
+                    expectedSizeBytes: 5009547
+                    actualSizeBytes: null
+        '409':
+          description: Current APK exists but does not match expected metadata.
+          headers:
+            Cache-Control:
+              description: Prevent stale checksum failure states.
+              schema:
+                type: string
+                example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DownloadError'
+              examples:
+                checksumMismatch:
+                  summary: Current APK hash or size differs from current.json.
+                  value:
+                    code: APK_CHECKSUM_MISMATCH
+                    message: Current Android APK does not match recorded metadata.
+                    expectedSha256: 93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470
+                    actualSha256: '0000000000000000000000000000000000000000000000000000000000000000'
+                    expectedSizeBytes: 5009547
+                    actualSizeBytes: 5009540
+        '500':
+          description: Current APK cannot be read or served.
+          headers:
+            Cache-Control:
+              description: Prevent stale internal failure states.
+              schema:
+                type: string
+                example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DownloadError'
+              examples:
+                unreadable:
+                  summary: Current APK exists but cannot be read.
+                  value:
+                    code: APK_UNREADABLE
+                    message: Current Android APK cannot be read.
+                    expectedSha256: 93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470
+                    actualSha256: null
+                    expectedSizeBytes: 5009547
+                    actualSizeBytes: null
+                internalError:
+                  summary: Unexpected download service failure.
+                  value:
+                    code: DOWNLOAD_INTERNAL_ERROR
+                    message: Android APK download service failed.
+components:
+  schemas:
+    DownloadError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - APK_MISSING
+            - APK_UNREADABLE
+            - APK_CHECKSUM_MISMATCH
+            - DOWNLOAD_INTERNAL_ERROR
+        message:
+          type: string
+          minLength: 1
+        expectedSha256:
+          type:
+            - string
+            - 'null'
+          pattern: ^[a-f0-9]{64}$
+        actualSha256:
+          type:
+            - string
+            - 'null'
+          pattern: ^[a-f0-9]{64}$
+        expectedSizeBytes:
+          type:
+            - integer
+            - 'null'
+        actualSizeBytes:
+          type:
+            - integer
+            - 'null'
+      additionalProperties: false
+x-contract-locations:
+  feature: specs/002-android-apk-download/contracts/download-api.openapi.yaml
+  sharedPrimary: shared/contracts/openapi/download-api.openapi.yaml
+  sharedCompatibility: shared/contracts/download-api.openapi.yaml

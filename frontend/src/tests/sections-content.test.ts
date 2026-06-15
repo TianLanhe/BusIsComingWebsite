@@ -27,4 +27,11 @@ describe("downstream sections content", () => {
       expect(homepageContent.scopeExclusions.every((entry) => entry[locale].length > 0)).toBe(true);
     }
   });
+
+  it("keeps Android download available without adding out-of-scope transport claims", () => {
+    const androidFaq = homepageContent.faq.find((item) => item.id === "android-install");
+
+    expect(androidFaq?.answer.en).toContain("current Android APK is available");
+    expect(homepageContent.scopeExclusions.map((entry) => entry.en).join(" ")).toContain("Full trip planning is out of scope");
+  });
 });

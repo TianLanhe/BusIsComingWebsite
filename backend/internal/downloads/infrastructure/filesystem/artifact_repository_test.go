@@ -1,0 +1,62 @@
+package filesystem
+
+import (
+	"context"
+	"errors"
+	"os"
+	"path/filepath"
+	"testing"
+
+	"busiscoming-website/backend/internal/downloads/domain"
+)
+
+func writeRepositoryFixture(t *testing.T, content string) string {
+	t.Helper()
+	root := t.TempDir()
+	metadata := `{
+  "platform": "android",
+  "appName": "BusIsComing",
+  "applicationId": "com.example.busiscoming",
+  "versionName": "1.0",
+  "versionCode": 1,
+  "fileName": "BusIsComing.apk",
+  "relativePath": "BusIsComing.apk",
+  "sourcePath": "/private/source/BusIsComing.apk",
+  "sizeBytes": 3,
+  "sizeLabel": {"zh-Hant": "約 4.8 MB", "zh-Hans": "约 4.8 MB", "en": "About 4.8 MB"},
+  "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  "lastUpdated": "2026-06-16",
+  "status": "available"
+}`
+	if err := os.WriteFile(filepath.Join(root, "current.json"), []byte(metadata), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if content != "" {
+		if err := os.WriteFile(filepath.Join(root, "BusIsComing.apk"), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return root
+}
+
+func TestArtifactRepositoryReadsCurrentArtifact(t *testing.T) {
+	root := writeRepositoryFixture(t, "abc")
+
+	artifact, err := NewArtifactRepository(root).CurrentArtifact(context.Background())
+	if err != nil {
+		t.Fatalf("expected success, got %v", err)
+	}
+	if artifact.Metadata.VersionName != "1.0" || string(artifact.Content) != "abc" {
+		t.Fatalf("unexpected artifact %#v", artifact)
+	}
+}
+
+func TestArtifactRepositoryReturnsMissingForAbsentAPK(t *testing.T) {
+	root := writeRepositoryFixture(t, "")
+
+	_, err := NewArtifactRepository(root).CurrentArtifact(context.Background())
+	var downloadErr *domain.DownloadError
+	if !errors.As(err, &downloadErr) || downloadErr.Code != domain.CodeAPKMissing {
+		t.Fatalf("expected missing error, got %v", err)
+	}
+}

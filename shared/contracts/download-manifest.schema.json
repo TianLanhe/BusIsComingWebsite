@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://busiscoming.local/contracts/download-manifest.schema.json",
-  "title": "BusIsComing Download Manifest Contract",
+  "$id": "https://busiscoming.local/contracts/android-apk-download-manifest.schema.json",
+  "title": "BusIsComing Android APK Download Manifest Contract",
   "type": "object",
   "required": ["version", "lastUpdated", "platforms"],
   "properties": {
@@ -29,9 +29,47 @@
       },
       "additionalProperties": false
     },
+    "artifact": {
+      "type": "object",
+      "required": [
+        "appName",
+        "applicationId",
+        "versionName",
+        "versionCode",
+        "fileName",
+        "sizeBytes",
+        "sizeLabel",
+        "sha256",
+        "lastUpdated"
+      ],
+      "properties": {
+        "appName": { "type": "string", "minLength": 1 },
+        "applicationId": { "type": "string", "minLength": 1 },
+        "versionName": { "type": "string", "minLength": 1 },
+        "versionCode": { "type": "integer", "minimum": 1 },
+        "fileName": { "type": "string", "minLength": 1 },
+        "sizeBytes": { "type": "integer", "minimum": 1 },
+        "sizeLabel": { "$ref": "#/$defs/localizedString" },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "lastUpdated": { "type": "string", "format": "date" }
+      },
+      "additionalProperties": false
+    },
     "platform": {
       "type": "object",
-      "required": ["platform", "status", "label", "description", "actionLabel", "disabledReason"],
+      "required": [
+        "platform",
+        "status",
+        "label",
+        "description",
+        "actionLabel",
+        "downloadUrl",
+        "disabledReason",
+        "artifact"
+      ],
       "properties": {
         "platform": { "enum": ["android", "ios"] },
         "status": { "enum": ["available", "unsupported", "temporarily-unavailable"] },
@@ -40,7 +78,7 @@
         "actionLabel": { "$ref": "#/$defs/localizedString" },
         "downloadUrl": {
           "anyOf": [
-            { "type": "string", "format": "uri" },
+            { "type": "string", "pattern": "^/api/downloads/android/latest$" },
             { "type": "null" }
           ]
         },
@@ -49,24 +87,27 @@
             { "$ref": "#/$defs/localizedString" },
             { "type": "null" }
           ]
+        },
+        "artifact": {
+          "anyOf": [
+            { "$ref": "#/$defs/artifact" },
+            { "type": "null" }
+          ]
         }
       },
       "allOf": [
         {
           "if": {
-            "properties": { "status": { "const": "available" } }
-          },
-          "then": {
-            "required": ["downloadUrl"],
             "properties": {
-              "downloadUrl": { "type": "string", "format": "uri" },
-              "disabledReason": { "type": "null" }
+              "platform": { "const": "android" },
+              "status": { "const": "available" }
             }
           },
-          "else": {
+          "then": {
             "properties": {
-              "downloadUrl": { "type": "null" },
-              "disabledReason": { "$ref": "#/$defs/localizedString" }
+              "downloadUrl": { "type": "string", "pattern": "^/api/downloads/android/latest$" },
+              "disabledReason": { "type": "null" },
+              "artifact": { "$ref": "#/$defs/artifact" }
             }
           }
         },
@@ -77,7 +118,8 @@
           "then": {
             "properties": {
               "status": { "const": "unsupported" },
-              "downloadUrl": { "type": "null" }
+              "downloadUrl": { "type": "null" },
+              "artifact": { "type": "null" }
             }
           }
         }
@@ -86,3 +128,4 @@
     }
   }
 }
+

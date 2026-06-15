@@ -1,0 +1,19 @@
+{
+  "platform": "android",
+  "appName": "BusIsComing",
+  "applicationId": "com.example.busiscoming",
+  "versionName": "1.0",
+  "versionCode": 1,
+  "fileName": "BusIsComing.apk",
+  "relativePath": "BusIsComing.apk",
+  "sourcePath": "/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/release/BusIsComing.apk",
+  "sizeBytes": 5009547,
+  "sizeLabel": {
+    "zh-Hant": "約 4.8 MB",
+    "zh-Hans": "约 4.8 MB",
+    "en": "About 4.8 MB"
+  },
+  "sha256": "93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470",
+  "lastUpdated": "2026-06-16",
+  "status": "available"
+}

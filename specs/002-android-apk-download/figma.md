@@ -5,7 +5,7 @@
 - 文件名：BusIsComing Website - Homepage v1 Spec
 - URL：https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU
 - 版本来源：2026-06-15 v1 首页设计
-- 本功能状态：复用既有下载按钮结构，不新增页面布局。
+- 本功能状态：复用既有下载按钮结构，不新增页面布局；实现版本已将 Android 状态改为当前 APK 可下载。
 
 ## 关键节点
 
@@ -47,3 +47,4 @@ specs/002-android-apk-download/visual-review/
 └── iphone-unsupported-state.png
 ```
 
+实现阶段版本说明：截图由 Playwright 在桌面 `1440x960` 与手机 `390x844` viewport 下生成，覆盖 Android 可下载展开态、下载区可下载元数据和 iPhone 暂未支持展开态。

@@ -12,14 +12,14 @@
 
 **目的**：准备后端 Go 服务、前端代理、端到端运行方式和契约校验工具。
 
-- [ ] T001 初始化后端 Go 模块并加入 Gin 依赖，路径：`backend/go.mod`、`backend/go.sum`
-- [ ] T002 建立 `downloads` bounded context 的 DDD 目录，路径：`backend/internal/downloads/domain/`、`backend/internal/downloads/application/`、`backend/internal/downloads/infrastructure/filesystem/`、`backend/internal/downloads/interfaces/http/`
-- [ ] T003 建立后端服务入口骨架，路径：`backend/cmd/server/main.go`
-- [ ] T004 [P] 配置 Vite 开发代理把 `/api` 转发到 Go 后端，路径：`frontend/vite.config.ts`
-- [ ] T005 [P] 配置 Playwright 同时覆盖 Vite 前端和 Go 后端运行方式，路径：`frontend/playwright.config.ts`
-- [ ] T006 [P] 增加 OpenAPI lint 和 bundle 脚本及 Redocly CLI 依赖，路径：`frontend/package.json`、`frontend/package-lock.json`
-- [ ] T007 [P] 建立双端截图和验证证据目录说明，路径：`specs/002-android-apk-download/visual-review/README.md`
-- [ ] T008 更新后端本地运行、DDD 分层和当前 APK 管理说明，路径：`backend/README.md`
+- [X] T001 初始化后端 Go 模块并加入 Gin 依赖，路径：`backend/go.mod`、`backend/go.sum`
+- [X] T002 建立 `downloads` bounded context 的 DDD 目录，路径：`backend/internal/downloads/domain/`、`backend/internal/downloads/application/`、`backend/internal/downloads/infrastructure/filesystem/`、`backend/internal/downloads/interfaces/http/`
+- [X] T003 建立后端服务入口骨架，路径：`backend/cmd/server/main.go`
+- [X] T004 [P] 配置 Vite 开发代理把 `/api` 转发到 Go 后端，路径：`frontend/vite.config.ts`
+- [X] T005 [P] 配置 Playwright 同时覆盖 Vite 前端和 Go 后端运行方式，路径：`frontend/playwright.config.ts`
+- [X] T006 [P] 增加 OpenAPI lint 和 bundle 脚本及 Redocly CLI 依赖，路径：`frontend/package.json`、`frontend/package-lock.json`
+- [X] T007 [P] 建立双端截图和验证证据目录说明，路径：`specs/002-android-apk-download/visual-review/README.md`
+- [X] T008 更新后端本地运行、DDD 分层和当前 APK 管理说明，路径：`backend/README.md`
 
 ---
 
@@ -29,14 +29,14 @@
 
 **关键要求**：此阶段完成前不能开始用户故事实现；前端不得读取后端内部路径，后端不得把领域规则写入 handler。
 
-- [ ] T009 同步并核对 OpenAPI 3.1 权威契约的无认证策略、无请求参数、`Cache-Control: no-store`、降级行为、错误示例和共享入口，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
-- [ ] T010 同步下载 manifest JSON Schema 到共享契约，路径：`shared/contracts/download-manifest.schema.json`
-- [ ] T011 同步下载按钮 UI 状态契约到共享契约，路径：`shared/contracts/ui-state-contract.md`
-- [ ] T012 从 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/release/BusIsComing.apk` 复制当前 APK 到服务端受管空间，路径：`backend/downloads/android/BusIsComing.apk`
-- [ ] T013 记录当前 APK 元数据 `appName`、`applicationId`、`versionName`、`versionCode`、`sizeBytes`、`sha256`、`sourcePath`、`lastUpdated`，路径：`backend/downloads/android/current.json`
-- [ ] T014 [P] 记录 Android 主项目和当前 APK 的产品事实来源，路径：`frontend/src/content/sourceReferences.ts`
-- [ ] T015 [P] 建立 Redocly 配置以校验共享 OpenAPI 契约，路径：`frontend/redocly.yaml`
-- [ ] T016 复核 quickstart 的本地验证命令与实际脚本名称一致，路径：`specs/002-android-apk-download/quickstart.md`
+- [X] T009 同步并核对 OpenAPI 3.1 权威契约的无认证策略、无请求参数、`Cache-Control: no-store`、降级行为、错误示例和共享入口，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
+- [X] T010 同步下载 manifest JSON Schema 到共享契约，路径：`shared/contracts/download-manifest.schema.json`
+- [X] T011 同步下载按钮 UI 状态契约到共享契约，路径：`shared/contracts/ui-state-contract.md`
+- [X] T012 从 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/release/BusIsComing.apk` 复制当前 APK 到服务端受管空间，路径：`backend/downloads/android/BusIsComing.apk`
+- [X] T013 记录当前 APK 元数据 `appName`、`applicationId`、`versionName`、`versionCode`、`sizeBytes`、`sha256`、`sourcePath`、`lastUpdated`，路径：`backend/downloads/android/current.json`
+- [X] T014 [P] 记录 Android 主项目和当前 APK 的产品事实来源，路径：`frontend/src/content/sourceReferences.ts`
+- [X] T015 [P] 建立 Redocly 配置以校验共享 OpenAPI 契约，路径：`frontend/redocly.yaml`
+- [X] T016 复核 quickstart 的本地验证命令与实际脚本名称一致，路径：`specs/002-android-apk-download/quickstart.md`
 
 **检查点**：APK、元数据、OpenAPI、manifest schema 和 UI 状态契约都有稳定路径，可以开始按用户故事实现。
 
@@ -50,24 +50,24 @@
 
 ### 用户故事 1 的测试或验证
 
-- [ ] T017 [P] [US1] 增加当前 APK、校验和下载结果领域测试，路径：`backend/internal/downloads/domain/artifact_test.go`、`backend/internal/downloads/domain/checksum_test.go`
-- [ ] T018 [P] [US1] 增加“下载当前 Android APK”应用用例测试，路径：`backend/internal/downloads/application/download_current_apk_test.go`
-- [ ] T019 [P] [US1] 增加文件系统 APK 读取和 SHA-256 计算测试，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository_test.go`、`backend/internal/downloads/infrastructure/filesystem/checksum_calculator_test.go`
-- [ ] T020 [P] [US1] 增加下载端点成功响应、`Cache-Control: no-store`、响应头和二进制内容测试，路径：`backend/internal/downloads/interfaces/http/handler_test.go`
-- [ ] T021 [P] [US1] 增加 Android 下载端到端测试并校验下载文件哈希，路径：`frontend/playwright/android-download.spec.ts`
+- [X] T017 [P] [US1] 增加当前 APK、校验和下载结果领域测试，路径：`backend/internal/downloads/domain/artifact_test.go`、`backend/internal/downloads/domain/checksum_test.go`
+- [X] T018 [P] [US1] 增加“下载当前 Android APK”应用用例测试，路径：`backend/internal/downloads/application/download_current_apk_test.go`
+- [X] T019 [P] [US1] 增加文件系统 APK 读取和 SHA-256 计算测试，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository_test.go`、`backend/internal/downloads/infrastructure/filesystem/checksum_calculator_test.go`
+- [X] T020 [P] [US1] 增加下载端点成功响应、`Cache-Control: no-store`、响应头和二进制内容测试，路径：`backend/internal/downloads/interfaces/http/handler_test.go`
+- [X] T021 [P] [US1] 增加 Android 下载端到端测试并校验下载文件哈希，路径：`frontend/playwright/android-download.spec.ts`
 
 ### 用户故事 1 的实现
 
-- [ ] T022 [US1] 实现当前 APK、APK 元数据、校验规则、下载结果和领域错误，路径：`backend/internal/downloads/domain/artifact.go`、`backend/internal/downloads/domain/checksum.go`、`backend/internal/downloads/domain/download_result.go`
-- [ ] T023 [US1] 实现下载当前 Android APK 用例和领域端口，路径：`backend/internal/downloads/application/download_current_apk.go`、`backend/internal/downloads/application/ports.go`
-- [ ] T024 [US1] 实现受管 APK 文件读取、元数据读取和 SHA-256 计算适配，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository.go`、`backend/internal/downloads/infrastructure/filesystem/checksum_calculator.go`
-- [ ] T025 [US1] 实现 Gin HTTP handler、路由注册、响应头和错误映射，路径：`backend/internal/downloads/interfaces/http/handler.go`、`backend/internal/downloads/interfaces/http/routes.go`
-- [ ] T026 [US1] 将 `downloads` 路由装配到 Go 服务并设置本地监听端口，路径：`backend/cmd/server/main.go`
-- [ ] T027 [US1] 将 Android manifest 状态改为可下载并使用同源 URL `/api/downloads/android/latest`，路径：`frontend/src/content/downloadManifest.ts`、`frontend/src/content/types.ts`
-- [ ] T028 [US1] 接入 Android 下载按钮点击行为并确保下载文件名语义为 `BusIsComing.apk`，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`
-- [ ] T029 [US1] 确保首屏和下载区复用同一个 Android 下载入口与 manifest 状态，路径：`frontend/src/components/hero/HeroSection.tsx`、`frontend/src/components/sections/DownloadSection.tsx`
-- [ ] T030 [US1] 记录桌面和手机下载入口截图证据，路径：`specs/002-android-apk-download/visual-review/desktop-1440-android-download.png`、`specs/002-android-apk-download/visual-review/mobile-390-android-download.png`
-- [ ] T031 [US1] 在 quickstart 中记录 US1 独立验证的 curl、Playwright 和 SHA-256 命令，路径：`specs/002-android-apk-download/quickstart.md`
+- [X] T022 [US1] 实现当前 APK、APK 元数据、校验规则、下载结果和领域错误，路径：`backend/internal/downloads/domain/artifact.go`、`backend/internal/downloads/domain/checksum.go`、`backend/internal/downloads/domain/download_result.go`
+- [X] T023 [US1] 实现下载当前 Android APK 用例和领域端口，路径：`backend/internal/downloads/application/download_current_apk.go`、`backend/internal/downloads/application/ports.go`
+- [X] T024 [US1] 实现受管 APK 文件读取、元数据读取和 SHA-256 计算适配，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository.go`、`backend/internal/downloads/infrastructure/filesystem/checksum_calculator.go`
+- [X] T025 [US1] 实现 Gin HTTP handler、路由注册、响应头和错误映射，路径：`backend/internal/downloads/interfaces/http/handler.go`、`backend/internal/downloads/interfaces/http/routes.go`
+- [X] T026 [US1] 将 `downloads` 路由装配到 Go 服务并设置本地监听端口，路径：`backend/cmd/server/main.go`
+- [X] T027 [US1] 将 Android manifest 状态改为可下载并使用同源 URL `/api/downloads/android/latest`，路径：`frontend/src/content/downloadManifest.ts`、`frontend/src/content/types.ts`
+- [X] T028 [US1] 接入 Android 下载按钮点击行为并确保下载文件名语义为 `BusIsComing.apk`，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`
+- [X] T029 [US1] 确保首屏和下载区复用同一个 Android 下载入口与 manifest 状态，路径：`frontend/src/components/hero/HeroSection.tsx`、`frontend/src/components/sections/DownloadSection.tsx`
+- [X] T030 [US1] 记录桌面和手机下载入口截图证据，路径：`specs/002-android-apk-download/visual-review/desktop-1440-android-download.png`、`specs/002-android-apk-download/visual-review/mobile-390-android-download.png`
+- [X] T031 [US1] 在 quickstart 中记录 US1 独立验证的 curl、Playwright 和 SHA-256 命令，路径：`specs/002-android-apk-download/quickstart.md`
 
 **检查点**：用户故事 1 可以作为 MVP 独立交付；真实 APK 可从后端入口下载，且哈希一致。
 
@@ -81,17 +81,17 @@
 
 ### 用户故事 2 的测试或验证
 
-- [ ] T032 [P] [US2] 增加当前 APK 元数据读取和字段完整性测试，路径：`backend/internal/downloads/infrastructure/filesystem/metadata_repository_test.go`
-- [ ] T033 [P] [US2] 增加 APK 缺失、不可读和校验不一致的应用层测试，路径：`backend/internal/downloads/application/download_current_apk_test.go`
-- [ ] T034 [P] [US2] 增加 `404`、`409`、`500` JSON 错误格式、错误示例字段和 `Cache-Control: no-store` 测试，路径：`backend/internal/downloads/interfaces/http/handler_test.go`
-- [ ] T035 [P] [US2] 增加共享 manifest schema 对当前 APK 元数据字段的契约测试，路径：`frontend/src/tests/content-contract.test.ts`
+- [X] T032 [P] [US2] 增加当前 APK 元数据读取和字段完整性测试，路径：`backend/internal/downloads/infrastructure/filesystem/metadata_repository_test.go`
+- [X] T033 [P] [US2] 增加 APK 缺失、不可读和校验不一致的应用层测试，路径：`backend/internal/downloads/application/download_current_apk_test.go`
+- [X] T034 [P] [US2] 增加 `404`、`409`、`500` JSON 错误格式、错误示例字段和 `Cache-Control: no-store` 测试，路径：`backend/internal/downloads/interfaces/http/handler_test.go`
+- [X] T035 [P] [US2] 增加共享 manifest schema 对当前 APK 元数据字段的契约测试，路径：`frontend/src/tests/content-contract.test.ts`
 
 ### 用户故事 2 的实现
 
-- [ ] T036 [US2] 实现当前 APK 元数据读取、大小校验和 SHA-256 校验失败原因映射，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository.go`、`backend/internal/downloads/application/download_current_apk.go`
-- [ ] T037 [US2] 更新 `current.json` 为当前唯一 APK 的权威元数据，路径：`backend/downloads/android/current.json`
-- [ ] T038 [US2] 补充维护者替换当前 APK、更新元数据和不保留历史版本的操作说明，路径：`backend/README.md`
-- [ ] T039 [US2] 记录维护者 2 分钟内可核对版本、大小、SHA-256、来源路径和更新时间的验证步骤，路径：`specs/002-android-apk-download/quickstart.md`
+- [X] T036 [US2] 实现当前 APK 元数据读取、大小校验和 SHA-256 校验失败原因映射，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository.go`、`backend/internal/downloads/application/download_current_apk.go`
+- [X] T037 [US2] 更新 `current.json` 为当前唯一 APK 的权威元数据，路径：`backend/downloads/android/current.json`
+- [X] T038 [US2] 补充维护者替换当前 APK、更新元数据和不保留历史版本的操作说明，路径：`backend/README.md`
+- [X] T039 [US2] 记录维护者 2 分钟内可核对版本、大小、SHA-256、来源路径和更新时间的验证步骤，路径：`specs/002-android-apk-download/quickstart.md`
 
 **检查点**：用户故事 2 完成后，服务端受管空间与元数据可审计，失败状态不会伪装成成功下载。
 
@@ -105,20 +105,20 @@
 
 ### 用户故事 3 的测试或验证
 
-- [ ] T040 [P] [US3] 补齐 Android 可下载、版本大小、失败提示和 iPhone 暂未支持的三语完整性测试，路径：`frontend/src/tests/i18n-completeness.test.tsx`
-- [ ] T041 [P] [US3] 补齐下载按钮 Android 元数据展示和 iPhone 不下载组件测试，路径：`frontend/src/tests/download-button.test.tsx`
-- [ ] T042 [P] [US3] 补齐下载区内容与范围排除文案测试，路径：`frontend/src/tests/sections-content.test.ts`
-- [ ] T043 [P] [US3] 增加 iPhone 暂未支持、语言切换和无下载事件的 Playwright 验证，路径：`frontend/playwright/platform-download-states.spec.ts`
+- [X] T040 [P] [US3] 补齐 Android 可下载、版本大小、失败提示和 iPhone 暂未支持的三语完整性测试，路径：`frontend/src/tests/i18n-completeness.test.tsx`
+- [X] T041 [P] [US3] 补齐下载按钮 Android 元数据展示和 iPhone 不下载组件测试，路径：`frontend/src/tests/download-button.test.tsx`
+- [X] T042 [P] [US3] 补齐下载区内容与范围排除文案测试，路径：`frontend/src/tests/sections-content.test.ts`
+- [X] T043 [P] [US3] 增加 iPhone 暂未支持、语言切换和无下载事件的 Playwright 验证，路径：`frontend/playwright/platform-download-states.spec.ts`
 
 ### 用户故事 3 的实现
 
-- [ ] T044 [US3] 更新 Android 可下载、版本大小、失败提示和 iPhone 暂未支持三语文案，路径：`frontend/src/content/uiCopy.ts`、`frontend/src/content/sectionsContent.ts`
-- [ ] T045 [US3] 更新下载 manifest 的 Android artifact 用户可见元数据和 iPhone `downloadUrl: null` 状态，路径：`frontend/src/content/downloadManifest.ts`
-- [ ] T046 [US3] 扩展下载平台状态和 artifact 类型，路径：`frontend/src/content/types.ts`
-- [ ] T047 [US3] 调整下载按钮展开态、禁用态、焦点态和移动端触控布局，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`
-- [ ] T048 [US3] 调整下载区展示版本、大小和不可用说明时的桌面与手机布局，路径：`frontend/src/components/sections/DownloadSection.tsx`、`frontend/src/components/sections/DownloadSection.module.css`
-- [ ] T049 [US3] 更新 Figma 引用、节点、交互状态和本功能版本说明，路径：`specs/002-android-apk-download/figma.md`
-- [ ] T050 [US3] 保存下载区和 iPhone 暂未支持状态截图证据，路径：`specs/002-android-apk-download/visual-review/desktop-1440-download-section.png`、`specs/002-android-apk-download/visual-review/iphone-unsupported-state.png`
+- [X] T044 [US3] 更新 Android 可下载、版本大小、失败提示和 iPhone 暂未支持三语文案，路径：`frontend/src/content/uiCopy.ts`、`frontend/src/content/sectionsContent.ts`
+- [X] T045 [US3] 更新下载 manifest 的 Android artifact 用户可见元数据和 iPhone `downloadUrl: null` 状态，路径：`frontend/src/content/downloadManifest.ts`
+- [X] T046 [US3] 扩展下载平台状态和 artifact 类型，路径：`frontend/src/content/types.ts`
+- [X] T047 [US3] 调整下载按钮展开态、禁用态、焦点态和移动端触控布局，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`
+- [X] T048 [US3] 调整下载区展示版本、大小和不可用说明时的桌面与手机布局，路径：`frontend/src/components/sections/DownloadSection.tsx`、`frontend/src/components/sections/DownloadSection.module.css`
+- [X] T049 [US3] 更新 Figma 引用、节点、交互状态和本功能版本说明，路径：`specs/002-android-apk-download/figma.md`
+- [X] T050 [US3] 保存下载区和 iPhone 暂未支持状态截图证据，路径：`specs/002-android-apk-download/visual-review/desktop-1440-download-section.png`、`specs/002-android-apk-download/visual-review/iphone-unsupported-state.png`
 
 **检查点**：三语、Android 可用态、iPhone 不下载、桌面和手机 UI 状态都能独立验证。
 
@@ -128,16 +128,16 @@
 
 **目的**：完成跨故事质量门禁、契约校验、视觉证据、范围排除和安全边界检查。
 
-- [ ] T051 运行 Go 格式化并修正输出，路径：`backend/internal/downloads/`、`backend/cmd/server/main.go`
-- [ ] T052 运行后端单元测试并修正失败项，路径：`backend/go.mod`、`backend/internal/downloads/`
-- [ ] T053 运行前端单元测试和构建并修正失败项，路径：`frontend/package.json`、`frontend/src/tests/`
-- [ ] T054 运行 Playwright 端到端测试并保存双端截图，路径：`frontend/playwright/`、`specs/002-android-apk-download/visual-review/`
-- [ ] T055 使用 `curl` 和 `shasum -a 256` 验证后端下载文件与当前 APK 一致，路径：`backend/downloads/android/BusIsComing.apk`、`backend/downloads/android/current.json`
-- [ ] T056 运行 OpenAPI lint 和 bundle，并核对 `security: []`、无请求参数、`Cache-Control: no-store`、降级行为、错误示例和共享契约路径，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
-- [ ] T057 检查 DDD 依赖方向，确保 `domain` 不依赖 Gin、文件系统、HTTP 包、前端代码或共享契约，路径：`backend/internal/downloads/domain/`
-- [ ] T058 检查前端 bundle 和 manifest 不暴露 Android 主项目本机来源路径，路径：`frontend/src/content/downloadManifest.ts`、`frontend/dist/`
-- [ ] T059 复核页面文案没有新增完整路线规划、非香港巴士查询、iPhone 下载或历史版本浏览暗示，路径：`frontend/src/content/homepageContent.ts`、`frontend/src/content/sectionsContent.ts`
-- [ ] T060 汇总验证命令、截图文件、OpenAPI 校验和 DDD 依赖检查结果，路径：`specs/002-android-apk-download/visual-review/README.md`
+- [X] T051 运行 Go 格式化并修正输出，路径：`backend/internal/downloads/`、`backend/cmd/server/main.go`
+- [X] T052 运行后端单元测试并修正失败项，路径：`backend/go.mod`、`backend/internal/downloads/`
+- [X] T053 运行前端单元测试和构建并修正失败项，路径：`frontend/package.json`、`frontend/src/tests/`
+- [X] T054 运行 Playwright 端到端测试并保存双端截图，路径：`frontend/playwright/`、`specs/002-android-apk-download/visual-review/`
+- [X] T055 使用 `curl` 和 `shasum -a 256` 验证后端下载文件与当前 APK 一致，路径：`backend/downloads/android/BusIsComing.apk`、`backend/downloads/android/current.json`
+- [X] T056 运行 OpenAPI lint 和 bundle，并核对 `security: []`、无请求参数、`Cache-Control: no-store`、降级行为、错误示例和共享契约路径，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
+- [X] T057 检查 DDD 依赖方向，确保 `domain` 不依赖 Gin、文件系统、HTTP 包、前端代码或共享契约，路径：`backend/internal/downloads/domain/`
+- [X] T058 检查前端 bundle 和 manifest 不暴露 Android 主项目本机来源路径，路径：`frontend/src/content/downloadManifest.ts`、`frontend/dist/`
+- [X] T059 复核页面文案没有新增完整路线规划、非香港巴士查询、iPhone 下载或历史版本浏览暗示，路径：`frontend/src/content/homepageContent.ts`、`frontend/src/content/sectionsContent.ts`
+- [X] T060 汇总验证命令、截图文件、OpenAPI 校验和 DDD 依赖检查结果，路径：`specs/002-android-apk-download/visual-review/README.md`
 
 ---
 

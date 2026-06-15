@@ -32,7 +32,7 @@ go test ./...
 - 下载成功测试通过。
 - 文件缺失测试通过。
 - SHA-256 不一致测试通过。
-- 响应头测试通过，至少覆盖 `Content-Type`、`Content-Disposition`、`Content-Length` 和 `X-APK-SHA256`。
+- 响应头测试通过，至少覆盖 `Content-Type`、`Cache-Control: no-store`、`Content-Disposition`、`Content-Length` 和 `X-APK-SHA256`。
 
 ## 3. DDD 目录与依赖方向检查
 
@@ -77,6 +77,7 @@ shasum -a 256 /tmp/busiscoming-download-check/BusIsComing.apk
 - HTTP 状态为 `200`。
 - 下载文件名语义为 `BusIsComing.apk`。
 - SHA-256 为 `93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470`。
+- `Cache-Control` 为 `no-store`。
 - 响应不包含 Android 主项目本机路径。
 
 ## 5. 前端测试
@@ -131,5 +132,5 @@ mv backend/downloads/android/BusIsComing.apk.bak backend/downloads/android/BusIs
 期望：
 
 - 服务端返回非 2xx 状态和 JSON 错误。
-- 前端不得表现为成功下载。
+- 前端在 5 秒内展示下载资源暂不可用或校验失败，不得表现为成功下载。
 - 恢复 APK 后下载能力恢复。

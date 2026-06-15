@@ -136,9 +136,9 @@ export const homepageContent: HomePageContent = {
       en: "Download BusIsComing",
     },
     description: {
-      "zh-Hant": "Android 是第一優先平台；iPhone 暫未支援。正式 APK 接入前會顯示可信降級狀態。",
-      "zh-Hans": "Android 是第一优先平台；iPhone 暂未支持。正式 APK 接入前会显示可信降级状态。",
-      en: "Android is the first target platform; iPhone is not supported yet. Until the official APK is connected, the site shows a clear fallback state.",
+      "zh-Hant": "Android 是第一優先平台，當前 APK 可直接下載；iPhone 暫未支援。",
+      "zh-Hans": "Android 是第一优先平台，当前 APK 可直接下载；iPhone 暂未支持。",
+      en: "Android is the first target platform, and the current APK is available now; iPhone is not supported yet.",
     },
     manifestRef: "frontend/src/content/downloadManifest.ts",
   },

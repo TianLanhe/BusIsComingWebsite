@@ -1,32 +1,43 @@
 import type { DownloadManifest } from "./types";
 
 export const downloadManifest: DownloadManifest = {
-  version: "2026-06-16.homepage-v1",
+  version: "2026-06-16.android-apk-1",
   lastUpdated: "2026-06-16",
   platforms: {
     android: {
       platform: "android",
-      status: "temporarily-unavailable",
+      status: "available",
       label: {
         "zh-Hant": "Android",
         "zh-Hans": "Android",
         en: "Android",
       },
       description: {
-        "zh-Hant": "下載資源待接入",
-        "zh-Hans": "下载资源待接入",
-        en: "Download file pending",
+        "zh-Hant": "可下載 APK 1.0",
+        "zh-Hans": "可下载 APK 1.0",
+        en: "APK 1.0 available",
       },
       actionLabel: {
-        "zh-Hant": "Android APK",
-        "zh-Hans": "Android APK",
-        en: "Android APK",
+        "zh-Hant": "下載 Android APK",
+        "zh-Hans": "下载 Android APK",
+        en: "Download Android APK",
       },
-      downloadUrl: null,
-      disabledReason: {
-        "zh-Hant": "目前未在網站倉庫中找到可發布 APK；提供正式檔案後即可開放下載。",
-        "zh-Hans": "目前未在网站仓库中找到可发布 APK；提供正式文件后即可开放下载。",
-        en: "No publishable APK is available in this website repository yet. Add the official file to enable download.",
+      downloadUrl: "/api/downloads/android/latest",
+      disabledReason: null,
+      artifact: {
+        appName: "BusIsComing",
+        applicationId: "com.example.busiscoming",
+        versionName: "1.0",
+        versionCode: 1,
+        fileName: "BusIsComing.apk",
+        sizeBytes: 5009547,
+        sizeLabel: {
+          "zh-Hant": "約 4.8 MB",
+          "zh-Hans": "约 4.8 MB",
+          en: "About 4.8 MB",
+        },
+        sha256: "93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470",
+        lastUpdated: "2026-06-16",
       },
     },
     ios: {
@@ -53,6 +64,7 @@ export const downloadManifest: DownloadManifest = {
         "zh-Hans": "iPhone 暂未支持，敬请期待。",
         en: "iPhone is not supported yet.",
       },
+      artifact: null,
     },
   },
 };

@@ -8,6 +8,10 @@ test-results/
 *.tsbuildinfo
 *.log
 .env*
+*.exe
+*.test
+*.out
+vendor/
 .DS_Store
 Thumbs.db
 *.tmp
