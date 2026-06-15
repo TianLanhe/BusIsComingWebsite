@@ -1,0 +1,226 @@
+.section {
+  padding: var(--section-pad) var(--page-pad);
+  background: var(--surface);
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.72fr) minmax(420px, 1fr);
+  gap: clamp(28px, 6vw, 76px);
+  align-items: start;
+  max-width: var(--page-max);
+  margin: 0 auto;
+}
+
+.heading {
+  position: sticky;
+  top: 104px;
+  display: grid;
+  gap: 14px;
+}
+
+.heading h2 {
+  margin: 0;
+  color: var(--brand-dark);
+  font: var(--text-section-title);
+}
+
+.heading p {
+  margin: 0;
+  color: var(--text);
+  font: var(--text-body);
+}
+
+.demo {
+  display: grid;
+  gap: 22px;
+  padding: 26px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fbfdfd;
+  box-shadow: var(--shadow-soft);
+}
+
+.queryBar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.queryBar label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font: var(--text-caption);
+}
+
+.queryBar input {
+  min-width: 0;
+  height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 0 14px;
+  color: var(--text);
+  background: var(--surface);
+  font: var(--text-control);
+}
+
+.queryBar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 22px;
+  color: var(--surface);
+  background: var(--brand);
+  font: var(--text-button);
+  cursor: pointer;
+}
+
+.swap {
+  margin-bottom: 11px;
+  color: var(--brand);
+}
+
+.resultHeader,
+.routeMain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.resultHeader strong {
+  color: var(--text);
+  font: var(--text-body-strong);
+}
+
+.resultHeader span {
+  color: var(--muted);
+  font: var(--text-caption);
+}
+
+.results {
+  display: grid;
+  gap: 14px;
+}
+
+.routeRow {
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.routeNumber {
+  display: inline-flex;
+  min-width: 56px;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 7px 9px;
+  color: var(--surface);
+  background: #d71920;
+  font: var(--text-route);
+}
+
+.routeMain {
+  justify-content: flex-start;
+}
+
+.routeMain strong {
+  color: var(--text);
+  font: var(--text-body-strong);
+}
+
+.routeMain em {
+  margin-left: auto;
+  color: var(--brand);
+  font: var(--text-small-strong);
+  font-style: normal;
+  text-align: right;
+}
+
+.routeRow dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0;
+}
+
+.routeRow div {
+  display: grid;
+  gap: 4px;
+}
+
+.routeRow dt {
+  color: var(--muted);
+  font: var(--text-caption);
+}
+
+.routeRow dd {
+  margin: 0;
+  color: var(--text);
+  font: var(--text-small-strong);
+}
+
+.notice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--brand-soft);
+  color: var(--text);
+  font: var(--text-small);
+}
+
+.notice svg {
+  color: var(--brand);
+}
+
+@media (max-width: 920px) {
+  .inner {
+    grid-template-columns: 1fr;
+  }
+
+  .heading {
+    position: static;
+  }
+
+  .queryBar {
+    grid-template-columns: 1fr;
+  }
+
+  .swap {
+    justify-self: center;
+    margin: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .demo {
+    padding: 18px;
+  }
+
+  .routeMain {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .routeMain em {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .routeRow dl {
+    grid-template-columns: 1fr;
+  }
+}

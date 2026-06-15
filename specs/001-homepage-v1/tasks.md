@@ -12,12 +12,12 @@
 
 **目的**：初始化前端静态主页、共享契约和未来后端边界文档的项目骨架。
 
-- [ ] T001 创建 React + Vite + TypeScript 前端骨架，路径：`frontend/package.json`、`frontend/index.html`、`frontend/src/main.tsx`
-- [ ] T002 创建前端源码目录结构，路径：`frontend/src/app/`、`frontend/src/components/`、`frontend/src/content/`、`frontend/src/styles/`、`frontend/src/tests/`、`frontend/playwright/`
-- [ ] T003 复制并固定共享契约副本，路径：`shared/contracts/homepage-content.schema.json`、`shared/contracts/download-manifest.schema.json`、`shared/contracts/ui-state-contract.md`
-- [ ] T004 创建后端边界说明且不创建服务端代码，路径：`backend/README.md`
-- [ ] T005 配置前端开发、构建、测试和浏览器验证脚本，路径：`frontend/package.json`
-- [ ] T006 [P] 创建 App 截图与品牌素材占位说明，路径：`frontend/src/assets/app-screenshots/README.md`、`frontend/src/assets/brand/README.md`
+- [X] T001 创建 React + Vite + TypeScript 前端骨架，路径：`frontend/package.json`、`frontend/index.html`、`frontend/src/main.tsx`
+- [X] T002 创建前端源码目录结构，路径：`frontend/src/app/`、`frontend/src/components/`、`frontend/src/content/`、`frontend/src/styles/`、`frontend/src/tests/`、`frontend/playwright/`
+- [X] T003 复制并固定共享契约副本，路径：`shared/contracts/homepage-content.schema.json`、`shared/contracts/download-manifest.schema.json`、`shared/contracts/ui-state-contract.md`
+- [X] T004 创建后端边界说明且不创建服务端代码，路径：`backend/README.md`
+- [X] T005 配置前端开发、构建、测试和浏览器验证脚本，路径：`frontend/package.json`
+- [X] T006 [P] 创建 App 截图与品牌素材占位说明，路径：`frontend/src/assets/app-screenshots/README.md`、`frontend/src/assets/brand/README.md`
 
 ---
 
@@ -27,13 +27,13 @@
 
 **关键要求**：基础任务必须支撑前后端分离、三语、Figma 驱动、静态演示范围和桌面/手机双端验证。
 
-- [ ] T007 定义首页内容、下载 manifest、轮播、FAQ 和三语通用类型，路径：`frontend/src/content/types.ts`
-- [ ] T008 创建语言检测、默认 `zh-Hant`、用户选择持久化和三语读取工具，路径：`frontend/src/content/locales.ts`、`frontend/src/components/i18n/I18nProvider.tsx`
-- [ ] T009 创建全局样式、设计令牌和响应式基础，路径：`frontend/src/styles/tokens.css`、`frontend/src/styles/global.css`
-- [ ] T010 创建应用壳、页面锚点和区块顺序定义，路径：`frontend/src/app/App.tsx`、`frontend/src/app/sections.ts`
-- [ ] T011 [P] 配置 Vitest 与 React Testing Library 测试入口，路径：`frontend/vitest.config.ts`、`frontend/src/tests/setup.ts`
-- [ ] T012 [P] 配置 Playwright 桌面 1440px 与手机 390px 验证基线，路径：`frontend/playwright.config.ts`
-- [ ] T013 建立 Android 主项目事实来源映射，路径：`frontend/src/content/sourceReferences.ts`
+- [X] T007 定义首页内容、下载 manifest、轮播、FAQ 和三语通用类型，路径：`frontend/src/content/types.ts`
+- [X] T008 创建语言检测、默认 `zh-Hant`、用户选择持久化和三语读取工具，路径：`frontend/src/content/locales.ts`、`frontend/src/components/i18n/I18nProvider.tsx`
+- [X] T009 创建全局样式、设计令牌和响应式基础，路径：`frontend/src/styles/tokens.css`、`frontend/src/styles/global.css`
+- [X] T010 创建应用壳、页面锚点和区块顺序定义，路径：`frontend/src/app/App.tsx`、`frontend/src/app/sections.ts`
+- [X] T011 [P] 配置 Vitest 与 React Testing Library 测试入口，路径：`frontend/vitest.config.ts`、`frontend/src/tests/setup.ts`
+- [X] T012 [P] 配置 Playwright 桌面 1440px 与手机 390px 验证基线，路径：`frontend/playwright.config.ts`
+- [X] T013 建立 Android 主项目事实来源映射，路径：`frontend/src/content/sourceReferences.ts`
 
 **检查点**：基础能力完成，可以开始用户故事并行实现。
 
@@ -47,19 +47,19 @@
 
 ### 用户故事 1 的测试或验证
 
-- [ ] T014 [P] [US1] 为下载分段按钮 default、Android 展开、iPhone 展开和 iPhone 不跳转增加组件测试，路径：`frontend/src/tests/download-button.test.tsx`
-- [ ] T015 [P] [US1] 为首屏三语核心文案、CTA 文案和产品定位增加内容测试，路径：`frontend/src/tests/hero-content.test.ts`
-- [ ] T016 [US1] 为桌面和手机首屏、Android hover/focus、iPhone hover/focus 增加浏览器验证，路径：`frontend/playwright/homepage-hero.spec.ts`
+- [X] T014 [P] [US1] 为下载分段按钮 default、Android 展开、iPhone 展开和 iPhone 不跳转增加组件测试，路径：`frontend/src/tests/download-button.test.tsx`
+- [X] T015 [P] [US1] 为首屏三语核心文案、CTA 文案和产品定位增加内容测试，路径：`frontend/src/tests/hero-content.test.ts`
+- [X] T016 [US1] 为桌面和手机首屏、Android hover/focus、iPhone hover/focus 增加浏览器验证，路径：`frontend/playwright/homepage-hero.spec.ts`
 
 ### 用户故事 1 的实现
 
-- [ ] T017 [US1] 定义首屏、导航、CTA、下载平台状态和限制提示的三语内容，路径：`frontend/src/content/homepageContent.ts`、`frontend/src/content/downloadManifest.ts`
-- [ ] T018 [P] [US1] 实现语言切换入口和页面导航，路径：`frontend/src/components/i18n/LanguageSwitcher.tsx`、`frontend/src/components/sections/Header.tsx`
-- [ ] T019 [US1] 实现 Android/iPhone 整体分段下载按钮的状态机、可访问性和不可用逻辑，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`
-- [ ] T020 [P] [US1] 实现首屏产品文案、功能要点、下载主 CTA 和在线查询次 CTA，路径：`frontend/src/components/hero/HeroIntro.tsx`
-- [ ] T021 [US1] 实现桌面左文案右预览、手机单列的首屏布局，路径：`frontend/src/components/hero/HeroSection.tsx`、`frontend/src/components/hero/HeroSection.module.css`
-- [ ] T022 [US1] 将 Header、Hero 和下载按钮接入首页应用壳，路径：`frontend/src/app/App.tsx`
-- [ ] T023 [US1] 验证 US1 对照 Figma 节点 `4:2`、`4:183`、`4:326` 的视觉和交互差异，路径：`specs/001-homepage-v1/visual-review/us1.md`
+- [X] T017 [US1] 定义首屏、导航、CTA、下载平台状态和限制提示的三语内容，路径：`frontend/src/content/homepageContent.ts`、`frontend/src/content/downloadManifest.ts`
+- [X] T018 [P] [US1] 实现语言切换入口和页面导航，路径：`frontend/src/components/i18n/LanguageSwitcher.tsx`、`frontend/src/components/sections/Header.tsx`
+- [X] T019 [US1] 实现 Android/iPhone 整体分段下载按钮的状态机、可访问性和不可用逻辑，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`
+- [X] T020 [P] [US1] 实现首屏产品文案、功能要点、下载主 CTA 和在线查询次 CTA，路径：`frontend/src/components/hero/HeroIntro.tsx`
+- [X] T021 [US1] 实现桌面左文案右预览、手机单列的首屏布局，路径：`frontend/src/components/hero/HeroSection.tsx`、`frontend/src/components/hero/HeroSection.module.css`
+- [X] T022 [US1] 将 Header、Hero 和下载按钮接入首页应用壳，路径：`frontend/src/app/App.tsx`
+- [X] T023 [US1] 验证 US1 对照 Figma 节点 `4:2`、`4:183`、`4:326` 的视觉和交互差异，路径：`specs/001-homepage-v1/visual-review/us1.md`
 
 **检查点**：用户故事 1 可以独立运行、展示和验证，是建议 MVP 范围。
 
@@ -73,16 +73,16 @@
 
 ### 用户故事 2 的测试或验证
 
-- [ ] T024 [P] [US2] 为轮播 4 项顺序、标题说明和素材状态增加内容测试，路径：`frontend/src/tests/hero-carousel.test.tsx`
-- [ ] T025 [US2] 为轮播切换、分页状态和语言切换保留当前项增加浏览器验证，路径：`frontend/playwright/hero-carousel.spec.ts`
+- [X] T024 [P] [US2] 为轮播 4 项顺序、标题说明和素材状态增加内容测试，路径：`frontend/src/tests/hero-carousel.test.tsx`
+- [X] T025 [US2] 为轮播切换、分页状态和语言切换保留当前项增加浏览器验证，路径：`frontend/playwright/hero-carousel.spec.ts`
 
 ### 用户故事 2 的实现
 
-- [ ] T026 [US2] 定义 4 个轮播项、截图路径、素材状态和 Android 主项目来源引用，路径：`frontend/src/content/carouselSlides.ts`
-- [ ] T027 [US2] 放置真实 Android App 截图或显式临时占位说明，路径：`frontend/src/assets/app-screenshots/`
-- [ ] T028 [US2] 实现 App 功能预览轮播组件、分页点、切换状态和暂停逻辑，路径：`frontend/src/components/hero/AppPreviewCarousel.tsx`、`frontend/src/components/hero/AppPreviewCarousel.module.css`
-- [ ] T029 [US2] 将轮播接入首屏桌面右侧和手机 CTA 后方布局，路径：`frontend/src/components/hero/HeroSection.tsx`
-- [ ] T030 [US2] 验证 US2 对照 Figma 节点 `4:357` 的 4 个轮播状态和截图裁切，路径：`specs/001-homepage-v1/visual-review/us2.md`
+- [X] T026 [US2] 定义 4 个轮播项、截图路径、素材状态和 Android 主项目来源引用，路径：`frontend/src/content/carouselSlides.ts`
+- [X] T027 [US2] 放置真实 Android App 截图或显式临时占位说明，路径：`frontend/src/assets/app-screenshots/`
+- [X] T028 [US2] 实现 App 功能预览轮播组件、分页点、切换状态和暂停逻辑，路径：`frontend/src/components/hero/AppPreviewCarousel.tsx`、`frontend/src/components/hero/AppPreviewCarousel.module.css`
+- [X] T029 [US2] 将轮播接入首屏桌面右侧和手机 CTA 后方布局，路径：`frontend/src/components/hero/HeroSection.tsx`
+- [X] T030 [US2] 验证 US2 对照 Figma 节点 `4:357` 的 4 个轮播状态和截图裁切，路径：`specs/001-homepage-v1/visual-review/us2.md`
 
 **检查点**：用户故事 2 可以在不依赖在线查询和 FAQ 的情况下独立展示和验证。
 
@@ -96,15 +96,15 @@
 
 ### 用户故事 3 的测试或验证
 
-- [ ] T031 [P] [US3] 为在线查询静态演示内容、限制说明和范围排除增加内容测试，路径：`frontend/src/tests/online-query-demo.test.tsx`
-- [ ] T032 [US3] 为在线查询区无真实网络请求、静态路线结果和限制提示增加浏览器验证，路径：`frontend/playwright/online-query-demo.spec.ts`
+- [X] T031 [P] [US3] 为在线查询静态演示内容、限制说明和范围排除增加内容测试，路径：`frontend/src/tests/online-query-demo.test.tsx`
+- [X] T032 [US3] 为在线查询区无真实网络请求、静态路线结果和限制提示增加浏览器验证，路径：`frontend/playwright/online-query-demo.spec.ts`
 
 ### 用户故事 3 的实现
 
-- [ ] T033 [US3] 定义在线查询静态演示的起点、终点、路线结果、限制提示和范围提示三语内容，路径：`frontend/src/content/onlineQueryDemo.ts`
-- [ ] T034 [US3] 实现在线查询静态演示卡片、查询按钮静态行为和结果列表，路径：`frontend/src/components/online-demo/OnlineQueryDemo.tsx`、`frontend/src/components/online-demo/OnlineQueryDemo.module.css`
-- [ ] T035 [US3] 将在线查询区按页面顺序接入首页并绑定导航锚点，路径：`frontend/src/app/App.tsx`、`frontend/src/app/sections.ts`
-- [ ] T036 [US3] 验证 US3 的桌面和手机截图、静态演示标识和范围限制文案，路径：`specs/001-homepage-v1/visual-review/us3.md`
+- [X] T033 [US3] 定义在线查询静态演示的起点、终点、路线结果、限制提示和范围提示三语内容，路径：`frontend/src/content/onlineQueryDemo.ts`
+- [X] T034 [US3] 实现在线查询静态演示卡片、查询按钮静态行为和结果列表，路径：`frontend/src/components/online-demo/OnlineQueryDemo.tsx`、`frontend/src/components/online-demo/OnlineQueryDemo.module.css`
+- [X] T035 [US3] 将在线查询区按页面顺序接入首页并绑定导航锚点，路径：`frontend/src/app/App.tsx`、`frontend/src/app/sections.ts`
+- [X] T036 [US3] 验证 US3 的桌面和手机截图、静态演示标识和范围限制文案，路径：`specs/001-homepage-v1/visual-review/us3.md`
 
 **检查点**：用户故事 3 可以独立说明在线查询形态和第一版范围限制，不会误导为实时查询服务。
 
@@ -118,15 +118,15 @@
 
 ### 用户故事 4 的测试或验证
 
-- [ ] T037 [P] [US4] 为核心功能、下载区、FAQ 和联系入口的三语完整性增加内容测试，路径：`frontend/src/tests/sections-content.test.ts`
-- [ ] T038 [US4] 为页面区块顺序、FAQ 覆盖范围和联系入口可见性增加浏览器验证，路径：`frontend/playwright/homepage-sections.spec.ts`
+- [X] T037 [P] [US4] 为核心功能、下载区、FAQ 和联系入口的三语完整性增加内容测试，路径：`frontend/src/tests/sections-content.test.ts`
+- [X] T038 [US4] 为页面区块顺序、FAQ 覆盖范围和联系入口可见性增加浏览器验证，路径：`frontend/playwright/homepage-sections.spec.ts`
 
 ### 用户故事 4 的实现
 
-- [ ] T039 [US4] 定义核心功能、下载区、FAQ、反馈与联系的三语内容和来源引用，路径：`frontend/src/content/sectionsContent.ts`
-- [ ] T040 [US4] 实现核心功能区、下载区、FAQ 和联系页脚组件，路径：`frontend/src/components/sections/FeatureGrid.tsx`、`frontend/src/components/sections/DownloadSection.tsx`、`frontend/src/components/sections/FaqSection.tsx`、`frontend/src/components/sections/FooterContact.tsx`
-- [ ] T041 [US4] 将核心功能、下载区、FAQ、反馈与联系接入首页顺序和导航锚点，路径：`frontend/src/app/App.tsx`、`frontend/src/app/sections.ts`
-- [ ] T042 [US4] 验证 US4 的桌面和手机截图、视觉权重和范围排除说明，路径：`specs/001-homepage-v1/visual-review/us4.md`
+- [X] T039 [US4] 定义核心功能、下载区、FAQ、反馈与联系的三语内容和来源引用，路径：`frontend/src/content/sectionsContent.ts`
+- [X] T040 [US4] 实现核心功能区、下载区、FAQ 和联系页脚组件，路径：`frontend/src/components/sections/FeatureGrid.tsx`、`frontend/src/components/sections/DownloadSection.tsx`、`frontend/src/components/sections/FaqSection.tsx`、`frontend/src/components/sections/FooterContact.tsx`
+- [X] T041 [US4] 将核心功能、下载区、FAQ、反馈与联系接入首页顺序和导航锚点，路径：`frontend/src/app/App.tsx`、`frontend/src/app/sections.ts`
+- [X] T042 [US4] 验证 US4 的桌面和手机截图、视觉权重和范围排除说明，路径：`specs/001-homepage-v1/visual-review/us4.md`
 
 **检查点**：所有用户故事均可独立验证，并且不引入完整路线规划或非香港巴士交通查询。
 
@@ -136,13 +136,13 @@
 
 **目的**：处理影响多个用户故事的契约一致性、三语完整性、视觉验收、性能和最终验证。
 
-- [ ] T043 [P] 增加首页内容契约和下载 manifest schema 校验测试，路径：`frontend/src/tests/content-contract.test.ts`
-- [ ] T044 [P] 增加三语缺失、硬编码用户可见文字和语言切换上下文保持检查，路径：`frontend/src/tests/i18n-completeness.test.tsx`
-- [ ] T045 创建 Figma 对照和浏览器截图验收清单，路径：`specs/001-homepage-v1/visual-review/figma-checklist.md`
-- [ ] T046 优化图片尺寸、首屏资源加载和响应式溢出控制，路径：`frontend/src/styles/global.css`、`frontend/src/components/hero/AppPreviewCarousel.module.css`
-- [ ] T047 验证无密钥、私有 token、实时 API 地址或伪实时数据下发到前端，路径：`frontend/src/content/`
-- [ ] T048 执行 `npm run build`、`npm run test` 和 Playwright 验证并修复失败项，路径：`frontend/package.json`、`frontend/playwright/`
-- [ ] T049 启动本地服务并保存桌面、手机、下载按钮三状态、轮播和在线查询截图证据，路径：`specs/001-homepage-v1/visual-review/`
+- [X] T043 [P] 增加首页内容契约和下载 manifest schema 校验测试，路径：`frontend/src/tests/content-contract.test.ts`
+- [X] T044 [P] 增加三语缺失、硬编码用户可见文字和语言切换上下文保持检查，路径：`frontend/src/tests/i18n-completeness.test.tsx`
+- [X] T045 创建 Figma 对照和浏览器截图验收清单，路径：`specs/001-homepage-v1/visual-review/figma-checklist.md`
+- [X] T046 优化图片尺寸、首屏资源加载和响应式溢出控制，路径：`frontend/src/styles/global.css`、`frontend/src/components/hero/AppPreviewCarousel.module.css`
+- [X] T047 验证无密钥、私有 token、实时 API 地址或伪实时数据下发到前端，路径：`frontend/src/content/`
+- [X] T048 执行 `npm run build`、`npm run test` 和 Playwright 验证并修复失败项，路径：`frontend/package.json`、`frontend/playwright/`
+- [X] T049 启动本地服务并保存桌面、手机、下载按钮三状态、轮播和在线查询截图证据，路径：`specs/001-homepage-v1/visual-review/`
 
 ---
 

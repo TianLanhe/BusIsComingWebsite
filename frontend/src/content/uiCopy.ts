@@ -1,0 +1,109 @@
+import type { LocalizedString } from "./types";
+
+export const uiCopy = {
+  heroTrust: {
+    "zh-Hant": "安全可靠 · 不收集個人資料 · 純粹為香港巴士通勤而生",
+    "zh-Hans": "安全可靠 · 不收集个人资料 · 纯粹为香港巴士通勤而生",
+    en: "Private by design · no personal data collection · built for Hong Kong bus commutes",
+  },
+  queryButton: {
+    "zh-Hant": "查詢",
+    "zh-Hans": "查询",
+    en: "Search",
+  },
+  sampleResult: {
+    "zh-Hant": "範例結果（Citybus）",
+    "zh-Hans": "示例结果（Citybus）",
+    en: "Sample results (Citybus)",
+  },
+  dataReference: {
+    "zh-Hant": "資料僅供參考",
+    "zh-Hans": "资料仅供参考",
+    en: "Reference only",
+  },
+  fullFeatureApp: {
+    "zh-Hant": "完整功能請下載 App 使用。",
+    "zh-Hans": "完整功能请下载 App 使用。",
+    en: "Download the app for the complete experience.",
+  },
+  featureHeading: {
+    "zh-Hant": "為每天的巴士通勤，節省時間",
+    "zh-Hans": "为每天的巴士通勤，节省时间",
+    en: "Save time on everyday bus commutes",
+  },
+  temporaryMock: {
+    "zh-Hant": "臨時 mock，實現前需替換真實 Android 截圖",
+    "zh-Hans": "临时 mock，实现前需替换真实 Android 截图",
+    en: "Temporary mock, replace with real Android screenshot",
+  },
+  originLabel: {
+    "zh-Hant": "出發地",
+    "zh-Hans": "出发地",
+    en: "Origin",
+  },
+  destinationLabel: {
+    "zh-Hant": "目的地",
+    "zh-Hans": "目的地",
+    en: "Destination",
+  },
+  fareLabel: {
+    "zh-Hant": "車費",
+    "zh-Hans": "车费",
+    en: "Fare",
+  },
+  durationLabel: {
+    "zh-Hant": "總行程時間",
+    "zh-Hans": "总行程时间",
+    en: "Journey time",
+  },
+  walkingLabel: {
+    "zh-Hant": "步行距離",
+    "zh-Hans": "步行距离",
+    en: "Walking distance",
+  },
+  downloadUnavailable: {
+    "zh-Hant": "下載資源待接入",
+    "zh-Hans": "下载资源待接入",
+    en: "Download file pending",
+  },
+  primaryNavigation: {
+    "zh-Hant": "主要導覽",
+    "zh-Hans": "主要导航",
+    en: "Primary navigation",
+  },
+  downloadAppLabel: {
+    "zh-Hant": "下載 App",
+    "zh-Hans": "下载 App",
+    en: "Download App",
+  },
+  appPreviewCarousel: {
+    "zh-Hant": "App 功能預覽輪播",
+    "zh-Hans": "App 功能预览轮播",
+    en: "App preview carousel",
+  },
+  previousSlide: {
+    "zh-Hant": "上一張預覽",
+    "zh-Hans": "上一张预览",
+    en: "Previous slide",
+  },
+  nextSlide: {
+    "zh-Hant": "下一張預覽",
+    "zh-Hans": "下一张预览",
+    en: "Next slide",
+  },
+  carouselPagination: {
+    "zh-Hant": "輪播分頁",
+    "zh-Hans": "轮播分页",
+    en: "Carousel pagination",
+  },
+  slideLabelPrefix: {
+    "zh-Hant": "第",
+    "zh-Hans": "第",
+    en: "Slide",
+  },
+  faqHeading: {
+    "zh-Hant": "常見問題",
+    "zh-Hans": "常见问题",
+    en: "Frequently Asked Questions",
+  },
+} satisfies Record<string, LocalizedString>;

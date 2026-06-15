@@ -1,0 +1,58 @@
+.footer {
+  padding: 54px var(--page-pad);
+  border-top: 1px solid var(--border);
+  background: var(--brand-dark);
+  color: var(--surface);
+}
+
+.inner {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+  max-width: var(--page-max);
+  margin: 0 auto;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: fit-content;
+  font: var(--text-brand);
+}
+
+.contact {
+  display: grid;
+  gap: 10px;
+  max-width: 520px;
+}
+
+.contact h2,
+.contact p {
+  margin: 0;
+}
+
+.contact h2 {
+  font: var(--text-subtitle);
+}
+
+.contact p {
+  color: rgba(255, 255, 255, 0.78);
+  font: var(--text-body);
+}
+
+.contact a {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  gap: 8px;
+  color: var(--surface);
+  font: var(--text-button);
+  text-decoration: none;
+}
+
+@media (max-width: 720px) {
+  .inner {
+    display: grid;
+  }
+}

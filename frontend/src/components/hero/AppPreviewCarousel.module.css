@@ -1,0 +1,138 @@
+.carousel {
+  display: grid;
+  grid-template-columns: minmax(210px, 300px) minmax(210px, 1fr);
+  gap: var(--space-7);
+  align-items: center;
+  min-width: 0;
+}
+
+.phoneFrame {
+  position: relative;
+  width: min(100%, 300px);
+  aspect-ratio: 9 / 18;
+  padding: 16px;
+  border-radius: 30px;
+  background: #11181b;
+  box-shadow: 0 22px 52px rgba(17, 34, 38, 0.26);
+}
+
+.phoneFrame::before {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 72px;
+  height: 7px;
+  border-radius: 999px;
+  background: #1d282c;
+  transform: translateX(-50%);
+  content: "";
+}
+
+.phoneFrame img {
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  object-fit: cover;
+  display: block;
+  background: var(--surface);
+}
+
+.copy {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.order {
+  margin: 0;
+  color: var(--brand);
+  font: var(--text-overline);
+}
+
+.copy h2 {
+  margin: 0;
+  color: var(--brand-dark);
+  font: var(--text-section-title);
+}
+
+.copy p {
+  margin: 0;
+  color: var(--text);
+  font: var(--text-body);
+}
+
+.placeholderNote {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font: var(--text-caption);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: var(--space-2);
+}
+
+.controls button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--brand);
+  cursor: pointer;
+}
+
+.controls button:hover,
+.controls button:focus-visible {
+  border-color: var(--brand);
+  outline: none;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dot,
+.activeDot {
+  width: 9px !important;
+  height: 9px !important;
+  min-width: 9px;
+  border: 0 !important;
+  border-radius: 50% !important;
+  padding: 0;
+  background: var(--border-strong) !important;
+}
+
+.activeDot {
+  width: 24px !important;
+  border-radius: 999px !important;
+  background: var(--brand) !important;
+}
+
+@media (max-width: 980px) {
+  .carousel {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: var(--space-5);
+  }
+
+  .copy {
+    justify-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .phoneFrame {
+    width: min(100%, 260px);
+  }
+}

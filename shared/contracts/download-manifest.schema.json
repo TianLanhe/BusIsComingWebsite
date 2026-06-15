@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://busiscoming.local/contracts/download-manifest.schema.json",
+  "title": "BusIsComing Download Manifest Contract",
+  "type": "object",
+  "required": ["version", "lastUpdated", "platforms"],
+  "properties": {
+    "version": { "type": "string", "minLength": 1 },
+    "lastUpdated": { "type": "string", "format": "date" },
+    "platforms": {
+      "type": "object",
+      "required": ["android", "ios"],
+      "properties": {
+        "android": { "$ref": "#/$defs/platform" },
+        "ios": { "$ref": "#/$defs/platform" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "localizedString": {
+      "type": "object",
+      "required": ["zh-Hant", "zh-Hans", "en"],
+      "properties": {
+        "zh-Hant": { "type": "string", "minLength": 1 },
+        "zh-Hans": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "platform": {
+      "type": "object",
+      "required": ["platform", "status", "label", "description", "actionLabel", "disabledReason"],
+      "properties": {
+        "platform": { "enum": ["android", "ios"] },
+        "status": { "enum": ["available", "unsupported", "temporarily-unavailable"] },
+        "label": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "actionLabel": { "$ref": "#/$defs/localizedString" },
+        "downloadUrl": {
+          "anyOf": [
+            { "type": "string", "format": "uri" },
+            { "type": "null" }
+          ]
+        },
+        "disabledReason": {
+          "anyOf": [
+            { "$ref": "#/$defs/localizedString" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "available" } }
+          },
+          "then": {
+            "required": ["downloadUrl"],
+            "properties": {
+              "downloadUrl": { "type": "string", "format": "uri" },
+              "disabledReason": { "type": "null" }
+            }
+          },
+          "else": {
+            "properties": {
+              "downloadUrl": { "type": "null" },
+              "disabledReason": { "$ref": "#/$defs/localizedString" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "platform": { "const": "ios" } }
+          },
+          "then": {
+            "properties": {
+              "status": { "const": "unsupported" },
+              "downloadUrl": { "type": "null" }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

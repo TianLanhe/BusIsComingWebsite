@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="720" viewBox="0 0 360 720" role="img" aria-label="BusIsComing notification monitor mock screen">
+  <rect width="360" height="720" rx="34" fill="#f7faf9"/>
+  <rect x="0" y="0" width="360" height="82" rx="34" fill="#00545b"/>
+  <text x="28" y="52" fill="#fff" font-family="Arial, sans-serif" font-size="20" font-weight="700">通知監測</text>
+  <rect x="28" y="120" width="304" height="130" rx="16" fill="#fff" stroke="#d7e3e5"/>
+  <text x="48" y="158" fill="#12323a" font-family="Arial, sans-serif" font-size="18" font-weight="700">788 · 首程 ETA</text>
+  <text x="48" y="190" fill="#006b54" font-family="Arial, sans-serif" font-size="22" font-weight="700">6 分鐘後到站</text>
+  <text x="48" y="222" fill="#5c6c73" font-family="Arial, sans-serif" font-size="13">前台服務定期刷新 · 出門前安心</text>
+  <rect x="28" y="282" width="304" height="178" rx="18" fill="#e9f3f4" stroke="#c9dde0"/>
+  <text x="50" y="322" fill="#12323a" font-family="Arial, sans-serif" font-size="16" font-weight="700">BusIsComing 正在監測</text>
+  <text x="50" y="354" fill="#5c6c73" font-family="Arial, sans-serif" font-size="13">下一班 10:36 · 6 分鐘後</text>
+  <rect x="50" y="386" width="96" height="38" rx="10" fill="#00545b"/>
+  <text x="79" y="411" fill="#fff" font-family="Arial, sans-serif" font-size="13" font-weight="700">刷新</text>
+  <rect x="158" y="386" width="96" height="38" rx="10" fill="#fff" stroke="#b7cdd0"/>
+  <text x="187" y="411" fill="#12323a" font-family="Arial, sans-serif" font-size="13" font-weight="700">停止</text>
+  <rect x="52" y="620" width="256" height="54" rx="13" fill="#e9f3f4"/>
+  <text x="84" y="654" fill="#00545b" font-family="Arial, sans-serif" font-size="14" font-weight="700">臨時 mock · 待替換真實截圖</text>
+</svg>

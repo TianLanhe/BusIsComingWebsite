@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="720" viewBox="0 0 360 720" role="img" aria-label="BusIsComing favorite routes mock screen">
+  <rect width="360" height="720" rx="34" fill="#f7faf9"/>
+  <rect x="0" y="0" width="360" height="82" rx="34" fill="#00545b"/>
+  <text x="28" y="52" fill="#fff" font-family="Arial, sans-serif" font-size="20" font-weight="700">BusIsComing</text>
+  <text x="28" y="122" fill="#12323a" font-family="Arial, sans-serif" font-size="18" font-weight="700">常用路線</text>
+  <rect x="28" y="148" width="304" height="74" rx="10" fill="#fff" stroke="#d7e3e5"/>
+  <text x="48" y="178" fill="#12323a" font-family="Arial, sans-serif" font-size="15" font-weight="700">將軍澳站 → 中環</text>
+  <text x="48" y="204" fill="#5c6c73" font-family="Arial, sans-serif" font-size="12">一按查詢 · Citybus</text>
+  <rect x="28" y="244" width="304" height="108" rx="12" fill="#fff" stroke="#d7e3e5"/>
+  <rect x="48" y="266" width="52" height="34" rx="7" fill="#d71920"/>
+  <text x="60" y="289" fill="#fff" font-family="Arial, sans-serif" font-size="17" font-weight="700">788</text>
+  <text x="116" y="286" fill="#12323a" font-family="Arial, sans-serif" font-size="14" font-weight="700">Citybus</text>
+  <text x="242" y="286" fill="#12323a" font-family="Arial, sans-serif" font-size="14">10:36</text>
+  <text x="48" y="324" fill="#5c6c73" font-family="Arial, sans-serif" font-size="13">HK$11.7 · 約 42 分鐘 · 450 米</text>
+  <rect x="28" y="370" width="304" height="108" rx="12" fill="#fff" stroke="#d7e3e5"/>
+  <rect x="48" y="392" width="58" height="34" rx="7" fill="#0f5fb4"/>
+  <text x="56" y="415" fill="#fff" font-family="Arial, sans-serif" font-size="16" font-weight="700">796X</text>
+  <text x="122" y="412" fill="#12323a" font-family="Arial, sans-serif" font-size="14" font-weight="700">Citybus</text>
+  <text x="242" y="412" fill="#12323a" font-family="Arial, sans-serif" font-size="14">10:40</text>
+  <text x="48" y="450" fill="#5c6c73" font-family="Arial, sans-serif" font-size="13">HK$11.7 · 約 47 分鐘 · 620 米</text>
+  <rect x="52" y="620" width="256" height="54" rx="13" fill="#e9f3f4"/>
+  <text x="84" y="654" fill="#00545b" font-family="Arial, sans-serif" font-size="14" font-weight="700">臨時 mock · 待替換真實截圖</text>
+</svg>

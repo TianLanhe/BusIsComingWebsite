@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="720" viewBox="0 0 360 720" role="img" aria-label="BusIsComing ETA details mock screen">
+  <rect width="360" height="720" rx="34" fill="#f7faf9"/>
+  <rect x="0" y="0" width="360" height="82" rx="34" fill="#00545b"/>
+  <text x="28" y="52" fill="#fff" font-family="Arial, sans-serif" font-size="20" font-weight="700">788 詳情</text>
+  <rect x="28" y="112" width="304" height="112" rx="14" fill="#fff" stroke="#d7e3e5"/>
+  <text x="48" y="148" fill="#12323a" font-family="Arial, sans-serif" font-size="18" font-weight="700">將軍澳站 → 中環</text>
+  <text x="48" y="178" fill="#5c6c73" font-family="Arial, sans-serif" font-size="13">上車站 · 下車站 · 途經站點</text>
+  <text x="48" y="204" fill="#006b54" font-family="Arial, sans-serif" font-size="14" font-weight="700">首程 ETA 10:36 · 6 分鐘後</text>
+  <rect x="28" y="252" width="304" height="190" rx="16" fill="#fff" stroke="#d7e3e5"/>
+  <text x="48" y="288" fill="#12323a" font-family="Arial, sans-serif" font-size="16" font-weight="700">接下來班次</text>
+  <circle cx="58" cy="326" r="7" fill="#00545b"/><text x="82" y="332" fill="#12323a" font-family="Arial, sans-serif" font-size="15">10:36 · 6 分鐘後</text>
+  <circle cx="58" cy="370" r="7" fill="#9bb5b9"/><text x="82" y="376" fill="#12323a" font-family="Arial, sans-serif" font-size="15">10:47 · 17 分鐘後</text>
+  <circle cx="58" cy="414" r="7" fill="#9bb5b9"/><text x="82" y="420" fill="#12323a" font-family="Arial, sans-serif" font-size="15">10:58 · 28 分鐘後</text>
+  <rect x="28" y="470" width="304" height="108" rx="14" fill="#edf5f6"/>
+  <text x="48" y="506" fill="#12323a" font-family="Arial, sans-serif" font-size="15" font-weight="700">路線詳情</text>
+  <text x="48" y="534" fill="#5c6c73" font-family="Arial, sans-serif" font-size="13">查看上下車站點與途經站點</text>
+  <rect x="52" y="620" width="256" height="54" rx="13" fill="#e9f3f4"/>
+  <text x="84" y="654" fill="#00545b" font-family="Arial, sans-serif" font-size="14" font-weight="700">臨時 mock · 待替換真實截圖</text>
+</svg>

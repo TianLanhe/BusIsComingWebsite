@@ -1,0 +1,37 @@
+:root {
+  --brand: #00545b;
+  --brand-dark: #07363d;
+  --brand-soft: #e9f5f5;
+  --surface: #ffffff;
+  --text: #18323a;
+  --muted: #62747b;
+  --border: #dce8ea;
+  --border-strong: #bdcfd3;
+  --page-max: 1260px;
+  --page-pad: clamp(20px, 4.5vw, 72px);
+  --section-pad: clamp(58px, 8vw, 96px);
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 42px;
+  --shadow-soft: 0 18px 42px rgba(20, 48, 56, 0.1);
+  --shadow-button: 0 14px 30px rgba(0, 84, 91, 0.22);
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --text-hero: 800 clamp(42px, 5.4vw, 76px) / 1.04 var(--font-sans);
+  --text-section-title: 760 clamp(28px, 3vw, 42px) / 1.12 var(--font-sans);
+  --text-subtitle: 720 22px / 1.25 var(--font-sans);
+  --text-lead: 400 clamp(18px, 1.55vw, 22px) / 1.58 var(--font-sans);
+  --text-body: 400 16px / 1.65 var(--font-sans);
+  --text-body-strong: 700 16px / 1.45 var(--font-sans);
+  --text-small: 400 14px / 1.5 var(--font-sans);
+  --text-small-strong: 700 14px / 1.4 var(--font-sans);
+  --text-caption: 500 13px / 1.35 var(--font-sans);
+  --text-button: 760 15px / 1.2 var(--font-sans);
+  --text-control: 650 14px / 1.2 var(--font-sans);
+  --text-nav: 650 14px / 1.2 var(--font-sans);
+  --text-brand: 820 22px / 1 var(--font-sans);
+  --text-route: 800 18px / 1 var(--font-sans);
+  --text-overline: 780 13px / 1 var(--font-sans);
+}

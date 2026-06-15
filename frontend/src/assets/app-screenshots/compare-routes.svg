@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="720" viewBox="0 0 360 720" role="img" aria-label="BusIsComing route comparison mock screen">
+  <rect width="360" height="720" rx="34" fill="#f7faf9"/>
+  <rect x="0" y="0" width="360" height="82" rx="34" fill="#00545b"/>
+  <text x="28" y="52" fill="#fff" font-family="Arial, sans-serif" font-size="20" font-weight="700">路線比較</text>
+  <rect x="26" y="116" width="308" height="64" rx="12" fill="#fff" stroke="#d7e3e5"/>
+  <text x="46" y="154" fill="#12323a" font-family="Arial, sans-serif" font-size="14">將軍澳站 ↔ 中環（交易廣場）</text>
+  <g font-family="Arial, sans-serif" font-size="12" fill="#5c6c73">
+    <text x="36" y="226">路線</text><text x="118" y="226">車費</text><text x="190" y="226">時間</text><text x="270" y="226">步行</text>
+  </g>
+  <g font-family="Arial, sans-serif">
+    <rect x="26" y="246" width="308" height="74" rx="12" fill="#fff" stroke="#d7e3e5"/>
+    <rect x="42" y="266" width="50" height="32" rx="7" fill="#d71920"/>
+    <text x="54" y="288" fill="#fff" font-size="16" font-weight="700">788</text>
+    <text x="118" y="288" fill="#12323a" font-size="14">HK$11.7</text>
+    <text x="190" y="288" fill="#12323a" font-size="14">42 分</text>
+    <text x="270" y="288" fill="#12323a" font-size="14">450m</text>
+    <rect x="26" y="338" width="308" height="74" rx="12" fill="#fff" stroke="#d7e3e5"/>
+    <rect x="42" y="358" width="58" height="32" rx="7" fill="#0f5fb4"/>
+    <text x="50" y="380" fill="#fff" font-size="15" font-weight="700">796X</text>
+    <text x="118" y="380" fill="#12323a" font-size="14">HK$11.7</text>
+    <text x="190" y="380" fill="#12323a" font-size="14">47 分</text>
+    <text x="270" y="380" fill="#12323a" font-size="14">620m</text>
+    <rect x="26" y="430" width="308" height="74" rx="12" fill="#fff" stroke="#d7e3e5"/>
+    <rect x="42" y="450" width="50" height="32" rx="7" fill="#21854f"/>
+    <text x="54" y="472" fill="#fff" font-size="16" font-weight="700">797</text>
+    <text x="118" y="472" fill="#12323a" font-size="14">HK$11.7</text>
+    <text x="190" y="472" fill="#12323a" font-size="14">50 分</text>
+    <text x="270" y="472" fill="#12323a" font-size="14">550m</text>
+  </g>
+  <rect x="52" y="620" width="256" height="54" rx="13" fill="#e9f3f4"/>
+  <text x="84" y="654" fill="#00545b" font-family="Arial, sans-serif" font-size="14" font-weight="700">臨時 mock · 待替換真實截圖</text>
+</svg>
