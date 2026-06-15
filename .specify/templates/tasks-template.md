@@ -24,6 +24,7 @@ description: "功能实现任务清单模板"
 - **后端**：`backend/src/`、`backend/tests/`
 - **共享契约**：`shared/contracts/` 或 `specs/[###-feature-name]/contracts/`
 - **文档与验证记录**：`docs/`、`specs/[###-feature-name]/quickstart.md`
+- **Figma 设计引用**：`specs/[###-feature-name]/figma.md`
 
 <!--
   ============================================================================
@@ -65,6 +66,7 @@ description: "功能实现任务清单模板"
 - [ ] T011 配置日志和错误处理基础设施
 - [ ] T012 记录范围排除规则，确认不实现完整出行路线规划和非香港巴士交通查询
 - [ ] T013 定义手机与电脑 viewport 验证基线，路径：specs/[###-feature-name]/quickstart.md
+- [ ] T014 若涉及前端 UI，创建或更新 Figma 设计并记录文件/链接、关键节点和交互状态，路径：specs/[###-feature-name]/figma.md
 
 **检查点**：基础能力完成，可以开始用户故事并行实现。
 
@@ -80,19 +82,21 @@ description: "功能实现任务清单模板"
 
 > 如果包含自动化测试，先写测试并确认失败；如果是视觉或内容验证，先定义可执行检查步骤。
 
-- [ ] T014 [P] [US1] 为 [契约或组件] 增加测试，路径：frontend/tests/[name].test.ts
-- [ ] T015 [P] [US1] 为 [API] 增加契约或集成测试，路径：backend/tests/[name].test.ts
-- [ ] T016 [US1] 定义三语、手机和电脑双端视觉验证步骤，路径：specs/[###-feature-name]/quickstart.md
-- [ ] T017 [US1] 生成或保存手机与电脑 UI 图片、截图、设计稿或可视化 mock，路径：[artifact path]
+- [ ] T015 [P] [US1] 为 [契约或组件] 增加测试，路径：frontend/tests/[name].test.ts
+- [ ] T016 [P] [US1] 为 [API] 增加契约或集成测试，路径：backend/tests/[name].test.ts
+- [ ] T017 [US1] 定义三语、手机和电脑双端视觉验证步骤，路径：specs/[###-feature-name]/quickstart.md
+- [ ] T018 [US1] 生成或保存手机与电脑 UI 图片、截图、设计稿或可视化 mock，路径：[artifact path]
+- [ ] T019 [US1] 将 Figma 文件/链接、关键节点和交互状态记录到 specs/[###-feature-name]/figma.md
 
 ### 用户故事 1 的实现
 
-- [ ] T018 [P] [US1] 在 `frontend/src/pages/[page].*` 实现页面结构
-- [ ] T019 [P] [US1] 在 `frontend/src/i18n/` 补齐三语文案
-- [ ] T020 [US1] 在 `backend/src/api/[route].*` 实现所需内容或数据接口
-- [ ] T021 [US1] 将前端服务调用接入后端契约
-- [ ] T022 [US1] 增加加载、空状态、错误和降级状态
-- [ ] T023 [US1] 验证手机与电脑布局下核心内容和主要操作均可见可用
+- [ ] T020 [P] [US1] 在 `frontend/src/pages/[page].*` 实现页面结构
+- [ ] T021 [P] [US1] 在 `frontend/src/i18n/` 补齐三语文案
+- [ ] T022 [US1] 在 `backend/src/api/[route].*` 实现所需内容或数据接口
+- [ ] T023 [US1] 将前端服务调用接入后端契约
+- [ ] T024 [US1] 增加加载、空状态、错误和降级状态
+- [ ] T025 [US1] 验证手机与电脑布局下核心内容和主要操作均可见可用
+- [ ] T026 [US1] 对照 Figma 文件/链接检查页面视觉、状态和交互一致性
 
 **检查点**：用户故事 1 可以独立运行、展示和验证。
 
@@ -106,15 +110,16 @@ description: "功能实现任务清单模板"
 
 ### 用户故事 2 的测试或验证
 
-- [ ] T024 [P] [US2] 为 [组件或交互] 增加测试，路径：frontend/tests/[name].test.ts
-- [ ] T025 [US2] 补充三语、手机和电脑双端验证步骤
-- [ ] T026 [US2] 若涉及 UI，生成或保存手机与电脑图片、截图、设计稿或可视化 mock
+- [ ] T027 [P] [US2] 为 [组件或交互] 增加测试，路径：frontend/tests/[name].test.ts
+- [ ] T028 [US2] 补充三语、手机和电脑双端验证步骤
+- [ ] T029 [US2] 若涉及 UI，生成或保存手机与电脑图片、截图、设计稿或可视化 mock
+- [ ] T030 [US2] 若涉及 UI，更新 specs/[###-feature-name]/figma.md 的 Figma 文件/链接和节点说明
 
 ### 用户故事 2 的实现
 
-- [ ] T027 [P] [US2] 实现 [前端组件]，路径：frontend/src/components/[component].*
-- [ ] T028 [US2] 实现 [后端能力或内容配置]，路径：backend/src/[location]/[file].*
-- [ ] T029 [US2] 与用户故事 1 的既有能力集成
+- [ ] T031 [P] [US2] 实现 [前端组件]，路径：frontend/src/components/[component].*
+- [ ] T032 [US2] 实现 [后端能力或内容配置]，路径：backend/src/[location]/[file].*
+- [ ] T033 [US2] 与用户故事 1 的既有能力集成
 
 **检查点**：用户故事 1 和 2 都能独立工作。
 
@@ -128,12 +133,12 @@ description: "功能实现任务清单模板"
 
 ### 用户故事 3 的测试或验证
 
-- [ ] T030 [P] [US3] 为 [功能] 增加测试或验证步骤
+- [ ] T034 [P] [US3] 为 [功能] 增加测试或验证步骤
 
 ### 用户故事 3 的实现
 
-- [ ] T031 [P] [US3] 实现 [前端能力]，路径：frontend/src/[location]/[file].*
-- [ ] T032 [US3] 实现 [后端能力]，路径：backend/src/[location]/[file].*
+- [ ] T035 [P] [US3] 实现 [前端能力]，路径：frontend/src/[location]/[file].*
+- [ ] T036 [US3] 实现 [后端能力]，路径：backend/src/[location]/[file].*
 
 **检查点**：目标用户故事全部可独立验证。
 
@@ -151,6 +156,7 @@ description: "功能实现任务清单模板"
 - [ ] TXXX 清理代码和重复逻辑
 - [ ] TXXX 优化图片、首屏加载和响应式表现
 - [ ] TXXX 确认所有 UI 讨论和展示均有图片、截图、设计稿或可视化 mock 作为用户可见依据
+- [ ] TXXX 确认 specs/[###-feature-name]/figma.md 已沉淀 Figma 文件/链接、关键节点、交互状态和版本说明
 - [ ] TXXX 验证手机和电脑 viewport 下布局、交互和内容展示均正常
 - [ ] TXXX 验证网站没有暗示提供完整路线规划、地铁或其他非香港巴士交通查询
 - [ ] TXXX [P] 补充单元测试或契约测试
@@ -182,6 +188,7 @@ description: "功能实现任务清单模板"
 - 契约先于前后端实现
 - 内容来源清单先于页面文案落地
 - 范围排除和 UI 可视化产物先于用户确认页面方案
+- Figma 文件/链接和关键节点记录先于前端页面实现
 - 手机与电脑双端布局策略先于页面实现和用户确认
 - i18n 文案与组件实现同步完成
 - 加载、错误和降级状态必须随核心实现一起完成
