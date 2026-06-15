@@ -10,7 +10,7 @@
 
 本功能把首页 Android 下载入口从“资源待接入”升级为真实可下载：将 Android 主项目的当前 `BusIsComing.apk` 复制到网站后端受管空间并纳入仓库管理，后端通过稳定下载入口返回当前 APK，前端只消费公开契约和同源下载路径。用户在首屏或下载区点击 Android 下载即可获得同一个当前 APK；iPhone 继续保持暂未支持。
 
-技术路线采用最小前后端分离实现：前端仍为 React + Vite 首页，更新下载 manifest、三语文案、按钮测试和桌面/手机下载验证；后端新增 Go 1.26 + Gin 服务，只提供 APK 下载和当前文件校验，不引入数据库。共享契约记录下载 API、APK 元数据和 UI 状态，确保前端不依赖后端内部文件路径。
+技术路线采用最小前后端分离实现：前端仍为 React + Vite 首页，更新下载 manifest、三语文案、按钮测试和桌面/手机下载验证；后端新增 Go 1.26 + Gin 服务，只提供 APK 下载和当前文件校验，不引入数据库。后端代码按 DDD bounded context 组织，把当前 APK、校验规则和下载结果放在领域层，把下载用例放在应用层，把文件系统与哈希计算放在基础设施层，把 HTTP 路由放在接口适配层。共享契约记录下载 API、APK 元数据和 UI 状态，确保前端不依赖后端内部文件路径。
 
 ## 技术背景
 
@@ -30,13 +30,15 @@
 
 **性能目标**：下载入口在正常本地或部署环境下 2 秒内开始返回 APK；当前 4.8 MB APK 不影响首页首屏渲染；下载前文件大小和 SHA-256 校验在 1 秒内完成；桌面 1440px 和手机 390px 下下载状态不重叠、不截断、不触发布局跳动。
 
-**约束**：三语 i18n；现代、简洁、优雅；移动端和桌面端同时可用；后端不得泄露本机私有路径或内部地址；下载失败必须清楚降级；不得新增完整出行路线规划、非香港巴士查询、iPhone 下载或历史版本浏览。
+**约束**：三语 i18n；现代、简洁、优雅；移动端和桌面端同时可用；后端必须采用 DDD 分层且 `domain` 不得依赖 Gin、文件系统、哈希实现或前端契约；后端不得泄露本机私有路径或内部地址；下载失败必须清楚降级；不得新增完整出行路线规划、非香港巴士查询、iPhone 下载或历史版本浏览。
 
 **规模/范围**：1 个后端下载端点；1 个后端元数据文件；1 个 APK 文件；1 份下载 API 契约；1 份下载 manifest 契约；前端 2 个下载入口复用同一按钮组件；3 种语言；2 个主要 viewport 验证。
 
 **i18n 范围**：必须覆盖 `zh-Hant`、`zh-Hans` 和 `en`。新增文案包括 Android 可下载描述、版本与大小、下载失败/不可用提示；iPhone 仍为暂未支持。
 
 **前后端契约**：本功能契约位于 `specs/002-android-apk-download/contracts/`，实现阶段同步到 `shared/contracts/`。`download-api.openapi.yaml` 固定下载端点、响应头和错误格式；`download-manifest.schema.json` 固定前端下载 manifest 与 APK 元数据；`ui-state-contract.md` 固定下载按钮状态和双端不变量。
+
+**服务端 DDD 边界**：bounded context 为 `downloads`。领域层包含当前 APK、APK 元数据、校验错误和下载结果等领域概念；应用层包含“下载当前 Android APK”用例和端口；基础设施层包含受管 APK 文件读取、元数据读取和 SHA-256 计算适配；接口适配层包含 Gin HTTP handler、路由注册和错误映射。依赖方向只能是 interfaces/infrastructure -> application -> domain，domain 不依赖外层。
 
 **UI 可视化产物**：沿用首页 v1 Figma 下载按钮和双端首页节点；实现阶段需要保存桌面、手机、Android 可下载展开态、iPhone 暂未支持态截图到 `specs/002-android-apk-download/visual-review/`。
 
@@ -58,6 +60,7 @@
 | 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 沿用 Figma 下载按钮设计；实现阶段保存双端截图证据。 |
 | 电脑与手机双端一致可用：布局、交互和内容展示同时覆盖手机与电脑 | 通过 | 计划要求桌面 1440px 和手机 390px Playwright 验证。 |
 | Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | Figma 文件与关键节点已记录在本计划和 `figma.md`。 |
+| 服务端 DDD 架构：新增或重构的服务端代码按 DDD 层级、模块边界和依赖方向组织 | 通过 | bounded context 为 `downloads`；结构决策列出 domain、application、infrastructure、interfaces 层。 |
 | 可验证交付与自动提交：验证命令、浏览器检查和本次 Spec Kit skill 后提交策略已定义 | 通过 | `quickstart.md` 定义后端、前端、端到端和哈希校验；本 skill 完成后提交。 |
 | Spec Kit 产物语言：本功能的 spec、plan、tasks 使用简体中文 | 通过 | 当前 plan、research、data-model、quickstart、figma 使用简体中文；代码标识和协议名保留原文。 |
 
@@ -108,10 +111,21 @@ backend/
 │   ├── BusIsComing.apk
 │   └── current.json
 └── internal/downloads/
-    ├── handler.go
-    ├── metadata.go
-    ├── service.go
-    └── service_test.go
+    ├── domain/
+    │   ├── artifact.go
+    │   ├── checksum.go
+    │   └── download_result.go
+    ├── application/
+    │   ├── download_current_apk.go
+    │   └── ports.go
+    ├── infrastructure/
+    │   └── filesystem/
+    │       ├── artifact_repository.go
+    │       └── checksum_calculator.go
+    └── interfaces/
+        └── http/
+            ├── handler.go
+            └── routes.go
 
 shared/
 └── contracts/
@@ -120,19 +134,19 @@ shared/
     └── ui-state-contract.md
 ```
 
-**结构决策**：后端采用最小 Go 服务，APK 文件与元数据放在 `backend/downloads/android/`，业务逻辑放在 `backend/internal/downloads/`，入口放在 `backend/cmd/server/`。本功能不需要数据库；MySQL 仍保留给后续真实查询或内容服务。前端继续通过现有下载按钮组件消费 manifest，不直接读取后端内部文件路径。
+**结构决策**：后端采用最小 Go 服务，APK 文件与元数据放在 `backend/downloads/android/`，入口放在 `backend/cmd/server/`，下载 bounded context 放在 `backend/internal/downloads/`。`domain` 只表达当前 APK、校验和下载结果等领域规则；`application` 编排下载当前 APK 用例；`infrastructure/filesystem` 读取文件、元数据并计算哈希；`interfaces/http` 只做 HTTP 协议转换和错误映射。本功能不需要数据库；MySQL 仍保留给后续真实查询或内容服务。前端继续通过现有下载按钮组件消费 manifest，不直接读取后端内部文件路径。
 
 ## 复杂度跟踪
 
-无宪法违规。新增后端服务是必要复杂度，因为用户明确要求“从服务端下载 APK”，且项目宪法要求前后端边界清晰；被拒绝的更简单方案是静态文件直链，因为它削弱错误处理、校验和后续管理能力。
+无宪法违规。新增后端服务是必要复杂度，因为用户明确要求“从服务端下载 APK”，且项目宪法要求前后端边界清晰；按 DDD 分层会比单文件 handler 更重，但它是当前宪法要求的服务端默认结构。被拒绝的更简单方案是静态文件直链或把校验规则直接写进 handler，因为它们削弱错误处理、校验、测试和后续管理能力。
 
 ## 第 0 阶段输出
 
-- [research.md](./research.md)：后端技术、受管 APK 布局、下载端点、校验策略、前端接入、测试和部署边界决策。
+- [research.md](./research.md)：后端技术、DDD bounded context、受管 APK 布局、下载端点、校验策略、前端接入、测试和部署边界决策。
 
 ## 第 1 阶段输出
 
-- [data-model.md](./data-model.md)：当前 APK、下载平台状态、下载 manifest、下载结果和错误状态实体。
+- [data-model.md](./data-model.md)：当前 APK、下载平台状态、下载 manifest、下载结果、错误状态和 DDD 层级边界实体。
 - [contracts/download-api.openapi.yaml](./contracts/download-api.openapi.yaml)：Android APK 下载 API 契约。
 - [contracts/download-manifest.schema.json](./contracts/download-manifest.schema.json)：前端下载 manifest 与 APK 元数据契约。
 - [contracts/ui-state-contract.md](./contracts/ui-state-contract.md)：下载按钮 UI 状态、iPhone 不下载、双端和 i18n 不变量。
@@ -151,6 +165,6 @@ shared/
 | 现代界面与可视化评审 | 通过 | Figma 引用保留；quickstart 要求保存桌面与手机截图。 |
 | 电脑与手机双端一致可用 | 通过 | UI 状态契约和 quickstart 覆盖桌面 1440px 与手机 390px。 |
 | Figma 驱动的前端规格 | 通过 | `figma.md` 记录 Figma URL、节点和本 feature 的状态更新说明。 |
+| 服务端 DDD 架构 | 通过 | `data-model.md` 记录领域概念，plan 记录 `downloads` bounded context、层级职责和依赖方向。 |
 | 可验证交付与自动提交 | 通过 | quickstart 覆盖 Go、前端、Playwright、curl 和 SHA-256 验证；本次 plan 完成后提交。 |
 | Spec Kit 产物语言 | 通过 | 本阶段产物使用简体中文，技术标识保持原文。 |
-

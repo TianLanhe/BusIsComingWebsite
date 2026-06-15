@@ -8,6 +8,12 @@
 
 **输入**：用户描述："实现 App 下载功能：用户在界面点击安卓 App 下载时，从服务端下载 APK 包。APK 文件在 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/release/BusIsComing.apk`，将其复制到服务端空间方便进行管理。已确认：APK 纳入网站仓库管理；下载通过后端稳定入口提供；界面展示简短版本和大小；服务端空间只保留当前 APK。"
 
+## Clarifications
+
+### Session 2026-06-16
+
+- Q: 服务端代码应采用什么架构组织原则？ → A: 服务端代码采用 DDD 目录组织结构，按照 DDD 规范和思想拆分服务端模块、实体、领域服务、应用服务、基础设施适配和接口适配边界。
+
 ## 用户场景与测试（必填）
 
 ### 用户故事 1 - 下载 Android APK（优先级：P1）
@@ -74,7 +80,7 @@
 - **产品来源**：Android 主项目 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/AGENTS.md`、`README.md` 和当前 APK `/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/release/BusIsComing.apk`。已读取 APK 元数据：App label `BusIsComing`、applicationId `com.example.busiscoming`、versionName `1.0`、versionCode `1`、大小 `5,009,547` bytes、SHA-256 `93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470`。
 - **产品范围**：本功能服务“下载 App”核心范围，并增强首页下载主流程可信度；不改变软件功能介绍、在线查询静态演示、反馈或联系入口的优先级。
 - **排除范围**：不提供完整出行路线规划，不提供地铁、铁路、渡轮或其他非香港巴士交通工具查询；不新增 iPhone 下载；不提供历史版本选择页面。
-- **前后端边界**：前端负责展示下载状态、三语文案、桌面与手机交互，以及触发 Android 下载；后端负责管理当前 APK、提供稳定下载入口、返回当前文件并处理缺失或不可用状态；共享契约负责记录下载平台状态和 APK 元数据。具体接口路径和响应字段在计划阶段契约中固定。
+- **前后端边界**：前端负责展示下载状态、三语文案、桌面与手机交互，以及触发 Android 下载；后端负责管理当前 APK、提供稳定下载入口、返回当前文件并处理缺失或不可用状态；共享契约负责记录下载平台状态和 APK 元数据。后端代码必须采用 DDD 目录组织结构，按照领域层、应用层、基础设施层和接口适配层拆分模块，领域实体与领域服务不得依赖 HTTP 框架、文件系统实现或前端契约细节。具体接口路径和响应字段在计划阶段契约中固定。
 - **三语范围**：新增或修改的用户可见文字包括 Android 可下载状态、版本与大小说明、下载失败或不可用提示、iPhone 暂未支持提示；必须覆盖 `zh-Hant`、`zh-Hans` 和 `en`。
 - **UI 可视化**：本功能沿用首页 v1 已确认的下载按钮视觉和交互状态，不改变页面结构；后续计划和实现必须提供桌面与手机截图验证 Android 可下载状态。若计划阶段判断需要新增可用态标注，应更新或补充可视化 mock。
 - **Figma 设计**：继续引用 [BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU)。关键节点：`03 Download Button Interaction States`（node `4:326`）作为下载按钮 default、Android 展开、iPhone 展开状态基准；`01 Desktop Homepage / 1440`（node `4:2`）和 `02 Mobile Homepage / 390`（node `4:183`）作为双端布局基准。版本说明：本功能不重排 UI，只把 Android 状态从“待接入”更新为“可下载”并补充简短元数据。
@@ -101,12 +107,14 @@
 - **FR-013**：页面必须在桌面和手机常见 viewport 下完整展示 Android 下载入口、iPhone 状态、版本和大小信息。
 - **FR-014**：系统不得借下载功能新增完整出行路线规划、非香港巴士查询、iPhone 下载或历史版本浏览能力。
 - **FR-015**：后端不得向浏览器泄露本机私有路径、密钥、内部 token 或可绕过下载服务边界的内部地址；来源路径只用于维护和验证记录。
+- **FR-016**：后端模块必须按照 DDD 边界组织；当前 APK、下载校验和下载结果必须作为领域概念建模，HTTP 路由、文件读取和哈希计算必须作为接口或基础设施适配，不得进入领域实体内部。
 
 ### 关键实体（涉及数据时填写）
 
 - **当前 Android APK**：网站提供下载的唯一当前安装包。关键属性包括 App 名称、applicationId、versionName、versionCode、文件大小、SHA-256、来源路径、更新时间和当前可用状态。
 - **下载平台状态**：Android 与 iPhone 的用户可见平台状态。Android 可为可下载或不可用；iPhone 在当前产品事实下始终为暂未支持。
 - **下载结果**：用户点击下载后获得的文件或失败状态。成功结果必须对应当前 Android APK；失败结果必须有清楚原因，不得伪装成功。
+- **后端领域模块**：围绕 APK 下载业务划分的服务端模块边界，至少区分领域概念、用例编排、基础设施适配和接口适配，确保下载规则可独立测试。
 
 ## 成功标准（必填）
 
@@ -127,4 +135,4 @@
 - Android 安装来源确认、浏览器下载提示和系统安全提示由用户设备处理，网站只负责提供可信下载和清楚说明。
 - 现有首页 Figma 下载按钮交互结构继续适用；本功能只改变 Android 平台状态和相关文案。
 - App 当前能力和平台事实以 Android 主项目文档与当前 APK 元数据为准。
-
+- 服务端实现默认采用 DDD 分层；后续计划和任务必须显式列出领域层、应用层、基础设施层和接口适配层的职责与文件路径。

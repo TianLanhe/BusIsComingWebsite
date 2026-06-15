@@ -83,6 +83,23 @@
 - 失败结果不得返回部分 APK。
 - 失败结果必须有机器可读错误码和维护者可定位的描述。
 
+## 后端 DDD bounded context
+
+**含义**：服务端围绕 Android APK 下载建立的 `downloads` bounded context。
+
+| 层级 | 责任 | 允许依赖 | 禁止依赖 |
+|------|------|----------|----------|
+| `domain` | 表达当前 APK、APK 元数据、校验规则、下载结果和领域错误 | 标准语言能力、领域自身类型 | HTTP 框架、文件系统、数据库、前端契约 |
+| `application` | 编排“下载当前 Android APK”用例，定义读取当前 APK 和计算校验的端口 | `domain` | Gin handler、具体文件路径、具体哈希实现 |
+| `infrastructure` | 读取受管 APK、读取元数据、计算 SHA-256 | `application` 端口、`domain` 类型 | HTTP 请求/响应对象 |
+| `interfaces` | 注册 HTTP 路由，转换请求、响应头和错误格式 | `application` 用例 | 文件读取规则和领域规则实现 |
+
+**验证规则**：
+
+- `domain` 包不得 import Gin、文件系统、数据库或前端契约包。
+- 下载校验规则必须能在不启动 HTTP 服务的情况下单独测试。
+- HTTP 错误码映射只能位于接口适配层，不能改变领域错误含义。
+
 ## UI 状态
 
 **含义**：下载按钮的用户可见交互状态。
@@ -98,4 +115,3 @@
 - 语言切换不改变平台状态。
 - iPhone 任何状态都不触发 APK 下载。
 - Android 可用态展示版本和大小，但不展示完整 SHA-256。
-

@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report
-Version change: 1.2.0 -> 1.3.0
+Version change: 1.3.0 -> 1.4.0
 Modified principles:
 - None; existing principle titles retained
 Added sections:
-- VIII. Figma 驱动的前端规格
+- IX. 服务端 DDD 架构
 Removed sections:
 - None
 Templates requiring updates:
@@ -13,6 +13,7 @@ Templates requiring updates:
 - Updated: .specify/templates/tasks-template.md
 - Updated: .specify/templates/checklist-template.md
 - Updated: AGENTS.md
+- Updated: backend/README.md
 - No command templates directory exists under .specify/templates/commands
 Follow-up TODOs:
 - None
@@ -107,6 +108,19 @@ N/A 原因。
 理由：前端页面的准确和优雅依赖明确设计源，Figma 产物能降低口头描述误差，并为后续迭代
 保留可追溯设计依据。
 
+### IX. 服务端 DDD 架构
+
+任何新增或重构的服务端代码必须采用 DDD 目录组织结构和模块边界。后端必须按领域层、
+应用层、基础设施层和接口适配层拆分职责：领域实体、值对象、领域服务和领域错误不得依赖
+HTTP 框架、数据库、文件系统、第三方 SDK 或前端契约细节；应用层负责编排用例和事务边界；
+基础设施层负责文件、数据库、外部 API、缓存、哈希计算等技术适配；接口适配层负责 HTTP、
+CLI、定时任务或其他入口的协议转换和错误映射。计划和任务必须列出服务端 bounded context、
+核心实体、层级职责、依赖方向和可测试边界；小型功能也不得把领域规则直接塞进 handler、
+controller 或路由函数。
+
+理由：网站后端会逐步承接下载、内容服务、外部数据代理和实时查询能力。DDD 边界能保护
+领域规则不被框架和基础设施细节污染，降低后续查询、缓存、错误处理和发布管理的演进成本。
+
 ## 技术与内容约束
 
 - 项目结构必须显式区分前端、后端和共享契约；若某个阶段暂未创建完整目录，也必须在
@@ -127,6 +141,8 @@ N/A 原因。
 - 三语内容必须保持同等功能覆盖；新增页面、组件、按钮、状态和错误提示时，必须同时补齐
   `zh-Hant`、`zh-Hans` 和 `en`。
 - 后端不得向浏览器泄露密钥、私有 token、未公开第三方参数或可绕过服务边界的内部地址。
+- 服务端代码目录必须体现 DDD 分层；`domain` 只能依赖标准语言能力和领域自身概念，
+  `application` 只能编排领域规则与端口，`infrastructure` 和 `interfaces` 通过端口适配领域。
 - 外部 API 样例、fixture、官方术语和第三方文本必须保留原始语义；为了文风统一而改写
   来源内容属于违规。
 
@@ -136,11 +152,13 @@ N/A 原因。
 - `/speckit-specify` 涉及前端 UI 时，必须产出并记录 Figma 文件或链接、关键节点和交互状态。
 - `/speckit-plan` 必须在宪法检查中逐项记录来源追溯、前后端边界、三语策略、
   范围排除、Figma 设计引用、UI 可视化、电脑与手机双端适配、外部集成降级、验证计划和
-  skill 后提交策略。
+  服务端 DDD 边界、skill 后提交策略。
 - `/speckit-tasks` 必须把任务按用户故事组织，并包含必要的 i18n、契约、视觉图片或截图、
-  Figma 文件或链接沉淀、电脑与手机 viewport 验证、范围排除、集成验证任务。
+  Figma 文件或链接沉淀、电脑与手机 viewport 验证、范围排除、服务端 DDD 分层任务、
+  集成验证任务。
 - `/speckit-implement` 完成后必须运行与变更范围匹配的验证；涉及前端体验时，必须启动本地
-  服务并用浏览器验证关键页面；涉及后端契约时，必须运行对应测试或等价检查。
+  服务并用浏览器验证关键页面；涉及后端契约或服务端实现时，必须运行对应测试或等价检查，
+  并确认领域层没有依赖框架、文件系统、数据库或前端契约。
 - 任何 Spec Kit skill 验证通过后必须提交本次改动。提交信息使用简洁 Conventional Commit
   风格；若工作区存在明显无关改动，必须只提交本次范围或先向用户确认。
 - 任何违反宪法门禁的计划或任务必须在复杂度跟踪或等价章节中记录原因、风险和
@@ -157,10 +175,10 @@ N/A 原因。
 
 版本遵循语义化规则：移除或重新定义核心原则为 MAJOR；新增原则、章节或实质扩展治理要求为
 MINOR；文字澄清、错别字和非语义调整为 PATCH。1.0.0 为首次制定；1.1.0 新增 UI 和
-Spec Kit 提交治理要求；1.2.0 新增双端一致可用核心原则；本次新增 Figma 驱动的前端规格
-核心原则，因此升级为 1.3.0。
+Spec Kit 提交治理要求；1.2.0 新增双端一致可用核心原则；1.3.0 新增 Figma 驱动的前端规格
+核心原则；本次新增服务端 DDD 架构核心原则，因此升级为 1.4.0。
 
 合规检查必须在计划阶段进入第 0 阶段前完成，并在第 1 阶段设计后复查。代码实现完成前，任务
 清单必须能映射到本宪法的可验证门禁；未验证的交付不能标记完成。
 
-**Version**: 1.3.0 | **Ratified**: 2026-06-15 | **Last Amended**: 2026-06-15
+**Version**: 1.4.0 | **Ratified**: 2026-06-15 | **Last Amended**: 2026-06-16
