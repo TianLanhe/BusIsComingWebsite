@@ -13,6 +13,8 @@ task generation, or implementation.
   和相关产品文档。
 - 先阅读 `.specify/memory/constitution.md`，并把其中的门禁视为本仓库的最高项目约束。
 - 架构默认采用前后端分离；后续计划和任务必须明确前端、后端和共享契约边界。
+- 涉及服务端 HTTP API 的变更必须维护 OpenAPI 3.1 YAML 接口文档；OpenAPI 源文件是接口
+  权威契约，Swagger UI/Redocly 等仅作为预览、试接口、lint 或 bundle 工具。
 - 服务端代码默认采用 DDD 目录组织结构；后续计划、任务和实现必须明确 bounded context、
   领域层、应用层、基础设施层、接口适配层和依赖方向。
 - 网站用户可见文字必须支持 `zh-Hant`、`zh-Hans` 和 `en` 三语切换。

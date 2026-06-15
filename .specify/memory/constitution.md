@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report
-Version change: 1.3.0 -> 1.4.0
+Version change: 1.4.0 -> 1.5.0
 Modified principles:
 - None; existing principle titles retained
 Added sections:
-- IX. 服务端 DDD 架构
+- X. OpenAPI 驱动的服务端接口文档
 Removed sections:
 - None
 Templates requiring updates:
@@ -121,6 +121,20 @@ controller 或路由函数。
 理由：网站后端会逐步承接下载、内容服务、外部数据代理和实时查询能力。DDD 边界能保护
 领域规则不被框架和基础设施细节污染，降低后续查询、缓存、错误处理和发布管理的演进成本。
 
+### X. OpenAPI 驱动的服务端接口文档
+
+任何新增、修改或移除服务端 HTTP API 的技术方案，在进入实现阶段前，必须同步创建或更新
+OpenAPI 3.1 YAML 接口文档。OpenAPI 文档是服务端接口的权威契约来源，必须记录 endpoint、
+operationId、请求参数、响应 schema、错误格式、状态码、认证或缓存要求、降级行为和示例。
+Swagger UI、Swagger Editor、Redocly 或等价工具可以用于预览、试接口、lint 和 bundle，
+但生成页面或代码注释不得替代仓库内的 OpenAPI 源文件。feature 阶段接口文档必须沉淀在
+对应 `specs/[feature]/contracts/`，实现阶段必须同步到 `shared/contracts/` 下的长期契约
+入口；若采用 `openapi/` 子目录或兼容旧路径，必须在 plan 中记录。后续实现、测试和 agents
+理解项目时，必须优先参考该 OpenAPI 文档。
+
+理由：服务端接口是前后端协作和领域知识沉淀的关键边界。OpenAPI-first 能让开发者、工具和
+agents 在不阅读 handler 实现的情况下理解接口能力、错误语义和兼容性要求。
+
 ## 技术与内容约束
 
 - 项目结构必须显式区分前端、后端和共享契约；若某个阶段暂未创建完整目录，也必须在
@@ -143,6 +157,10 @@ controller 或路由函数。
 - 后端不得向浏览器泄露密钥、私有 token、未公开第三方参数或可绕过服务边界的内部地址。
 - 服务端代码目录必须体现 DDD 分层；`domain` 只能依赖标准语言能力和领域自身概念，
   `application` 只能编排领域规则与端口，`infrastructure` 和 `interfaces` 通过端口适配领域。
+- 涉及服务端 HTTP API 的变更必须维护 OpenAPI 3.1 YAML 文档；文档必须作为接口契约源文件
+  纳入 feature contracts 和共享契约，不能只存在于代码注释、截图、Swagger UI 页面或外部服务。
+- OpenAPI 文档必须可被 lint 或等价检查验证，并能被 Swagger UI、Redocly 或等价工具预览；
+  实现阶段不得在 OpenAPI 文档缺失或明显过期时修改服务端接口。
 - 外部 API 样例、fixture、官方术语和第三方文本必须保留原始语义；为了文风统一而改写
   来源内容属于违规。
 
@@ -150,15 +168,17 @@ controller 或路由函数。
 
 - `/speckit-specify` 产物必须用简体中文描述用户旅程、需求、成功标准和假设。
 - `/speckit-specify` 涉及前端 UI 时，必须产出并记录 Figma 文件或链接、关键节点和交互状态。
+- `/speckit-specify` 涉及服务端 HTTP API 时，必须说明 OpenAPI 文档的创建或更新要求、长期
+  沉淀位置和验证方式。
 - `/speckit-plan` 必须在宪法检查中逐项记录来源追溯、前后端边界、三语策略、
-  范围排除、Figma 设计引用、UI 可视化、电脑与手机双端适配、外部集成降级、验证计划和
-  服务端 DDD 边界、skill 后提交策略。
+  范围排除、Figma 设计引用、UI 可视化、电脑与手机双端适配、OpenAPI 接口文档、外部集成
+  降级、验证计划和服务端 DDD 边界、skill 后提交策略。
 - `/speckit-tasks` 必须把任务按用户故事组织，并包含必要的 i18n、契约、视觉图片或截图、
-  Figma 文件或链接沉淀、电脑与手机 viewport 验证、范围排除、服务端 DDD 分层任务、
-  集成验证任务。
+  Figma 文件或链接沉淀、OpenAPI 文档更新和 lint/预览验证、电脑与手机 viewport 验证、
+  范围排除、服务端 DDD 分层任务、集成验证任务。
 - `/speckit-implement` 完成后必须运行与变更范围匹配的验证；涉及前端体验时，必须启动本地
   服务并用浏览器验证关键页面；涉及后端契约或服务端实现时，必须运行对应测试或等价检查，
-  并确认领域层没有依赖框架、文件系统、数据库或前端契约。
+  确认 OpenAPI 文档与实现一致，并确认领域层没有依赖框架、文件系统、数据库或前端契约。
 - 任何 Spec Kit skill 验证通过后必须提交本次改动。提交信息使用简洁 Conventional Commit
   风格；若工作区存在明显无关改动，必须只提交本次范围或先向用户确认。
 - 任何违反宪法门禁的计划或任务必须在复杂度跟踪或等价章节中记录原因、风险和
@@ -176,9 +196,10 @@ controller 或路由函数。
 版本遵循语义化规则：移除或重新定义核心原则为 MAJOR；新增原则、章节或实质扩展治理要求为
 MINOR；文字澄清、错别字和非语义调整为 PATCH。1.0.0 为首次制定；1.1.0 新增 UI 和
 Spec Kit 提交治理要求；1.2.0 新增双端一致可用核心原则；1.3.0 新增 Figma 驱动的前端规格
-核心原则；本次新增服务端 DDD 架构核心原则，因此升级为 1.4.0。
+核心原则；1.4.0 新增服务端 DDD 架构核心原则；本次新增 OpenAPI 驱动的服务端接口文档
+核心原则，因此升级为 1.5.0。
 
 合规检查必须在计划阶段进入第 0 阶段前完成，并在第 1 阶段设计后复查。代码实现完成前，任务
 清单必须能映射到本宪法的可验证门禁；未验证的交付不能标记完成。
 
-**Version**: 1.4.0 | **Ratified**: 2026-06-15 | **Last Amended**: 2026-06-16
+**Version**: 1.5.0 | **Ratified**: 2026-06-15 | **Last Amended**: 2026-06-16
