@@ -1,6 +1,9 @@
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+Current plan: `specs/001-homepage-v1/plan.md`
+
+For technologies, project structure, shell commands, validation steps, and
+other feature-specific context, read the current plan above before planning,
+task generation, or implementation.
 <!-- SPECKIT END -->
 
 ## 项目约束

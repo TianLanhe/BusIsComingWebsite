@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://busiscoming.local/contracts/homepage-content.schema.json",
+  "title": "BusIsComing Homepage Content Contract",
+  "type": "object",
+  "required": [
+    "metadata",
+    "navigation",
+    "hero",
+    "features",
+    "onlineQueryDemo",
+    "downloadSection",
+    "faq",
+    "contact",
+    "scopeExclusions",
+    "figmaReference"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["version", "lastUpdated", "sourceReferences"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "lastUpdated": { "type": "string", "format": "date" },
+        "sourceReferences": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "navigation": {
+      "type": "object",
+      "required": ["brand", "items", "languageLabel"],
+      "properties": {
+        "brand": { "$ref": "#/$defs/localizedString" },
+        "items": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "target"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "label": { "$ref": "#/$defs/localizedString" },
+              "target": { "type": "string", "pattern": "^#" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "languageLabel": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "hero": {
+      "type": "object",
+      "required": ["headline", "subheading", "bullets", "primaryAction", "secondaryAction", "carouselSlides"],
+      "properties": {
+        "headline": { "$ref": "#/$defs/localizedString" },
+        "subheading": { "$ref": "#/$defs/localizedString" },
+        "bullets": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "$ref": "#/$defs/textPair" }
+        },
+        "primaryAction": { "$ref": "#/$defs/action" },
+        "secondaryAction": { "$ref": "#/$defs/action" },
+        "carouselSlides": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/carouselSlide" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "features": {
+      "type": "array",
+      "minItems": 6,
+      "items": { "$ref": "#/$defs/featureItem" }
+    },
+    "onlineQueryDemo": {
+      "type": "object",
+      "required": ["title", "mode", "origin", "destination", "resultRows", "limitationNotice", "scopeNotice"],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "mode": { "const": "static-demo" },
+        "origin": { "$ref": "#/$defs/localizedString" },
+        "destination": { "$ref": "#/$defs/localizedString" },
+        "resultRows": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/demoRouteResult" }
+        },
+        "limitationNotice": { "$ref": "#/$defs/localizedString" },
+        "scopeNotice": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "downloadSection": {
+      "type": "object",
+      "required": ["title", "description", "manifestRef"],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "manifestRef": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "faq": {
+      "type": "array",
+      "minItems": 4,
+      "items": { "$ref": "#/$defs/faqItem" }
+    },
+    "contact": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/contactEntry" }
+    },
+    "scopeExclusions": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/localizedString" }
+    },
+    "figmaReference": {
+      "type": "object",
+      "required": ["fileUrl", "desktopNode", "mobileNode", "downloadStatesNode", "carouselStatesNode", "versionNote"],
+      "properties": {
+        "fileUrl": { "type": "string", "format": "uri" },
+        "desktopNode": { "type": "string", "minLength": 1 },
+        "mobileNode": { "type": "string", "minLength": 1 },
+        "downloadStatesNode": { "type": "string", "minLength": 1 },
+        "carouselStatesNode": { "type": "string", "minLength": 1 },
+        "versionNote": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "localizedString": {
+      "type": "object",
+      "required": ["zh-Hant", "zh-Hans", "en"],
+      "properties": {
+        "zh-Hant": { "type": "string", "minLength": 1 },
+        "zh-Hans": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "textPair": {
+      "type": "object",
+      "required": ["title", "description"],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": ["label", "target"],
+      "properties": {
+        "label": { "$ref": "#/$defs/localizedString" },
+        "target": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "carouselSlide": {
+      "type": "object",
+      "required": ["id", "order", "title", "description", "screenshot", "screenshotStatus", "sourceReference"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "order": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "screenshot": { "type": "string", "minLength": 1 },
+        "screenshotStatus": { "enum": ["real", "placeholder"] },
+        "sourceReference": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "featureItem": {
+      "type": "object",
+      "required": ["id", "title", "description", "icon", "sourceReference"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "icon": { "type": "string", "minLength": 1 },
+        "sourceReference": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "demoRouteResult": {
+      "type": "object",
+      "required": ["routeNumber", "operator", "fare", "duration", "walkingDistance", "etaDisplay"],
+      "properties": {
+        "routeNumber": { "type": "string", "minLength": 1 },
+        "operator": { "type": "string", "minLength": 1 },
+        "fare": { "type": "string", "pattern": "^HK\\$" },
+        "duration": { "$ref": "#/$defs/localizedString" },
+        "walkingDistance": { "$ref": "#/$defs/localizedString" },
+        "etaDisplay": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "faqItem": {
+      "type": "object",
+      "required": ["id", "category", "question", "answer"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "category": { "enum": ["android-install", "ios-status", "online-query-limit", "data-scope", "other"] },
+        "question": { "$ref": "#/$defs/localizedString" },
+        "answer": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "contactEntry": {
+      "type": "object",
+      "required": ["id", "label", "description", "href", "priority"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "href": { "type": "string", "minLength": 1 },
+        "priority": { "enum": ["secondary"] }
+      },
+      "additionalProperties": false
+    }
+  }
+}
