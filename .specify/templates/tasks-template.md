@@ -27,6 +27,7 @@ description: "功能实现任务清单模板"
 - **文档与验证记录**：`docs/`、`specs/[###-feature-name]/quickstart.md`
 - **Figma 设计引用**：`specs/[###-feature-name]/figma.md`
 - **代码可读性**：需要在对应源码文件内补充中文注释，避免重复代码字面含义
+- **服务端稳健性**：服务端入口、goroutine、后台任务和外部依赖必须有 recovery、错误传递和脱敏日志
 
 <!--
   ============================================================================
@@ -63,10 +64,10 @@ description: "功能实现任务清单模板"
 - [ ] T006 定义前后端 API 或共享契约；涉及服务端 HTTP API 时创建或更新 OpenAPI 3.1 YAML，并规划中文 API UI 输出路径
 - [ ] T007 [P] 建立前端路由、页面框架和 i18n 加载机制
 - [ ] T008 [P] 建立后端 DDD bounded context 目录，至少包含 domain、application、infrastructure、interfaces 层
-- [ ] T009 [P] 建立后端 API 路由、中间件和错误格式，确保路由只位于 interfaces 层
+- [ ] T009 [P] 建立后端 API 路由、中间件、panic recovery、请求日志和错误格式，确保路由只位于 interfaces 层
 - [ ] T010 建立产品内容来源清单，记录 Android 主项目事实来源
 - [ ] T011 配置外部服务超时、缓存或降级策略
-- [ ] T012 配置日志和错误处理基础设施，并标记需要中文注释解释的错误映射和降级策略
+- [ ] T012 配置日志、错误处理和服务端 recovery 基础设施，并标记需要中文注释解释的错误映射和降级策略
 - [ ] T013 记录范围排除规则，确认不实现完整出行路线规划和非香港巴士交通查询
 - [ ] T014 定义手机与电脑 viewport 验证基线，路径：specs/[###-feature-name]/quickstart.md
 - [ ] T015 若涉及前端 UI，创建或更新 Figma 设计并记录文件/链接、关键节点和交互状态，路径：specs/[###-feature-name]/figma.md
@@ -164,6 +165,7 @@ description: "功能实现任务清单模板"
 - [ ] TXXX 确认所有 UI 讨论和展示均有图片、截图、设计稿或可视化 mock 作为用户可见依据
 - [ ] TXXX 确认 specs/[###-feature-name]/figma.md 已沉淀 Figma 文件/链接、关键节点、交互状态和版本说明
 - [ ] TXXX 确认服务端 HTTP API 的 OpenAPI 文档已同步到 feature contracts 和共享契约，已生成中文 API UI，并通过 lint/预览验证
+- [ ] TXXX 确认服务端没有以 panic 表达业务错误，HTTP 入口已启用 recovery 和请求日志，自建 goroutine 或后台任务已加 recover 包装并有脱敏日志
 - [ ] TXXX 确认复杂领域规则、错误映射、状态转换、外部约束和降级策略已有中文注释，且无重复代码字面含义的噪音注释
 - [ ] TXXX 验证手机和电脑 viewport 下布局、交互和内容展示均正常
 - [ ] TXXX 验证网站没有暗示提供完整路线规划、地铁或其他非香港巴士交通查询
@@ -198,6 +200,7 @@ description: "功能实现任务清单模板"
 - OpenAPI 接口文档先于服务端 HTTP handler 和前端调用实现
 - 中文 API UI 生成与验证先于服务端接口交付完成标记
 - 服务端领域模型先于应用服务，应用服务先于基础设施和接口适配
+- 服务端 recovery、请求日志和 goroutine recover 包装先于服务端功能交付完成标记
 - 复杂规则和边界处理的中文注释随对应代码实现同步完成
 - 内容来源清单先于页面文案落地
 - 范围排除和 UI 可视化产物先于用户确认页面方案

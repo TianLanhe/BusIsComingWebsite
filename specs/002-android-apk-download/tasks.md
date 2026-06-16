@@ -14,7 +14,7 @@
 
 - [X] T001 初始化后端 Go 模块并加入 Gin 依赖，路径：`backend/go.mod`、`backend/go.sum`
 - [X] T002 建立 `downloads` bounded context 的 DDD 目录，路径：`backend/internal/downloads/domain/`、`backend/internal/downloads/application/`、`backend/internal/downloads/infrastructure/filesystem/`、`backend/internal/downloads/interfaces/http/`
-- [X] T003 建立后端服务入口骨架，路径：`backend/cmd/server/main.go`
+- [X] T003 建立后端服务入口骨架，并配置请求日志和 panic recovery，路径：`backend/cmd/server/main.go`
 - [X] T004 [P] 配置 Vite 开发代理把 `/api` 转发到 Go 后端，路径：`frontend/vite.config.ts`
 - [X] T005 [P] 配置 Playwright 同时覆盖 Vite 前端和 Go 后端运行方式，路径：`frontend/playwright.config.ts`
 - [X] T006 [P] 增加 OpenAPI lint、bundle 和中文 API UI 生成脚本及 Redocly CLI 依赖，路径：`frontend/package.json`、`frontend/package-lock.json`
@@ -138,6 +138,7 @@
 - [X] T058 检查前端 bundle 和 manifest 不暴露 Android 主项目本机来源路径，路径：`frontend/src/content/downloadManifest.ts`、`frontend/dist/`
 - [X] T059 复核页面文案没有新增完整路线规划、非香港巴士查询、iPhone 下载或历史版本浏览暗示，路径：`frontend/src/content/homepageContent.ts`、`frontend/src/content/sectionsContent.ts`
 - [X] T060 汇总验证命令、截图文件、OpenAPI 校验、中文 API UI 和 DDD 依赖检查结果，路径：`specs/002-android-apk-download/visual-review/README.md`
+- [X] T061 复核服务端没有以 `panic` 表达业务错误、HTTP 入口启用 `gin.Logger()` 和 `gin.Recovery()`，且当前没有自建 goroutine；后续新增并发任务必须加 recover 包装和脱敏日志，路径：`backend/cmd/server/main.go`、`backend/internal/downloads/`
 
 ---
 
@@ -163,8 +164,9 @@
 1. 先写测试或验证任务。
 2. OpenAPI、中文 API UI 和共享契约先于后端 handler 与前端调用。
 3. 后端领域层先于应用层，应用层先于基础设施和接口适配层。
-4. 前端类型和 manifest 先于组件渲染。
-5. 视觉截图和 quickstart 记录在故事实现可运行后完成。
+4. 服务端请求日志和 panic recovery 先于下载端点交付完成；新增 goroutine 时 recover 包装先于并发逻辑交付完成。
+5. 前端类型和 manifest 先于组件渲染。
+6. 视觉截图和 quickstart 记录在故事实现可运行后完成。
 
 ## 并行机会
 
@@ -197,6 +199,7 @@
 - `[P]` 表示任务修改不同文件或不依赖同阶段未完成任务，可以并行。
 - `[US1]`、`[US2]`、`[US3]` 分别映射 `spec.md` 中的三个用户故事。
 - 所有后端服务代码必须保持 DDD 依赖方向：`interfaces/infrastructure -> application -> domain`。
+- 服务端代码不得以 `panic` 表达业务错误；HTTP 入口必须启用请求日志和 panic recovery；新增 goroutine 必须加 recover 包装和脱敏日志。
 - 服务端 HTTP API 的权威契约是 `specs/002-android-apk-download/contracts/download-api.openapi.yaml`，实现阶段必须同步到 `shared/contracts/`。
 - 生成的 API UI 中项目可控标题、摘要、参数说明、响应说明、错误说明和示例说明必须使用中文。
 - 当前 APK 只保留一个 `backend/downloads/android/BusIsComing.apk`，不增加用户可见历史版本列表。

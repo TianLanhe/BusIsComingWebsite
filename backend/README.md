@@ -35,6 +35,17 @@ go run ./cmd/server
 - `internal/downloads/infrastructure/filesystem`：读取 `current.json`、读取 APK 文件、计算 SHA-256。
 - `internal/downloads/interfaces/http`：Gin 路由、响应头、JSON 错误映射。
 
+## 稳健性与日志
+
+服务端不得用 `panic` 表达业务错误；领域层、应用层、基础设施层和 HTTP 层必须返回 error 或
+领域错误，并由接口适配层映射为受控响应。HTTP 服务入口必须启用请求日志和 panic recovery；
+当前 `cmd/server/main.go` 使用 `gin.Logger()` 和 `gin.Recovery()`。
+
+新增自建 goroutine、并发回调或后台任务时，必须通过统一包装或 `defer recover` 捕获异常，
+记录任务名、错误类型、调用上下文和必要堆栈，并把失败传回调用方或可观测边界。日志必须覆盖
+启动失败、请求、下载错误、元数据读取、文件校验失败和降级状态；不得输出密钥、token、私有
+路径、个人敏感信息或未经脱敏的第三方响应。
+
 ## 代码注释
 
 后端新写或重构代码必须为复杂领域规则、下载校验、错误映射、外部约束、状态转换、缓存或降级

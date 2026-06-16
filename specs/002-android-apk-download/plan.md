@@ -11,7 +11,7 @@
 本功能把首页 Android 下载入口从“资源待接入”升级为真实可下载：将 Android 主项目的当前 `BusIsComing.apk` 复制到网站后端受管空间并纳入仓库管理，后端通过稳定下载入口返回当前 APK，前端只消费公开契约和同源下载路径。用户在首屏或下载区点击 Android 下载即可获得同一个当前 APK；iPhone 继续保持暂未支持。
 
 技术路线采用最小前后端分离实现：前端仍为 React + Vite 首页，更新下载 manifest、三语文案、按钮测试和桌面/手机下载验证；后端新增 Go 1.26 + Gin 服务，只提供 APK 下载和当前文件校验，不引入数据库。后端代码按 DDD bounded context 组织，把当前 APK、校验规则和下载结果放在领域层，把下载用例放在应用层，把文件系统与哈希计算放在基础设施层，把 HTTP 路由放在接口适配层。共享契约记录下载 API、APK 元数据和 UI 状态，确保前端不依赖后端内部文件路径。
-下载 API 采用 OpenAPI-first：`download-api.openapi.yaml` 是接口文档和前后端协作的权威来源，必须记录无认证公开下载策略、无请求参数、`Cache-Control: no-store` 缓存策略、降级行为、错误示例和共享契约路径；Swagger UI 或 Redocly 只用于本地预览、试接口、lint、bundle 和生成中文 API UI。
+下载 API 采用 OpenAPI-first：`download-api.openapi.yaml` 是接口文档和前后端协作的权威来源，必须记录无认证公开下载策略、无请求参数、`Cache-Control: no-store` 缓存策略、降级行为、错误示例和共享契约路径；Swagger UI 或 Redocly 只用于本地预览、试接口、lint、bundle 和生成中文 API UI。服务端实现不得用 `panic` 表达下载、元数据或文件校验错误；HTTP 入口必须启用请求日志和 panic recovery。本功能不引入自建 goroutine；如果后续增加异步校验、后台刷新或并发任务，必须加 recover 包装并记录脱敏日志。
 
 ## 技术背景
 
@@ -31,7 +31,7 @@
 
 **性能目标**：下载入口在正常本地或部署环境下 2 秒内开始返回 APK；当前 4.8 MB APK 不影响首页首屏渲染；下载前文件大小和 SHA-256 校验在 1 秒内完成；桌面 1440px 和手机 390px 下下载状态不重叠、不截断、不触发布局跳动。
 
-**约束**：三语 i18n；现代、简洁、优雅；移动端和桌面端同时可用；后端必须采用 DDD 分层且 `domain` 不得依赖 Gin、文件系统、哈希实现或前端契约；后端不得泄露本机私有路径或内部地址；下载失败必须清楚降级；不得新增完整出行路线规划、非香港巴士查询、iPhone 下载或历史版本浏览。
+**约束**：三语 i18n；现代、简洁、优雅；移动端和桌面端同时可用；后端必须采用 DDD 分层且 `domain` 不得依赖 Gin、文件系统、哈希实现或前端契约；后端不得泄露本机私有路径或内部地址；后端不得以 `panic` 表达业务错误，HTTP 入口必须启用 recovery 和请求日志；下载失败必须清楚降级；不得新增完整出行路线规划、非香港巴士查询、iPhone 下载或历史版本浏览。
 
 **规模/范围**：1 个后端下载端点；1 个后端元数据文件；1 个 APK 文件；1 份下载 API 契约；1 份下载 manifest 契约；前端 2 个下载入口复用同一按钮组件；3 种语言；2 个主要 viewport 验证。
 
@@ -42,6 +42,8 @@
 **OpenAPI 接口文档**：feature 阶段权威源为 `specs/002-android-apk-download/contracts/download-api.openapi.yaml`，使用 OpenAPI 3.1 描述 `GET /api/downloads/android/latest`、`downloadLatestAndroidApk`、无请求参数、无认证公开下载、`Cache-Control: no-store`、APK 二进制响应、响应头、JSON 错误 schema、降级行为和错误示例。实现阶段同步到 `shared/contracts/` 下的长期契约入口；若建立 `shared/contracts/openapi/` 子目录，保留或迁移现有 `shared/contracts/download-api.openapi.yaml` 的兼容路径并在任务中记录。验证方式为 Redocly CLI 或等价工具 lint/bundle，Swagger UI、Swagger Editor 或 Redocly 用于本地预览、试接口和生成中文 API UI；生成页面中项目可控的标题、摘要、参数说明、响应说明、错误说明和示例说明必须使用中文。
 
 **服务端 DDD 边界**：bounded context 为 `downloads`。领域层包含当前 APK、APK 元数据、校验错误和下载结果等领域概念；应用层包含“下载当前 Android APK”用例和端口；基础设施层包含受管 APK 文件读取、元数据读取和 SHA-256 计算适配；接口适配层包含 Gin HTTP handler、路由注册和错误映射。依赖方向只能是 interfaces/infrastructure -> application -> domain，domain 不依赖外层。
+
+**服务端稳健性与可观测性**：下载服务通过领域错误和普通 error 表达 APK 缺失、元数据读取失败、大小不一致和 SHA-256 不一致，不使用 `panic` 作为业务控制流。HTTP 入口使用 Gin 请求日志和 panic recovery，把异常转换为受控错误响应和脱敏错误日志。本功能当前不创建自建 goroutine；若后续增加后台刷新、异步校验或并发任务，必须统一 recover 包装并记录任务名、错误类型和降级原因。
 
 **UI 可视化产物**：沿用首页 v1 Figma 下载按钮和双端首页节点；实现阶段需要保存桌面、手机、Android 可下载展开态、iPhone 暂未支持态截图到 `specs/002-android-apk-download/visual-review/`。
 
@@ -65,6 +67,7 @@
 | 电脑与手机双端一致可用：布局、交互和内容展示同时覆盖手机与电脑 | 通过 | 计划要求桌面 1440px 和手机 390px Playwright 验证。 |
 | Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | Figma 文件与关键节点已记录在本计划和 `figma.md`。 |
 | 服务端 DDD 架构：新增或重构的服务端代码按 DDD 层级、模块边界和依赖方向组织 | 通过 | bounded context 为 `downloads`；结构决策列出 domain、application、infrastructure、interfaces 层。 |
+| 服务端稳健性与可观测性：panic/recover、协程安全和脱敏日志策略已定义 | 通过 | HTTP 入口使用 Gin 请求日志和 panic recovery；下载错误通过领域错误和 error 映射；本功能不引入自建 goroutine，后续并发任务必须加 recover 包装。 |
 | 可验证交付与自动提交：验证命令、浏览器检查和本次 Spec Kit skill 后提交策略已定义 | 通过 | `quickstart.md` 定义后端、前端、端到端和哈希校验；本 skill 完成后提交。 |
 | Spec Kit 产物语言：本功能的 spec、plan、tasks 使用简体中文 | 通过 | 当前 plan、research、data-model、quickstart、figma 使用简体中文；代码标识和协议名保留原文。 |
 
@@ -173,5 +176,6 @@ shared/
 | 电脑与手机双端一致可用 | 通过 | UI 状态契约和 quickstart 覆盖桌面 1440px 与手机 390px。 |
 | Figma 驱动的前端规格 | 通过 | `figma.md` 记录 Figma URL、节点和本 feature 的状态更新说明。 |
 | 服务端 DDD 架构 | 通过 | `data-model.md` 记录领域概念，plan 记录 `downloads` bounded context、层级职责和依赖方向。 |
+| 服务端稳健性与可观测性 | 通过 | 后端入口使用 Gin 请求日志和 panic recovery；当前没有自建 goroutine；错误由领域错误、普通 error 和 HTTP 错误映射表达。 |
 | 可验证交付与自动提交 | 通过 | quickstart 覆盖 Go、前端、Playwright、curl 和 SHA-256 验证；本次 plan 完成后提交。 |
 | Spec Kit 产物语言 | 通过 | 本阶段产物使用简体中文，技术标识保持原文。 |
