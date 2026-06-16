@@ -1,7 +1,9 @@
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
-at specs/003-homepage-ui-optimization/plan.md
+Current plan: `specs/004-online-bus-query/plan.md`
+
+For technologies, project structure, shell commands, validation steps, and
+other feature-specific context, read the current plan above before planning,
+task generation, or implementation.
 <!-- SPECKIT END -->
 
 ## 项目约束

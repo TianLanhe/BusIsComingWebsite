@@ -11,6 +11,8 @@
     "test:e2e": "playwright test",
     "openapi:lint": "redocly lint ../shared/contracts/openapi/download-api.openapi.yaml",
     "openapi:bundle": "redocly bundle ../shared/contracts/openapi/download-api.openapi.yaml -o ../shared/contracts/openapi/download-api.bundle.yaml",
+    "openapi:routes:lint": "redocly lint ../shared/contracts/openapi/route-query-api.openapi.yaml",
+    "openapi:routes:bundle": "redocly bundle ../shared/contracts/openapi/route-query-api.openapi.yaml -o ../shared/contracts/openapi/route-query-api.bundle.yaml",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {

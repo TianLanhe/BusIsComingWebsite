@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>在线路线查询 API</title>
+    <style>
+      body {
+        margin: 0;
+        color: #16211f;
+        background: #f7faf9;
+        font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 48px 24px;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.25;
+      }
+
+      code {
+        border-radius: 6px;
+        padding: 2px 6px;
+        background: #e9f2ef;
+      }
+
+      pre {
+        overflow-x: auto;
+        border-radius: 8px;
+        padding: 18px;
+        background: #10201d;
+        color: #f8fffc;
+      }
+
+      section {
+        margin-top: 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>在线路线查询 API</h1>
+      <p>本页是路线查询三接口的中文静态预览。权威契约为 <code>shared/contracts/openapi/route-query-api.openapi.yaml</code>。</p>
+
+      <section>
+        <h2>接口</h2>
+        <ul>
+          <li><code>POST /api/routes/query_places</code>：地点检索，返回候选地点和 <code>placeToken</code>。</li>
+          <li><code>POST /api/routes/query_routes</code>：路线摘要查询，只接收起终点 token，最多返回 20 条香港巴士路线。</li>
+          <li><code>POST /api/routes/query_etas</code>：批量 ETA 查询，返回每条路线的首程候车状态。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Envelope</h2>
+        <pre><code>{
+  "requestId": "route-query-example",
+  "data": {},
+  "error": null
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>验证命令</h2>
+        <pre><code>cd frontend
+npm run openapi:routes:lint
+npm run openapi:routes:bundle</code></pre>
+      </section>
+    </main>
+  </body>
+</html>

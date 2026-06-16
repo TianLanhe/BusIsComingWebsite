@@ -6,87 +6,39 @@ export const onlineQueryDemo: OnlineQueryDemo = {
     "zh-Hans": "在线查询",
     en: "Online Query",
   },
-  mode: "static-demo",
-  origin: {
-    "zh-Hant": "將軍澳站",
-    "zh-Hans": "将军澳站",
-    en: "Tseung Kwan O Station",
+  description: {
+    "zh-Hant": "輸入起點和終點，從候選地點中選擇後，即可試用香港巴士路線查詢。",
+    "zh-Hans": "输入起点和终点，从候选地点中选择后，即可试用香港巴士路线查询。",
+    en: "Enter an origin and destination, choose places from the candidate list, and try Hong Kong bus route search.",
   },
-  destination: {
-    "zh-Hant": "中環（交易廣場）",
-    "zh-Hans": "中环（交易广场）",
-    en: "Central (Exchange Square)",
-  },
-  resultRows: [
-    {
-      routeNumber: "788",
-      operator: "Citybus",
-      fare: "HK$11.7",
-      duration: {
-        "zh-Hant": "約 42 分鐘",
-        "zh-Hans": "约 42 分钟",
-        en: "About 42 min",
-      },
-      walkingDistance: {
-        "zh-Hant": "約 450 米",
-        "zh-Hans": "约 450 米",
-        en: "About 450 m",
-      },
-      etaDisplay: {
-        "zh-Hant": "ETA 10:36 · 6 分鐘後",
-        "zh-Hans": "ETA 10:36 · 6 分钟后",
-        en: "ETA 10:36 · in 6 min",
-      },
-    },
-    {
-      routeNumber: "796X",
-      operator: "Citybus",
-      fare: "HK$11.7",
-      duration: {
-        "zh-Hant": "約 47 分鐘",
-        "zh-Hans": "约 47 分钟",
-        en: "About 47 min",
-      },
-      walkingDistance: {
-        "zh-Hant": "約 620 米",
-        "zh-Hans": "约 620 米",
-        en: "About 620 m",
-      },
-      etaDisplay: {
-        "zh-Hant": "ETA 10:40 · 10 分鐘後",
-        "zh-Hans": "ETA 10:40 · 10 分钟后",
-        en: "ETA 10:40 · in 10 min",
-      },
-    },
-    {
-      routeNumber: "797",
-      operator: "Citybus",
-      fare: "HK$11.7",
-      duration: {
-        "zh-Hant": "約 50 分鐘",
-        "zh-Hans": "约 50 分钟",
-        en: "About 50 min",
-      },
-      walkingDistance: {
-        "zh-Hant": "約 550 米",
-        "zh-Hans": "约 550 米",
-        en: "About 550 m",
-      },
-      etaDisplay: {
-        "zh-Hant": "ETA 10:44 · 14 分鐘後",
-        "zh-Hans": "ETA 10:44 · 14 分钟后",
-        en: "ETA 10:44 · in 14 min",
-      },
-    },
-  ],
   limitationNotice: {
-    "zh-Hant": "在線查詢功能部分受限，完整功能請下載 App 使用。",
-    "zh-Hans": "在线查询功能部分受限，完整功能请下载 App 使用。",
-    en: "Online query is limited on the web. Download the app for the complete experience.",
+    "zh-Hant": "網頁提供基礎香港巴士路線試用；保存路線、監控和更多詳情請下載 App 使用。",
+    "zh-Hans": "网页提供基础香港巴士路线试用；保存路线、监控和更多详情请下载 App 使用。",
+    en: "The website offers a basic Hong Kong bus route trial. Download the app for saved routes, monitoring, and more detail.",
+  },
+  initialEmptyTitle: {
+    "zh-Hant": "選擇起點和終點後開始查詢",
+    "zh-Hans": "选择起点和终点后开始查询",
+    en: "Choose an origin and destination to search",
+  },
+  initialEmptyDescription: {
+    "zh-Hant": "必須從服務端返回的候選地點中選擇，不能直接用自由文字查詢。",
+    "zh-Hans": "必须从服务端返回的候选地点中选择，不能直接用自由文字查询。",
+    en: "Select from server-provided place candidates; free-text route search is not supported.",
+  },
+  noRoutesTitle: {
+    "zh-Hant": "暫未找到可用巴士路線",
+    "zh-Hans": "暂未找到可用巴士路线",
+    en: "No bus routes found",
+  },
+  noRoutesDescription: {
+    "zh-Hant": "請嘗試附近地點，或調整起點和終點後重新查詢。",
+    "zh-Hans": "请尝试附近地点，或调整起点和终点后重新查询。",
+    en: "Try a nearby place, or adjust the origin and destination before searching again.",
   },
   scopeNotice: {
-    "zh-Hant": "第一版只展示靜態香港巴士查詢演示，不提供即時查詢、完整出行規劃、地鐵、鐵路或渡輪查詢。",
-    "zh-Hans": "第一版只展示静态香港巴士查询演示，不提供实时查询、完整出行规划、地铁、铁路或渡轮查询。",
-    en: "This first version is a static Hong Kong bus demo only. It does not provide live search, full trip planning, MTR, rail, or ferry lookup.",
+    "zh-Hant": "僅限香港巴士路線試用，不提供完整出行規劃、地鐵、鐵路或渡輪查詢。",
+    "zh-Hans": "仅限香港巴士路线试用，不提供完整出行规划、地铁、铁路或渡轮查询。",
+    en: "Hong Kong bus route trial only. Full trip planning, MTR, rail, and ferry lookup are outside this website.",
   },
 };

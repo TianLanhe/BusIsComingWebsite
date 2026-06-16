@@ -7,21 +7,21 @@ export default defineConfig({
     timeout: 5_000,
   },
   use: {
-    baseURL: "http://127.0.0.1:5173",
+    baseURL: "http://127.0.0.1:5184",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
   webServer: [
     {
-      command: "cd ../backend && go run ./cmd/server",
-      url: "http://127.0.0.1:8080/api/downloads/android/latest",
-      reuseExistingServer: true,
+      command: "cd ../backend && PORT=18080 GOCACHE=/tmp/busiscoming-go-build go run ./cmd/server",
+      url: "http://127.0.0.1:18080/healthz",
+      reuseExistingServer: false,
       timeout: 120_000,
     },
     {
-      command: "npm run dev",
-      url: "http://127.0.0.1:5173",
-      reuseExistingServer: true,
+      command: "npm run dev -- --port 5184 --strictPort",
+      url: "http://127.0.0.1:5184",
+      reuseExistingServer: false,
       timeout: 120_000,
     },
   ],
