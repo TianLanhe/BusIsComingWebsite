@@ -1,5 +1,5 @@
 <!-- SPECKIT START -->
-Current plan: `specs/002-android-apk-download/plan.md`
+Current plan: `specs/004-online-bus-query/plan.md`
 
 For technologies, project structure, shell commands, validation steps, and
 other feature-specific context, read the current plan above before planning,

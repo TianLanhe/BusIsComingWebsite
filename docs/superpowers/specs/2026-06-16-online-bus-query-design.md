@@ -78,7 +78,10 @@ Android 主项目已经实现 Citybus 地点检索、点到点路线查询、站
 
 现有首页 Figma 文件为 `https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU`。本轮已通过浏览器可视 companion 确认布局 A 和结果卡去铃铛方案。
 
-进入 plan 前必须在该 Figma 文件中新增或更新 `Online Query v2` 桌面 1440 与移动 390 节点，记录地点下拉、loading、结果卡、ETA 更新、空态和失败态。当前 Figma MCP 在授权后仍要求重试，未能在本轮写入画布。
+由于 Figma MCP 暂时无法写入，本轮改用本地 Figma 开发插件补齐设计节点。目标文件已新增页面 `Online Query v2`（node `22:2`），包含桌面节点 `Online Query v2 / Desktop 1440`（node `22:7`）和移动节点 `Online Query v2 / Mobile 390`（node `22:104`）。节点覆盖地点下拉、loading、结果卡、ETA 更新、空态、查询失败和语言切换失败保留旧结果。
+
+- Desktop URL: `https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=22-7`
+- Mobile URL: `https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=22-104`
 
 ## 验证
 

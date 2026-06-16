@@ -1,0 +1,8 @@
+{
+  "name": "BusIsComming Online Query v2 Builder",
+  "id": "1504061600400400001",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
+}

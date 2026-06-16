@@ -122,11 +122,11 @@
 - **服务端稳健性**：服务端不得用 panic 表达业务错误；HTTP 入口必须启用 recovery 和请求日志；外部调用、解析失败、token 校验失败、限流和缓存异常必须映射为受控错误；如后续使用 goroutine 或并发回调，必须 recover 并记录 requestId、任务名、错误类型和脱敏上下文。
 - **代码可读性**：实现阶段必须用中文注释解释 Citybus `l` 语言映射、`showstops2` 与 stop API 的站名补齐边界、P2P rawInfo 解析、token 签名与过期、ETA 去重、旧响应丢弃、失败保留旧结果和日志脱敏策略；简单赋值和自解释条件不得添加噪音注释。
 - **三语范围**：新增或修改的用户可见文字包括在线查询说明、起点/终点标签、地点候选空态、字段错误、查询按钮、初始空态、loading、结果摘要、价格/耗时/步行标签、候车查询中、等候分钟、即将到站、候车暂不可用、0 结果空态、可重试错误、限流提示、token 过期提示和“仍显示上次结果”提示；全部覆盖 `zh-Hant`、`zh-Hans` 和 `en`。动态地点和站名只展示当前语言一种。
-- **UI 可视化**：用户已确认浏览器可视 companion 中的 A 布局和去铃铛结果卡；用户提供截图作为结果卡信息层级参考。本 feature 进入计划前必须补齐 Figma `Online Query v2` 桌面和移动节点。
-- **Figma 设计**：现有文件：[BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU)。已知首页节点：`01 Desktop Homepage / 1440`（node `4:2`）、`02 Mobile Homepage / 390`（node `4:183`）。本功能必须在该文件新增或更新 `Online Query v2 / Desktop 1440` 与 `Online Query v2 / Mobile 390` 节点，并覆盖地点下拉、loading、结果卡、ETA 更新、空态和失败态。当前 Figma MCP 在授权后仍要求重试，本轮未能写入画布；计划阶段必须先补齐该 Figma 产物。
+- **UI 可视化**：用户已确认浏览器可视 companion 中的 A 布局和去铃铛结果卡；用户提供截图作为结果卡信息层级参考。Figma `Online Query v2` 桌面和移动节点已通过本地开发插件补齐，可作为后续 plan/tasks/implement 的视觉依据。
+- **Figma 设计**：现有文件：[BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU)。已知首页节点：`01 Desktop Homepage / 1440`（node `4:2`）、`02 Mobile Homepage / 390`（node `4:183`）。本功能已在该文件新增页面 `Online Query v2`（node `22:2`），包含桌面节点 [`Online Query v2 / Desktop 1440`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=22-7)（node `22:7`）、移动节点 [`Online Query v2 / Mobile 390`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=22-104)（node `22:104`）和说明节点 `Online Query v2 / Spec Notes`（node `22:166`）。设计覆盖地点下拉、loading、结果卡、ETA 更新、空态、查询失败和语言切换失败保留旧结果。
 - **双端适配**：桌面以 1440px 为主要视觉基准，保留左侧说明和右侧工具；手机以 390px 为主要视觉基准，说明和工具上下堆叠。验证必须覆盖输入框、下拉候选、交换按钮、查询按钮、loading、结果卡列表、ETA 更新和错误/空态。
 - **外部集成与降级**：外部服务包括 Citybus `bsearch_p3.php`、`ppsearch_p3.php`、`showstops2.php` 和 DATA.GOV.HK Citybus ETA/stop API。地点检索缓存 5 分钟，路线摘要缓存 1 分钟，站点映射缓存 1 天，ETA 不做跨请求缓存，只在一次批量请求内去重。外部失败不得编造实时数据；路线成功但 ETA 失败时保留路线。
-- **验证与提交**：规格质量 checklist 通过后提交本次设计和 Spec Kit 产物；由于 Figma 写入受授权循环阻塞，进入 plan 前必须先完成 Figma 节点更新并记录链接。后续实现必须覆盖 OpenAPI、后端测试、前端测试、桌面/手机浏览器验证和真实 Citybus 查询验证。
+- **验证与提交**：规格质量 checklist 通过后提交本次设计和 Spec Kit 产物；后续实现必须覆盖 OpenAPI、后端测试、前端测试、桌面/手机浏览器验证和真实 Citybus 查询验证。
 
 ## 需求（必填）
 
@@ -207,6 +207,6 @@
 - 记录起终点名称和经纬度按本产品定义不视为个人资料；但日志仍需避免记录 Cookie、token、第三方原始响应和不可控大段内容。
 - 地点和站点名称以外部服务当前语言返回为准；项目自写 UI 文案进入前端三语资源。
 - 简体站名优先从 DATA.GOV.HK stop API 的 `name_sc` 补齐；补齐失败时可使用可用的站点显示名并记录日志。
-- Figma MCP 授权问题解决后，可以在现有首页 Figma 文件中创建或更新 Online Query v2 节点。
+- Figma MCP 暂不可写入时，已通过本地 Figma 开发插件在现有首页 Figma 文件中创建 Online Query v2 节点。
 - 不引入数据库；短期缓存、限流和 token 校验不需要持久化用户查询。
 - 后端输出结构化 stdout 日志，7 天保留由部署层负责。
