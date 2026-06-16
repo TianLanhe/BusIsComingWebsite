@@ -14,7 +14,7 @@
 
 - [ ] T001 将 feature OpenAPI 契约同步到 `shared/contracts/openapi/route-query-api.openapi.yaml`
 - [ ] T002 [P] 将 feature UI 状态契约同步到 `shared/contracts/route-query-ui-state.md`
-- [ ] T003 [P] 在 `frontend/package.json` 增加路线查询 OpenAPI lint 和 bundle 脚本
+- [ ] T003 [P] 在 `frontend/package.json` 增加 `openapi:routes:lint` 和 `openapi:routes:bundle` 路线查询专用脚本，并保留现有下载接口 OpenAPI 脚本
 - [ ] T004 [P] 在 `backend/internal/routes/domain/`、`backend/internal/routes/application/`、`backend/internal/routes/infrastructure/`、`backend/internal/routes/interfaces/http/` 建立 routes bounded context 目录骨架
 - [ ] T005 [P] 在 `frontend/src/services/routeQueryTypes.ts` 建立前端路线查询契约类型入口
 - [ ] T006 [P] 在 `specs/004-online-bus-query/visual-review/README.md` 记录实现阶段截图命名和 Figma 对照要求
@@ -37,7 +37,7 @@
 - [ ] T014 [P] 在 `backend/internal/routes/infrastructure/logging/logger.go` 实现结构化 stdout 日志适配器，禁止输出 Cookie、token、完整外部 URL、第三方原始响应和 HTML
 - [ ] T015 [P] 在 `backend/internal/routes/interfaces/http/envelope.go` 实现 `{ requestId, data, error }` JSON envelope、requestId 补齐和 HTTP 错误映射
 - [ ] T016 在 `backend/internal/routes/interfaces/http/routes.go` 注册 `/api/routes/query_places`、`/api/routes/query_routes`、`/api/routes/query_etas` 的 POST 路由骨架
-- [ ] T017 在 `backend/cmd/server/main.go` 装配 routes context 依赖并确认 `gin.Logger()` 和 `gin.Recovery()` 仍启用
+- [ ] T017 在 `backend/cmd/server/main.go` 装配 routes context 依赖，输出服务启动与关闭结构化日志，并确认 `gin.Logger()` 和 `gin.Recovery()` 仍启用
 - [ ] T018 [P] 在 `frontend/src/content/uiCopy.ts` 增加在线查询共享三语文案键，包括字段错误、loading、空态、限流、token 过期和“仍显示上次结果”
 - [ ] T019 [P] 在 `frontend/src/services/routeQueryClient.ts` 建立三接口 JSON client 骨架，统一发送 JSON body 并读取 response envelope
 
@@ -162,8 +162,8 @@
 
 **目的**：完成契约同步、文档、截图、质量门禁和最终验证。
 
-- [ ] T069 [P] 更新中文 API UI 或预览说明，路径：`docs/api/route-query.md`
-- [ ] T070 将 route query OpenAPI bundle 生成到 `shared/contracts/openapi/route-query-api.bundle.yaml`
+- [ ] T069 [P] 生成路线查询中文 API UI 静态页并记录预览方式，路径：`docs/api/route-query.html` 和 `docs/api/route-query.md`
+- [ ] T070 运行 `cd frontend && npm run openapi:routes:bundle` 将 route query OpenAPI bundle 生成到 `shared/contracts/openapi/route-query-api.bundle.yaml`
 - [ ] T071 在 `specs/004-online-bus-query/contracts/route-query-api.bundle.yaml` 重新生成 feature bundle 并确认与源 OpenAPI 同步
 - [ ] T072 [P] 在 `specs/004-online-bus-query/visual-review/desktop-1440-online-query-v2.png` 保存桌面初始和整体布局截图
 - [ ] T073 [P] 在 `specs/004-online-bus-query/visual-review/desktop-1440-place-dropdown.png` 保存桌面候选下拉截图
@@ -174,14 +174,14 @@
 - [ ] T078 [P] 在 `specs/004-online-bus-query/visual-review/mobile-390-route-results.png` 保存手机路线结果截图
 - [ ] T079 [P] 在 `specs/004-online-bus-query/visual-review/mobile-390-error-empty.png` 保存手机错误或空态截图
 - [ ] T080 在 `specs/004-online-bus-query/quickstart.md` 记录最终执行过的 OpenAPI、Go、Vitest、Playwright、curl 和日志验证结果
-- [ ] T081 运行 `cd frontend && npm run openapi:lint` 并验证 `shared/contracts/openapi/route-query-api.openapi.yaml`
+- [ ] T081 运行 `cd frontend && npm run openapi:routes:lint` 并验证 `shared/contracts/openapi/route-query-api.openapi.yaml`
 - [ ] T082 运行 `cd backend && go test ./...` 并验证 routes context 和 downloads context 测试通过
 - [ ] T083 运行 `cd frontend && npm run test -- online-query-demo i18n-completeness content-contract` 并验证三语和状态机测试通过
 - [ ] T084 运行 `cd frontend && npm run build` 并验证生产构建通过
 - [ ] T085 启动后端和前端本地服务后运行 `cd frontend && npm run test:e2e -- online-query-demo.spec.ts`
 - [ ] T086 用 `specs/004-online-bus-query/quickstart.md` 中的 curl 请求手动验证 `/api/routes/query_places`、`/api/routes/query_routes`、`/api/routes/query_etas`
 - [ ] T087 审查 `backend/internal/routes/domain/` 依赖方向，确认 domain 不依赖 Gin、文件系统、HTTP 客户端、第三方 SDK 或前端契约
-- [ ] T088 审查 `backend/internal/routes/` 代码，确认没有以 panic 表达业务错误，HTTP 入口启用 recovery，自建 goroutine 已 recover 并有脱敏日志
+- [ ] T088 审查 `backend/cmd/server/main.go` 和 `backend/internal/routes/` 代码，确认没有以 panic 表达业务错误，HTTP 入口启用 recovery，服务启动与关闭日志可观测，自建 goroutine 已 recover 并有脱敏日志
 - [ ] T089 审查 `frontend/src/components/online-demo/OnlineQueryDemo.tsx` 和 `backend/internal/routes/`，确认复杂规则、错误映射、外部约束、token、ETA 去重和日志脱敏已有中文注释且无噪音注释
 - [ ] T090 审查 `frontend/src/content/` 和 `frontend/src/components/online-demo/`，确认没有监控铃铛、多班 ETA、排序 UI、详情展开或非香港巴士交通查询入口
 - [ ] T091 检查 `specs/004-online-bus-query/figma.md`，确认 Figma 文件、Desktop URL、Mobile URL、状态覆盖和 visual-review 截图清单保持最新
