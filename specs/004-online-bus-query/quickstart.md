@@ -153,3 +153,17 @@ npm run test:e2e -- online-query-demo.spec.ts
 - 多班 ETA
 - 排序 UI
 - 路线详情展开
+
+## 2026-06-16 实现验证记录
+
+- OpenAPI：`cd frontend && npm run openapi:routes:lint` 通过；`npm run openapi:routes:bundle` 已生成 `shared/contracts/openapi/route-query-api.bundle.yaml`。
+- Feature bundle：`cd frontend && npm exec redocly -- bundle ../specs/004-online-bus-query/contracts/route-query-api.openapi.yaml -o ../specs/004-online-bus-query/contracts/route-query-api.bundle.yaml` 通过。
+- 后端：`cd backend && GOCACHE=/tmp/busiscoming-go-build go test ./...` 通过。
+- 前端目标测试：`cd frontend && npm run test -- online-query-demo i18n-completeness content-contract` 通过。
+- 前端完整测试：`cd frontend && npm run test` 通过，7 个测试文件、19 个测试通过。
+- 前端构建：`cd frontend && npm run build` 通过。
+- E2E：`cd frontend && npm run test:e2e -- online-query-demo.spec.ts` 通过，覆盖 `desktop-1440` 和 `mobile-390`。
+- 截图：已生成 `specs/004-online-bus-query/visual-review/desktop-1440-route-results.png` 和 `specs/004-online-bus-query/visual-review/mobile-390-route-results.png`。
+- curl envelope：临时启动 `PORT=18081 GOCACHE=/tmp/busiscoming-go-build go run ./cmd/server` 后验证三接口；`query_places` 空 query 返回 `INVALID_ARGUMENT` envelope，`query_routes` 非法 token 返回 `PLACE_TOKEN_INVALID` envelope，`query_etas` 非法 token 返回 `status: unavailable` 且 `error: null`。
+- 日志：临时服务 stdout 输出 server startup、Gin 请求日志和 `queryRouteEtas` 结构化结果日志，包含 `requestId`、`operationId`、`stage`、`language`、`resultCount` 和 `cacheHit`，未输出 token、完整外部 URL、第三方原始响应或 HTML。
+- 空白检查：`git diff --check` 通过。

@@ -11,6 +11,131 @@ export const uiCopy = {
     "zh-Hans": "查询",
     en: "Search",
   },
+  searchingButton: {
+    "zh-Hant": "查詢中",
+    "zh-Hans": "查询中",
+    en: "Searching",
+  },
+  swapPlaces: {
+    "zh-Hant": "交換起點和終點",
+    "zh-Hans": "交换起点和终点",
+    en: "Swap origin and destination",
+  },
+  placeInputPlaceholder: {
+    "zh-Hant": "輸入地點關鍵字",
+    "zh-Hans": "输入地点关键词",
+    en: "Enter a place keyword",
+  },
+  placeSearchLoading: {
+    "zh-Hant": "搜尋地點中...",
+    "zh-Hans": "搜索地点中...",
+    en: "Searching places...",
+  },
+  placeSearchEmpty: {
+    "zh-Hant": "沒有找到候選地點",
+    "zh-Hans": "没有找到候选地点",
+    en: "No matching places",
+  },
+  placeSearchFailed: {
+    "zh-Hant": "地點搜尋暫不可用，請稍後再試。",
+    "zh-Hans": "地点搜索暂不可用，请稍后再试。",
+    en: "Place search is temporarily unavailable. Please try again later.",
+  },
+  selectCandidateRequired: {
+    "zh-Hant": "請從候選列表選擇地點。",
+    "zh-Hans": "请从候选列表选择地点。",
+    en: "Choose a place from the candidate list.",
+  },
+  samePlaceError: {
+    "zh-Hant": "起點和終點不能相同。",
+    "zh-Hans": "起点和终点不能相同。",
+    en: "Origin and destination cannot be the same.",
+  },
+  queryLoadingTitle: {
+    "zh-Hant": "正在查詢路線",
+    "zh-Hans": "正在查询路线",
+    en: "Searching routes",
+  },
+  queryLoadingDescription: {
+    "zh-Hant": "正在連接 Citybus 服務，結果會按耗時排序。",
+    "zh-Hans": "正在连接 Citybus 服务，结果会按耗时排序。",
+    en: "Connecting to Citybus. Results will be sorted by journey time.",
+  },
+  routeResultsTitle: {
+    "zh-Hant": "可選路線",
+    "zh-Hans": "可选路线",
+    en: "Route options",
+  },
+  routeResultsCount: {
+    "zh-Hant": "條結果",
+    "zh-Hans": "条结果",
+    en: "results",
+  },
+  boardingStopLabel: {
+    "zh-Hant": "上車站",
+    "zh-Hans": "上车站",
+    en: "Boarding stop",
+  },
+  alightingStopLabel: {
+    "zh-Hant": "下車站",
+    "zh-Hans": "下车站",
+    en: "Alighting stop",
+  },
+  waitLabel: {
+    "zh-Hant": "等候",
+    "zh-Hans": "等候",
+    en: "Wait",
+  },
+  etaLoading: {
+    "zh-Hant": "候車查詢中",
+    "zh-Hans": "候车查询中",
+    en: "Checking ETA",
+  },
+  etaUnavailable: {
+    "zh-Hant": "候車暫不可用",
+    "zh-Hans": "候车暂不可用",
+    en: "ETA unavailable",
+  },
+  etaArriving: {
+    "zh-Hant": "即將到站",
+    "zh-Hans": "即将到站",
+    en: "Arriving soon",
+  },
+  waitMinutesSuffix: {
+    "zh-Hant": "分鐘",
+    "zh-Hans": "分钟",
+    en: "min",
+  },
+  routeQueryFailed: {
+    "zh-Hant": "路線查詢暫不可用，請稍後再試。",
+    "zh-Hans": "路线查询暂不可用，请稍后再试。",
+    en: "Route search is temporarily unavailable. Please try again later.",
+  },
+  routeQueryRateLimited: {
+    "zh-Hant": "查詢太頻密，請稍後再試。",
+    "zh-Hans": "查询太频繁，请稍后再试。",
+    en: "Too many searches. Please try again later.",
+  },
+  routeQueryTokenExpired: {
+    "zh-Hant": "地點選擇已過期，請重新選擇起點和終點。",
+    "zh-Hans": "地点选择已过期，请重新选择起点和终点。",
+    en: "The selected places expired. Choose origin and destination again.",
+  },
+  routeQueryInvalidToken: {
+    "zh-Hant": "地點選擇無效，請重新從候選列表選擇。",
+    "zh-Hans": "地点选择无效，请重新从候选列表选择。",
+    en: "The selected places are invalid. Choose again from the candidate list.",
+  },
+  stillShowingPreviousResults: {
+    "zh-Hant": "仍顯示上次成功查詢結果。",
+    "zh-Hans": "仍显示上次成功查询结果。",
+    en: "Still showing the last successful results.",
+  },
+  languageRefreshFailed: {
+    "zh-Hant": "語言切換後重新查詢失敗。",
+    "zh-Hans": "语言切换后重新查询失败。",
+    en: "Refresh after language change failed.",
+  },
   sampleResult: {
     "zh-Hant": "範例結果（Citybus）",
     "zh-Hans": "示例结果（Citybus）",

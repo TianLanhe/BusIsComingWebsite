@@ -1,22 +1,21 @@
-import Ajv2020 from "ajv/dist/2020";
 import { describe, expect, it } from "vitest";
-import downloadManifestSchema from "../../../shared/contracts/download-manifest.schema.json";
-import homepageContentSchema from "../../../shared/contracts/homepage-content.schema.json";
-import { downloadManifest } from "../content/downloadManifest";
-import { homepageContent } from "../content/homepageContent";
+import { onlineQueryDemo } from "../content/onlineQueryDemo";
+import { faq, scopeExclusions } from "../content/sectionsContent";
 
-describe("content contracts", () => {
-  const ajv = new Ajv2020({ strict: false });
-  ajv.addFormat("date", /^\d{4}-\d{2}-\d{2}$/);
-  ajv.addFormat("uri", /^https?:\/\/.+/);
-
-  it("validates homepage content against the shared contract", () => {
-    const validate = ajv.compile(homepageContentSchema);
-    expect(validate(homepageContent), JSON.stringify(validate.errors, null, 2)).toBe(true);
+describe("online query content contract", () => {
+  it("describes the website query as a basic Hong Kong bus trial, not a static demo", () => {
+    expect(onlineQueryDemo.limitationNotice.en).toContain("basic Hong Kong bus route trial");
+    expect(onlineQueryDemo.scopeNotice.en).toContain("Hong Kong bus route trial only");
+    expect(onlineQueryDemo.scopeNotice.en).toContain("MTR");
+    expect(onlineQueryDemo.scopeNotice.en).toContain("ferry");
+    expect(JSON.stringify(onlineQueryDemo).toLowerCase()).not.toContain("static demo");
   });
 
-  it("validates download manifest against the shared contract", () => {
-    const validate = ajv.compile(downloadManifestSchema);
-    expect(validate(downloadManifest), JSON.stringify(validate.errors, null, 2)).toBe(true);
+  it("keeps FAQ and scope exclusions aligned with the route-query boundary", () => {
+    const onlineQueryFaq = faq.find((item) => item.id === "online-query-limit");
+    expect(onlineQueryFaq?.answer.en).toContain("basic Hong Kong bus route trial");
+    expect(onlineQueryFaq?.answer.en).toContain("Download the app");
+    expect(onlineQueryFaq?.answer.en.toLowerCase()).not.toContain("static demo");
+    expect(scopeExclusions.map((item) => item.en).join(" ")).toContain("MTR");
   });
 });

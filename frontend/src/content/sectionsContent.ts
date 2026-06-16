@@ -132,9 +132,9 @@ export const faq: FAQItem[] = [
       en: "Is the online query live?",
     },
     answer: {
-      "zh-Hant": "第一版網站只提供靜態演示，幫助理解結果形態；完整查詢能力以 App 為準。",
-      "zh-Hans": "第一版网站只提供静态演示，帮助理解结果形态；完整查询能力以 App 为准。",
-      en: "The first website version is a static demo to show result shape. The complete query workflow belongs in the app.",
+      "zh-Hant": "網站提供基礎香港巴士路線試用，結果依賴 Citybus 和公開 ETA 資料；保存路線、監控、多班 ETA 和更多詳情請下載 App 使用。",
+      "zh-Hans": "网站提供基础香港巴士路线试用，结果依赖 Citybus 和公开 ETA 资料；保存路线、监控、多班 ETA 和更多详情请下载 App 使用。",
+      en: "The website provides a basic Hong Kong bus route trial backed by Citybus and public ETA data. Download the app for saved routes, monitoring, multi-ETA views, and more detail.",
     },
   },
   {

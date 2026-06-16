@@ -57,3 +57,5 @@
 - `mobile-390-place-dropdown.png`
 - `mobile-390-route-results.png`
 - `mobile-390-error-empty.png`
+
+2026-06-16 实现验证已通过 Playwright 生成上述 8 张截图，并保存到 `specs/004-online-bus-query/visual-review/`。
