@@ -35,6 +35,12 @@ go run ./cmd/server
 - `internal/downloads/infrastructure/filesystem`：读取 `current.json`、读取 APK 文件、计算 SHA-256。
 - `internal/downloads/interfaces/http`：Gin 路由、响应头、JSON 错误映射。
 
+## 代码注释
+
+后端新写或重构代码必须为复杂领域规则、下载校验、错误映射、外部约束、状态转换、缓存或降级
+策略补充中文注释。简单赋值、普通条件和自解释函数不添加重复代码含义的注释。第三方协议字段、
+HTTP header、OpenAPI 字段和错误码保持原文。
+
 ## 当前 APK 管理
 
 服务端只管理一个当前 APK，不提供历史版本列表。
