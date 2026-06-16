@@ -2,9 +2,9 @@ import type { LocalizedString } from "./types";
 
 export const uiCopy = {
   heroTrust: {
-    "zh-Hant": "安全可靠 · 不收集個人資料 · 純粹為香港巴士通勤而生",
-    "zh-Hans": "安全可靠 · 不收集个人资料 · 纯粹为香港巴士通勤而生",
-    en: "Private by design · no personal data collection · built for Hong Kong bus commutes",
+    "zh-Hant": "不收集個人資料 · 聚焦城巴日常查詢",
+    "zh-Hans": "不收集个人资料 · 聚焦城巴日常查询",
+    en: "Private by design · focused on daily Citybus lookup",
   },
   queryButton: {
     "zh-Hant": "查詢",
@@ -27,14 +27,14 @@ export const uiCopy = {
     en: "Download the app for the complete experience.",
   },
   featureHeading: {
-    "zh-Hant": "為每天的巴士通勤，節省時間",
-    "zh-Hans": "为每天的巴士通勤，节省时间",
-    en: "Save time on everyday bus commutes",
+    "zh-Hant": "為每日城巴通勤，節省時間",
+    "zh-Hans": "为每天城巴通勤节省时间",
+    en: "Save time on everyday Citybus trips",
   },
   temporaryMock: {
-    "zh-Hant": "臨時 mock，實現前需替換真實 Android 截圖",
-    "zh-Hans": "临时 mock，实现前需替换真实 Android 截图",
-    en: "Temporary mock, replace with real Android screenshot",
+    "zh-Hant": "已使用脫敏真實截圖",
+    "zh-Hans": "已使用脱敏真实截图",
+    en: "Sanitized real app screenshot",
   },
   originLabel: {
     "zh-Hant": "出發地",
@@ -72,12 +72,12 @@ export const uiCopy = {
     en: "Android APK 1.0 · About 4.8 MB",
   },
   downloadStarting: {
-    "zh-Hant": "正在準備下載...",
-    "zh-Hans": "正在准备下载...",
+    "zh-Hant": "正在準備下載…",
+    "zh-Hans": "正在准备下载…",
     en: "Preparing download...",
   },
   downloadFailed: {
-    "zh-Hant": "下載資源暫不可用或校驗失敗，請稍後再試。",
+    "zh-Hant": "下載資源暫時未能提供，請稍後再試。",
     "zh-Hans": "下载资源暂不可用或校验失败，请稍后再试。",
     en: "Download is unavailable or failed verification. Please try again later.",
   },

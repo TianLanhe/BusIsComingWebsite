@@ -14,9 +14,11 @@ describe("hero content", () => {
 
   it("keeps the Figma references needed by implementation", () => {
     expect(homepageContent.figmaReference.fileUrl).toContain("figma.com");
-    expect(homepageContent.figmaReference.desktopNode).toBe("4:2");
-    expect(homepageContent.figmaReference.mobileNode).toBe("4:183");
-    expect(homepageContent.figmaReference.downloadStatesNode).toBe("4:326");
-    expect(homepageContent.figmaReference.carouselStatesNode).toBe("4:357");
+    expect(homepageContent.figmaReference.pageNode).toBe("10:2");
+    expect(homepageContent.figmaReference.desktopNode).toBe("10:3");
+    expect(homepageContent.figmaReference.mobileNode).toBe("10:44");
+    expect(homepageContent.figmaReference.downloadStatesNode).toBe("10:75");
+    expect(homepageContent.figmaReference.carouselStatesNode).toBe("10:87");
+    expect(homepageContent.figmaReference.notesNode).toBe("10:176");
   });
 });

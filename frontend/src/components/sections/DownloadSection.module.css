@@ -15,6 +15,10 @@
   border-bottom: 1px solid var(--border);
 }
 
+.copy {
+  min-width: 0;
+}
+
 .inner h2 {
   margin: 0 0 12px;
   color: var(--brand-dark);
@@ -32,6 +36,12 @@
   margin-top: 12px !important;
   color: var(--brand) !important;
   font: var(--text-small-strong) !important;
+}
+
+.iphone {
+  margin-top: 8px !important;
+  color: var(--muted) !important;
+  font: var(--text-caption) !important;
 }
 
 @media (max-width: 820px) {

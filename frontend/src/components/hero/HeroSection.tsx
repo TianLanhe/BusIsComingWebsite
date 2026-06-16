@@ -1,6 +1,5 @@
 import { ShieldCheck } from "lucide-react";
 import { uiCopy } from "../../content/uiCopy";
-import { DownloadSegmentedButton } from "../download/DownloadSegmentedButton";
 import { useI18n } from "../i18n/I18nProvider";
 import { AppPreviewCarousel } from "./AppPreviewCarousel";
 import { HeroIntro } from "./HeroIntro";
@@ -14,7 +13,6 @@ export function HeroSection() {
       <div className={styles.inner}>
         <div className={styles.left}>
           <HeroIntro />
-          <DownloadSegmentedButton />
           <p className={styles.trust}>
             <ShieldCheck aria-hidden="true" size={16} />
             <span>{text(uiCopy.heroTrust)}</span>

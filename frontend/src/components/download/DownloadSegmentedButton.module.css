@@ -1,107 +1,60 @@
 .wrap {
+  display: grid;
+  gap: 10px;
   width: min(100%, 420px);
-  min-height: 84px;
 }
 
-.defaultState,
-.expanded {
-  width: 100%;
-  min-height: 84px;
-  border: 1px solid var(--brand);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: var(--shadow-soft);
-}
-
-.defaultState {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  overflow: hidden;
-}
-
-.segment {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  border: 0;
-  background: transparent;
-  color: var(--brand);
-  cursor: pointer;
-}
-
-.segment span,
-.expandedCopy {
-  display: grid;
-  gap: 4px;
-  text-align: left;
-}
-
-.segment strong,
-.expanded strong {
-  color: var(--text);
-  font: var(--text-button);
-}
-
-.segment small,
-.expanded small {
-  color: var(--muted);
-  font: var(--text-caption);
-}
-
-.segment:hover,
-.segment:focus-visible {
-  background: var(--brand-soft);
-  outline: none;
-}
-
-.divider {
-  align-self: center;
-  width: 1px;
-  height: 48px;
-  background: var(--border-strong);
-}
-
-.expanded {
+.downloadButton {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 18px;
-  padding: 18px 26px;
+  gap: 16px;
+  width: 100%;
+  min-height: 78px;
+  border: 1px solid var(--brand);
+  border-radius: 8px;
+  padding: 16px 22px;
+  background: var(--brand);
+  color: var(--surface);
+  box-shadow: var(--shadow-button);
   cursor: pointer;
 }
 
-.android {
-  border-color: var(--brand);
-  background: var(--brand);
-  color: var(--surface);
+.downloadButton:hover,
+.downloadButton:focus-visible {
+  transform: translateY(-1px);
+  outline: none;
 }
 
-.android strong,
-.android small {
-  color: var(--surface);
-}
-
-.ios {
-  border-color: var(--border-strong);
-  background: #f2f3f3;
-  color: #7b858a;
-}
-
-.blocked {
+.copy {
   display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
+  gap: 4px;
+  min-width: 0;
+  text-align: left;
+}
+
+.copy strong {
+  color: var(--surface);
   font: var(--text-button);
 }
 
-.error {
-  margin: 8px 0 0;
-  color: #9f2f1f;
+.copy small {
+  color: rgba(255, 255, 255, 0.84);
   font: var(--text-caption);
+}
+
+.iphoneStatus,
+.error {
+  margin: 0;
+  font: var(--text-caption);
+}
+
+.iphoneStatus {
+  color: var(--muted);
+}
+
+.error {
+  color: #9f2f1f;
 }
 
 .compact {
@@ -113,22 +66,8 @@
     width: 100%;
   }
 
-  .defaultState,
-  .expanded {
-    min-height: 78px;
-  }
-
-  .segment {
-    gap: 8px;
-    padding: 10px;
-  }
-
-  .expanded {
+  .downloadButton {
     gap: 12px;
     padding: 16px;
-  }
-
-  .expandedCopy {
-    min-width: 0;
   }
 }

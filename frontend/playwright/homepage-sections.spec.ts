@@ -23,10 +23,10 @@ test("downstream sections appear in the confirmed order with required scope info
   expect(boxes[3]!.y).toBeLessThan(boxes[4]!.y);
 
   await expect(online.getByText(/完整出行規劃|full trip planning/)).toBeVisible();
-  await expect(online.getByText(/地鐵、鐵路或渡輪|MTR, rail, or ferry/)).toBeVisible();
+  await expect(online.getByText(/九巴、港鐵、鐵路或渡輪|KMB, MTR, rail, or ferry/)).toBeVisible();
 
   await page.screenshot({
-    path: `../specs/001-homepage-v1/visual-review/${testInfo.project.name}-sections.png`,
+    path: `../specs/003-homepage-ui-optimization/visual-review/${testInfo.project.name}-sections-v2.png`,
     fullPage: true,
   });
 });

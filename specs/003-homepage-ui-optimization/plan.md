@@ -89,8 +89,7 @@ specs/003-homepage-ui-optimization/
 │   ├── homepage-ui-v2.contract.md
 │   └── screenshot-assets.manifest.schema.json
 ├── checklists/
-│   ├── requirements.md
-│   └── ux-content.md
+│   └── requirements.md
 └── visual-review/              # 实现阶段生成
 ```
 

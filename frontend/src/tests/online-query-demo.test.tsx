@@ -12,10 +12,10 @@ describe("OnlineQueryDemoSection", () => {
     renderWithI18n(<OnlineQueryDemoSection />);
 
     expect(screen.getByText("Online Query")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Tseung Kwan O Station")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Central (Exchange Square)")).toBeInTheDocument();
-    expect(screen.getByText("788")).toBeInTheDocument();
-    expect(screen.getByText(/static Hong Kong bus demo/)).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Sanitized origin")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Sanitized destination")).toBeInTheDocument();
+    expect(screen.getByText("Citybus A")).toBeInTheDocument();
+    expect(screen.getByText(/static Citybus demo/)).toBeInTheDocument();
   });
 
   it("does not issue live route requests when the query button is clicked", () => {

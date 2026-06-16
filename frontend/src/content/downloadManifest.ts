@@ -13,7 +13,7 @@ export const downloadManifest: DownloadManifest = {
         en: "Android",
       },
       description: {
-        "zh-Hant": "可下載 APK 1.0",
+        "zh-Hant": "APK 1.0 · 約 4.8 MB",
         "zh-Hans": "可下载 APK 1.0",
         en: "APK 1.0 available",
       },
@@ -60,7 +60,7 @@ export const downloadManifest: DownloadManifest = {
       },
       downloadUrl: null,
       disabledReason: {
-        "zh-Hant": "iPhone 暫未支援，敬請期待。",
+        "zh-Hant": "iPhone 暫未支援，現階段請先使用 Android 版本。",
         "zh-Hans": "iPhone 暂未支持，敬请期待。",
         en: "iPhone is not supported yet.",
       },

@@ -13,7 +13,6 @@ import (
 
 func main() {
 	downloadRoot := getenv("BUS_DOWNLOAD_ROOT", "downloads/android")
-	port := getenv("PORT", "8080")
 
 	repository := filesystem.NewArtifactRepository(downloadRoot)
 	checksum := filesystem.NewChecksumCalculator()
@@ -27,9 +26,15 @@ func main() {
 	})
 	downloadhttp.RegisterRoutes(router, handler)
 
-	if err := router.Run("127.0.0.1:" + port); err != nil {
+	if err := router.Run(serverAddress()); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
+}
+
+func serverAddress() string {
+	host := getenv("BUS_HTTP_HOST", "0.0.0.0")
+	port := getenv("PORT", "8080")
+	return host + ":" + port
 }
 
 func getenv(key string, fallback string) string {

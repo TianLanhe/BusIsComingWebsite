@@ -21,10 +21,28 @@ cd /Users/jianglijie/Documents/BusIsCommingWebsite/backend
 go run ./cmd/server
 ```
 
-默认监听 `127.0.0.1:8080`。可通过环境变量覆盖：
+默认监听 `0.0.0.0:8080`，方便同一局域网设备访问健康检查和下载接口。可通过环境变量覆盖：
 
+- `BUS_HTTP_HOST`：监听地址，默认 `0.0.0.0`
 - `PORT`：监听端口，默认 `8080`
-- `DOWNLOADS_ROOT`：APK 受管根目录，默认 `downloads/android`
+- `BUS_DOWNLOAD_ROOT`：APK 受管根目录，默认 `downloads/android`
+
+示例：
+
+```bash
+BUS_HTTP_HOST=0.0.0.0 PORT=8080 go run ./cmd/server
+```
+
+如果只允许本机访问，可显式设为：
+
+```bash
+BUS_HTTP_HOST=127.0.0.1 PORT=8080 go run ./cmd/server
+```
+
+前端开发服务默认通过 `npm --prefix frontend run dev` 监听 `0.0.0.0:5173`；正式部署预览可用
+`FRONTEND_HTTP_PORT=80 npm --prefix frontend run preview:http`，或由反向代理把标准 HTTP 入口转发到
+前端预览服务。无论使用局域网访问还是正式 HTTP 入口，下载 API 路径仍保持
+`/api/downloads/android/latest`，不因监听地址改变 OpenAPI 契约。
 
 ## DDD 目录
 

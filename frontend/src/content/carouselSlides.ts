@@ -1,44 +1,100 @@
-import favoriteRoutes from "../assets/app-screenshots/favorite-routes.svg";
-import compareRoutes from "../assets/app-screenshots/compare-routes.svg";
-import etaDetails from "../assets/app-screenshots/eta-details.svg";
-import monitorNotice from "../assets/app-screenshots/monitor-notice.svg";
+import etaDetails1 from "../assets/app-screenshots/real/eta-details-1.jpg";
+import etaDetails2 from "../assets/app-screenshots/real/eta-details-2.jpg";
+import favoriteRoutes1 from "../assets/app-screenshots/real/favorite-citybus-routes-1.jpg";
+import favoriteRoutes2 from "../assets/app-screenshots/real/favorite-citybus-routes-2.jpg";
+import favoriteRoutes3 from "../assets/app-screenshots/real/favorite-citybus-routes-3.jpg";
+import screenshotManifest from "../assets/app-screenshots/real/manifest.json";
+import monitor1 from "../assets/app-screenshots/real/predeparture-monitor-1.jpg";
+import monitor2 from "../assets/app-screenshots/real/predeparture-monitor-2.jpg";
+import monitor3 from "../assets/app-screenshots/real/predeparture-monitor-3.jpg";
+import routeComparison1 from "../assets/app-screenshots/real/route-comparison-1.jpg";
 import { sourceReferences } from "./sourceReferences";
-import type { CarouselSlide } from "./types";
+import type { CarouselSlide, FeatureShowcaseId, SanitizedScreenshotAsset } from "./types";
+
+const imageSources: Record<string, string> = {
+  "favorite-citybus-routes-1": favoriteRoutes1,
+  "favorite-citybus-routes-2": favoriteRoutes2,
+  "favorite-citybus-routes-3": favoriteRoutes3,
+  "route-comparison-1": routeComparison1,
+  "eta-details-1": etaDetails1,
+  "eta-details-2": etaDetails2,
+  "predeparture-monitor-1": monitor1,
+  "predeparture-monitor-2": monitor2,
+  "predeparture-monitor-3": monitor3,
+};
+
+function screenshotStatus(value: string): SanitizedScreenshotAsset["desensitizationStatus"] {
+  if (value === "pending" || value === "approved" || value === "rejected") {
+    return value;
+  }
+
+  throw new Error(`Unsupported screenshot status: ${value}`);
+}
+
+function galleryFor(featureId: FeatureShowcaseId) {
+  const group = screenshotManifest.groups.find((item) => item.featureId === featureId);
+  if (!group) {
+    throw new Error(`Missing screenshot group: ${featureId}`);
+  }
+
+  const images = group.images
+    .map<SanitizedScreenshotAsset>((image) => ({
+      id: image.id,
+      sourcePath: image.sourcePath,
+      assetPath: image.outputPath,
+      src: imageSources[image.id],
+      order: image.order,
+      isDefault: image.isDefault,
+      desensitizationStatus: screenshotStatus(image.desensitizationStatus),
+      redactedItems: image.redactedItems,
+      retainedItems: image.retainedItems,
+      alt: image.alt,
+    }))
+    .sort((a, b) => a.order - b.order);
+
+  return {
+    featureId,
+    defaultImageId: images.find((image) => image.isDefault)?.id ?? images[0].id,
+    manualOnly: true,
+    hideStackWhenSingleImage: true,
+    images,
+  } as const;
+}
 
 export const carouselSlides: CarouselSlide[] = [
   {
-    id: "favorite-routes",
+    id: "favorite-citybus-routes",
     order: 1,
     title: {
-      "zh-Hant": "常用路線快速查詢",
-      "zh-Hans": "常用路线快速查询",
-      en: "Fast saved-route lookup",
+      "zh-Hant": "常用城巴路線，一按再查",
+      "zh-Hans": "常用城巴路线，一键再查",
+      en: "Saved Citybus routes in one tap",
     },
     description: {
-      "zh-Hant": "保存常用起終點，一按查看下一程 Citybus 候選路線。",
-      "zh-Hans": "保存常用起终点，一按查看下一程 Citybus 候选路线。",
-      en: "Save frequent origins and destinations, then reopen Citybus options in one tap.",
+      "zh-Hant": "把常搭的城巴起終點存起來，返工放工前不用每次重新輸入。",
+      "zh-Hans": "把常坐的城巴起终点保存起来，通勤前不用每次重新输入。",
+      en: "Save frequent Citybus origins and destinations so repeat commute searches stay one tap away.",
     },
-    screenshot: favoriteRoutes,
-    screenshotStatus: "placeholder",
+    gallery: galleryFor("favorite-citybus-routes"),
     sourceReference: sourceReferences.androidReadme,
+    autoCarouselEligible: true,
   },
   {
     id: "route-comparison",
     order: 2,
     title: {
-      "zh-Hant": "比較路線、票價與步行距離",
-      "zh-Hans": "比较路线、票价与步行距离",
-      en: "Compare fare, time, and walking distance",
+      "zh-Hant": "比較總車費、時間與步行",
+      "zh-Hans": "比较总车费、时间与步行",
+      en: "Compare total fare, time, and walking distance",
     },
     description: {
-      "zh-Hant": "同頁比較 HK$ 車費、總行程時間、步行距離與首程 ETA。",
-      "zh-Hans": "同页比较 HK$ 车费、总行程时间、步行距离与首程 ETA。",
-      en: "Review HK$ fare, total journey time, walking distance, and first-leg ETA together.",
+      "zh-Hant": "同頁比較城巴候選路線，連多程總車費、等候時間和步行距離一併看清。",
+      "zh-Hans": "同页比较城巴候选路线，连多程总车费、等候时间和步行距离一起看清。",
+      en: "Compare Citybus options with multi-leg total fare, wait time, and walking distance in one view.",
     },
-    screenshot: compareRoutes,
-    screenshotStatus: "placeholder",
+    gallery: galleryFor("route-comparison"),
     sourceReference: sourceReferences.routeResultsSpec,
+    autoCarouselEligible: true,
   },
   {
     id: "eta-details",
@@ -49,29 +105,29 @@ export const carouselSlides: CarouselSlide[] = [
       en: "Multiple ETAs and route details",
     },
     description: {
-      "zh-Hant": "打開路線卡片，查看最多 3 班到站時間、上下車站與途經站點。",
-      "zh-Hans": "打开路线卡片，查看最多 3 班到站时间、上下车站与途经站点。",
-      en: "Open a route card to inspect up to three arrivals, boarding stops, and route details.",
+      "zh-Hant": "打開路線詳情，查看城巴到站時間、上落車提示和途經站點，出門前更有把握。",
+      "zh-Hans": "打开路线详情，查看城巴到站时间、上下车提示和途经站点，出门前更有把握。",
+      en: "Open a Citybus route card to inspect ETAs, boarding notes, and route details before leaving.",
     },
-    screenshot: etaDetails,
-    screenshotStatus: "placeholder",
+    gallery: galleryFor("eta-details"),
     sourceReference: sourceReferences.androidAgents,
+    autoCarouselEligible: true,
   },
   {
-    id: "monitor-notice",
+    id: "predeparture-monitor",
     order: 4,
     title: {
-      "zh-Hant": "出門前短時通知監測",
-      "zh-Hans": "出门前短时通知监测",
-      en: "Short pre-departure notification monitoring",
+      "zh-Hant": "出門前監測與語音提醒",
+      "zh-Hans": "出门前监测与语音提醒",
+      en: "Pre-departure monitoring and voice cues",
     },
     description: {
-      "zh-Hant": "出門前啟動短時前台服務，定期刷新首程 ETA 並提供狀態提示。",
-      "zh-Hans": "出门前启动短时前台服务，定期刷新首程 ETA 并提供状态提示。",
-      en: "Start a short foreground monitor before leaving and keep first-leg ETA visible.",
+      "zh-Hant": "臨出門前短時間監測首程 ETA，配合通知與語音提示，少一點趕車壓力。",
+      "zh-Hans": "临出门前短时间监测首程 ETA，配合通知与语音提示，少一点赶车压力。",
+      en: "Monitor first-leg ETA shortly before leaving, with notification and voice cues to reduce last-minute rush.",
     },
-    screenshot: monitorNotice,
-    screenshotStatus: "placeholder",
+    gallery: galleryFor("predeparture-monitor"),
     sourceReference: sourceReferences.notificationSpec,
+    autoCarouselEligible: true,
   },
 ];

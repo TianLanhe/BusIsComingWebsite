@@ -12,14 +12,14 @@ test("online query section is a static demo and does not call live services", as
   await page.goto("/");
   await page.locator("#hero").getByRole("link", { name: /在線查詢|Online Query/ }).click();
   await expect(page.getByTestId("online-query-demo")).toBeVisible();
-  await expect(page.getByLabel(/出發地|Origin/)).toHaveValue(/將軍澳站|Tseung Kwan O Station/);
-  await expect(page.getByText("788")).toBeVisible();
+  await expect(page.getByLabel(/出發地|Origin/)).toHaveValue(/已脫敏起點|Sanitized origin/);
+  await expect(page.getByTestId("online-query-demo").getByText("Citybus A")).toBeVisible();
 
   await page.getByRole("button", { name: /查詢|Search/ }).click();
   expect(liveRequests).toEqual([]);
 
   await page.screenshot({
-    path: `../specs/001-homepage-v1/visual-review/${testInfo.project.name}-online-query.png`,
+    path: `../specs/003-homepage-ui-optimization/visual-review/${testInfo.project.name}-online-query-v2.png`,
     fullPage: false,
   });
 });

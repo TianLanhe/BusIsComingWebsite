@@ -10,6 +10,8 @@ export interface TextPair {
 export interface Action {
   label: LocalizedString;
   target: string;
+  kind?: "download" | "anchor" | "external";
+  downloadFileName?: string;
 }
 
 export type DownloadPlatformId = "android" | "ios";
@@ -44,15 +46,40 @@ export interface DownloadManifest {
   platforms: Record<DownloadPlatformId, DownloadPlatform>;
 }
 
-export interface CarouselSlide {
+export type FeatureShowcaseId = "favorite-citybus-routes" | "route-comparison" | "eta-details" | "predeparture-monitor";
+
+export interface SanitizedScreenshotAsset {
   id: string;
+  sourcePath: string;
+  assetPath: string;
+  src: string;
+  order: number;
+  isDefault: boolean;
+  desensitizationStatus: "pending" | "approved" | "rejected";
+  redactedItems: string[];
+  retainedItems: string[];
+  alt: LocalizedString;
+}
+
+export interface ScreenshotGallery {
+  featureId: FeatureShowcaseId;
+  defaultImageId: string;
+  manualOnly: true;
+  hideStackWhenSingleImage: true;
+  images: SanitizedScreenshotAsset[];
+}
+
+export interface HomepageFeatureShowcaseItem {
+  id: FeatureShowcaseId;
   order: number;
   title: LocalizedString;
   description: LocalizedString;
-  screenshot: string;
-  screenshotStatus: "real" | "placeholder";
+  gallery: ScreenshotGallery;
   sourceReference: string;
+  autoCarouselEligible: true;
 }
+
+export type CarouselSlide = HomepageFeatureShowcaseItem;
 
 export interface FeatureItem {
   id: string;
@@ -117,26 +144,37 @@ export interface HomePageContent {
     bullets: TextPair[];
     primaryAction: Action;
     secondaryAction: Action;
-    carouselSlides: CarouselSlide[];
+    apkMeta: LocalizedString;
+    iphoneStatus: LocalizedString;
   };
+  featureShowcase: HomepageFeatureShowcaseItem[];
   features: FeatureItem[];
   onlineQueryDemo: OnlineQueryDemo;
   downloadSection: {
     title: LocalizedString;
     description: LocalizedString;
     manifestRef: string;
+    androidCard: {
+      title: LocalizedString;
+      meta: LocalizedString;
+      primaryAction: Action;
+      backupAction: Action;
+    };
+    iphoneStatus: LocalizedString;
   };
   faq: FAQItem[];
   contact: ContactEntry[];
   scopeExclusions: LocalizedString[];
   figmaReference: {
     fileUrl: string;
+    pageNode: string;
     desktopNode: string;
     mobileNode: string;
     downloadStatesNode: string;
     carouselStatesNode: string;
+    notesNode: string;
     versionNote: string;
   };
 }
 
-export type DownloadButtonState = "default" | "android-expanded" | "iphone-expanded";
+export type DownloadButtonState = "android-ready";

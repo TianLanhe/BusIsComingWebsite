@@ -33,4 +33,22 @@ describe("i18n completeness", () => {
     assertLocalizedStrings(onlineQueryDemo, "onlineQueryDemo");
     assertLocalizedStrings(uiCopy, "uiCopy");
   });
+
+  it("keeps key zh-Hant copy written for Hong Kong instead of mirroring zh-Hans", () => {
+    const samples = [
+      homepageContent.hero.headline,
+      homepageContent.hero.subheading,
+      homepageContent.featureShowcase[0].description,
+      homepageContent.downloadSection.description,
+      onlineQueryDemo.scopeNotice,
+    ];
+
+    for (const sample of samples) {
+      expect(sample["zh-Hant"]).not.toBe(sample["zh-Hans"]);
+      expect(sample["zh-Hant"]).not.toContain("支持");
+    }
+
+    expect(homepageContent.hero.headline["zh-Hant"]).toContain("城巴");
+    expect(homepageContent.featureShowcase[0].description["zh-Hant"]).toContain("城巴");
+  });
 });

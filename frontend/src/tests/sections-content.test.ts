@@ -34,4 +34,29 @@ describe("downstream sections content", () => {
     expect(androidFaq?.answer.en).toContain("current Android APK is available");
     expect(homepageContent.scopeExclusions.map((entry) => entry.en).join(" ")).toContain("Full trip planning is out of scope");
   });
+
+  it("keeps scope centered on Citybus and excludes wider Hong Kong transport claims", () => {
+    const allCopy = [
+      homepageContent.hero.headline.en,
+      homepageContent.hero.subheading.en,
+      homepageContent.features.map((feature) => feature.description.en).join(" "),
+      homepageContent.onlineQueryDemo.scopeNotice.en,
+      homepageContent.faq.map((item) => item.answer.en).join(" "),
+    ].join(" ");
+
+    expect(allCopy).toContain("Citybus");
+    expect(allCopy).toContain("KMB");
+    expect(allCopy).toContain("MTR");
+    expect(allCopy).toContain("ferry");
+    expect(homepageContent.hero.subheading.en).not.toContain("Hong Kong bus commuters");
+  });
+
+  it("describes total multi-leg fare instead of only HK$ currency display", () => {
+    const fareFeature = homepageContent.features.find((feature) => feature.id === "hkd-display");
+
+    expect(fareFeature?.title.en).toContain("total fare");
+    expect(fareFeature?.description.en).toContain("multi-leg");
+    expect(fareFeature?.description["zh-Hant"]).toContain("多程");
+    expect(fareFeature?.title["zh-Hant"]).not.toBe("HK$ 清晰顯示");
+  });
 });

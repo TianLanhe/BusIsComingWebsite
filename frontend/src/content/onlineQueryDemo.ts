@@ -8,18 +8,18 @@ export const onlineQueryDemo: OnlineQueryDemo = {
   },
   mode: "static-demo",
   origin: {
-    "zh-Hant": "將軍澳站",
-    "zh-Hans": "将军澳站",
-    en: "Tseung Kwan O Station",
+    "zh-Hant": "已脫敏起點",
+    "zh-Hans": "已脱敏起点",
+    en: "Sanitized origin",
   },
   destination: {
-    "zh-Hant": "中環（交易廣場）",
-    "zh-Hans": "中环（交易广场）",
-    en: "Central (Exchange Square)",
+    "zh-Hant": "已脫敏目的地",
+    "zh-Hans": "已脱敏目的地",
+    en: "Sanitized destination",
   },
   resultRows: [
     {
-      routeNumber: "788",
+      routeNumber: "Citybus A",
       operator: "Citybus",
       fare: "HK$11.7",
       duration: {
@@ -39,7 +39,7 @@ export const onlineQueryDemo: OnlineQueryDemo = {
       },
     },
     {
-      routeNumber: "796X",
+      routeNumber: "Citybus B",
       operator: "Citybus",
       fare: "HK$11.7",
       duration: {
@@ -59,7 +59,7 @@ export const onlineQueryDemo: OnlineQueryDemo = {
       },
     },
     {
-      routeNumber: "797",
+      routeNumber: "Citybus C",
       operator: "Citybus",
       fare: "HK$11.7",
       duration: {
@@ -80,13 +80,13 @@ export const onlineQueryDemo: OnlineQueryDemo = {
     },
   ],
   limitationNotice: {
-    "zh-Hant": "在線查詢功能部分受限，完整功能請下載 App 使用。",
+    "zh-Hant": "網頁版只作城巴查詢示例，完整功能請下載 App 使用。",
     "zh-Hans": "在线查询功能部分受限，完整功能请下载 App 使用。",
-    en: "Online query is limited on the web. Download the app for the complete experience.",
+    en: "The web demo only illustrates Citybus lookup. Download the app for the complete experience.",
   },
   scopeNotice: {
-    "zh-Hant": "第一版只展示靜態香港巴士查詢演示，不提供即時查詢、完整出行規劃、地鐵、鐵路或渡輪查詢。",
-    "zh-Hans": "第一版只展示静态香港巴士查询演示，不提供实时查询、完整出行规划、地铁、铁路或渡轮查询。",
-    en: "This first version is a static Hong Kong bus demo only. It does not provide live search, full trip planning, MTR, rail, or ferry lookup.",
+    "zh-Hant": "第一版只展示靜態城巴查詢示例，不提供即時查詢、完整出行規劃、九巴、港鐵、鐵路或渡輪查詢。",
+    "zh-Hans": "第一版只展示静态城巴查询示例，不提供实时查询、完整出行规划、九巴、港铁、铁路或渡轮查询。",
+    en: "This first version is a static Citybus demo only. It does not provide live search, full trip planning, KMB, MTR, rail, or ferry lookup.",
   },
 };

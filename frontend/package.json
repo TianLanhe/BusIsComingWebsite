@@ -4,14 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
+    "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "sanitize:screenshots": "node scripts/sanitize-homepage-screenshots.mjs",
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
     "openapi:lint": "redocly lint ../shared/contracts/openapi/download-api.openapi.yaml",
     "openapi:bundle": "redocly bundle ../shared/contracts/openapi/download-api.openapi.yaml -o ../shared/contracts/openapi/download-api.bundle.yaml",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 0.0.0.0",
+    "preview:http": "vite preview --host 0.0.0.0 --port ${FRONTEND_HTTP_PORT:-80}"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -28,6 +30,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "ajv": "^8.17.1",
     "jsdom": "^25.0.1",
+    "sharp": "^0.35.1",
     "typescript": "^5.7.2",
     "vite": "^6.0.5",
     "vitest": "^2.1.8",

@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DownloadSegmentedButton } from "../components/download/DownloadSegmentedButton";
+import { HeroIntro } from "../components/hero/HeroIntro";
 import { renderWithI18n } from "./test-utils";
 
 describe("DownloadSegmentedButton", () => {
@@ -18,25 +19,25 @@ describe("DownloadSegmentedButton", () => {
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   });
 
-  it("shows Android and iPhone in the default segmented state", () => {
-    renderWithI18n(<DownloadSegmentedButton />);
+  it("renders the hero primary action as a direct Android APK download", () => {
+    renderWithI18n(<HeroIntro />);
 
-    expect(screen.getByText("Android")).toBeInTheDocument();
-    expect(screen.getByText("iPhone")).toBeInTheDocument();
-    expect(screen.getByTestId("download-segmented-button")).toHaveAttribute("data-state", "default");
+    const heroDownload = screen.getByRole("link", { name: /Download Android APK/ });
+    expect(heroDownload).toHaveAttribute("href", "/api/downloads/android/latest");
+    expect(heroDownload).toHaveAttribute("download", "BusIsComing.apk");
+    expect(heroDownload).not.toHaveAttribute("href", "#download");
+    expect(screen.getByText(/Android APK 1.0/)).toBeInTheDocument();
+    expect(screen.getByText(/iPhone is not supported yet/)).toBeInTheDocument();
   });
 
-  it("expands Android and shows current APK metadata", async () => {
+  it("renders a simple Android download entry instead of a platform segmented control", () => {
     renderWithI18n(<DownloadSegmentedButton />);
 
-    fireEvent.mouseEnter(screen.getByText("Android"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("download-segmented-button")).toHaveAttribute("data-state", "android-expanded");
-    });
-    expect(screen.getByText("Download Android APK")).toBeInTheDocument();
-    expect(screen.getByText(/APK 1.0 available/)).toBeInTheDocument();
+    expect(screen.getByTestId("download-segmented-button")).toHaveAttribute("data-state", "android-ready");
+    expect(screen.getByRole("button", { name: /Download Android APK/ })).toBeInTheDocument();
     expect(screen.getByText(/About 4.8 MB/)).toBeInTheDocument();
+    expect(screen.getByText(/iPhone is not supported yet/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^iPhone$/ })).not.toBeInTheDocument();
   });
 
   it("downloads Android through the backend endpoint", async () => {
@@ -50,7 +51,7 @@ describe("DownloadSegmentedButton", () => {
 
     renderWithI18n(<DownloadSegmentedButton />);
 
-    fireEvent.click(screen.getByText("Android"));
+    fireEvent.click(screen.getByRole("button", { name: /Download Android APK/ }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith("/api/downloads/android/latest", { cache: "no-store" });
@@ -63,28 +64,20 @@ describe("DownloadSegmentedButton", () => {
 
     renderWithI18n(<DownloadSegmentedButton />);
 
-    fireEvent.click(screen.getByText("Android"));
+    fireEvent.click(screen.getByRole("button", { name: /Download Android APK/ }));
 
     const status = await screen.findByRole("status");
     expect(status).toHaveTextContent("Download is unavailable or failed verification. Please try again later.");
     expect(screen.getByTestId("download-segmented-button")).toHaveAttribute("data-download-status", "failed");
   });
 
-  it("expands iPhone without triggering a download", async () => {
+  it("keeps the iPhone status informational and never triggers a download", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     renderWithI18n(<DownloadSegmentedButton />);
 
-    fireEvent.focus(screen.getByText("iPhone"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("download-segmented-button")).toHaveAttribute("data-state", "iphone-expanded");
-    });
-    fireEvent.click(screen.getByTestId("download-expanded"));
-
-    expect(screen.getByTestId("download-segmented-button")).toHaveAttribute("data-state", "iphone-expanded");
-    expect(screen.getByText("Coming soon")).toBeInTheDocument();
     expect(screen.getByText("iPhone is not supported yet.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /iPhone/ })).not.toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });

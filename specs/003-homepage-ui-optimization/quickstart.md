@@ -60,7 +60,7 @@ npm --prefix frontend run openapi:lint
 
 ## 5. 本地服务与同局域网访问
 
-实现阶段应让前后端支持监听所有本机网络接口。推荐验证命令如下，具体环境变量名以实现为准：
+实现阶段已让前后端支持监听所有本机网络接口。验证命令如下：
 
 ```bash
 cd backend
@@ -71,7 +71,7 @@ BUS_HTTP_HOST=0.0.0.0 PORT=8080 go run ./cmd/server
 
 ```bash
 cd frontend
-npm run dev -- --host 0.0.0.0
+FRONTEND_HOST=0.0.0.0 FRONTEND_PORT=5173 BACKEND_HOST=127.0.0.1 BACKEND_PORT=8080 npm run dev
 ```
 
 获取开发机局域网 IP：
@@ -86,6 +86,7 @@ ipconfig getifaddr en0
 - 同一局域网手机或电脑可打开 `http://<开发机IP>:5173/`。
 - 页面核心内容、下载入口和展示模块可访问。
 - 下载请求仍使用 `/api/downloads/android/latest`，不改 API 路径。
+- 若需要限制为本机访问，可将 `BUS_HTTP_HOST` 或 `FRONTEND_HOST` 显式设为 `127.0.0.1`。
 
 ## 6. Playwright 双端验证
 
@@ -156,6 +157,12 @@ specs/003-homepage-ui-optimization/visual-review/
 ## 10. 正式 HTTP 入口验证
 
 正式部署配置下，前端入口可以由服务自身监听、反向代理或端口映射提供。
+
+前端服务自身监听标准 HTTP 端口的验证命令：
+
+```bash
+FRONTEND_HTTP_PORT=80 npm --prefix frontend run preview:http
+```
 
 预期结果：
 

@@ -86,6 +86,20 @@
   background: var(--surface);
 }
 
+.downloadMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: -8px 0 0;
+  color: var(--muted);
+  font: var(--text-caption);
+}
+
+.downloadMeta span:first-child {
+  color: var(--brand);
+  font: var(--text-small-strong);
+}
+
 .primary:hover,
 .primary:focus-visible,
 .secondary:hover,

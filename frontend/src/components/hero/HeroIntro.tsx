@@ -29,7 +29,11 @@ export function HeroIntro() {
       </ul>
 
       <div className={styles.actions}>
-        <a className={styles.primary} href={homepageContent.hero.primaryAction.target}>
+        <a
+          className={styles.primary}
+          href={homepageContent.hero.primaryAction.target}
+          download={homepageContent.hero.primaryAction.downloadFileName}
+        >
           {text(homepageContent.hero.primaryAction.label)}
         </a>
         <a className={styles.secondary} href={homepageContent.hero.secondaryAction.target}>
@@ -37,6 +41,10 @@ export function HeroIntro() {
           {text(homepageContent.hero.secondaryAction.label)}
         </a>
       </div>
+      <p className={styles.downloadMeta}>
+        <span>{text(homepageContent.hero.apkMeta)}</span>
+        <span>{text(homepageContent.hero.iphoneStatus)}</span>
+      </p>
     </div>
   );
 }
