@@ -54,7 +54,24 @@ fi
 - `domain` 层不依赖 Gin、文件系统、HTTP 包、前端代码或共享前端契约。
 - 下载校验规则可以通过 Go 单元测试独立验证，不需要启动 HTTP 服务。
 
-## 4. 启动后端并直接下载
+## 4. OpenAPI 与中文 API UI 验证
+
+```bash
+cd /Users/jianglijie/Documents/BusIsCommingWebsite/frontend
+npm run openapi:lint
+npm run openapi:bundle
+npx redocly build-docs ../shared/contracts/openapi/download-api.openapi.yaml \
+  -o ../shared/contracts/openapi/docs/download-api.html
+```
+
+期望：
+
+- OpenAPI lint 通过。
+- bundle 文件生成成功，且不替代权威 OpenAPI 源文件。
+- 生成的 API UI 中，项目可控的接口标题、摘要、参数说明、响应说明、错误说明和示例说明使用中文。
+- 工具内置且不可配置的控件文案若仍为英文，必须不影响项目接口说明的中文可读性。
+
+## 5. 启动后端并直接下载
 
 ```bash
 cd /Users/jianglijie/Documents/BusIsCommingWebsite/backend
@@ -80,7 +97,7 @@ shasum -a 256 /tmp/busiscoming-download-check/BusIsComing.apk
 - `Cache-Control` 为 `no-store`。
 - 响应不包含 Android 主项目本机路径。
 
-## 5. 前端测试
+## 6. 前端测试
 
 ```bash
 cd /Users/jianglijie/Documents/BusIsCommingWebsite/frontend
@@ -95,7 +112,7 @@ npm run build
 - iPhone 不下载测试通过。
 - 构建成功。
 
-## 6. 浏览器端到端验证
+## 7. 浏览器端到端验证
 
 实现阶段需要让 Playwright 同时可访问 Vite 前端和 Go 后端。推荐开发模式：
 
@@ -118,7 +135,7 @@ npm run test:e2e
 - iPhone 点击后不触发下载。
 - 截图保存到 `specs/002-android-apk-download/visual-review/`。
 
-## 7. 失败状态验证
+## 8. 失败状态验证
 
 临时移动受管 APK 后运行后端测试或手动请求：
 

@@ -61,4 +61,6 @@ go run ./cmd/server
 - `shared/contracts/openapi/download-api.openapi.yaml`
 - `shared/contracts/download-api.openapi.yaml`
 
-Swagger UI、Redocly 或等价工具只能作为预览、lint 和 bundle 工具，不能替代仓库内的 OpenAPI 文档。
+Swagger UI、Redocly 或等价工具只能作为预览、lint、bundle 和生成 API UI 的工具，不能替代
+仓库内的 OpenAPI 文档。生成的 API UI 中，项目可控的接口标题、摘要、参数说明、响应说明、
+错误说明和示例说明必须使用中文；工具内置且不可配置的控件文案可以保留默认语言。

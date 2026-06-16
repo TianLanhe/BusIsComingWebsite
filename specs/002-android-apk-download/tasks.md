@@ -17,7 +17,7 @@
 - [X] T003 建立后端服务入口骨架，路径：`backend/cmd/server/main.go`
 - [X] T004 [P] 配置 Vite 开发代理把 `/api` 转发到 Go 后端，路径：`frontend/vite.config.ts`
 - [X] T005 [P] 配置 Playwright 同时覆盖 Vite 前端和 Go 后端运行方式，路径：`frontend/playwright.config.ts`
-- [X] T006 [P] 增加 OpenAPI lint 和 bundle 脚本及 Redocly CLI 依赖，路径：`frontend/package.json`、`frontend/package-lock.json`
+- [X] T006 [P] 增加 OpenAPI lint、bundle 和中文 API UI 生成脚本及 Redocly CLI 依赖，路径：`frontend/package.json`、`frontend/package-lock.json`
 - [X] T007 [P] 建立双端截图和验证证据目录说明，路径：`specs/002-android-apk-download/visual-review/README.md`
 - [X] T008 更新后端本地运行、DDD 分层和当前 APK 管理说明，路径：`backend/README.md`
 
@@ -29,7 +29,7 @@
 
 **关键要求**：此阶段完成前不能开始用户故事实现；前端不得读取后端内部路径，后端不得把领域规则写入 handler。
 
-- [X] T009 同步并核对 OpenAPI 3.1 权威契约的无认证策略、无请求参数、`Cache-Control: no-store`、降级行为、错误示例和共享入口，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
+- [X] T009 同步并核对 OpenAPI 3.1 权威契约的无认证策略、无请求参数、`Cache-Control: no-store`、降级行为、中文接口说明、错误示例和共享入口，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
 - [X] T010 同步下载 manifest JSON Schema 到共享契约，路径：`shared/contracts/download-manifest.schema.json`
 - [X] T011 同步下载按钮 UI 状态契约到共享契约，路径：`shared/contracts/ui-state-contract.md`
 - [X] T012 从 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/release/BusIsComing.apk` 复制当前 APK 到服务端受管空间，路径：`backend/downloads/android/BusIsComing.apk`
@@ -38,7 +38,7 @@
 - [X] T015 [P] 建立 Redocly 配置以校验共享 OpenAPI 契约，路径：`frontend/redocly.yaml`
 - [X] T016 复核 quickstart 的本地验证命令与实际脚本名称一致，路径：`specs/002-android-apk-download/quickstart.md`
 
-**检查点**：APK、元数据、OpenAPI、manifest schema 和 UI 状态契约都有稳定路径，可以开始按用户故事实现。
+**检查点**：APK、元数据、OpenAPI、中文 API UI、manifest schema 和 UI 状态契约都有稳定路径，可以开始按用户故事实现。
 
 ---
 
@@ -133,11 +133,11 @@
 - [X] T053 运行前端单元测试和构建并修正失败项，路径：`frontend/package.json`、`frontend/src/tests/`
 - [X] T054 运行 Playwright 端到端测试并保存双端截图，路径：`frontend/playwright/`、`specs/002-android-apk-download/visual-review/`
 - [X] T055 使用 `curl` 和 `shasum -a 256` 验证后端下载文件与当前 APK 一致，路径：`backend/downloads/android/BusIsComing.apk`、`backend/downloads/android/current.json`
-- [X] T056 运行 OpenAPI lint 和 bundle，并核对 `security: []`、无请求参数、`Cache-Control: no-store`、降级行为、错误示例和共享契约路径，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
+- [X] T056 运行 OpenAPI lint、bundle 和中文 API UI 生成，并核对 `security: []`、无请求参数、`Cache-Control: no-store`、降级行为、中文接口说明、错误示例和共享契约路径，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`、`shared/contracts/openapi/docs/`
 - [X] T057 检查 DDD 依赖方向，确保 `domain` 不依赖 Gin、文件系统、HTTP 包、前端代码或共享契约，路径：`backend/internal/downloads/domain/`
 - [X] T058 检查前端 bundle 和 manifest 不暴露 Android 主项目本机来源路径，路径：`frontend/src/content/downloadManifest.ts`、`frontend/dist/`
 - [X] T059 复核页面文案没有新增完整路线规划、非香港巴士查询、iPhone 下载或历史版本浏览暗示，路径：`frontend/src/content/homepageContent.ts`、`frontend/src/content/sectionsContent.ts`
-- [X] T060 汇总验证命令、截图文件、OpenAPI 校验和 DDD 依赖检查结果，路径：`specs/002-android-apk-download/visual-review/README.md`
+- [X] T060 汇总验证命令、截图文件、OpenAPI 校验、中文 API UI 和 DDD 依赖检查结果，路径：`specs/002-android-apk-download/visual-review/README.md`
 
 ---
 
@@ -161,7 +161,7 @@
 ### 单个用户故事内部顺序
 
 1. 先写测试或验证任务。
-2. OpenAPI 和共享契约先于后端 handler 与前端调用。
+2. OpenAPI、中文 API UI 和共享契约先于后端 handler 与前端调用。
 3. 后端领域层先于应用层，应用层先于基础设施和接口适配层。
 4. 前端类型和 manifest 先于组件渲染。
 5. 视觉截图和 quickstart 记录在故事实现可运行后完成。
@@ -190,7 +190,7 @@
 2. US1：用户可以真实下载当前 APK。
 3. US2：维护者可以核对和替换当前 APK，失败状态可信。
 4. US3：三语状态清楚，iPhone 不下载，双端截图可审查。
-5. 打磨：统一运行后端、前端、OpenAPI、DDD、Playwright 和视觉证据检查。
+5. 打磨：统一运行后端、前端、OpenAPI、中文 API UI、DDD、Playwright 和视觉证据检查。
 
 ## 备注
 
@@ -198,4 +198,5 @@
 - `[US1]`、`[US2]`、`[US3]` 分别映射 `spec.md` 中的三个用户故事。
 - 所有后端服务代码必须保持 DDD 依赖方向：`interfaces/infrastructure -> application -> domain`。
 - 服务端 HTTP API 的权威契约是 `specs/002-android-apk-download/contracts/download-api.openapi.yaml`，实现阶段必须同步到 `shared/contracts/`。
+- 生成的 API UI 中项目可控标题、摘要、参数说明、响应说明、错误说明和示例说明必须使用中文。
 - 当前 APK 只保留一个 `backend/downloads/android/BusIsComing.apk`，不增加用户可见历史版本列表。

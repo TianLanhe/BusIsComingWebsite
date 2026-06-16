@@ -23,7 +23,7 @@ description: "功能实现任务清单模板"
 - **前端**：`frontend/src/`、`frontend/tests/`
 - **后端**：`backend/cmd/`、`backend/internal/[bounded-context]/domain/`、`backend/internal/[bounded-context]/application/`、`backend/internal/[bounded-context]/infrastructure/`、`backend/internal/[bounded-context]/interfaces/`
 - **共享契约**：`shared/contracts/` 或 `specs/[###-feature-name]/contracts/`
-- **OpenAPI 接口文档**：`specs/[###-feature-name]/contracts/*.openapi.yaml`，实现阶段同步到 `shared/contracts/` 或其 `openapi/` 子目录
+- **OpenAPI 接口文档**：`specs/[###-feature-name]/contracts/*.openapi.yaml`，实现阶段同步到 `shared/contracts/` 或其 `openapi/` 子目录，并生成中文 API UI
 - **文档与验证记录**：`docs/`、`specs/[###-feature-name]/quickstart.md`
 - **Figma 设计引用**：`specs/[###-feature-name]/figma.md`
 
@@ -59,7 +59,7 @@ description: "功能实现任务清单模板"
 
 **关键要求**：基础任务必须支撑前后端分离、三语、契约和降级策略。
 
-- [ ] T006 定义前后端 API 或共享契约；涉及服务端 HTTP API 时创建或更新 OpenAPI 3.1 YAML
+- [ ] T006 定义前后端 API 或共享契约；涉及服务端 HTTP API 时创建或更新 OpenAPI 3.1 YAML，并规划中文 API UI 输出路径
 - [ ] T007 [P] 建立前端路由、页面框架和 i18n 加载机制
 - [ ] T008 [P] 建立后端 DDD bounded context 目录，至少包含 domain、application、infrastructure、interfaces 层
 - [ ] T009 [P] 建立后端 API 路由、中间件和错误格式，确保路由只位于 interfaces 层
@@ -84,7 +84,7 @@ description: "功能实现任务清单模板"
 
 > 如果包含自动化测试，先写测试并确认失败；如果是视觉或内容验证，先定义可执行检查步骤。
 
-- [ ] T016 [P] [US1] 为 [OpenAPI/契约或组件] 增加测试、lint 或等价验证，路径：[contract/test path]
+- [ ] T016 [P] [US1] 为 [OpenAPI/契约或组件] 增加测试、lint、中文 API UI 生成或等价验证，路径：[contract/test path]
 - [ ] T017 [P] [US1] 为 [领域实体或应用服务] 增加单元测试，路径：backend/internal/[bounded-context]/[layer]/[name]_test.*
 - [ ] T018 [US1] 定义三语、手机和电脑双端视觉验证步骤，路径：specs/[###-feature-name]/quickstart.md
 - [ ] T019 [US1] 生成或保存手机与电脑 UI 图片、截图、设计稿或可视化 mock，路径：[artifact path]
@@ -162,7 +162,7 @@ description: "功能实现任务清单模板"
 - [ ] TXXX 优化图片、首屏加载和响应式表现
 - [ ] TXXX 确认所有 UI 讨论和展示均有图片、截图、设计稿或可视化 mock 作为用户可见依据
 - [ ] TXXX 确认 specs/[###-feature-name]/figma.md 已沉淀 Figma 文件/链接、关键节点、交互状态和版本说明
-- [ ] TXXX 确认服务端 HTTP API 的 OpenAPI 文档已同步到 feature contracts 和共享契约，并通过 lint/预览验证
+- [ ] TXXX 确认服务端 HTTP API 的 OpenAPI 文档已同步到 feature contracts 和共享契约，已生成中文 API UI，并通过 lint/预览验证
 - [ ] TXXX 验证手机和电脑 viewport 下布局、交互和内容展示均正常
 - [ ] TXXX 验证网站没有暗示提供完整路线规划、地铁或其他非香港巴士交通查询
 - [ ] TXXX 验证服务端代码符合 DDD 依赖方向：domain 不依赖框架、文件系统、数据库、第三方 SDK 或前端契约
@@ -194,6 +194,7 @@ description: "功能实现任务清单模板"
 - 测试或验证步骤先定义
 - 契约先于前后端实现
 - OpenAPI 接口文档先于服务端 HTTP handler 和前端调用实现
+- 中文 API UI 生成与验证先于服务端接口交付完成标记
 - 服务端领域模型先于应用服务，应用服务先于基础设施和接口适配
 - 内容来源清单先于页面文案落地
 - 范围排除和 UI 可视化产物先于用户确认页面方案
