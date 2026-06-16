@@ -63,7 +63,7 @@ BUS_HTTP_HOST=127.0.0.1 PORT=8080 go run ./cmd/server
 
 - `internal/downloads/domain`：APK 元数据、下载结果、校验和领域错误，不依赖 Gin、文件系统、HTTP 包或前端契约。
 - `internal/downloads/application`：下载当前 APK 用例与端口定义，只依赖领域层。
-- `internal/downloads/infrastructure/filesystem`：读取 `current.json`、读取 APK 文件、计算 SHA-256。
+- `internal/downloads/infrastructure/filesystem`：读取 `current.json`、读取 APK 文件、计算 SHA-256，基于文件修改时间缓存 Artifact 避免每次请求重复读取和校验。
 - `internal/downloads/interfaces/http`：Gin 路由、响应头、JSON 错误映射。
 - `internal/routes/domain`：地点候选、地点 token、路线结果、ETA token、候车状态、查询错误和日志事件。
 - `internal/routes/application`：地点检索、路线摘要、批量 ETA、token 校验、缓存、限流和日志编排。

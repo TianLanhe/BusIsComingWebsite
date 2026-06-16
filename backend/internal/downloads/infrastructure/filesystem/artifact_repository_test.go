@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"busiscoming-website/backend/internal/downloads/domain"
 )
@@ -58,5 +59,58 @@ func TestArtifactRepositoryReturnsMissingForAbsentAPK(t *testing.T) {
 	var downloadErr *domain.DownloadError
 	if !errors.As(err, &downloadErr) || downloadErr.Code != domain.CodeAPKMissing {
 		t.Fatalf("expected missing error, got %v", err)
+	}
+}
+
+// TestArtifactRepositoryCachesArtifactOnRepeatedCalls 验证连续调用返回相同的
+// Artifact 切片引用，确认不会重复读取磁盘文件。
+func TestArtifactRepositoryCachesArtifactOnRepeatedCalls(t *testing.T) {
+	root := writeRepositoryFixture(t, "abc")
+	repo := NewArtifactRepository(root)
+
+	first, err := repo.CurrentArtifact(context.Background())
+	if err != nil {
+		t.Fatalf("first call: %v", err)
+	}
+	second, err := repo.CurrentArtifact(context.Background())
+	if err != nil {
+		t.Fatalf("second call: %v", err)
+	}
+	if &first.Content[0] != &second.Content[0] {
+		t.Fatal("expected cached artifact to reuse the same content slice")
+	}
+}
+
+// TestArtifactRepositoryInvalidatesCacheOnFileChange 验证 APK 文件被替换后，
+// 缓存自动失效并返回新内容。
+func TestArtifactRepositoryInvalidatesCacheOnFileChange(t *testing.T) {
+	root := writeRepositoryFixture(t, "abc")
+	repo := NewArtifactRepository(root)
+
+	first, err := repo.CurrentArtifact(context.Background())
+	if err != nil {
+		t.Fatalf("first call: %v", err)
+	}
+	if string(first.Content) != "abc" {
+		t.Fatalf("unexpected first content %q", string(first.Content))
+	}
+
+	// 替换 APK 文件内容并确保修改时间不同
+	apkPath := filepath.Join(root, "BusIsComing.apk")
+	if err := os.WriteFile(apkPath, []byte("xyz"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// 显式设置一个更晚的修改时间，避免文件系统精度导致缓存未失效
+	futureModTime := time.Now().Add(time.Second)
+	if err := os.Chtimes(apkPath, futureModTime, futureModTime); err != nil {
+		t.Fatal(err)
+	}
+
+	second, err := repo.CurrentArtifact(context.Background())
+	if err != nil {
+		t.Fatalf("second call: %v", err)
+	}
+	if string(second.Content) != "xyz" {
+		t.Fatalf("expected refreshed content %q, got %q", "xyz", string(second.Content))
 	}
 }
