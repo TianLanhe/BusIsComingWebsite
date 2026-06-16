@@ -2,9 +2,11 @@ node_modules/
 dist/
 build/
 coverage/
+.superpowers/
 playwright-report/
 test-results/
 .playwright-mcp/
+shared/contracts/openapi/docs/
 *.tsbuildinfo
 *.log
 .env*

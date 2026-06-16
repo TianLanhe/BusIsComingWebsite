@@ -17,6 +17,23 @@
       },
       "registered_skills": [],
       "installed_at": "2026-06-15T13:34:08.577150+00:00"
+    },
+    "git-branch": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:c59718633cc55693ac81d1cae03a6ca5a3cbab22788e86bcd1fe46f541c0576e",
+      "enabled": true,
+      "priority": 5,
+      "registered_commands": {
+        "agy": [
+          "speckit.git.create-branch"
+        ],
+        "codex": [
+          "speckit.git.create-branch"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-06-16T07:39:44+00:00"
     }
   }
 }

@@ -82,12 +82,21 @@ HTTP header、OpenAPI 字段和错误码保持原文。
 
 替换当前 APK 时：
 
-1. 把新的 APK 复制到 `downloads/android/BusIsComing.apk`。
-2. 运行 `wc -c downloads/android/BusIsComing.apk` 记录大小。
-3. 运行 `shasum -a 256 downloads/android/BusIsComing.apk` 记录 SHA-256。
-4. 更新 `downloads/android/current.json` 中的 `versionName`、`versionCode`、`sizeBytes`、`sha256`、`sourcePath`、`lastUpdated`。
-5. 运行 `go test ./...`。
-6. 启动服务并用 `curl` 下载一次，确认下载文件 SHA-256 与 `current.json` 一致。
+```bash
+cd /Users/jianglijie/Documents/BusIsCommingWebsite
+backend/scripts/update_android_apk.py /path/to/BusIsComing.apk
+```
+
+脚本会读取 APK 的 `applicationId`、`versionName`、`versionCode` 和应用名，计算文件大小与
+SHA-256，把 APK 复制到 `backend/downloads/android/BusIsComing.apk`，并更新
+`backend/downloads/android/current.json`。
+
+脚本依赖 Android SDK build-tools 的 `aapt`，需确保 `aapt` 在 `PATH` 中。
+
+更新后运行：
+
+1. `cd backend && go test ./...`
+2. 启动服务并用 `curl` 下载一次，确认下载文件 SHA-256 与 `current.json` 一致。
 
 ## 契约
 
