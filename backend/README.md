@@ -70,6 +70,20 @@ BUS_HTTP_HOST=127.0.0.1 PORT=8080 go run ./cmd/server
 - `internal/routes/infrastructure`：Citybus、DATA.GOV.HK、HMAC、进程内缓存、限流和 stdout JSON 日志适配。
 - `internal/routes/interfaces/http`：Gin 路由、JSON envelope、requestId 和 HTTP 错误映射。
 
+## 性能与容量边界
+
+路线查询的外部调用必须以服务端受控方式编排，避免用户输入直接放大为无界并发或无界内存占用。
+
+- `POST /api/routes/query_places` 以 `language + query + limit` 为 key 使用进程内短期缓存，TTL 为 5 分钟。
+- `POST /api/routes/query_routes` 以 `language + 起终点经纬度` 为 key 使用进程内短期缓存，TTL 为 1 分钟。
+- 进程内 `TTLCache` 最多保留 1024 个 key；写入前清理过期条目，达到上限时淘汰一个较早过期或较少命中的条目。
+- 进程内 `RateLimiter` 最多追踪 1024 个 key；每次检查前清理窗口外记录，达到上限时淘汰一个最久未命中的 key。
+- `POST /api/routes/query_etas` 会先按 `etaToken` 去重，再查询 DATA.GOV.HK ETA；同一请求中的重复 token 只触发一次外部查询。
+- 批量 ETA 外部查询最多同时执行 6 个；响应数组顺序仍与请求 token 顺序一致，重复 token 会在对应位置返回同一份 ETA 状态。
+- 单个 ETA token 校验失败、外部查询失败或适配器异常时，该 token 降级为 `unavailable`，不使整批请求失败。
+
+这些缓存和限流状态仅保存在当前服务进程内；服务重启后会清空。需要跨实例共享容量控制时，必须在基础设施层引入外部存储或网关限流，并保持领域层和应用层不依赖具体实现。
+
 ## 稳健性与日志
 
 服务端不得用 `panic` 表达业务错误；领域层、应用层、基础设施层和 HTTP 层必须返回 error 或
@@ -77,10 +91,11 @@ BUS_HTTP_HOST=127.0.0.1 PORT=8080 go run ./cmd/server
 当前 `cmd/server/main.go` 使用 `gin.Logger()` 和 `gin.Recovery()`。
 
 新增自建 goroutine、并发回调或后台任务时，必须通过统一包装或 `defer recover` 捕获异常，
-记录任务名、错误类型、调用上下文和必要堆栈，并把失败传回调用方或可观测边界。日志必须覆盖
-启动失败、请求、下载错误、元数据读取、文件校验失败、在线查询入口、地点检索、路线查询、批量
-ETA、缓存命中、限流、关键结果、错误映射和降级状态；不得输出 Cookie、密钥、token、完整外部
-URL、第三方原始响应、HTML 或不可控大段内容。
+记录任务名、错误类型、调用上下文和必要堆栈，并把失败传回调用方或可观测边界。当前批量 ETA
+查询的 goroutine 已在应用层用 `defer recover` 包装；单个 token 的异常会降级为 `unavailable`，
+不会拖垮 HTTP 进程或整批响应。日志必须覆盖启动失败、请求、下载错误、元数据读取、文件校验失败、
+在线查询入口、地点检索、路线查询、批量 ETA、缓存命中、限流、关键结果、错误映射和降级状态；
+不得输出 Cookie、密钥、token、完整外部 URL、第三方原始响应、HTML 或不可控大段内容。
 
 在线查询结构化日志输出到 stdout；日志保留期固定为 7 天，由部署层负责收集和清理，应用内不实现
 文件轮转或保留期配置。
@@ -118,6 +133,16 @@ SHA-256，把 APK 复制到 `backend/downloads/android/BusIsComing.apk`，并更
 
 1. `cd backend && go test ./...`
 2. 启动服务并用 `curl` 下载一次，确认下载文件 SHA-256 与 `current.json` 一致。
+
+## 验证
+
+常规后端验证命令：
+
+```bash
+cd /Users/jianglijie/Documents/BusIsCommingWebsite/backend
+go test ./...
+go test -race ./internal/routes/application ./internal/routes/infrastructure/memory
+```
 
 ## 契约
 

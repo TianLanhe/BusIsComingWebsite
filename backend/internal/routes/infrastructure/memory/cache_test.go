@@ -1,6 +1,7 @@
 package memory_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -23,6 +24,19 @@ func TestTTLCacheExpiresEntries(t *testing.T) {
 	}
 }
 
+func TestTTLCacheCapsEntryCount(t *testing.T) {
+	now := time.Date(2026, 6, 16, 12, 0, 0, 0, time.UTC)
+	cache := memory.NewTTLCache[int](func() time.Time { return now })
+
+	for index := 0; index < 1100; index++ {
+		cache.Set(fmt.Sprintf("query-%d", index), index, time.Hour)
+	}
+
+	if cache.Len() > 1024 {
+		t.Fatalf("expected cache to cap entries, got %d", cache.Len())
+	}
+}
+
 func TestRateLimiterBlocksAfterLimit(t *testing.T) {
 	now := time.Date(2026, 6, 16, 12, 0, 0, 0, time.UTC)
 	limiter := memory.NewRateLimiter(2, time.Minute, func() time.Time { return now })
@@ -37,5 +51,20 @@ func TestRateLimiterBlocksAfterLimit(t *testing.T) {
 	now = now.Add(time.Minute + time.Second)
 	if !limiter.Allow("queryRoutePlaces") {
 		t.Fatal("expected limiter window to reset")
+	}
+}
+
+func TestRateLimiterCapsTrackedKeys(t *testing.T) {
+	now := time.Date(2026, 6, 16, 12, 0, 0, 0, time.UTC)
+	limiter := memory.NewRateLimiter(2, time.Minute, func() time.Time { return now })
+
+	for index := 0; index < 1100; index++ {
+		if !limiter.Allow(fmt.Sprintf("client-%d", index)) {
+			t.Fatalf("expected first hit for client-%d to be allowed", index)
+		}
+	}
+
+	if limiter.Len() > 1024 {
+		t.Fatalf("expected limiter to cap tracked keys, got %d", limiter.Len())
 	}
 }

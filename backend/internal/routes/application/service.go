@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"busiscoming-website/backend/internal/routes/domain"
@@ -20,6 +21,8 @@ type Service struct {
 	allowRequest func(key string) bool
 	defaultLimit int
 }
+
+const maxConcurrentEtaQueries = 6
 
 func NewService(deps Dependencies) *Service {
 	clock := deps.Clock
@@ -204,21 +207,56 @@ func (s *Service) QueryEtas(ctx context.Context, request QueryEtasRequest) (Quer
 	if s.etas == nil || s.signer == nil {
 		return QueryEtasResult{}, domain.NewQueryError(domain.ErrInternal, "eta service is not configured")
 	}
-	statuses := make([]domain.EtaStatus, 0, len(request.EtaTokens))
-	for _, token := range request.EtaTokens {
-		payload, err := s.signer.VerifyEta(token)
-		if err != nil {
-			statuses = append(statuses, domain.UnavailableEtaStatus(token, s.clock()))
-			continue
+
+	statuses := make([]domain.EtaStatus, len(request.EtaTokens))
+	indexesByToken := make(map[string][]int, len(request.EtaTokens))
+	uniqueTokens := make([]string, 0, len(request.EtaTokens))
+	for index, token := range request.EtaTokens {
+		if _, ok := indexesByToken[token]; !ok {
+			uniqueTokens = append(uniqueTokens, token)
 		}
-		status, err := s.etas.QueryEta(ctx, token, payload)
-		if err != nil {
-			status = domain.UnavailableEtaStatus(token, s.clock())
-		}
-		statuses = append(statuses, status)
+		indexesByToken[token] = append(indexesByToken[token], index)
 	}
+
+	sem := make(chan struct{}, maxConcurrentEtaQueries)
+	var wg sync.WaitGroup
+	for _, token := range uniqueTokens {
+		token := token
+		indexes := indexesByToken[token]
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			status := s.queryEtaStatus(ctx, token)
+			for _, index := range indexes {
+				statuses[index] = status
+			}
+		}()
+	}
+	wg.Wait()
 	s.logResult(request.RequestID, "queryRouteEtas", request.Language, len(statuses), start)
 	return QueryEtasResult{QueriedAt: s.clock(), Etas: statuses}, nil
+}
+
+func (s *Service) queryEtaStatus(ctx context.Context, token string) (status domain.EtaStatus) {
+	status = domain.UnavailableEtaStatus(token, s.clock())
+	// ETA 外部查询使用 goroutine 并发执行；recover 防止单个适配器异常拖垮整个 HTTP 进程。
+	defer func() {
+		if recover() != nil {
+			status = domain.UnavailableEtaStatus(token, s.clock())
+		}
+	}()
+	payload, err := s.signer.VerifyEta(token)
+	if err != nil {
+		return status
+	}
+	status, err = s.etas.QueryEta(ctx, token, payload)
+	if err != nil {
+		return domain.UnavailableEtaStatus(token, s.clock())
+	}
+	return status
 }
 
 func (s *Service) allow(key string) bool {
