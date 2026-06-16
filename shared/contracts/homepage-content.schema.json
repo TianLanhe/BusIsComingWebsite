@@ -85,18 +85,24 @@
     },
     "onlineQueryDemo": {
       "type": "object",
-      "required": ["title", "mode", "origin", "destination", "resultRows", "limitationNotice", "scopeNotice"],
+      "required": [
+        "title",
+        "description",
+        "limitationNotice",
+        "initialEmptyTitle",
+        "initialEmptyDescription",
+        "noRoutesTitle",
+        "noRoutesDescription",
+        "scopeNotice"
+      ],
       "properties": {
         "title": { "$ref": "#/$defs/localizedString" },
-        "mode": { "const": "static-demo" },
-        "origin": { "$ref": "#/$defs/localizedString" },
-        "destination": { "$ref": "#/$defs/localizedString" },
-        "resultRows": {
-          "type": "array",
-          "minItems": 1,
-          "items": { "$ref": "#/$defs/demoRouteResult" }
-        },
+        "description": { "$ref": "#/$defs/localizedString" },
         "limitationNotice": { "$ref": "#/$defs/localizedString" },
+        "initialEmptyTitle": { "$ref": "#/$defs/localizedString" },
+        "initialEmptyDescription": { "$ref": "#/$defs/localizedString" },
+        "noRoutesTitle": { "$ref": "#/$defs/localizedString" },
+        "noRoutesDescription": { "$ref": "#/$defs/localizedString" },
         "scopeNotice": { "$ref": "#/$defs/localizedString" }
       },
       "additionalProperties": false

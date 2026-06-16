@@ -1,9 +1,9 @@
 import { defineConfig } from "@playwright/test";
 
 const backendHost = process.env.BUS_HTTP_HOST ?? "0.0.0.0";
-const backendPort = process.env.PORT ?? process.env.BACKEND_PORT ?? "8080";
+const backendPort = process.env.PORT ?? process.env.BACKEND_PORT ?? "18080";
 const frontendHost = process.env.FRONTEND_HOST ?? "0.0.0.0";
-const frontendPort = process.env.FRONTEND_PORT ?? "5173";
+const frontendPort = process.env.FRONTEND_PORT ?? "5184";
 const browserHost = process.env.PLAYWRIGHT_HOST ?? "127.0.0.1";
 
 export default defineConfig({
@@ -20,16 +20,17 @@ export default defineConfig({
   webServer: [
     {
       command: "cd ../backend && go run ./cmd/server",
-      url: `http://${browserHost}:${backendPort}/api/downloads/android/latest`,
+      url: `http://${browserHost}:${backendPort}/healthz`,
       env: {
         BUS_HTTP_HOST: backendHost,
         PORT: backendPort,
+        GOCACHE: "/tmp/busiscoming-go-build",
       },
-      reuseExistingServer: true,
+      reuseExistingServer: false,
       timeout: 120_000,
     },
     {
-      command: "npm run dev",
+      command: `npm run dev -- --port ${frontendPort} --strictPort`,
       url: `http://${browserHost}:${frontendPort}`,
       env: {
         FRONTEND_HOST: frontendHost,
@@ -37,7 +38,7 @@ export default defineConfig({
         BACKEND_HOST: browserHost,
         BACKEND_PORT: backendPort,
       },
-      reuseExistingServer: true,
+      reuseExistingServer: false,
       timeout: 120_000,
     },
   ],

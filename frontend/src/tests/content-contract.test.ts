@@ -5,6 +5,8 @@ import homepageContentSchema from "../../../shared/contracts/homepage-content.sc
 import homepageContentV2Schema from "../../../specs/003-homepage-ui-optimization/contracts/homepage-content-v2.schema.json";
 import { downloadManifest } from "../content/downloadManifest";
 import { homepageContent } from "../content/homepageContent";
+import { onlineQueryDemo } from "../content/onlineQueryDemo";
+import { faq, scopeExclusions } from "../content/sectionsContent";
 
 describe("content contracts", () => {
   const ajv = new Ajv2020({ strict: false });
@@ -14,6 +16,15 @@ describe("content contracts", () => {
   it("validates homepage content against the shared contract", () => {
     const validate = ajv.compile(homepageContentSchema);
     expect(validate(homepageContent), JSON.stringify(validate.errors, null, 2)).toBe(true);
+  });
+
+  it("describes the website query as a basic Citybus trial, not a static demo", () => {
+    expect(onlineQueryDemo.limitationNotice.en).toContain("basic Citybus route trial");
+    expect(onlineQueryDemo.scopeNotice.en).toContain("Citybus route trial only");
+    expect(onlineQueryDemo.scopeNotice.en).toContain("KMB");
+    expect(onlineQueryDemo.scopeNotice.en).toContain("MTR");
+    expect(onlineQueryDemo.scopeNotice.en).toContain("ferry");
+    expect(JSON.stringify(onlineQueryDemo).toLowerCase()).not.toContain("static demo");
   });
 
   it("validates homepage v2 content against the feature contract", () => {
@@ -73,5 +84,14 @@ describe("content contracts", () => {
   it("validates download manifest against the shared contract", () => {
     const validate = ajv.compile(downloadManifestSchema);
     expect(validate(downloadManifest), JSON.stringify(validate.errors, null, 2)).toBe(true);
+  });
+
+  it("keeps FAQ and scope exclusions aligned with the route-query boundary", () => {
+    const onlineQueryFaq = faq.find((item) => item.id === "online-query-limit");
+    expect(onlineQueryFaq?.answer.en).toContain("basic Citybus route trial");
+    expect(onlineQueryFaq?.answer.en).toContain("Download the app");
+    expect(onlineQueryFaq?.answer.en.toLowerCase()).not.toContain("static demo");
+    expect(scopeExclusions.map((item) => item.en).join(" ")).toContain("KMB");
+    expect(scopeExclusions.map((item) => item.en).join(" ")).toContain("MTR");
   });
 });

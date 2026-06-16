@@ -89,22 +89,14 @@ export interface FeatureItem {
   sourceReference: string;
 }
 
-export interface DemoRouteResult {
-  routeNumber: string;
-  operator: string;
-  fare: string;
-  duration: LocalizedString;
-  walkingDistance: LocalizedString;
-  etaDisplay: LocalizedString;
-}
-
 export interface OnlineQueryDemo {
   title: LocalizedString;
-  mode: "static-demo";
-  origin: LocalizedString;
-  destination: LocalizedString;
-  resultRows: DemoRouteResult[];
+  description: LocalizedString;
   limitationNotice: LocalizedString;
+  initialEmptyTitle: LocalizedString;
+  initialEmptyDescription: LocalizedString;
+  noRoutesTitle: LocalizedString;
+  noRoutesDescription: LocalizedString;
   scopeNotice: LocalizedString;
 }
 

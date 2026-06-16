@@ -1,0 +1,580 @@
+openapi: 3.1.0
+info:
+  title: 在线巴士路线查询 API
+  summary: 网站在线查询区使用的地点、路线和批量 ETA 查询接口
+  description: |
+    本 OpenAPI 文件是在线巴士路线查询的 feature 阶段权威契约。
+    所有业务参数通过 JSON body 传入，所有业务响应通过 JSON body 中的
+    `{ requestId, data, error }` envelope 返回。二进制下载接口不适用本契约。
+  version: 0.1.0
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://127.0.0.1:8080
+    description: 本地 Go API 服务
+security: []
+tags:
+  - name: routes
+    description: 在线巴士路线查询
+paths:
+  /api/routes/query_places:
+    post:
+      tags: [routes]
+      operationId: queryRoutePlaces
+      summary: 查询地点候选
+      description: 根据用户输入和当前语言查询可选择地点。前端必须从返回候选中选择地点，不能用自由文本查询路线。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryPlacesRequest"
+            examples:
+              zhHans:
+                summary: 简体中文地点检索
+                value:
+                  requestId: web-20260616-places-001
+                  language: zh-Hans
+                  query: 兴华
+                  limit: 100
+      responses:
+        "200":
+          description: 地点候选查询成功，候选可能为空
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryPlacesEnvelope"
+              examples:
+                success:
+                  value:
+                    requestId: web-20260616-places-001
+                    data:
+                      places:
+                        - placeToken: place-token-redacted
+                          name: 兴华邨兴翠楼
+                          displayHint: 柴湾
+                          provider: citybus
+                          expiresAt: "2026-06-16T13:00:00+08:00"
+                      expiresAt: "2026-06-16T13:00:00+08:00"
+                    error: null
+        "400":
+          $ref: "#/components/responses/InvalidArgument"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "502":
+          $ref: "#/components/responses/ExternalUnavailable"
+        "504":
+          $ref: "#/components/responses/ExternalTimeout"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/routes/query_routes:
+    post:
+      tags: [routes]
+      operationId: queryRouteOptions
+      summary: 查询路线摘要
+      description: 使用已选择的起点和终点 token 查询最多 20 条香港巴士路线，默认按耗时排序。成功但无路线时返回空列表。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryRoutesRequest"
+            examples:
+              selectedPlaces:
+                summary: 使用地点 token 查询路线
+                value:
+                  requestId: web-20260616-routes-001
+                  language: zh-Hans
+                  originPlaceToken: place-token-origin-redacted
+                  destinationPlaceToken: place-token-destination-redacted
+      responses:
+        "200":
+          description: 路线摘要查询成功；`routes` 可为空数组
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryRoutesEnvelope"
+              examples:
+                success:
+                  value:
+                    requestId: web-20260616-routes-001
+                    data:
+                      queriedAt: "2026-06-16T12:41:00+08:00"
+                      resultLimit: 20
+                      routes:
+                        - routeId: route-001
+                          operator: citybus
+                          routeNumbers: ["606"]
+                          routeLabel: "606"
+                          boardingStop:
+                            name: 兴华邨兴翠楼
+                            stopId: "001336"
+                          alightingStop:
+                            name: 渔湾邨
+                            stopId: "002180"
+                          fare:
+                            currency: HKD
+                            amount: 6.1
+                          durationMinutes: 10
+                          walkingDistanceMeters: 266
+                          sortIndex: 0
+                          etaToken: eta-token-redacted
+                          etaExpiresAt: "2026-06-16T12:46:00+08:00"
+                    error: null
+                empty:
+                  value:
+                    requestId: web-20260616-routes-002
+                    data:
+                      queriedAt: "2026-06-16T12:41:00+08:00"
+                      resultLimit: 20
+                      routes: []
+                    error: null
+        "400":
+          $ref: "#/components/responses/InvalidArgument"
+        "422":
+          $ref: "#/components/responses/RouteTokenError"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "502":
+          $ref: "#/components/responses/ExternalUnavailable"
+        "504":
+          $ref: "#/components/responses/ExternalTimeout"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/routes/query_etas:
+    post:
+      tags: [routes]
+      operationId: queryRouteEtas
+      summary: 批量查询首程 ETA
+      description: 对路线摘要返回的 ETA token 一次性批量查询首程候车状态。单条 ETA 失败不得清空路线摘要。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryEtasRequest"
+            examples:
+              batch:
+                summary: 批量 ETA 查询
+                value:
+                  requestId: web-20260616-etas-001
+                  language: zh-Hans
+                  etaTokens:
+                    - eta-token-redacted-1
+                    - eta-token-redacted-2
+      responses:
+        "200":
+          description: ETA 查询完成；不可用条目在 `etas` 中以 `unavailable` 表达
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryEtasEnvelope"
+              examples:
+                success:
+                  value:
+                    requestId: web-20260616-etas-001
+                    data:
+                      queriedAt: "2026-06-16T12:41:30+08:00"
+                      etas:
+                        - etaToken: eta-token-redacted-1
+                          status: waiting
+                          waitMinutes: 49
+                          updatedAt: "2026-06-16T12:41:30+08:00"
+                        - etaToken: eta-token-redacted-2
+                          status: unavailable
+                          updatedAt: "2026-06-16T12:41:30+08:00"
+                    error: null
+        "400":
+          $ref: "#/components/responses/InvalidArgument"
+        "422":
+          $ref: "#/components/responses/EtaTokenError"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "502":
+          $ref: "#/components/responses/ExternalUnavailable"
+        "504":
+          $ref: "#/components/responses/ExternalTimeout"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  responses:
+    InvalidArgument:
+      description: 请求参数无效
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            invalid:
+              value:
+                requestId: web-20260616-error-001
+                data: null
+                error:
+                  code: INVALID_ARGUMENT
+                  message: query must not be empty
+    RouteTokenError:
+      description: 地点 token 无效、过期、篡改或起终点相同
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            expired:
+              value:
+                requestId: web-20260616-error-002
+                data: null
+                error:
+                  code: PLACE_TOKEN_EXPIRED
+                  message: place token expired
+    EtaTokenError:
+      description: ETA token 无效、过期或无法用于当前批量查询
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            invalid:
+              value:
+                requestId: web-20260616-error-003
+                data: null
+                error:
+                  code: ETA_TOKEN_INVALID
+                  message: eta token invalid
+    RateLimited:
+      description: 请求过于频繁
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            limited:
+              value:
+                requestId: web-20260616-error-004
+                data: null
+                error:
+                  code: RATE_LIMITED
+                  message: too many requests
+    ExternalUnavailable:
+      description: 外部服务不可用或返回无法使用的结果
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            unavailable:
+              value:
+                requestId: web-20260616-error-005
+                data: null
+                error:
+                  code: EXTERNAL_SERVICE_UNAVAILABLE
+                  message: upstream service unavailable
+    ExternalTimeout:
+      description: 外部服务超时
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            timeout:
+              value:
+                requestId: web-20260616-error-006
+                data: null
+                error:
+                  code: EXTERNAL_TIMEOUT
+                  message: upstream timeout
+    InternalError:
+      description: 服务端内部错误，响应不得泄露堆栈、密钥或私有路径
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            internal:
+              value:
+                requestId: web-20260616-error-007
+                data: null
+                error:
+                  code: INTERNAL_ERROR
+                  message: internal error
+  schemas:
+    Language:
+      type: string
+      description: 网站当前语言
+      enum: [zh-Hant, zh-Hans, en]
+    RequestId:
+      type: string
+      description: 请求关联 ID；前端可生成，后端缺省时补齐并回传
+      minLength: 1
+      maxLength: 128
+    QueryPlacesRequest:
+      type: object
+      additionalProperties: false
+      required: [language, query]
+      properties:
+        requestId:
+          $ref: "#/components/schemas/RequestId"
+        language:
+          $ref: "#/components/schemas/Language"
+        query:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: 用户输入的地点关键词
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+          description: 返回候选上限
+    QueryRoutesRequest:
+      type: object
+      additionalProperties: false
+      required: [language, originPlaceToken, destinationPlaceToken]
+      properties:
+        requestId:
+          $ref: "#/components/schemas/RequestId"
+        language:
+          $ref: "#/components/schemas/Language"
+        originPlaceToken:
+          type: string
+          minLength: 1
+          description: 起点地点 token
+        destinationPlaceToken:
+          type: string
+          minLength: 1
+          description: 终点地点 token
+    QueryEtasRequest:
+      type: object
+      additionalProperties: false
+      required: [language, etaTokens]
+      properties:
+        requestId:
+          $ref: "#/components/schemas/RequestId"
+        language:
+          $ref: "#/components/schemas/Language"
+        etaTokens:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            type: string
+            minLength: 1
+          description: 路线摘要返回的 ETA token
+    PlaceCandidate:
+      type: object
+      additionalProperties: false
+      required: [placeToken, name, provider, expiresAt]
+      properties:
+        placeToken:
+          type: string
+          description: 受保护地点 token，前端不得解析
+        name:
+          type: string
+          description: 当前语言地点名
+        displayHint:
+          type: string
+          description: 可选区域或距离提示
+        provider:
+          type: string
+          enum: [citybus]
+        expiresAt:
+          type: string
+          format: date-time
+    PlaceSearchData:
+      type: object
+      additionalProperties: false
+      required: [places, expiresAt]
+      properties:
+        places:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/PlaceCandidate"
+        expiresAt:
+          type: string
+          format: date-time
+    StopSummary:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          type: string
+          description: 当前语言站名
+        stopId:
+          type: string
+          description: 可选 stop id
+    MoneyAmount:
+      type: object
+      additionalProperties: false
+      required: [currency, amount]
+      properties:
+        currency:
+          type: string
+          enum: [HKD]
+        amount:
+          type: number
+          minimum: 0
+    RouteOption:
+      type: object
+      additionalProperties: false
+      required:
+        - routeId
+        - operator
+        - routeNumbers
+        - routeLabel
+        - boardingStop
+        - alightingStop
+        - fare
+        - durationMinutes
+        - walkingDistanceMeters
+        - sortIndex
+      properties:
+        routeId:
+          type: string
+        operator:
+          type: string
+          enum: [citybus]
+        routeNumbers:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        routeLabel:
+          type: string
+        boardingStop:
+          $ref: "#/components/schemas/StopSummary"
+        alightingStop:
+          $ref: "#/components/schemas/StopSummary"
+        fare:
+          $ref: "#/components/schemas/MoneyAmount"
+        durationMinutes:
+          type: integer
+          minimum: 0
+        walkingDistanceMeters:
+          type: integer
+          minimum: 0
+        sortIndex:
+          type: integer
+          minimum: 0
+        etaToken:
+          type: string
+          description: 首程 ETA token；不可解析
+        etaExpiresAt:
+          type: string
+          format: date-time
+    RouteSearchData:
+      type: object
+      additionalProperties: false
+      required: [queriedAt, resultLimit, routes]
+      properties:
+        queriedAt:
+          type: string
+          format: date-time
+        resultLimit:
+          type: integer
+          enum: [20]
+        routes:
+          type: array
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/RouteOption"
+    EtaStatus:
+      type: object
+      additionalProperties: false
+      required: [etaToken, status, updatedAt]
+      properties:
+        etaToken:
+          type: string
+        status:
+          type: string
+          enum: [waiting, arriving, unavailable]
+        waitMinutes:
+          type: integer
+          minimum: 0
+        updatedAt:
+          type: string
+          format: date-time
+    EtaSearchData:
+      type: object
+      additionalProperties: false
+      required: [queriedAt, etas]
+      properties:
+        queriedAt:
+          type: string
+          format: date-time
+        etas:
+          type: array
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/EtaStatus"
+    QueryError:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - INVALID_ARGUMENT
+            - SAME_PLACE
+            - PLACE_TOKEN_INVALID
+            - PLACE_TOKEN_EXPIRED
+            - ETA_TOKEN_INVALID
+            - ETA_TOKEN_EXPIRED
+            - RATE_LIMITED
+            - EXTERNAL_SERVICE_UNAVAILABLE
+            - EXTERNAL_TIMEOUT
+            - PARSE_FAILED
+            - INTERNAL_ERROR
+        message:
+          type: string
+          description: 后端调试 message，前端不得直接作为用户文案展示
+        details:
+          type: object
+          additionalProperties: true
+    QueryPlacesEnvelope:
+      type: object
+      additionalProperties: false
+      required: [requestId, data, error]
+      properties:
+        requestId:
+          type: string
+        data:
+          $ref: "#/components/schemas/PlaceSearchData"
+        error:
+          type: "null"
+    QueryRoutesEnvelope:
+      type: object
+      additionalProperties: false
+      required: [requestId, data, error]
+      properties:
+        requestId:
+          type: string
+        data:
+          $ref: "#/components/schemas/RouteSearchData"
+        error:
+          type: "null"
+    QueryEtasEnvelope:
+      type: object
+      additionalProperties: false
+      required: [requestId, data, error]
+      properties:
+        requestId:
+          type: string
+        data:
+          $ref: "#/components/schemas/EtaSearchData"
+        error:
+          type: "null"
+    ErrorEnvelope:
+      type: object
+      additionalProperties: false
+      required: [requestId, data, error]
+      properties:
+        requestId:
+          type: string
+        data:
+          type: "null"
+        error:
+          $ref: "#/components/schemas/QueryError"
