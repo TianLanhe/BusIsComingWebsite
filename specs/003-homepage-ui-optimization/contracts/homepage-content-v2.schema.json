@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://busiscoming.local/contracts/homepage-content-v2.schema.json",
+  "title": "BusIsComing Homepage Content Contract v2",
+  "type": "object",
+  "required": [
+    "metadata",
+    "hero",
+    "featureShowcase",
+    "features",
+    "downloadSection",
+    "scopeExclusions",
+    "figmaReference"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["version", "lastUpdated", "sourceReferences"],
+      "properties": {
+        "version": { "type": "string", "pattern": "^2026-06-16\\.homepage-v2" },
+        "lastUpdated": { "type": "string", "format": "date" },
+        "sourceReferences": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "hero": {
+      "type": "object",
+      "required": ["headline", "subheading", "primaryAction", "secondaryAction", "apkMeta", "iphoneStatus"],
+      "properties": {
+        "headline": { "$ref": "#/$defs/localizedString" },
+        "subheading": { "$ref": "#/$defs/localizedString" },
+        "primaryAction": { "$ref": "#/$defs/action" },
+        "secondaryAction": { "$ref": "#/$defs/action" },
+        "apkMeta": { "$ref": "#/$defs/localizedString" },
+        "iphoneStatus": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "featureShowcase": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/featureShowcaseItem" }
+    },
+    "features": {
+      "type": "array",
+      "minItems": 6,
+      "items": { "$ref": "#/$defs/featureCard" }
+    },
+    "downloadSection": {
+      "type": "object",
+      "required": ["title", "description", "androidCard", "iphoneStatus"],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "androidCard": {
+          "type": "object",
+          "required": ["title", "meta", "primaryAction", "backupAction"],
+          "properties": {
+            "title": { "$ref": "#/$defs/localizedString" },
+            "meta": { "$ref": "#/$defs/localizedString" },
+            "primaryAction": { "$ref": "#/$defs/action" },
+            "backupAction": { "$ref": "#/$defs/action" }
+          },
+          "additionalProperties": false
+        },
+        "iphoneStatus": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "scopeExclusions": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "#/$defs/localizedString" }
+    },
+    "figmaReference": {
+      "type": "object",
+      "required": ["fileUrl", "pageNode", "desktopNode", "mobileNode", "downloadStatesNode", "carouselStatesNode", "notesNode", "versionNote"],
+      "properties": {
+        "fileUrl": { "type": "string", "format": "uri" },
+        "pageNode": { "type": "string", "minLength": 1 },
+        "desktopNode": { "type": "string", "minLength": 1 },
+        "mobileNode": { "type": "string", "minLength": 1 },
+        "downloadStatesNode": { "type": "string", "minLength": 1 },
+        "carouselStatesNode": { "type": "string", "minLength": 1 },
+        "notesNode": { "type": "string", "minLength": 1 },
+        "versionNote": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "locale": {
+      "enum": ["zh-Hant", "zh-Hans", "en"]
+    },
+    "localizedString": {
+      "type": "object",
+      "required": ["zh-Hant", "zh-Hans", "en"],
+      "properties": {
+        "zh-Hant": { "type": "string", "minLength": 1 },
+        "zh-Hans": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": ["label", "target", "kind"],
+      "properties": {
+        "label": { "$ref": "#/$defs/localizedString" },
+        "target": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["download", "anchor", "external"] }
+      },
+      "additionalProperties": false
+    },
+    "featureShowcaseItem": {
+      "type": "object",
+      "required": ["id", "order", "title", "description", "gallery", "sourceReference"],
+      "properties": {
+        "id": {
+          "enum": [
+            "favorite-citybus-routes",
+            "route-comparison",
+            "eta-details",
+            "predeparture-monitor"
+          ]
+        },
+        "order": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "gallery": {
+          "type": "object",
+          "required": ["defaultImageId", "manualOnly", "images"],
+          "properties": {
+            "defaultImageId": { "type": "string", "minLength": 1 },
+            "manualOnly": { "const": true },
+            "images": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/screenshotRef" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "sourceReference": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "screenshotRef": {
+      "type": "object",
+      "required": ["id", "assetPath", "order", "isDefault", "alt"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "assetPath": {
+          "type": "string",
+          "pattern": "^frontend/src/assets/app-screenshots/real/.+\\.(webp|jpg|jpeg|png)$"
+        },
+        "order": { "type": "integer", "minimum": 1 },
+        "isDefault": { "type": "boolean" },
+        "alt": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "featureCard": {
+      "type": "object",
+      "required": ["id", "title", "description", "icon", "sourceReference"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "icon": { "type": "string", "minLength": 1 },
+        "sourceReference": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://busiscoming.local/contracts/screenshot-assets.manifest.schema.json",
+  "title": "BusIsComing Sanitized Screenshot Assets Manifest",
+  "type": "object",
+  "required": ["version", "sourceRoot", "outputRoot", "groups"],
+  "properties": {
+    "version": { "type": "string", "minLength": 1 },
+    "sourceRoot": { "const": "app真实截图" },
+    "outputRoot": { "const": "frontend/src/assets/app-screenshots/real" },
+    "groups": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/group" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "localizedString": {
+      "type": "object",
+      "required": ["zh-Hant", "zh-Hans", "en"],
+      "properties": {
+        "zh-Hant": { "type": "string", "minLength": 1 },
+        "zh-Hans": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "required": ["featureId", "sourceDirectory", "defaultSourceFile", "images"],
+      "properties": {
+        "featureId": {
+          "enum": [
+            "favorite-citybus-routes",
+            "route-comparison",
+            "eta-details",
+            "predeparture-monitor"
+          ]
+        },
+        "sourceDirectory": { "type": "string", "minLength": 1 },
+        "defaultSourceFile": { "type": "string", "minLength": 1 },
+        "images": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/image" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "image": {
+      "type": "object",
+      "required": [
+        "id",
+        "sourcePath",
+        "outputPath",
+        "order",
+        "isDefault",
+        "desensitizationStatus",
+        "redactedItems",
+        "retainedItems",
+        "alt"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "sourcePath": {
+          "type": "string",
+          "pattern": "^app真实截图/.+\\.(jpg|jpeg|png)$"
+        },
+        "outputPath": {
+          "type": "string",
+          "pattern": "^frontend/src/assets/app-screenshots/real/.+\\.(webp|jpg|jpeg|png)$"
+        },
+        "order": { "type": "integer", "minimum": 1 },
+        "isDefault": { "type": "boolean" },
+        "desensitizationStatus": { "enum": ["pending", "approved", "rejected"] },
+        "redactedItems": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "enum": [
+              "real-place-name",
+              "real-stop-name",
+              "real-route-number",
+              "search-history",
+              "phone-system-content",
+              "other"
+            ]
+          }
+        },
+        "retainedItems": {
+          "type": "array",
+          "contains": { "const": "price-time-eta-values" },
+          "items": {
+            "enum": [
+              "price-time-eta-values",
+              "layout-shape",
+              "app-navigation-shape",
+              "other"
+            ]
+          }
+        },
+        "alt": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,9 +1,7 @@
 <!-- SPECKIT START -->
-Current plan: `specs/002-android-apk-download/plan.md`
-
-For technologies, project structure, shell commands, validation steps, and
-other feature-specific context, read the current plan above before planning,
-task generation, or implementation.
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+at specs/003-homepage-ui-optimization/plan.md
 <!-- SPECKIT END -->
 
 ## 项目约束
