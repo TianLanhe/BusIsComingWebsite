@@ -110,6 +110,22 @@ json_field() {
   ' "${file}" "${field}"
 }
 
+validate_safe_relative_path() {
+  local value="$1"
+  local remaining
+  local segment
+
+  [[ "${value}" =~ ^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$ ]] || return 1
+
+  remaining="${value}"
+  while :; do
+    segment="${remaining%%/*}"
+    [[ "${segment}" != "." && "${segment}" != ".." ]] || return 1
+    [[ "${remaining}" == */* ]] || break
+    remaining="${remaining#*/}"
+  done
+}
+
 validate_apk_input() {
   local apk="$1"
   local metadata="$2"
@@ -129,13 +145,8 @@ validate_apk_input() {
   expected_sha="$(json_field "${metadata}" sha256)" || return 1
   status="$(json_field "${metadata}" status)" || return 1
 
-  case "${name}" in
-    ""|*/*|*\\*)
-      return 1
-      ;;
-  esac
-
-  [[ "${name}" == "${apk##*/}" ]] || return 1
+  validate_safe_relative_path "${name}" || return 1
+  [[ "${name##*/}" == "${apk##*/}" ]] || return 1
   [[ "${expected_size}" =~ ^[0-9]+$ ]] || return 1
   [[ "${expected_sha}" =~ ^[A-Fa-f0-9]{64}$ ]] || return 1
 
@@ -246,24 +257,35 @@ cleanup_build_root() {
 }
 
 run_local_build() {
+  local binary_description
+
   BUILD_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/busiscoming-deploy.XXXXXX")"
   BUILD_ROOT_OWNED=1
   trap 'cleanup_build_root' EXIT
   trap 'exit 130' INT
   trap 'exit 143' TERM
 
-  npm --prefix "${REPO_ROOT}/frontend" ci
+  (
+    cd "${REPO_ROOT}/frontend"
+    npm ci
+  )
   if [[ "${SKIP_TESTS}" -ne 1 ]]; then
-    npm --prefix "${REPO_ROOT}/frontend" test
-    npm --prefix "${REPO_ROOT}/frontend" run openapi:lint
-    npm --prefix "${REPO_ROOT}/frontend" run openapi:routes:lint
+    (
+      cd "${REPO_ROOT}/frontend"
+      npm test
+      npm run openapi:lint
+      npm run openapi:routes:lint
+    )
     (
       cd "${REPO_ROOT}/backend"
       GOCACHE="${BUILD_ROOT}/go-cache" go test ./...
     )
   fi
 
-  npm --prefix "${REPO_ROOT}/frontend" run build
+  (
+    cd "${REPO_ROOT}/frontend"
+    npm run build
+  )
   (
     cd "${REPO_ROOT}/backend"
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
@@ -272,9 +294,11 @@ run_local_build() {
       -o "${BUILD_ROOT}/busiscoming-server" ./cmd/server
   )
 
-  file "${BUILD_ROOT}/busiscoming-server" |
-    grep -E 'ELF 64-bit.*x86-64' >/dev/null ||
-    die "Go build did not produce a Linux x86_64 binary"
+  binary_description="$(file "${BUILD_ROOT}/busiscoming-server")"
+  if [[ ! "${binary_description}" =~ ELF\ 64-bit.*x86-64 ]] ||
+    [[ "${binary_description}" != *"statically linked"* ]]; then
+    die "Go build did not produce a statically linked Linux x86_64 binary: ${binary_description}"
+  fi
 }
 
 prepare_apk_artifacts() {
