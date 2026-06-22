@@ -36,6 +36,7 @@ assert_contains() {
 }
 
 test_help_lists_commands() {
+  local command
   local output
   local status
 
@@ -47,11 +48,9 @@ test_help_lists_commands() {
     return 1
   fi
 
-  assert_contains "${output}" "deploy"
-  assert_contains "${output}" "switch"
-  assert_contains "${output}" "rollback"
-  assert_contains "${output}" "status"
-  assert_contains "${output}" "logs"
+  for command in deploy switch rollback status logs; do
+    assert_contains "${output}" "${command}" || return 1
+  done
 }
 
 test_unknown_command_fails() {
