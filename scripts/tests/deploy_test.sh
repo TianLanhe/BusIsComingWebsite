@@ -48,7 +48,7 @@ test_help_lists_commands() {
     return 1
   fi
 
-  for command in deploy switch rollback status logs; do
+  for command in deploy list switch rollback status logs; do
     assert_contains "${output}" "${command}" || return 1
   done
 }
@@ -83,8 +83,40 @@ test_logs_rejects_invalid_service() {
   assert_contains "${output}" "backend or caddy"
 }
 
+test_status_rejects_deploy_option() {
+  local output
+  local status
+
+  output="$(BUS_DEPLOY_HOST=192.0.2.10 "${DEPLOY_SCRIPT}" status --skip-tests 2>&1)"
+  status=$?
+
+  if [ "${status}" -eq 0 ]; then
+    printf '  expected a nonzero exit status\n'
+    return 1
+  fi
+
+  assert_contains "${output}" "Option --skip-tests is not valid for command: status"
+}
+
+test_list_rejects_logs_option() {
+  local output
+  local status
+
+  output="$(BUS_DEPLOY_HOST=192.0.2.10 "${DEPLOY_SCRIPT}" list --service backend 2>&1)"
+  status=$?
+
+  if [ "${status}" -eq 0 ]; then
+    printf '  expected a nonzero exit status\n'
+    return 1
+  fi
+
+  assert_contains "${output}" "Option --service is not valid for command: list"
+}
+
 run_test "help lists deployment commands" test_help_lists_commands
 run_test "unknown command fails clearly" test_unknown_command_fails
 run_test "logs rejects an invalid service" test_logs_rejects_invalid_service
+run_test "status rejects deploy-only options" test_status_rejects_deploy_option
+run_test "list rejects logs-only options" test_list_rejects_logs_option
 
 exit "${FAILURES}"

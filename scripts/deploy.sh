@@ -38,6 +38,28 @@ die() {
   exit 1
 }
 
+validate_command_option() {
+  local option="$1"
+
+  case "${COMMAND}:${option}" in
+    deploy:--host|deploy:--domain|deploy:--version|deploy:--skip-apk|deploy:--skip-tests|deploy:--allow-dirty|deploy:--allow-non-master)
+      return 0
+      ;;
+    list:--host|status:--host|rollback:--host)
+      return 0
+      ;;
+    switch:--host|switch:--version)
+      return 0
+      ;;
+    logs:--host|logs:--service|logs:--lines)
+      return 0
+      ;;
+    *)
+      die "Option ${option} is not valid for command: ${COMMAND}"
+      ;;
+  esac
+}
+
 parse_args() {
   [[ $# -gt 0 ]] || {
     usage
@@ -61,43 +83,52 @@ parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --host)
+        validate_command_option "$1"
         [[ $# -ge 2 ]] || die "--host requires a value"
         HOST="$2"
         shift 2
         ;;
       --domain)
+        validate_command_option "$1"
         [[ $# -ge 2 ]] || die "--domain requires a value"
         DOMAIN="$2"
         shift 2
         ;;
       --version)
+        validate_command_option "$1"
         [[ $# -ge 2 ]] || die "--version requires a value"
         VERSION="$2"
         shift 2
         ;;
       --service)
+        validate_command_option "$1"
         [[ $# -ge 2 ]] || die "--service requires a value"
         SERVICE="$2"
         shift 2
         ;;
       --lines)
+        validate_command_option "$1"
         [[ $# -ge 2 ]] || die "--lines requires a value"
         LINES="$2"
         shift 2
         ;;
       --skip-apk)
+        validate_command_option "$1"
         SKIP_APK=1
         shift
         ;;
       --skip-tests)
+        validate_command_option "$1"
         SKIP_TESTS=1
         shift
         ;;
       --allow-dirty)
+        validate_command_option "$1"
         ALLOW_DIRTY=1
         shift
         ;;
       --allow-non-master)
+        validate_command_option "$1"
         ALLOW_NON_MASTER=1
         shift
         ;;
