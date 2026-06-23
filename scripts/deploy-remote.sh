@@ -175,6 +175,12 @@ validate_command_option() {
     deploy:--root|deploy:--domain|deploy:--bare-domain|deploy:--keep|deploy:--version|deploy:--archive|deploy:--archive-sha|deploy:--apk-dir)
       return 0
       ;;
+    switch:--root|switch:--domain|switch:--bare-domain|switch:--version)
+      return 0
+      ;;
+    rollback:--root|rollback:--domain|rollback:--bare-domain)
+      return 0
+      ;;
     *)
       die "Option ${option} is not valid for command: ${COMMAND}"
       ;;
@@ -196,7 +202,7 @@ parse_args() {
   COMMAND="$1"
   shift
   case "${COMMAND}" in
-    deploy|list|status|logs|render-config)
+    deploy|switch|rollback|list|status|logs|render-config)
       ;;
     *)
       die "Unknown remote command: ${COMMAND}"
@@ -312,8 +318,12 @@ validate_command_args() {
     fi
     if [[ "${TEST_MODE}" -eq 1 ]]; then
       [[ -n "${ETC_ROOT}" && "${ETC_ROOT}" == /* ]] ||
-        die "BUS_DEPLOY_ETC_ROOT is required in test mode"
+      die "BUS_DEPLOY_ETC_ROOT is required in test mode"
     fi
+  fi
+  if [[ "${COMMAND}" == "switch" ]]; then
+    validate_version "${VERSION}" ||
+      die "Invalid version: ${VERSION}"
   fi
 }
 
@@ -1076,6 +1086,7 @@ command_deploy() {
     atomic_link "${original_current}" "${ROOT}/previous"
   fi
   write_deploy_config
+  prune_releases
   rm -f "${caddy_snapshot}" "${config_snapshot}"
 }
 
@@ -1229,6 +1240,137 @@ load_config() {
   KEEP="${config_keep}"
 }
 
+require_domain_context() {
+  if [[ -z "${DOMAIN}" || -z "${BARE_DOMAIN}" ]]; then
+    load_config
+  fi
+  validate_domain "${DOMAIN}" ||
+    die "Invalid domain: ${DOMAIN}"
+  [[ "${DOMAIN}" == www.* && -n "${DOMAIN#www.}" ]] ||
+    die "Domain must start with www."
+  validate_domain "${BARE_DOMAIN}" ||
+    die "Invalid bare domain: ${BARE_DOMAIN}"
+  [[ "${BARE_DOMAIN}" == "${DOMAIN#www.}" ]] ||
+    die "Bare domain must match domain"
+}
+
+release_path_for_version() {
+  local version="$1"
+  local release="${ROOT}/releases/${version}"
+
+  validate_version "${version}" ||
+    die "Invalid version: ${version}"
+  [[ -d "${release}" && ! -L "${release}" ]] ||
+    die "Release does not exist: ${version}"
+  verify_release_manifest "${release}"
+  printf '%s\n' "${release}"
+}
+
+restart_original_release() {
+  local original_current="$1"
+
+  if [[ -n "${original_current}" && "${TEST_MODE}" -ne 1 ]]; then
+    systemctl restart busiscoming-backend || true
+  fi
+}
+
+command_switch() {
+  local target
+  local original_current=""
+  local original_previous=""
+
+  acquire_lock
+  require_domain_context
+  target="$(release_path_for_version "${VERSION}")"
+  original_current="$(managed_link_target "${ROOT}/current")"
+  original_previous="$(managed_link_target "${ROOT}/previous")"
+
+  atomic_link "${target}" "${ROOT}/current"
+  if ! (verify_active_release); then
+    restore_link "${ROOT}/current" "${original_current}"
+    restore_link "${ROOT}/previous" "${original_previous}"
+    restart_original_release "${original_current}"
+    die "Switch health checks failed; release links restored"
+  fi
+
+  if [[ -n "${original_current}" && "${original_current}" != "${target}" ]]; then
+    atomic_link "${original_current}" "${ROOT}/previous"
+  elif [[ -z "${original_current}" ]]; then
+    rm -f "${ROOT}/previous"
+  fi
+}
+
+command_rollback() {
+  local original_current=""
+  local original_previous=""
+
+  acquire_lock
+  require_domain_context
+  original_current="$(managed_link_target "${ROOT}/current")"
+  original_previous="$(managed_link_target "${ROOT}/previous")"
+  [[ -n "${original_current}" ]] ||
+    die "Rollback requires a current release"
+  [[ -n "${original_previous}" ]] ||
+    die "Rollback requires a previous release"
+  verify_release_manifest "${original_previous}"
+
+  atomic_link "${original_previous}" "${ROOT}/current"
+  if ! (verify_active_release); then
+    restore_link "${ROOT}/current" "${original_current}"
+    restore_link "${ROOT}/previous" "${original_previous}"
+    restart_original_release "${original_current}"
+    die "Rollback health checks failed; release links restored"
+  fi
+
+  atomic_link "${original_current}" "${ROOT}/previous"
+}
+
+release_name_in_list() {
+  local name="$1"
+  shift
+
+  while [[ $# -gt 0 ]]; do
+    [[ "${name}" == "$1" ]] && return 0
+    shift
+  done
+  return 1
+}
+
+prune_releases() {
+  local current
+  local previous
+  local release
+  local name
+  local newest_count=0
+  local newest=()
+
+  validate_optional_managed_directory "${ROOT}/releases"
+  [[ -d "${ROOT}/releases" ]] || return 0
+  current="$(version_from_link "${ROOT}/current")"
+  previous="$(version_from_link "${ROOT}/previous")"
+
+  while IFS= read -r release; do
+    [[ -d "${release}" && ! -L "${release}" ]] || continue
+    name="$(basename "${release}")"
+    validate_version "${name}" || continue
+    if [[ "${newest_count}" -lt "${KEEP}" ]]; then
+      newest[${newest_count}]="${name}"
+      newest_count=$((newest_count + 1))
+    fi
+  done < <(ls -td "${ROOT}"/releases/* 2>/dev/null || true)
+
+  while IFS= read -r release; do
+    [[ -d "${release}" && ! -L "${release}" ]] || continue
+    name="$(basename "${release}")"
+    validate_version "${name}" || continue
+    [[ "${name}" == "${current}" || "${name}" == "${previous}" ]] &&
+      continue
+    release_name_in_list "${name}" "${newest[@]}" &&
+      continue
+    rm -rf "${release}"
+  done < <(ls -td "${ROOT}"/releases/* 2>/dev/null || true)
+}
+
 print_link_status() {
   local label="$1"
   local link="$2"
@@ -1350,6 +1492,12 @@ main() {
   case "${COMMAND}" in
     deploy)
       command_deploy
+      ;;
+    switch)
+      command_switch
+      ;;
+    rollback)
+      command_rollback
       ;;
     list)
       command_list

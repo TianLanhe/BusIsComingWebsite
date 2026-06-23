@@ -410,6 +410,52 @@ EOF
   chmod +x "${bin_dir}/systemctl" "${bin_dir}/curl"
 }
 
+deploy_fixture_release() {
+  local temp="$1"
+  local version="$2"
+  local apk_dir="${3:-}"
+
+  if [ -n "${apk_dir}" ]; then
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+      FAKE_DOMAIN="www.busiscoming.com" \
+      FAKE_BARE_DOMAIN="busiscoming.com" \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+      "${REMOTE_SCRIPT}" deploy \
+        --root "${temp}/root" \
+        --domain www.busiscoming.com \
+        --bare-domain busiscoming.com \
+        --keep 3 \
+        --version "${version}" \
+        --archive "${temp}/release-${version}.tar.gz" \
+        --archive-sha "${temp}/release-${version}.tar.gz.sha256" \
+        --apk-dir "${apk_dir}"
+    return
+  fi
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" deploy \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --keep 3 \
+      --version "${version}" \
+      --archive "${temp}/release-${version}.tar.gz" \
+      --archive-sha "${temp}/release-${version}.tar.gz.sha256"
+}
+
+test_link_version() {
+  basename "$(readlink "$1")"
+}
+
 test_help_lists_commands() {
   local command
   local output
@@ -1332,7 +1378,7 @@ test_remote_argument_allowlists_and_missing_values() {
   fi
   assert_contains "${output}" "remote command required" || return 1
 
-  if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" switch --root "${temp}" 2>&1)"; then
+  if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" activate --root "${temp}" 2>&1)"; then
     printf '  expected an unknown command to fail\n'
     return 1
   fi
@@ -2376,6 +2422,130 @@ test_remote_deploy_without_apk_requires_existing_valid_apk() {
   rm -rf "${temp}"
 }
 
+test_remote_switch_and_rollback_update_release_links() {
+  local temp
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_release_fixture "${temp}" "v2"
+  write_apk_fixture "${temp}/apk"
+  write_fake_deployment_commands "${temp}/bin"
+  : > "${temp}/deploy.log"
+
+  deploy_fixture_release "${temp}" "v1" "${temp}/apk" || return 1
+  deploy_fixture_release "${temp}" "v2" || return 1
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" switch \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --version v1 || return 1
+
+  assert_equals "$(test_link_version "${temp}/root/current")" "v1" || return 1
+  assert_equals "$(test_link_version "${temp}/root/previous")" "v2" || return 1
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" rollback \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com || return 1
+
+  assert_equals "$(test_link_version "${temp}/root/current")" "v2" || return 1
+  assert_equals "$(test_link_version "${temp}/root/previous")" "v1" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_switch_restores_links_on_health_failure() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_release_fixture "${temp}" "v2"
+  write_apk_fixture "${temp}/apk"
+  write_fake_deployment_commands "${temp}/bin"
+  : > "${temp}/deploy.log"
+
+  deploy_fixture_release "${temp}" "v1" "${temp}/apk" || return 1
+  deploy_fixture_release "${temp}" "v2" || return 1
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+      FAKE_DOMAIN="www.busiscoming.com" \
+      FAKE_BARE_DOMAIN="busiscoming.com" \
+      FAKE_DEPLOY_MAIN=fail \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+      "${REMOTE_SCRIPT}" switch \
+        --root "${temp}/root" \
+        --domain www.busiscoming.com \
+        --bare-domain busiscoming.com \
+        --version v1 2>&1
+  )"; then
+    printf '  expected switch health failure to abort\n'
+    return 1
+  fi
+
+  assert_contains "${output}" "Switch health checks failed" || return 1
+  assert_equals "$(test_link_version "${temp}/root/current")" "v2" || return 1
+  assert_equals "$(test_link_version "${temp}/root/previous")" "v1" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_cleanup_protects_current_previous_and_newest_releases() {
+  local temp
+  local version
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/root/releases"
+  for version in v0 v1 v2 v3 v4 v5; do
+    mkdir -p "${temp}/root/releases/${version}"
+  done
+  touch -t 202606220000 "${temp}/root/releases/v0"
+  touch -t 202606220001 "${temp}/root/releases/v1"
+  touch -t 202606220002 "${temp}/root/releases/v2"
+  touch -t 202606220003 "${temp}/root/releases/v3"
+  touch -t 202606220004 "${temp}/root/releases/v4"
+  touch -t 202606220005 "${temp}/root/releases/v5"
+  ln -s "${temp}/root/releases/v1" "${temp}/root/current"
+  ln -s "${temp}/root/releases/v2" "${temp}/root/previous"
+
+  BUS_DEPLOY_TEST_MODE=1 \
+    bash -c '
+      source "$1"
+      ROOT="$2"
+      KEEP=3
+      prune_releases
+    ' _ "${REMOTE_SCRIPT}" "${temp}/root" || return 1
+
+  [ ! -e "${temp}/root/releases/v0" ] || return 1
+  for version in v1 v2 v3 v4 v5; do
+    [ -d "${temp}/root/releases/${version}" ] || {
+      printf '  expected protected release to remain: %s\n' "${version}"
+      return 1
+    }
+  done
+
+  rm -rf "${temp}"
+}
+
 run_test "help lists deployment commands" test_help_lists_commands
 run_test "unknown command fails clearly" test_unknown_command_fails
 run_test "logs rejects an invalid service" test_logs_rejects_invalid_service
@@ -2435,5 +2605,8 @@ run_test "remote port and UFW guards are non-destructive" test_remote_port_and_u
 run_test "remote deploy installs first release and APK" test_remote_deploy_installs_first_release_and_apk
 run_test "remote deploy restores code on health failure" test_remote_deploy_restores_code_on_health_failure
 run_test "remote deploy without APK requires an existing valid APK" test_remote_deploy_without_apk_requires_existing_valid_apk
+run_test "remote switch and rollback update release links" test_remote_switch_and_rollback_update_release_links
+run_test "remote switch restores links on health failure" test_remote_switch_restores_links_on_health_failure
+run_test "remote cleanup protects current previous and newest releases" test_remote_cleanup_protects_current_previous_and_newest_releases
 
 exit "${FAILURES}"
