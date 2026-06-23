@@ -721,6 +721,14 @@ journalctl -u caddy -n 100 --no-pager
 - 清理逻辑不删除 current/previous。
 - Caddy 证书、主域名、裸域名跳转和 `/api/*` 反向代理正常。
 
+## 实施澄清
+
+- 本地显式依赖 `node`，用于解析和校验 Android 下载元数据 `current.json`。
+- `--skip-apk` 只表示本次不上传 APK；远端必须已经存在有效的
+  `shared/downloads/android/BusIsComing.apk` 和 `current.json`，不能用来初始化空服务器。
+- 如果使用自定义 `BUS_DEPLOY_ROOT`，后续 `list`、`status`、`switch`、`rollback`
+  和 `logs` 也必须保持同一个环境变量，因为本地脚本需要先定位远端配置所在目录。
+
 ## 非目标
 
 本轮不包含：
