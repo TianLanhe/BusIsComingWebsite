@@ -14,6 +14,7 @@ SERVICE=""
 KEEP=3
 LINES=100
 TEST_MODE="${BUS_DEPLOY_TEST_MODE:-0}"
+TEST_BIN="${BUS_DEPLOY_TEST_BIN:-}"
 CONFIG_PRESENT=0
 STATUS_FAILED=0
 
@@ -82,6 +83,34 @@ validate_domain() {
     [[ "${remaining}" == *.* ]] || break
     remaining="${remaining#*.}"
   done
+}
+
+test_command_path() {
+  local command_name="$1"
+  local test_bin="${TEST_BIN%/}"
+  local command_path="${test_bin}/${command_name}"
+
+  [[ "${command_name}" =~ ^[A-Za-z0-9._-]+$ ]] || return 1
+  [[ -n "${test_bin}" && "${test_bin}" == /* ]] || return 1
+  [[ -d "${test_bin}" && ! -L "${test_bin}" ]] || return 1
+  case ":${PATH}:" in
+    *":${test_bin}:"*)
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+
+  case "${test_bin}" in
+    /bin|/bin/*|/sbin|/sbin/*|/usr/bin|/usr/bin/*|/usr/sbin|/usr/sbin/*|/usr/local/bin|/usr/local/bin/*|/usr/local/sbin|/usr/local/sbin/*|/opt/homebrew/bin|/opt/homebrew/bin/*|/opt/homebrew/sbin|/opt/homebrew/sbin/*|/opt/local/bin|/opt/local/bin/*|/opt/local/sbin|/opt/local/sbin/*|/System|/System/*)
+      return 1
+      ;;
+  esac
+
+  [[ -f "${command_path}" && -x "${command_path}" && ! -L "${command_path}" ]] ||
+    return 1
+
+  printf '%s\n' "${command_path}"
 }
 
 validate_command_option() {
@@ -154,6 +183,13 @@ validate_command_args() {
   validate_root "${ROOT}" || die "Unsafe deployment root: ${ROOT}"
   validate_positive_integer "${KEEP}" ||
     die "KEEP must be a positive integer"
+  case "${TEST_MODE}" in
+    0|1)
+      ;;
+    *)
+      die "BUS_DEPLOY_TEST_MODE must be 0 or 1"
+      ;;
+  esac
 
   if [[ "${COMMAND}" == "logs" ]]; then
     case "${SERVICE}" in
@@ -180,6 +216,8 @@ version_from_link() {
   version="$(basename "${target}")"
   validate_version "${version}" || return 0
   [[ "${target}" == "${ROOT}/releases/${version}" ]] || return 0
+  [[ -d "${target}" && ! -L "${target}" ]] ||
+    die "Managed link target is not a real release directory: ${link} -> ${target}"
   printf '%s\n' "${version}"
 }
 
@@ -222,7 +260,9 @@ load_config() {
   local config_bare_domain=""
   local config_keep=""
 
-  [[ -e "${config}" ]] || return 0
+  if [[ ! -e "${config}" && ! -L "${config}" ]]; then
+    return 0
+  fi
   [[ -f "${config}" && ! -L "${config}" && -r "${config}" ]] ||
     die "Invalid deployment config: ${config}"
   CONFIG_PRESENT=1
@@ -310,9 +350,17 @@ print_link_status() {
 check_service() {
   local label="$1"
   local unit="$2"
+  local systemctl_command="systemctl"
   local state
 
-  if state="$(systemctl is-active "${unit}" 2>&1)" &&
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    if ! systemctl_command="$(test_command_path systemctl)"; then
+      printf '%s: skipped (test command unavailable)\n' "${label}"
+      return 0
+    fi
+  fi
+
+  if state="$("${systemctl_command}" is-active "${unit}" 2>&1)" &&
     [[ "${state}" == "active" ]]; then
     printf '%s: active\n' "${label}"
     return 0
@@ -327,14 +375,22 @@ check_url() {
   local label="$1"
   local url="$2"
   local mode="${3:-get}"
+  local curl_command="curl"
   local -a curl_args
+
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    if ! curl_command="$(test_command_path curl)"; then
+      printf '%s: skipped (test command unavailable)\n' "${label}"
+      return 0
+    fi
+  fi
 
   curl_args=(--fail --silent --show-error --max-time 10)
   if [[ "${mode}" == "head" ]]; then
     curl_args+=(--head)
   fi
 
-  if curl "${curl_args[@]}" "${url}" >/dev/null; then
+  if "${curl_command}" "${curl_args[@]}" "${url}" >/dev/null; then
     printf '%s: ok\n' "${label}"
     return 0
   fi
@@ -372,6 +428,7 @@ command_status() {
 }
 
 command_logs() {
+  local journalctl_command="journalctl"
   local unit
 
   case "${SERVICE}" in
@@ -383,7 +440,12 @@ command_logs() {
       ;;
   esac
 
-  journalctl -u "${unit}" -n "${LINES}" --no-pager
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    journalctl_command="$(test_command_path journalctl)" ||
+      die "Test mode requires an injected fake journalctl command"
+  fi
+
+  "${journalctl_command}" -u "${unit}" -n "${LINES}" --no-pager
 }
 
 main() {

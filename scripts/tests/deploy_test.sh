@@ -1225,6 +1225,40 @@ v2 [current]" || return 1
   rm -rf "${temp}"
 }
 
+test_remote_list_rejects_invalid_managed_release_targets() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/releases"
+  ln -s "${temp}/releases/missing" "${temp}/current"
+
+  if output="$(
+    BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root "${temp}" 2>&1
+  )"; then
+    printf '  expected a dangling managed release link to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "Managed link target is not a real release directory" ||
+    return 1
+
+  rm "${temp}/current"
+  mkdir -p "${temp}/external"
+  ln -s "${temp}/external" "${temp}/releases/v1"
+  ln -s "${temp}/releases/v1" "${temp}/current"
+
+  if output="$(
+    BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root "${temp}" 2>&1
+  )"; then
+    printf '  expected a symlinked release directory to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "Managed link target is not a real release directory" ||
+    return 1
+
+  rm -rf "${temp}"
+}
+
 test_remote_logs_validates_service_and_maps_units() {
   local temp
   local output
@@ -1246,11 +1280,13 @@ test_remote_logs_validates_service_and_maps_units() {
   : > "${temp}/remote.log"
   PATH="${temp}/bin:/usr/bin:/bin" \
     FAKE_REMOTE_LOG="${temp}/remote.log" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
     BUS_DEPLOY_TEST_MODE=1 \
     "${REMOTE_SCRIPT}" logs --root "${temp}" --service backend --lines 25 \
     >/dev/null || return 1
   PATH="${temp}/bin:/usr/bin:/bin" \
     FAKE_REMOTE_LOG="${temp}/remote.log" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
     BUS_DEPLOY_TEST_MODE=1 \
     "${REMOTE_SCRIPT}" logs --root "${temp}" --service caddy \
     >/dev/null || return 1
@@ -1259,6 +1295,65 @@ test_remote_logs_validates_service_and_maps_units() {
   assert_equals "${log}" \
     "journalctl|-u busiscoming-backend -n 25 --no-pager
 journalctl|-u caddy -n 100 --no-pager" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_test_mode_rejects_system_commands_and_skips_without_fakes() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  write_remote_config "${temp}"
+  write_fake_remote_commands "${temp}/guard-bin"
+  : > "${temp}/guard.log"
+
+  /bin/bash -c '
+    source "$1"
+    TEST_MODE=1
+    TEST_BIN=""
+    PATH="/usr/bin:/bin"
+    ! test_command_path curl >/dev/null 2>&1
+  ' _ "${REMOTE_SCRIPT}" || return 1
+
+  output="$(
+    PATH="${temp}/guard-bin:/usr/bin:/bin" \
+      FAKE_REMOTE_LOG="${temp}/guard.log" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      /bin/bash "${REMOTE_SCRIPT}" status --root "${temp}"
+  )" || return 1
+
+  assert_contains "${output}" "backend: skipped (test command unavailable)" ||
+    return 1
+  assert_contains "${output}" "caddy: skipped (test command unavailable)" ||
+    return 1
+  assert_contains "${output}" "local health: skipped (test command unavailable)" ||
+    return 1
+  assert_contains "${output}" "main HTTPS: skipped (test command unavailable)" ||
+    return 1
+  assert_contains "${output}" "bare URL: skipped (test command unavailable)" ||
+    return 1
+  [ ! -s "${temp}/guard.log" ] || {
+    printf '  test mode executed a PATH command without explicit injection\n'
+    return 1
+  }
+
+  if output="$(
+    PATH="${temp}/guard-bin:/usr/bin:/bin" \
+      FAKE_REMOTE_LOG="${temp}/guard.log" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      /bin/bash "${REMOTE_SCRIPT}" logs \
+        --root "${temp}" --service backend 2>&1
+  )"; then
+    printf '  expected test logs without fake journalctl to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" \
+    "Test mode requires an injected fake journalctl command" || return 1
+  [ ! -s "${temp}/guard.log" ] || {
+    printf '  test logs executed a PATH command without explicit injection\n'
+    return 1
+  }
 
   rm -rf "${temp}"
 }
@@ -1331,6 +1426,27 @@ EOF
   rm -rf "${temp}"
 }
 
+test_remote_config_loader_rejects_dangling_symlink() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/empty-bin" "${temp}/shared/deploy"
+  ln -s "${temp}/missing-config.env" "${temp}/shared/deploy/config.env"
+
+  if output="$(
+    PATH="${temp}/empty-bin" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      /bin/bash "${REMOTE_SCRIPT}" status --root "${temp}" 2>&1
+  )"; then
+    printf '  expected a dangling config symlink to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "Invalid deployment config" || return 1
+
+  rm -rf "${temp}"
+}
+
 test_remote_status_uses_fake_checks_and_prints_config() {
   local temp
   local output
@@ -1349,6 +1465,7 @@ test_remote_status_uses_fake_checks_and_prints_config() {
       FAKE_REMOTE_LOG="${temp}/remote.log" \
       FAKE_DOMAIN="www.busiscoming.com" \
       FAKE_BARE_DOMAIN="busiscoming.com" \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
       BUS_DEPLOY_TEST_MODE=1 \
       "${REMOTE_SCRIPT}" status --root "${temp}"
   )" || return 1
@@ -1388,6 +1505,7 @@ test_remote_status_skips_public_checks_without_config() {
   output="$(
     PATH="${temp}/bin:/usr/bin:/bin" \
       FAKE_REMOTE_LOG="${temp}/remote.log" \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
       BUS_DEPLOY_TEST_MODE=1 \
       "${REMOTE_SCRIPT}" status --root "${temp}"
   )" || return 1
@@ -1421,6 +1539,7 @@ test_remote_status_fails_required_checks() {
         FAKE_REMOTE_LOG="${temp}/remote.log" \
         FAKE_DOMAIN="www.busiscoming.com" \
         FAKE_BARE_DOMAIN="busiscoming.com" \
+        BUS_DEPLOY_TEST_BIN="${temp}/bin" \
         FAKE_BACKEND_STATE="$(
           [ "${failure_case}" = "backend" ] && printf inactive || printf active
         )" \
@@ -1444,6 +1563,37 @@ test_remote_status_fails_required_checks() {
     fi
     assert_contains "${output}" "failed" || return 1
   done
+
+  rm -rf "${temp}"
+}
+
+test_remote_production_status_runs_checks_and_fails_closed() {
+  local temp
+  local output
+  local log
+
+  temp="$(mktemp -d)"
+  write_fake_remote_commands "${temp}/bin"
+  : > "${temp}/remote.log"
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_REMOTE_LOG="${temp}/remote.log" \
+      FAKE_BACKEND_STATE="inactive" \
+      BUS_DEPLOY_TEST_MODE=0 \
+      "${REMOTE_SCRIPT}" status --root "${temp}" 2>&1
+  )"; then
+    printf '  expected production status to fail on inactive backend\n'
+    return 1
+  fi
+
+  assert_contains "${output}" "backend: inactive (failed)" || return 1
+  assert_contains "${output}" "caddy: active" || return 1
+  assert_contains "${output}" "local health: ok" || return 1
+  log="$(cat "${temp}/remote.log")"
+  assert_contains "${log}" "systemctl|is-active busiscoming-backend" || return 1
+  assert_contains "${log}" "systemctl|is-active caddy" || return 1
+  assert_contains "${log}" "http://127.0.0.1:8080/healthz" || return 1
 
   rm -rf "${temp}"
 }
@@ -1481,10 +1631,14 @@ run_test "remote roots reject unsafe absolute paths" test_remote_root_validation
 run_test "remote versions and counts use strict validators" test_remote_version_and_positive_integer_validation
 run_test "remote commands enforce option allowlists and values" test_remote_argument_allowlists_and_missing_values
 run_test "remote list marks only valid absolute release links" test_remote_list_marks_only_valid_absolute_links
+run_test "remote list rejects invalid managed release targets" test_remote_list_rejects_invalid_managed_release_targets
 run_test "remote logs validate services and map journal units" test_remote_logs_validates_service_and_maps_units
+run_test "remote test mode rejects system commands and skips without fakes" test_remote_test_mode_rejects_system_commands_and_skips_without_fakes
 run_test "remote config parsing rejects unsafe files" test_remote_config_loader_rejects_unsafe_files
+run_test "remote config parsing rejects dangling symlinks" test_remote_config_loader_rejects_dangling_symlink
 run_test "remote status uses fake checks and prints configuration" test_remote_status_uses_fake_checks_and_prints_config
 run_test "remote status skips public checks without configuration" test_remote_status_skips_public_checks_without_config
 run_test "remote status fails required service and health checks" test_remote_status_fails_required_checks
+run_test "remote production status runs checks and fails closed" test_remote_production_status_runs_checks_and_fails_closed
 
 exit "${FAILURES}"
