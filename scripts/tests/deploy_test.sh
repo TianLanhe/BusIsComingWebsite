@@ -5,6 +5,7 @@ set -u
 TEST_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_REPO_ROOT="$(cd "${TEST_SCRIPT_DIR}/../.." && pwd)"
 DEPLOY_SCRIPT="${TEST_REPO_ROOT}/scripts/deploy.sh"
+REMOTE_SCRIPT="${TEST_REPO_ROOT}/scripts/deploy-remote.sh"
 FAILURES=0
 
 source "${DEPLOY_SCRIPT}"
@@ -190,6 +191,87 @@ else
 fi
 EOF
   chmod +x "${bin_dir}/npm" "${bin_dir}/go" "${bin_dir}/file"
+}
+
+write_fake_remote_commands() {
+  local bin_dir="$1"
+
+  mkdir -p "${bin_dir}"
+  cat > "${bin_dir}/systemctl" <<'EOF'
+#!/bin/sh
+printf 'systemctl|%s\n' "$*" >> "${FAKE_REMOTE_LOG}"
+
+[ "${1:-}" = "is-active" ] || exit 41
+case "${2:-}" in
+  busiscoming-backend)
+    printf '%s\n' "${FAKE_BACKEND_STATE:-active}"
+    [ "${FAKE_BACKEND_STATE:-active}" = "active" ]
+    ;;
+  caddy)
+    printf '%s\n' "${FAKE_CADDY_STATE:-active}"
+    [ "${FAKE_CADDY_STATE:-active}" = "active" ]
+    ;;
+  *)
+    exit 42
+    ;;
+esac
+EOF
+  cat > "${bin_dir}/curl" <<'EOF'
+#!/bin/sh
+url=""
+for argument in "$@"; do
+  url="${argument}"
+done
+printf 'curl|%s\n' "$*" >> "${FAKE_REMOTE_LOG}"
+
+case "${url}" in
+  http://127.0.0.1:8080/healthz)
+    [ "${FAKE_LOCAL_HEALTH:-ok}" = "ok" ]
+    ;;
+  "https://${FAKE_DOMAIN:-www.busiscoming.com}/")
+    [ "${FAKE_MAIN_HEALTH:-ok}" = "ok" ]
+    ;;
+  "https://${FAKE_BARE_DOMAIN:-busiscoming.com}/")
+    [ "${FAKE_BARE_HEALTH:-ok}" = "ok" ]
+    ;;
+  *)
+    printf 'unexpected fake curl URL: %s\n' "${url}" >&2
+    exit 43
+    ;;
+esac
+EOF
+  cat > "${bin_dir}/journalctl" <<'EOF'
+#!/bin/sh
+printf 'journalctl|%s\n' "$*" >> "${FAKE_REMOTE_LOG}"
+printf 'fake journal output\n'
+EOF
+  chmod +x \
+    "${bin_dir}/systemctl" \
+    "${bin_dir}/curl" \
+    "${bin_dir}/journalctl"
+}
+
+remote_helper_succeeds() {
+  local helper="$1"
+  local value="$2"
+
+  bash -c 'source "$1"; "$2" "$3"' _ "${REMOTE_SCRIPT}" "${helper}" "${value}"
+}
+
+write_remote_config() {
+  local root="$1"
+  local domain="${2:-www.busiscoming.com}"
+  local bare_domain="${3:-busiscoming.com}"
+  local configured_root="${4:-${root}}"
+  local keep="${5:-3}"
+
+  mkdir -p "${root}/shared/deploy"
+  cat > "${root}/shared/deploy/config.env" <<EOF
+DOMAIN=${domain}
+BARE_DOMAIN=${bare_domain}
+DEPLOY_ROOT=${configured_root}
+KEEP=${keep}
+EOF
 }
 
 write_apk_fixture() {
@@ -985,6 +1067,387 @@ EOF
   rm -rf "${temp}"
 }
 
+test_remote_root_validation() {
+  local value
+
+  bash -c '
+    source "$1"
+    ROOT="/opt/busiscoming"
+    validate_root
+  ' _ "${REMOTE_SCRIPT}" || return 1
+
+  for value in \
+    "/opt/busiscoming" \
+    "/srv/bus.is-coming_1/releases"; do
+    remote_helper_succeeds validate_root "${value}" || return 1
+  done
+
+  for value in \
+    "relative/root" \
+    "/opt/bus iscoming" \
+    "/opt/bus\$iscoming" \
+    "/" \
+    "/etc" \
+    "/usr" \
+    "/var" \
+    "/home" \
+    "/root" \
+    "/opt//busiscoming" \
+    "/opt/./busiscoming" \
+    "/opt/../busiscoming"; do
+    if remote_helper_succeeds validate_root "${value}" >/dev/null 2>&1; then
+      printf '  expected unsafe root to fail: %s\n' "${value}"
+      return 1
+    fi
+  done
+}
+
+test_remote_version_and_positive_integer_validation() {
+  local max_length
+  local too_long
+  local value
+
+  max_length="$(printf '%128s' '' | tr ' ' a)"
+  too_long="${max_length}a"
+
+  for value in "v1" "20260622-120000_a.1" "${max_length}"; do
+    remote_helper_succeeds validate_version "${value}" || return 1
+  done
+  for value in "" "." ".." "../v1" "has space" "v1/child" "${too_long}"; do
+    if remote_helper_succeeds validate_version "${value}" >/dev/null 2>&1; then
+      printf '  expected unsafe version to fail: %s\n' "${value}"
+      return 1
+    fi
+  done
+
+  for value in 1 3 100; do
+    remote_helper_succeeds validate_positive_integer "${value}" || return 1
+  done
+  for value in "" 0 -1 1.5 abc; do
+    if remote_helper_succeeds validate_positive_integer "${value}" >/dev/null 2>&1; then
+      printf '  expected non-positive integer to fail: %s\n' "${value}"
+      return 1
+    fi
+  done
+}
+
+test_remote_argument_allowlists_and_missing_values() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+
+  if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" 2>&1)"; then
+    printf '  expected a missing command to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "remote command required" || return 1
+
+  if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" switch --root "${temp}" 2>&1)"; then
+    printf '  expected an unknown command to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "Unknown remote command" || return 1
+
+  if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --lines 5 2>&1)"; then
+    printf '  expected list to reject --lines\n'
+    return 1
+  fi
+  assert_contains "${output}" "not valid for command: list" || return 1
+
+  if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" status --service caddy 2>&1)"; then
+    printf '  expected status to reject --service\n'
+    return 1
+  fi
+  assert_contains "${output}" "not valid for command: status" || return 1
+
+  if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" logs --keep 2 2>&1)"; then
+    printf '  expected logs to reject an unknown option\n'
+    return 1
+  fi
+  assert_contains "${output}" "Unknown option: --keep" || return 1
+
+  if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root 2>&1)"; then
+    printf '  expected a missing --root value to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "--root requires a value" || return 1
+
+  if output="$(
+    BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" logs \
+      --root "${temp}" --service caddy --lines 0 2>&1
+  )"; then
+    printf '  expected zero log lines to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "--lines must be a positive integer" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_list_marks_only_valid_absolute_links() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  mkdir -p \
+    "${temp}/releases/.v3" \
+    "${temp}/releases/v1" \
+    "${temp}/releases/v2" \
+    "${temp}/releases/v10"
+  printf 'not a release\n' > "${temp}/releases/file-entry"
+  ln -s "${temp}/releases/v2" "${temp}/current"
+  ln -s "${temp}/releases/v1" "${temp}/previous"
+  ln -s "${temp}/releases/v1" "${temp}/releases/symlink-entry"
+
+  output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root "${temp}")" ||
+    return 1
+  assert_equals "${output}" \
+    ".v3
+v1 [previous]
+v10
+v2 [current]" || return 1
+  assert_not_contains "${output}" "file-entry" || return 1
+  assert_not_contains "${output}" "symlink-entry" || return 1
+
+  rm "${temp}/current"
+  ln -s "/tmp/releases/v2" "${temp}/current"
+  output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root "${temp}")" ||
+    return 1
+  assert_not_contains "${output}" "v2 [current]" || return 1
+
+  rm "${temp}/current"
+  ln -s "releases/v2" "${temp}/current"
+  output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root "${temp}")" ||
+    return 1
+  assert_not_contains "${output}" "v2 [current]" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_logs_validates_service_and_maps_units() {
+  local temp
+  local output
+  local log
+
+  temp="$(mktemp -d)"
+  write_fake_remote_commands "${temp}/bin"
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" logs --root "${temp}" --service invalid 2>&1
+  )"; then
+    printf '  expected invalid log service to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "backend or caddy" || return 1
+
+  : > "${temp}/remote.log"
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_REMOTE_LOG="${temp}/remote.log" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    "${REMOTE_SCRIPT}" logs --root "${temp}" --service backend --lines 25 \
+    >/dev/null || return 1
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_REMOTE_LOG="${temp}/remote.log" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    "${REMOTE_SCRIPT}" logs --root "${temp}" --service caddy \
+    >/dev/null || return 1
+
+  log="$(cat "${temp}/remote.log")"
+  assert_equals "${log}" \
+    "journalctl|-u busiscoming-backend -n 25 --no-pager
+journalctl|-u caddy -n 100 --no-pager" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_config_loader_rejects_unsafe_files() {
+  local temp
+  local output
+  local case_name
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/shared/deploy"
+
+  for case_name in duplicate unknown malformed unsafe_domain mismatched_root bad_keep malicious; do
+    case "${case_name}" in
+      duplicate)
+        cat > "${temp}/shared/deploy/config.env" <<EOF
+DOMAIN=www.busiscoming.com
+DOMAIN=www.duplicate.example
+BARE_DOMAIN=busiscoming.com
+DEPLOY_ROOT=${temp}
+KEEP=3
+EOF
+        ;;
+      unknown)
+        cat > "${temp}/shared/deploy/config.env" <<EOF
+DOMAIN=www.busiscoming.com
+BARE_DOMAIN=busiscoming.com
+DEPLOY_ROOT=${temp}
+KEEP=3
+TOKEN=secret
+EOF
+        ;;
+      malformed)
+        printf 'DOMAIN www.busiscoming.com\n' > "${temp}/shared/deploy/config.env"
+        ;;
+      unsafe_domain)
+        write_remote_config "${temp}" "www.busiscoming.com;id"
+        ;;
+      mismatched_root)
+        write_remote_config "${temp}" \
+          "www.busiscoming.com" "busiscoming.com" "/opt/other"
+        ;;
+      bad_keep)
+        write_remote_config "${temp}" \
+          "www.busiscoming.com" "busiscoming.com" "${temp}" "0"
+        ;;
+      malicious)
+        cat > "${temp}/shared/deploy/config.env" <<EOF
+DOMAIN=\$(touch ${temp}/executed)
+BARE_DOMAIN=busiscoming.com
+DEPLOY_ROOT=${temp}
+KEEP=3
+EOF
+        ;;
+    esac
+
+    if output="$(
+      BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" status --root "${temp}" 2>&1
+    )"; then
+      printf '  expected unsafe config case to fail: %s\n' "${case_name}"
+      return 1
+    fi
+    assert_contains "${output}" "config" || return 1
+    [ ! -e "${temp}/executed" ] || {
+      printf '  config content was executed\n'
+      return 1
+    }
+  done
+
+  rm -rf "${temp}"
+}
+
+test_remote_status_uses_fake_checks_and_prints_config() {
+  local temp
+  local output
+  local log
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/releases/v1" "${temp}/releases/v2"
+  ln -s "${temp}/releases/v2" "${temp}/current"
+  ln -s "${temp}/releases/v1" "${temp}/previous"
+  write_remote_config "${temp}"
+  write_fake_remote_commands "${temp}/bin"
+  : > "${temp}/remote.log"
+
+  output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_REMOTE_LOG="${temp}/remote.log" \
+      FAKE_DOMAIN="www.busiscoming.com" \
+      FAKE_BARE_DOMAIN="busiscoming.com" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" status --root "${temp}"
+  )" || return 1
+
+  assert_contains "${output}" "current: v2" || return 1
+  assert_contains "${output}" "previous: v1" || return 1
+  assert_contains "${output}" "domain: www.busiscoming.com" || return 1
+  assert_contains "${output}" "bare domain: busiscoming.com" || return 1
+  assert_contains "${output}" "deploy root: ${temp}" || return 1
+  assert_contains "${output}" "keep: 3" || return 1
+  assert_contains "${output}" "backend: active" || return 1
+  assert_contains "${output}" "caddy: active" || return 1
+  assert_contains "${output}" "local health: ok" || return 1
+  assert_contains "${output}" "main HTTPS: ok" || return 1
+  assert_contains "${output}" "bare URL: ok" || return 1
+
+  log="$(cat "${temp}/remote.log")"
+  assert_contains "${log}" "systemctl|is-active busiscoming-backend" || return 1
+  assert_contains "${log}" "systemctl|is-active caddy" || return 1
+  assert_contains "${log}" "http://127.0.0.1:8080/healthz" || return 1
+  assert_contains "${log}" "https://www.busiscoming.com/" || return 1
+  assert_contains "${log}" "https://busiscoming.com/" || return 1
+  assert_equals "$(wc -l < "${temp}/remote.log" | tr -d ' ')" "5" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_status_skips_public_checks_without_config() {
+  local temp
+  local output
+  local log
+
+  temp="$(mktemp -d)"
+  write_fake_remote_commands "${temp}/bin"
+  : > "${temp}/remote.log"
+
+  output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_REMOTE_LOG="${temp}/remote.log" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" status --root "${temp}"
+  )" || return 1
+
+  assert_contains "${output}" "current: (none)" || return 1
+  assert_contains "${output}" "previous: (none)" || return 1
+  assert_contains "${output}" "config: (absent)" || return 1
+  assert_not_contains "${output}" "main HTTPS:" || return 1
+  assert_not_contains "${output}" "bare URL:" || return 1
+
+  log="$(cat "${temp}/remote.log")"
+  assert_equals "$(wc -l < "${temp}/remote.log" | tr -d ' ')" "3" || return 1
+  assert_not_contains "${log}" "https://" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_status_fails_required_checks() {
+  local temp
+  local output
+  local failure_case
+
+  temp="$(mktemp -d)"
+  write_remote_config "${temp}"
+  write_fake_remote_commands "${temp}/bin"
+
+  for failure_case in backend caddy local main bare; do
+    : > "${temp}/remote.log"
+    if output="$(
+      PATH="${temp}/bin:/usr/bin:/bin" \
+        FAKE_REMOTE_LOG="${temp}/remote.log" \
+        FAKE_DOMAIN="www.busiscoming.com" \
+        FAKE_BARE_DOMAIN="busiscoming.com" \
+        FAKE_BACKEND_STATE="$(
+          [ "${failure_case}" = "backend" ] && printf inactive || printf active
+        )" \
+        FAKE_CADDY_STATE="$(
+          [ "${failure_case}" = "caddy" ] && printf inactive || printf active
+        )" \
+        FAKE_LOCAL_HEALTH="$(
+          [ "${failure_case}" = "local" ] && printf fail || printf ok
+        )" \
+        FAKE_MAIN_HEALTH="$(
+          [ "${failure_case}" = "main" ] && printf fail || printf ok
+        )" \
+        FAKE_BARE_HEALTH="$(
+          [ "${failure_case}" = "bare" ] && printf fail || printf ok
+        )" \
+        BUS_DEPLOY_TEST_MODE=1 \
+        "${REMOTE_SCRIPT}" status --root "${temp}" 2>&1
+    )"; then
+      printf '  expected status failure for: %s\n' "${failure_case}"
+      return 1
+    fi
+    assert_contains "${output}" "failed" || return 1
+  done
+
+  rm -rf "${temp}"
+}
+
 run_test "help lists deployment commands" test_help_lists_commands
 run_test "unknown command fails clearly" test_unknown_command_fails
 run_test "logs rejects an invalid service" test_logs_rejects_invalid_service
@@ -1014,5 +1477,14 @@ run_test "APK artifacts validate staged copies" test_apk_artifacts_validate_stag
 run_test "release archive contains verified build artifacts" test_release_archive_creation
 run_test "release archive rejects frontend symlinks" test_release_archive_rejects_frontend_symlink
 run_test "frontend validation fails closed when find fails" test_frontend_validation_fails_when_find_fails
+run_test "remote roots reject unsafe absolute paths" test_remote_root_validation
+run_test "remote versions and counts use strict validators" test_remote_version_and_positive_integer_validation
+run_test "remote commands enforce option allowlists and values" test_remote_argument_allowlists_and_missing_values
+run_test "remote list marks only valid absolute release links" test_remote_list_marks_only_valid_absolute_links
+run_test "remote logs validate services and map journal units" test_remote_logs_validates_service_and_maps_units
+run_test "remote config parsing rejects unsafe files" test_remote_config_loader_rejects_unsafe_files
+run_test "remote status uses fake checks and prints configuration" test_remote_status_uses_fake_checks_and_prints_config
+run_test "remote status skips public checks without configuration" test_remote_status_skips_public_checks_without_config
+run_test "remote status fails required service and health checks" test_remote_status_fails_required_checks
 
 exit "${FAILURES}"
