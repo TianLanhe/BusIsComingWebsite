@@ -18,6 +18,7 @@ TEST_BIN="${BUS_DEPLOY_TEST_BIN:-}"
 ETC_ROOT="${BUS_DEPLOY_ETC_ROOT:-}"
 CONFIG_PRESENT=0
 STATUS_FAILED=0
+LOCK_DIR=""
 
 die() {
   printf 'Error: %s\n' "$*" >&2
@@ -171,6 +172,9 @@ validate_command_option() {
     render-config:--root|render-config:--domain|render-config:--bare-domain)
       return 0
       ;;
+    deploy:--root|deploy:--domain|deploy:--bare-domain|deploy:--keep|deploy:--version|deploy:--archive|deploy:--archive-sha|deploy:--apk-dir)
+      return 0
+      ;;
     *)
       die "Option ${option} is not valid for command: ${COMMAND}"
       ;;
@@ -192,7 +196,7 @@ parse_args() {
   COMMAND="$1"
   shift
   case "${COMMAND}" in
-    list|status|logs|render-config)
+    deploy|list|status|logs|render-config)
       ;;
     *)
       die "Unknown remote command: ${COMMAND}"
@@ -201,7 +205,7 @@ parse_args() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --root|--domain|--bare-domain|--service|--lines)
+      --root|--domain|--bare-domain|--keep|--version|--archive|--archive-sha|--apk-dir|--service|--lines)
         validate_command_option "$1"
         require_option_value "$1" "$#" "${2:-}"
         case "$1" in
@@ -213,6 +217,21 @@ parse_args() {
             ;;
           --bare-domain)
             BARE_DOMAIN="$2"
+            ;;
+          --keep)
+            KEEP="$2"
+            ;;
+          --version)
+            VERSION="$2"
+            ;;
+          --archive)
+            ARCHIVE="$2"
+            ;;
+          --archive-sha)
+            ARCHIVE_SHA="$2"
+            ;;
+          --apk-dir)
+            APK_DIR="$2"
             ;;
           --service)
             SERVICE="$2"
@@ -269,6 +288,32 @@ validate_command_args() {
       die "Bare domain must match domain"
     [[ -n "${ETC_ROOT}" && "${ETC_ROOT}" == /* ]] ||
       die "BUS_DEPLOY_ETC_ROOT is required in test mode"
+  fi
+  if [[ "${COMMAND}" == "deploy" ]]; then
+    validate_domain "${DOMAIN}" ||
+      die "Invalid domain: ${DOMAIN}"
+    [[ "${DOMAIN}" == www.* && -n "${DOMAIN#www.}" ]] ||
+      die "Domain must start with www."
+    validate_domain "${BARE_DOMAIN}" ||
+      die "Invalid bare domain: ${BARE_DOMAIN}"
+    [[ "${BARE_DOMAIN}" == "${DOMAIN#www.}" ]] ||
+      die "Bare domain must match domain"
+    validate_positive_integer "${KEEP}" ||
+      die "--keep must be a positive integer"
+    validate_version "${VERSION}" ||
+      die "Invalid version: ${VERSION}"
+    [[ -f "${ARCHIVE}" && ! -L "${ARCHIVE}" ]] ||
+      die "Release archive is missing or unsafe: ${ARCHIVE}"
+    [[ -f "${ARCHIVE_SHA}" && ! -L "${ARCHIVE_SHA}" ]] ||
+      die "Release checksum is missing or unsafe: ${ARCHIVE_SHA}"
+    if [[ -n "${APK_DIR}" ]]; then
+      [[ -d "${APK_DIR}" && ! -L "${APK_DIR}" ]] ||
+        die "APK directory is missing or unsafe: ${APK_DIR}"
+    fi
+    if [[ "${TEST_MODE}" -eq 1 ]]; then
+      [[ -n "${ETC_ROOT}" && "${ETC_ROOT}" == /* ]] ||
+        die "BUS_DEPLOY_ETC_ROOT is required in test mode"
+    fi
   fi
 }
 
@@ -525,6 +570,513 @@ command_render_config() {
   ensure_backend_env
   render_systemd_service
   install_caddy_config
+}
+
+release_lock_cleanup() {
+  if [[ -n "${LOCK_DIR}" ]]; then
+    rmdir "${LOCK_DIR}" 2>/dev/null || true
+    LOCK_DIR=""
+  fi
+}
+
+acquire_lock() {
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    mkdir -p "${ROOT}"
+    LOCK_DIR="${ROOT}/.deploy-test-lock"
+    mkdir "${LOCK_DIR}" 2>/dev/null ||
+      die "Another deployment operation is already running"
+    trap release_lock_cleanup EXIT INT TERM
+    return 0
+  fi
+
+  exec 9>/var/lock/busiscoming-deploy.lock
+  flock -n 9 || die "Another deployment operation is already running"
+}
+
+checksum_command() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf 'sha256sum\n'
+  else
+    printf 'shasum\n'
+  fi
+}
+
+file_sha256() {
+  local file="$1"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "${file}" | awk '{print $1}'
+  else
+    shasum -a 256 "${file}" | awk '{print $1}'
+  fi
+}
+
+verify_sha_file() {
+  local directory="$1"
+  local checksum_file="$2"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    (cd "${directory}" && sha256sum -c "${checksum_file}")
+  else
+    (cd "${directory}" && shasum -a 256 -c "${checksum_file}")
+  fi
+}
+
+archive_entry_is_safe() {
+  local entry="$1"
+  local remaining
+  local component
+
+  [[ "${entry}" != /* ]] || return 1
+  while [[ "${entry}" == ./* ]]; do
+    entry="${entry#./}"
+  done
+  while [[ "${entry}" == */ && "${entry}" != "/" ]]; do
+    entry="${entry%/}"
+  done
+  [[ -n "${entry}" && "${entry}" != "." ]] || return 0
+
+  remaining="${entry}"
+  while :; do
+    component="${remaining%%/*}"
+    [[ -n "${component}" && "${component}" != "." && "${component}" != ".." ]] ||
+      return 1
+    [[ "${remaining}" == */* ]] || break
+    remaining="${remaining#*/}"
+  done
+}
+
+verify_release_manifest() {
+  local release="$1"
+  local manifest="${release}/release-manifest.txt"
+  local backend="${release}/backend/busiscoming-server"
+  local expected_backend_sha
+  local actual_backend_sha
+  local checksum_file="${release}/.frontend-checksums.$$"
+  local line
+  local hash
+  local path
+  local frontend_count=0
+  local actual_frontend_count
+
+  [[ -f "${manifest}" && ! -L "${manifest}" ]] ||
+    die "Release manifest is missing or unsafe"
+  [[ -f "${release}/frontend/dist/index.html" &&
+    ! -L "${release}/frontend/dist/index.html" ]] ||
+    die "Release frontend index is missing or unsafe"
+  [[ -f "${backend}" && ! -L "${backend}" ]] ||
+    die "Release backend binary is missing or unsafe"
+
+  expected_backend_sha="$(
+    sed -n 's/^backend_sha256=//p' "${manifest}"
+  )"
+  [[ "${expected_backend_sha}" =~ ^[A-Fa-f0-9]{64}$ ]] ||
+    die "Release manifest has an invalid backend checksum"
+  [[ "$(
+    grep -c '^backend_sha256=' "${manifest}"
+  )" -eq 1 ]] || die "Release manifest has duplicate backend checksums"
+  actual_backend_sha="$(file_sha256 "${backend}")"
+  [[ "${actual_backend_sha}" == "${expected_backend_sha}" ]] ||
+    die "Release backend checksum mismatch"
+
+  : > "${checksum_file}"
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    case "${line}" in
+      [A-Fa-f0-9]*"  frontend/dist/"*)
+        hash="${line%%  *}"
+        path="${line#*  }"
+        [[ "${hash}" =~ ^[A-Fa-f0-9]{64}$ ]] ||
+          die "Release manifest has an invalid frontend checksum"
+        archive_entry_is_safe "${path}" ||
+          die "Release manifest contains an unsafe frontend path"
+        [[ "${path}" == frontend/dist/* ]] ||
+          die "Release manifest contains an invalid frontend path"
+        [[ -f "${release}/${path}" && ! -L "${release}/${path}" ]] ||
+          die "Release manifest references a missing frontend file"
+        printf '%s  %s\n' "${hash}" "${path}" >> "${checksum_file}"
+        frontend_count=$((frontend_count + 1))
+        ;;
+    esac
+  done < "${manifest}"
+  [[ "${frontend_count}" -gt 0 ]] ||
+    die "Release manifest has no frontend checksums"
+  actual_frontend_count="$(
+    find "${release}/frontend/dist" -type f | wc -l | tr -d ' '
+  )"
+  [[ "${frontend_count}" == "${actual_frontend_count}" ]] ||
+    die "Release manifest does not cover every frontend file"
+  verify_sha_file "${release}" "$(basename "${checksum_file}")" >/dev/null ||
+    die "Release frontend checksum mismatch"
+  rm -f "${checksum_file}"
+}
+
+normalize_release_permissions() {
+  local release="$1"
+
+  if [[ "${TEST_MODE}" -ne 1 ]]; then
+    chown -R root:busiscoming "${release}"
+  fi
+  find "${release}" -type d -exec chmod 0755 {} +
+  find "${release}/frontend/dist" -type f -exec chmod 0644 {} +
+  chmod 0644 "${release}/release-manifest.txt"
+  chmod 0755 "${release}/backend/busiscoming-server"
+}
+
+install_release_archive() {
+  local archive_directory
+  local checksum_name
+  local entry
+  local candidate="${ROOT}/.deploy-tmp/${VERSION}.$$"
+  local destination="${ROOT}/releases/${VERSION}"
+
+  [[ ! -e "${destination}" && ! -L "${destination}" ]] ||
+    die "Release version already exists: ${VERSION}"
+  archive_directory="$(dirname "${ARCHIVE}")"
+  checksum_name="$(basename "${ARCHIVE_SHA}")"
+  verify_sha_file "${archive_directory}" "${checksum_name}" >/dev/null ||
+    die "Release archive checksum verification failed"
+  tar -tzf "${ARCHIVE}" >/dev/null ||
+    die "Release archive cannot be read"
+  while IFS= read -r entry; do
+    archive_entry_is_safe "${entry}" ||
+      die "Archive contains unsafe path: ${entry}"
+  done < <(tar -tzf "${ARCHIVE}")
+
+  rm -rf "${candidate}"
+  mkdir -p "${candidate}"
+  tar -xzf "${ARCHIVE}" -C "${candidate}"
+  if find "${candidate}" ! -type f ! -type d -print | grep . >/dev/null; then
+    die "Release archive contains unsupported file types"
+  fi
+  verify_release_manifest "${candidate}"
+  normalize_release_permissions "${candidate}"
+  mv "${candidate}" "${destination}"
+  printf '%s\n' "${destination}"
+}
+
+remote_json_field() {
+  local file="$1"
+  local field="$2"
+  local expression
+
+  case "${field}" in
+    path)
+      expression='.relativePath // .fileName'
+      ;;
+    sizeBytes|sha256|status)
+      expression=".${field}"
+      ;;
+    *)
+      die "Unsupported APK metadata field: ${field}"
+      ;;
+  esac
+
+  if command -v jq >/dev/null 2>&1; then
+    jq -er "${expression}" "${file}"
+    return
+  fi
+  [[ "${TEST_MODE}" -eq 1 ]] ||
+    die "jq is required to validate APK metadata"
+  node -e '
+    const fs = require("fs");
+    const data = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    const key = process.argv[2];
+    let value;
+    if (key === "path") value = data.relativePath ?? data.fileName;
+    else value = data[key];
+    if (value === undefined || value === null) process.exit(2);
+    process.stdout.write(String(value));
+  ' "${file}" "${field}"
+}
+
+validate_remote_apk_directory() {
+  local directory="$1"
+  local metadata="${directory}/current.json"
+  local apk_name
+  local apk
+  local expected_size
+  local expected_sha
+  local status
+  local actual_size
+  local actual_sha
+
+  [[ -d "${directory}" && ! -L "${directory}" ]] ||
+    die "APK directory is missing or unsafe: ${directory}"
+  [[ -f "${metadata}" && ! -L "${metadata}" ]] ||
+    die "APK metadata is missing or unsafe"
+  apk_name="$(remote_json_field "${metadata}" path)"
+  [[ "${apk_name}" != /* && "${apk_name}" != *".."* ]] ||
+    die "APK metadata contains an unsafe path"
+  [[ "$(basename "${apk_name}")" == "BusIsComing.apk" ]] ||
+    die "APK metadata filename does not match BusIsComing.apk"
+  apk="${directory}/$(basename "${apk_name}")"
+  [[ -f "${apk}" && ! -L "${apk}" ]] ||
+    die "APK file is missing or unsafe"
+  expected_size="$(remote_json_field "${metadata}" sizeBytes)"
+  expected_sha="$(remote_json_field "${metadata}" sha256)"
+  status="$(remote_json_field "${metadata}" status)"
+  [[ "${expected_size}" =~ ^[0-9]+$ ]] ||
+    die "APK metadata has an invalid size"
+  [[ "${expected_sha}" =~ ^[A-Fa-f0-9]{64}$ ]] ||
+    die "APK metadata has an invalid checksum"
+  [[ "${status}" == "available" ]] ||
+    die "APK metadata is not available"
+  actual_size="$(wc -c < "${apk}" | tr -d ' ')"
+  actual_sha="$(file_sha256 "${apk}")"
+  [[ "${actual_size}" == "${expected_size}" ]] ||
+    die "APK size does not match metadata"
+  [[ "${actual_sha}" == "${expected_sha}" ]] ||
+    die "APK checksum does not match metadata"
+}
+
+replace_apk_directory() {
+  local destination="${ROOT}/shared/downloads/android"
+  local candidate="${ROOT}/.deploy-tmp/android.$$"
+  local backup="${ROOT}/.deploy-tmp/android.backup.$$"
+
+  if [[ -z "${APK_DIR}" ]]; then
+    validate_remote_apk_directory "${destination}"
+    return 0
+  fi
+
+  rm -rf "${candidate}" "${backup}"
+  mkdir -p "${candidate}"
+  cp "${APK_DIR}/current.json" "${candidate}/current.json"
+  cp "${APK_DIR}/BusIsComing.apk" "${candidate}/BusIsComing.apk"
+  validate_remote_apk_directory "${candidate}"
+  chmod 0750 "${candidate}"
+  chmod 0640 "${candidate}/current.json" "${candidate}/BusIsComing.apk"
+  if [[ "${TEST_MODE}" -ne 1 ]]; then
+    chown -R root:busiscoming "${candidate}"
+  fi
+
+  if [[ -e "${destination}" || -L "${destination}" ]]; then
+    [[ -d "${destination}" && ! -L "${destination}" ]] ||
+      die "Existing APK destination is unsafe"
+    mv "${destination}" "${backup}"
+  fi
+  if mv "${candidate}" "${destination}"; then
+    rm -rf "${backup}"
+    return 0
+  fi
+  if [[ -d "${backup}" ]]; then
+    mv "${backup}" "${destination}" || true
+  fi
+  die "Unable to replace Android APK directory"
+}
+
+atomic_link() {
+  local target="$1"
+  local link="$2"
+  local temp_link="${link}.new.$$"
+
+  rm -f "${temp_link}"
+  ln -s "${target}" "${temp_link}"
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    rm -f "${link}"
+    mv "${temp_link}" "${link}"
+  else
+    mv -Tf "${temp_link}" "${link}"
+  fi
+}
+
+restore_link() {
+  local link="$1"
+  local target="$2"
+
+  if [[ -n "${target}" ]]; then
+    atomic_link "${target}" "${link}"
+  else
+    rm -f "${link}"
+  fi
+}
+
+managed_link_target() {
+  local link="$1"
+  local version
+
+  version="$(version_from_link "${link}")"
+  if [[ -n "${version}" ]]; then
+    printf '%s/releases/%s\n' "${ROOT}" "${version}"
+  fi
+}
+
+deployment_command_path() {
+  local command_name="$1"
+
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    test_command_path "${command_name}" ||
+      die "Test mode requires an injected fake ${command_name} command"
+  else
+    printf '%s\n' "${command_name}"
+  fi
+}
+
+verify_active_release() {
+  local systemctl_command
+  local curl_command
+  local attempt=1
+  local max_attempts=18
+  local main_code
+  local bare_result
+  local bare_code
+  local redirect_url
+
+  systemctl_command="$(deployment_command_path systemctl)"
+  curl_command="$(deployment_command_path curl)"
+  "${systemctl_command}" restart busiscoming-backend || return 1
+  "${systemctl_command}" is-active --quiet busiscoming-backend || return 1
+  "${curl_command}" --fail --silent --show-error --max-time 5 \
+    http://127.0.0.1:8080/healthz >/dev/null || return 1
+
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    max_attempts=1
+  fi
+  while [[ "${attempt}" -le "${max_attempts}" ]]; do
+    main_code="$(
+      "${curl_command}" --silent --show-error --max-time 10 \
+        --output /dev/null --write-out '%{http_code}' \
+        "https://${DOMAIN}/" 2>/dev/null || true
+    )"
+    [[ "${main_code}" == "200" ]] && break
+    attempt=$((attempt + 1))
+    [[ "${attempt}" -le "${max_attempts}" ]] && sleep 5
+  done
+  if [[ "${main_code}" != "200" ]]; then
+    printf 'Public HTTPS health check failed\n' >&2
+    return 1
+  fi
+
+  bare_result="$(
+    "${curl_command}" --silent --show-error --max-time 10 \
+      --output /dev/null --write-out '%{http_code}\n%{redirect_url}\n' \
+      "https://${BARE_DOMAIN}/"
+  )" || return 1
+  bare_code="${bare_result%%$'\n'*}"
+  redirect_url="${bare_result#*$'\n'}"
+  redirect_url="${redirect_url%%$'\n'*}"
+  case "${bare_code}" in
+    301|308)
+      ;;
+    *)
+      printf 'Bare domain did not return a permanent redirect\n' >&2
+      return 1
+      ;;
+  esac
+  if [[ "${redirect_url}" != "https://${DOMAIN}/" ]]; then
+    printf 'Bare domain redirected to an unexpected location\n' >&2
+    return 1
+  fi
+}
+
+write_deploy_config() {
+  local config_dir="${ROOT}/shared/deploy"
+  local config_file="${config_dir}/config.env"
+  local candidate="${config_file}.new.$$"
+
+  {
+    printf 'DOMAIN=%s\n' "${DOMAIN}"
+    printf 'BARE_DOMAIN=%s\n' "${BARE_DOMAIN}"
+    printf 'DEPLOY_ROOT=%s\n' "${ROOT}"
+    printf 'KEEP=%s\n' "${KEEP}"
+  } > "${candidate}"
+  chmod 0600 "${candidate}"
+  mv -f "${candidate}" "${config_file}"
+}
+
+snapshot_caddy_config() {
+  local caddy_file="${ETC_ROOT}/etc/caddy/Caddyfile"
+  local snapshot="$1"
+
+  if [[ -e "${caddy_file}" ]]; then
+    [[ -f "${caddy_file}" && ! -L "${caddy_file}" ]] ||
+      die "Existing Caddyfile is unsafe: ${caddy_file}"
+    cp -p "${caddy_file}" "${snapshot}"
+    printf 'present\n'
+  else
+    printf 'absent\n'
+  fi
+}
+
+restore_caddy_snapshot() {
+  local snapshot="$1"
+  local state="$2"
+  local caddy_file="${ETC_ROOT}/etc/caddy/Caddyfile"
+
+  if [[ "${state}" == "present" ]]; then
+    cp -p "${snapshot}" "${caddy_file}"
+  else
+    rm -f "${caddy_file}"
+  fi
+  if [[ "${TEST_MODE}" -ne 1 ]]; then
+    systemctl reload caddy || true
+  fi
+}
+
+command_deploy() {
+  local release
+  local original_current=""
+  local original_previous=""
+  local caddy_snapshot
+  local caddy_state
+  local config_snapshot
+  local config_had_previous=0
+
+  acquire_lock
+  ensure_directories
+  caddy_snapshot="${ROOT}/.deploy-tmp/Caddyfile.snapshot.$$"
+  caddy_state="$(snapshot_caddy_config "${caddy_snapshot}")"
+  config_snapshot="${ROOT}/.deploy-tmp/config.env.snapshot.$$"
+  if [[ -f "${ROOT}/shared/deploy/config.env" ]]; then
+    cp -p "${ROOT}/shared/deploy/config.env" "${config_snapshot}"
+    config_had_previous=1
+  fi
+  original_current="$(managed_link_target "${ROOT}/current")"
+  original_previous="$(managed_link_target "${ROOT}/previous")"
+
+  if ! (initialize_runtime); then
+    restore_caddy_snapshot "${caddy_snapshot}" "${caddy_state}"
+    die "Remote runtime initialization failed"
+  fi
+  if [[ -n "${APK_DIR}" ]]; then
+    if ! (validate_remote_apk_directory "${APK_DIR}"); then
+      restore_caddy_snapshot "${caddy_snapshot}" "${caddy_state}"
+      die "APK input validation failed"
+    fi
+  elif ! (validate_remote_apk_directory "${ROOT}/shared/downloads/android"); then
+    restore_caddy_snapshot "${caddy_snapshot}" "${caddy_state}"
+    die "APK replacement failed"
+  fi
+  if ! release="$(install_release_archive)"; then
+    restore_caddy_snapshot "${caddy_snapshot}" "${caddy_state}"
+    die "Release installation failed"
+  fi
+  if ! (replace_apk_directory); then
+    restore_caddy_snapshot "${caddy_snapshot}" "${caddy_state}"
+    die "APK replacement failed"
+  fi
+  atomic_link "${release}" "${ROOT}/current"
+
+  if ! (verify_active_release); then
+    restore_link "${ROOT}/current" "${original_current}"
+    restore_link "${ROOT}/previous" "${original_previous}"
+    restore_caddy_snapshot "${caddy_snapshot}" "${caddy_state}"
+    if [[ "${config_had_previous}" -eq 1 ]]; then
+      cp -p "${config_snapshot}" "${ROOT}/shared/deploy/config.env"
+    else
+      rm -f "${ROOT}/shared/deploy/config.env"
+    fi
+    if [[ -n "${original_current}" && "${TEST_MODE}" -ne 1 ]]; then
+      systemctl restart busiscoming-backend || true
+    fi
+    die "Deployment health checks failed; previous release restored"
+  fi
+
+  if [[ -n "${original_current}" ]]; then
+    atomic_link "${original_current}" "${ROOT}/previous"
+  fi
+  write_deploy_config
+  rm -f "${caddy_snapshot}" "${config_snapshot}"
 }
 
 version_from_link() {
@@ -796,6 +1348,9 @@ main() {
   validate_command_args
 
   case "${COMMAND}" in
+    deploy)
+      command_deploy
+      ;;
     list)
       command_list
       ;;

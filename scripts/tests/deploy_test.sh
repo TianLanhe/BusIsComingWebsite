@@ -308,6 +308,108 @@ write_apk_fixture() {
 EOF
 }
 
+write_release_fixture() {
+  local directory="$1"
+  local version="$2"
+  local stage="${directory}/stage-${version}"
+  local backend_sha
+  local frontend_sha
+
+  rm -rf "${stage}"
+  mkdir -p "${stage}/frontend/dist" "${stage}/backend"
+  printf '<!doctype html><title>%s</title>\n' "${version}" \
+    > "${stage}/frontend/dist/index.html"
+  printf 'fake backend %s\n' "${version}" \
+    > "${stage}/backend/busiscoming-server"
+  chmod +x "${stage}/backend/busiscoming-server"
+  backend_sha="$(
+    shasum -a 256 "${stage}/backend/busiscoming-server" | awk '{print $1}'
+  )"
+  frontend_sha="$(
+    shasum -a 256 "${stage}/frontend/dist/index.html" | awk '{print $1}'
+  )"
+  cat > "${stage}/release-manifest.txt" <<EOF
+version=${version}
+branch=master
+commit=a07eaf4a07eaf4a07eaf4a07eaf4a07eaf4a07e
+dirty=false
+built_at=2026-06-23T00:00:00Z
+target=linux/amd64
+backend_sha256=${backend_sha}
+${frontend_sha}  frontend/dist/index.html
+EOF
+  (
+    cd "${stage}"
+    tar -czf "${directory}/release-${version}.tar.gz" .
+  )
+  (
+    cd "${directory}"
+    shasum -a 256 "release-${version}.tar.gz" \
+      > "release-${version}.tar.gz.sha256"
+  )
+}
+
+write_fake_deployment_commands() {
+  local bin_dir="$1"
+
+  mkdir -p "${bin_dir}"
+  cat > "${bin_dir}/systemctl" <<'EOF'
+#!/bin/sh
+printf 'systemctl|%s\n' "$*" >> "${FAKE_DEPLOY_LOG}"
+case "${1:-}" in
+  restart)
+    [ "${FAKE_DEPLOY_BACKEND_RESTART:-ok}" = "ok" ]
+    ;;
+  is-active)
+    [ "${FAKE_DEPLOY_BACKEND_ACTIVE:-ok}" = "ok" ]
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+EOF
+  cat > "${bin_dir}/curl" <<'EOF'
+#!/bin/sh
+printf 'curl|%s\n' "$*" >> "${FAKE_DEPLOY_LOG}"
+url=""
+write_out=""
+previous=""
+for argument in "$@"; do
+  if [ "${previous}" = "--write-out" ]; then
+    write_out="${argument}"
+  fi
+  previous="${argument}"
+  url="${argument}"
+done
+case "${url}" in
+  http://127.0.0.1:8080/healthz)
+    [ "${FAKE_DEPLOY_LOCAL:-ok}" = "ok" ]
+    ;;
+  "https://${FAKE_DOMAIN:-www.busiscoming.com}/")
+    if [ "${FAKE_DEPLOY_MAIN:-ok}" = "ok" ]; then
+      [ -z "${write_out}" ] || printf '200'
+      exit 0
+    fi
+    [ -z "${write_out}" ] || printf '503'
+    exit 22
+    ;;
+  "https://${FAKE_BARE_DOMAIN:-busiscoming.com}/")
+    if [ "${FAKE_DEPLOY_BARE:-ok}" = "ok" ]; then
+      printf '308\nhttps://%s/\n' "${FAKE_DOMAIN:-www.busiscoming.com}"
+      exit 0
+    fi
+    printf '200\n\n'
+    exit 0
+    ;;
+  *)
+    printf 'unexpected deployment curl URL: %s\n' "${url}" >&2
+    exit 43
+    ;;
+esac
+EOF
+  chmod +x "${bin_dir}/systemctl" "${bin_dir}/curl"
+}
+
 test_help_lists_commands() {
   local command
   local output
@@ -1252,7 +1354,7 @@ test_remote_argument_allowlists_and_missing_values() {
     printf '  expected logs to reject an unknown option\n'
     return 1
   fi
-  assert_contains "${output}" "Unknown option: --keep" || return 1
+  assert_contains "${output}" "not valid for command: logs" || return 1
 
   if output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root 2>&1)"; then
     printf '  expected a missing --root value to fail\n'
@@ -2099,6 +2201,181 @@ EOF
   rm -rf "${temp}"
 }
 
+test_remote_deploy_installs_first_release_and_apk() {
+  local temp
+  local current_target
+  local log
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_apk_fixture "${temp}/apk"
+  write_fake_deployment_commands "${temp}/bin"
+  : > "${temp}/deploy.log"
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" deploy \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --keep 3 \
+      --version v1 \
+      --archive "${temp}/release-v1.tar.gz" \
+      --archive-sha "${temp}/release-v1.tar.gz.sha256" \
+      --apk-dir "${temp}/apk" || return 1
+
+  current_target="$(readlink "${temp}/root/current")"
+  assert_equals "$(basename "${current_target}")" "v1" || return 1
+  [ -f "${temp}/root/releases/v1/frontend/dist/index.html" ] || return 1
+  [ -x "${temp}/root/releases/v1/backend/busiscoming-server" ] || return 1
+  [ -f "${temp}/root/shared/downloads/android/BusIsComing.apk" ] || return 1
+  [ -f "${temp}/root/shared/downloads/android/current.json" ] || return 1
+  [ ! -e "${temp}/root/previous" ] || return 1
+  log="$(cat "${temp}/deploy.log")"
+  assert_contains "${log}" "systemctl|restart busiscoming-backend" || return 1
+  assert_contains "${log}" "curl|--fail --silent --show-error --max-time 5 http://127.0.0.1:8080/healthz" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_deploy_restores_code_on_health_failure() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_release_fixture "${temp}" "v2"
+  write_apk_fixture "${temp}/apk"
+  write_fake_deployment_commands "${temp}/bin"
+  : > "${temp}/deploy.log"
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" deploy \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --keep 3 \
+      --version v1 \
+      --archive "${temp}/release-v1.tar.gz" \
+      --archive-sha "${temp}/release-v1.tar.gz.sha256" \
+      --apk-dir "${temp}/apk" || return 1
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+      FAKE_DOMAIN="www.busiscoming.com" \
+      FAKE_BARE_DOMAIN="busiscoming.com" \
+      FAKE_DEPLOY_MAIN=fail \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+      "${REMOTE_SCRIPT}" deploy \
+        --root "${temp}/root" \
+        --domain www.busiscoming.com \
+        --bare-domain busiscoming.com \
+        --keep 3 \
+        --version v2 \
+        --archive "${temp}/release-v2.tar.gz" \
+        --archive-sha "${temp}/release-v2.tar.gz.sha256" \
+        --apk-dir "${temp}/apk" 2>&1
+  )"; then
+    printf '  expected health failure to abort deployment\n'
+    return 1
+  fi
+
+  assert_contains "${output}" "previous release restored" || return 1
+  assert_equals "$(basename "$(readlink "${temp}/root/current")")" "v1" || return 1
+  [ ! -e "${temp}/root/previous" ] || return 1
+  [ -d "${temp}/root/releases/v2" ] || return 1
+  [ -f "${temp}/root/shared/downloads/android/BusIsComing.apk" ] || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_deploy_without_apk_requires_existing_valid_apk() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_release_fixture "${temp}" "v2"
+  write_apk_fixture "${temp}/apk"
+  write_fake_deployment_commands "${temp}/bin"
+  : > "${temp}/deploy.log"
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+      FAKE_DOMAIN="www.busiscoming.com" \
+      FAKE_BARE_DOMAIN="busiscoming.com" \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+      "${REMOTE_SCRIPT}" deploy \
+        --root "${temp}/root" \
+        --domain www.busiscoming.com \
+        --bare-domain busiscoming.com \
+        --keep 3 \
+        --version v1 \
+        --archive "${temp}/release-v1.tar.gz" \
+        --archive-sha "${temp}/release-v1.tar.gz.sha256" 2>&1
+  )"; then
+    printf '  expected first deployment without APK to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "APK directory is missing or unsafe" || return 1
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" deploy \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --keep 3 \
+      --version v1 \
+      --archive "${temp}/release-v1.tar.gz" \
+      --archive-sha "${temp}/release-v1.tar.gz.sha256" \
+      --apk-dir "${temp}/apk" || return 1
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" deploy \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --keep 3 \
+      --version v2 \
+      --archive "${temp}/release-v2.tar.gz" \
+      --archive-sha "${temp}/release-v2.tar.gz.sha256" || return 1
+
+  assert_equals "$(basename "$(readlink "${temp}/root/current")")" "v2" || return 1
+  assert_equals "$(basename "$(readlink "${temp}/root/previous")")" "v1" || return 1
+  [ -f "${temp}/root/shared/downloads/android/BusIsComing.apk" ] || return 1
+
+  rm -rf "${temp}"
+}
+
 run_test "help lists deployment commands" test_help_lists_commands
 run_test "unknown command fails clearly" test_unknown_command_fails
 run_test "logs rejects an invalid service" test_logs_rejects_invalid_service
@@ -2155,5 +2432,8 @@ run_test "remote renders systemd Caddy and backend environment" test_remote_rend
 run_test "remote render-config is test-only and validates domains" test_remote_render_config_is_test_only_and_validates_domains
 run_test "remote restores Caddy config after reload failure" test_remote_caddy_config_restores_previous_file_on_reload_failure
 run_test "remote port and UFW guards are non-destructive" test_remote_port_and_ufw_guards_are_non_destructive
+run_test "remote deploy installs first release and APK" test_remote_deploy_installs_first_release_and_apk
+run_test "remote deploy restores code on health failure" test_remote_deploy_restores_code_on_health_failure
+run_test "remote deploy without APK requires an existing valid APK" test_remote_deploy_without_apk_requires_existing_valid_apk
 
 exit "${FAILURES}"
