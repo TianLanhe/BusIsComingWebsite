@@ -21,6 +21,7 @@ ALLOW_NON_MASTER=0
 BARE_DOMAIN=""
 BUILD_ROOT=""
 BUILD_ROOT_OWNED=0
+CLEANUP_TRAPS_INSTALLED=0
 ARCHIVE=""
 APK_DIR=""
 APK_INPUT="${REPO_ROOT}/backend/downloads/android/BusIsComing.apk"
@@ -58,7 +59,11 @@ preflight_requirements() {
 }
 
 validate_version() {
-  [[ "$1" =~ ^[A-Za-z0-9._-]+$ ]]
+  local value="$1"
+
+  [[ "${#value}" -le 128 ]] &&
+    [[ "${value}" != "." && "${value}" != ".." ]] &&
+    [[ "${value}" =~ ^[A-Za-z0-9._-]+$ ]]
 }
 
 validate_ipv4() {
@@ -249,11 +254,47 @@ deployment_preflight() {
 }
 
 cleanup_build_root() {
+  local cleanup_status=0
+
   if [[ "${BUILD_ROOT_OWNED:-0}" -eq 1 &&
     "${BUILD_ROOT:-}" == "${TMPDIR:-/tmp}"/busiscoming-deploy.* &&
     -d "${BUILD_ROOT}" ]]; then
-    rm -rf "${BUILD_ROOT}"
+    rm -rf "${BUILD_ROOT}" || cleanup_status=$?
   fi
+  BUILD_ROOT=""
+  BUILD_ROOT_OWNED=0
+  return "${cleanup_status}"
+}
+
+cleanup_all() {
+  if ! cleanup_build_root; then
+    printf 'Warning: failed to clean local build directory\n' >&2
+  fi
+  if declare -F cleanup_remote_temp >/dev/null 2>&1; then
+    if ! cleanup_remote_temp; then
+      printf 'Warning: failed to clean remote deployment directory\n' >&2
+    fi
+  fi
+  return 0
+}
+
+handle_cleanup_signal() {
+  local status="$1"
+
+  cleanup_all
+  trap - EXIT
+  exit "${status}"
+}
+
+install_cleanup_traps() {
+  if [[ "${CLEANUP_TRAPS_INSTALLED}" -eq 1 ]]; then
+    return 0
+  fi
+
+  trap 'cleanup_all' EXIT
+  trap 'handle_cleanup_signal 130' INT
+  trap 'handle_cleanup_signal 143' TERM
+  CLEANUP_TRAPS_INSTALLED=1
 }
 
 run_local_build() {
@@ -261,9 +302,6 @@ run_local_build() {
 
   BUILD_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/busiscoming-deploy.XXXXXX")"
   BUILD_ROOT_OWNED=1
-  trap 'cleanup_build_root' EXIT
-  trap 'exit 130' INT
-  trap 'exit 143' TERM
 
   (
     cd "${REPO_ROOT}/frontend"
@@ -312,8 +350,6 @@ prepare_apk_artifacts() {
 
   [[ -n "${BUILD_ROOT:-}" && -d "${BUILD_ROOT}" ]] ||
     die "Build root is not available"
-  validate_apk_input "${APK_INPUT}" "${APK_METADATA_INPUT}" ||
-    die "APK input or metadata validation failed"
 
   apk_name="${APK_INPUT##*/}"
   metadata_name="${APK_METADATA_INPUT##*/}"
@@ -322,12 +358,26 @@ prepare_apk_artifacts() {
   mkdir -p "${APK_DIR}"
   cp "${APK_INPUT}" "${APK_DIR}/${apk_name}"
   cp "${APK_METADATA_INPUT}" "${APK_DIR}/${metadata_name}"
+  validate_apk_input \
+    "${APK_DIR}/${apk_name}" "${APK_DIR}/${metadata_name}" ||
+    die "APK input or metadata validation failed"
 
   (
     cd "${APK_DIR}"
     shasum -a 256 "${apk_name}" > "${apk_name}.sha256"
     shasum -a 256 "${metadata_name}" > "${metadata_name}.sha256"
   )
+}
+
+validate_frontend_dist_entries() {
+  local dist_root="$1"
+  local entry
+
+  while IFS= read -r -d '' entry; do
+    if [[ -L "${entry}" || (! -f "${entry}" && ! -d "${entry}") ]]; then
+      die "Frontend build output contains unsupported entry: ${entry}"
+    fi
+  done < <(find "${dist_root}" -print0)
 }
 
 create_release_archive() {
@@ -347,12 +397,14 @@ create_release_archive() {
   [[ -f "${BUILD_ROOT}/busiscoming-server" ]] ||
     die "Backend build output is missing"
   validate_version "${VERSION}" || die "Invalid version: ${VERSION}"
+  validate_frontend_dist_entries "${REPO_ROOT}/frontend/dist"
 
   stage="${BUILD_ROOT}/release"
   manifest="${stage}/release-manifest.txt"
   rm -rf "${stage}"
   mkdir -p "${stage}/frontend" "${stage}/backend"
   cp -R "${REPO_ROOT}/frontend/dist" "${stage}/frontend/dist"
+  validate_frontend_dist_entries "${stage}/frontend/dist"
   cp "${BUILD_ROOT}/busiscoming-server" "${stage}/backend/busiscoming-server"
   chmod 0755 "${stage}/backend/busiscoming-server"
 
@@ -526,6 +578,7 @@ validate_command_args() {
 }
 
 main() {
+  install_cleanup_traps
   parse_args "$@"
   validate_command_args
   die "Command implementation is not available yet: ${COMMAND}"

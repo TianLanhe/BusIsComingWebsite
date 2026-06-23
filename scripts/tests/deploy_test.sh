@@ -11,14 +11,33 @@ source "${DEPLOY_SCRIPT}"
 
 run_test() {
   local name="$1"
+  local status
+  local had_errexit=0
   shift
 
-  if ( "$@" ); then
+  case "$-" in
+    *e*)
+      had_errexit=1
+      ;;
+  esac
+
+  set +e
+  (
+    set -euo pipefail
+    "$@"
+  )
+  status=$?
+  if [ "${had_errexit}" -eq 1 ]; then
+    set -e
+  fi
+
+  if [ "${status}" -eq 0 ]; then
     printf 'ok - %s\n' "${name}"
   else
     printf 'not ok - %s\n' "${name}"
     FAILURES=$((FAILURES + 1))
   fi
+  return 0
 }
 
 assert_contains() {
@@ -131,12 +150,19 @@ write_fake_build_tools() {
   cat > "${bin_dir}/npm" <<'EOF'
 #!/bin/sh
 printf 'npm|cwd=%s|args=%s\n' "$PWD" "$*" >> "${FAKE_BUILD_LOG}"
+if [ -n "${FAKE_NPM_FAIL_ARGS:-}" ] && [ "$*" = "${FAKE_NPM_FAIL_ARGS}" ]; then
+  exit "${FAKE_NPM_FAIL_STATUS:-23}"
+fi
 EOF
   cat > "${bin_dir}/go" <<'EOF'
 #!/bin/sh
 printf 'go|cwd=%s|cgo=%s|goos=%s|goarch=%s|gocache=%s|args=%s\n' \
   "$PWD" "${CGO_ENABLED:-}" "${GOOS:-}" "${GOARCH:-}" "${GOCACHE:-}" "$*" \
   >> "${FAKE_BUILD_LOG}"
+
+if [ -n "${FAKE_GO_FAIL_ARGS:-}" ] && [ "$*" = "${FAKE_GO_FAIL_ARGS}" ]; then
+  exit "${FAKE_GO_FAIL_STATUS:-24}"
+fi
 
 if [ "${1:-}" = "build" ]; then
   output=""
@@ -201,12 +227,8 @@ test_help_lists_commands() {
 
 test_unknown_command_fails() {
   local output
-  local status
 
-  output="$("${DEPLOY_SCRIPT}" unknown 2>&1)"
-  status=$?
-
-  if [ "${status}" -eq 0 ]; then
+  if output="$("${DEPLOY_SCRIPT}" unknown 2>&1)"; then
     printf '  expected a nonzero exit status\n'
     return 1
   fi
@@ -216,12 +238,8 @@ test_unknown_command_fails() {
 
 test_logs_rejects_invalid_service() {
   local output
-  local status
 
-  output="$(BUS_DEPLOY_HOST=192.0.2.10 "${DEPLOY_SCRIPT}" logs --service invalid 2>&1)"
-  status=$?
-
-  if [ "${status}" -eq 0 ]; then
+  if output="$(BUS_DEPLOY_HOST=192.0.2.10 "${DEPLOY_SCRIPT}" logs --service invalid 2>&1)"; then
     printf '  expected a nonzero exit status\n'
     return 1
   fi
@@ -231,12 +249,8 @@ test_logs_rejects_invalid_service() {
 
 test_status_rejects_deploy_option() {
   local output
-  local status
 
-  output="$(BUS_DEPLOY_HOST=192.0.2.10 "${DEPLOY_SCRIPT}" status --skip-tests 2>&1)"
-  status=$?
-
-  if [ "${status}" -eq 0 ]; then
+  if output="$(BUS_DEPLOY_HOST=192.0.2.10 "${DEPLOY_SCRIPT}" status --skip-tests 2>&1)"; then
     printf '  expected a nonzero exit status\n'
     return 1
   fi
@@ -246,12 +260,8 @@ test_status_rejects_deploy_option() {
 
 test_list_rejects_logs_option() {
   local output
-  local status
 
-  output="$(BUS_DEPLOY_HOST=192.0.2.10 "${DEPLOY_SCRIPT}" list --service backend 2>&1)"
-  status=$?
-
-  if [ "${status}" -eq 0 ]; then
+  if output="$(BUS_DEPLOY_HOST=192.0.2.10 "${DEPLOY_SCRIPT}" list --service backend 2>&1)"; then
     printf '  expected a nonzero exit status\n'
     return 1
   fi
@@ -260,9 +270,19 @@ test_list_rejects_logs_option() {
 }
 
 test_version_validation() {
+  local max_length
+  local too_long
+
+  max_length="$(printf '%128s' '' | tr ' ' a)"
+  too_long="${max_length}a"
+
   validate_version "20260622-120000-a07eaf4" || return 1
+  validate_version "${max_length}" || return 1
   ! validate_version "../escape"
   ! validate_version "has space"
+  ! validate_version "."
+  ! validate_version ".."
+  ! validate_version "${too_long}"
 }
 
 test_network_value_validation() {
@@ -600,6 +620,141 @@ test_run_local_build_rejects_dynamic_linux_binary() {
   rm -rf "${temp}"
 }
 
+test_run_local_build_preserves_existing_traps() {
+  local temp
+  local before
+  local after
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/repo/frontend" "${temp}/repo/backend"
+  write_fake_build_tools "${temp}/bin"
+
+  (
+    export PATH="${temp}/bin:${PATH}"
+    export FAKE_BUILD_LOG="${temp}/build.log"
+    export FAKE_FILE_STATIC=1
+    REPO_ROOT="${temp}/repo"
+    SKIP_TESTS=1
+    trap ':' EXIT
+    trap ':' INT
+    trap ':' TERM
+    before="$(trap -p EXIT INT TERM)"
+    run_local_build
+    after="$(trap -p EXIT INT TERM)"
+    assert_equals "${after}" "${before}"
+    cleanup_all
+  ) || return 1
+
+  rm -rf "${temp}"
+}
+
+test_cleanup_all_removes_build_root_and_runs_future_hook() {
+  local temp
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/repo/frontend" "${temp}/repo/backend"
+  write_fake_build_tools "${temp}/bin"
+
+  (
+    export PATH="${temp}/bin:${PATH}"
+    export FAKE_BUILD_LOG="${temp}/build.log"
+    export FAKE_FILE_STATIC=1
+    REPO_ROOT="${temp}/repo"
+    SKIP_TESTS=1
+    run_local_build
+    [ -d "${BUILD_ROOT}" ]
+    cleanup_remote_temp() {
+      printf 'remote-cleaned\n' > "${temp}/remote-cleanup.log"
+    }
+    cleanup_all
+    [ -z "${BUILD_ROOT}" ]
+    [ "${BUILD_ROOT_OWNED}" -eq 0 ]
+    [ -f "${temp}/remote-cleanup.log" ]
+  ) || return 1
+
+  rm -rf "${temp}"
+}
+
+test_cleanup_traps_are_registered_once() {
+  local first
+  local second
+
+  (
+    install_cleanup_traps
+    first="$(trap -p EXIT INT TERM)"
+    install_cleanup_traps
+    second="$(trap -p EXIT INT TERM)"
+    assert_equals "${second}" "${first}"
+  )
+}
+
+test_run_local_build_failures_propagate_and_cleanup() {
+  local temp
+  local status
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/repo/frontend" "${temp}/repo/backend" "${temp}/tmp"
+  write_fake_build_tools "${temp}/bin"
+
+  set +e
+  (
+    set -euo pipefail
+    export PATH="${temp}/bin:${PATH}"
+    export TMPDIR="${temp}/tmp"
+    export FAKE_BUILD_LOG="${temp}/npm-failure.log"
+    export FAKE_NPM_FAIL_ARGS="ci"
+    export FAKE_NPM_FAIL_STATUS=23
+    REPO_ROOT="${temp}/repo"
+    SKIP_TESTS=1
+    install_cleanup_traps
+    run_local_build
+  )
+  status=$?
+  set -e
+  assert_equals "${status}" "23" || return 1
+  [ -z "$(find "${temp}/tmp" -mindepth 1 -maxdepth 1 -print)" ] || return 1
+
+  set +e
+  (
+    set -euo pipefail
+    export PATH="${temp}/bin:${PATH}"
+    export TMPDIR="${temp}/tmp"
+    export FAKE_BUILD_LOG="${temp}/go-failure.log"
+    export FAKE_GO_FAIL_ARGS="test ./..."
+    export FAKE_GO_FAIL_STATUS=24
+    REPO_ROOT="${temp}/repo"
+    SKIP_TESTS=0
+    install_cleanup_traps
+    run_local_build
+  )
+  status=$?
+  set -e
+  assert_equals "${status}" "24" || return 1
+  [ -z "$(find "${temp}/tmp" -mindepth 1 -maxdepth 1 -print)" ] || return 1
+
+  rm -rf "${temp}"
+}
+
+test_run_test_stops_after_first_failure() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  injected_failure_test() {
+    false
+    printf 'continued\n' > "${temp}/continued"
+  }
+
+  output="$(run_test "injected harness failure" injected_failure_test)"
+  assert_contains "${output}" "not ok - injected harness failure" || return 1
+  [ ! -e "${temp}/continued" ] || {
+    printf '  test continued after a failing command\n'
+    return 1
+  }
+
+  rm -rf "${temp}"
+}
+
 test_apk_artifact_preparation() {
   local temp
 
@@ -634,6 +789,45 @@ test_apk_artifact_preparation() {
   rm -rf "${temp}"
 }
 
+test_apk_artifacts_validate_staged_copies() {
+  local temp
+  local real_cp
+  local output
+
+  temp="$(mktemp -d)"
+  write_apk_fixture "${temp}/input"
+  mkdir -p "${temp}/build" "${temp}/bin"
+  real_cp="$(command -v cp)"
+  cat > "${temp}/bin/cp" <<'EOF'
+#!/bin/sh
+"${REAL_CP}" "$@"
+case "${1:-}" in
+  *.apk)
+    printf 'tampered-after-copy\n' > "${2}"
+    ;;
+esac
+EOF
+  chmod +x "${temp}/bin/cp"
+
+  if output="$(
+    (
+      export PATH="${temp}/bin:${PATH}"
+      export REAL_CP="${real_cp}"
+      BUILD_ROOT="${temp}/build"
+      APK_INPUT="${temp}/input/BusIsComing.apk"
+      APK_METADATA_INPUT="${temp}/input/current.json"
+      SKIP_APK=0
+      prepare_apk_artifacts
+    ) 2>&1
+  )"; then
+    printf '  expected staged APK validation to reject a changed copy\n'
+    return 1
+  fi
+  assert_contains "${output}" "APK input or metadata validation failed" || return 1
+
+  rm -rf "${temp}"
+}
+
 test_release_archive_creation() {
   local temp
   local version="20260622-120000-a07eaf4"
@@ -646,11 +840,18 @@ test_release_archive_creation() {
   local archive_sha
   local checksum_contents
   local listing
+  local expected_frontend_files
+  local manifest_frontend_files
+  local checksum_line
+  local checksum_path
+  local expected_checksum
+  local actual_checksum
 
   temp="$(mktemp -d)"
-  mkdir -p "${temp}/repo/frontend/dist/assets" "${temp}/build"
+  mkdir -p "${temp}/repo/frontend/dist/assets/nested" "${temp}/build"
   printf '<!doctype html>\n' > "${temp}/repo/frontend/dist/index.html"
   printf 'asset-data\n' > "${temp}/repo/frontend/dist/assets/app.js"
+  printf 'nested-data\n' > "${temp}/repo/frontend/dist/assets/nested/chunk.css"
   printf '#!/bin/sh\nexit 0\n' > "${temp}/build/busiscoming-server"
   chmod +x "${temp}/build/busiscoming-server"
   write_fake_git "${temp}/bin"
@@ -688,14 +889,65 @@ test_release_archive_creation() {
   asset_sha="$(shasum -a 256 "${temp}/build/release/frontend/dist/assets/app.js" | awk '{print $1}')"
   frontend_sha="$(shasum -a 256 "${temp}/build/release/frontend/dist/index.html" | awk '{print $1}')"
   assert_contains "$(cat "${manifest}")" "backend_sha256=${backend_sha}" || return 1
-  frontend_lines="$(tail -2 "${manifest}")"
-  assert_equals "${frontend_lines}" \
-    "${asset_sha}  frontend/dist/assets/app.js
-${frontend_sha}  frontend/dist/index.html" || return 1
+  frontend_lines="$(tail -3 "${manifest}")"
+  assert_contains "${frontend_lines}" \
+    "${asset_sha}  frontend/dist/assets/app.js" || return 1
+  assert_contains "${frontend_lines}" \
+    "${frontend_sha}  frontend/dist/index.html" || return 1
+  expected_frontend_files="$(
+    cd "${temp}/repo"
+    find frontend/dist -type f -print | LC_ALL=C sort
+  )"
+  manifest_frontend_files="$(
+    awk 'NR > 7 { sub(/^[0-9a-f]+  /, ""); print }' "${manifest}"
+  )"
+  assert_equals "${manifest_frontend_files}" "${expected_frontend_files}" || return 1
+  while IFS= read -r checksum_line; do
+    expected_checksum="${checksum_line%% *}"
+    checksum_path="${checksum_line#*  }"
+    actual_checksum="$(
+      shasum -a 256 "${temp}/build/release/${checksum_path}" | awk '{print $1}'
+    )"
+    assert_equals "${actual_checksum}" "${expected_checksum}" || return 1
+  done < <(tail -n +8 "${manifest}")
 
   archive_sha="$(shasum -a 256 "${archive}" | awk '{print $1}')"
   checksum_contents="$(cat "${archive}.sha256")"
   assert_equals "${checksum_contents}" "${archive_sha}  $(basename "${archive}")" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_release_archive_rejects_frontend_symlink() {
+  local temp
+  local output
+  local version="20260622-120000-a07eaf4"
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/repo/frontend/dist" "${temp}/build"
+  printf 'external-data\n' > "${temp}/external.txt"
+  printf '<!doctype html>\n' > "${temp}/repo/frontend/dist/index.html"
+  ln -s "${temp}/external.txt" "${temp}/repo/frontend/dist/external.txt"
+  printf '#!/bin/sh\nexit 0\n' > "${temp}/build/busiscoming-server"
+  chmod +x "${temp}/build/busiscoming-server"
+  write_fake_git "${temp}/bin"
+
+  if output="$(
+    (
+      REPO_ROOT="${temp}/repo"
+      BUILD_ROOT="${temp}/build"
+      VERSION="${version}"
+      SKIP_APK=1
+      PATH="${temp}/bin:${PATH}"
+      FAKE_GIT_DIRTY=0
+      create_release_archive
+    ) 2>&1
+  )"; then
+    printf '  expected frontend symlink to be rejected\n'
+    return 1
+  fi
+  assert_contains "${output}" "Frontend build output contains unsupported entry" || return 1
+  [ ! -e "${temp}/build/release-${version}.tar.gz" ] || return 1
 
   rm -rf "${temp}"
 }
@@ -719,7 +971,14 @@ run_test "dirty worktrees mark custom and default versions once" test_dirty_vers
 run_test "local build sequences commands from expected directories" test_run_local_build_sequences_commands_from_expected_directories
 run_test "local build skips only test stages when requested" test_run_local_build_skips_only_tests_when_requested
 run_test "local build rejects a dynamically linked Linux binary" test_run_local_build_rejects_dynamic_linux_binary
+run_test "local build preserves existing process traps" test_run_local_build_preserves_existing_traps
+run_test "central cleanup removes build state and supports future hooks" test_cleanup_all_removes_build_root_and_runs_future_hook
+run_test "cleanup traps are registered only once" test_cleanup_traps_are_registered_once
+run_test "npm and Go failures propagate while cleanup runs" test_run_local_build_failures_propagate_and_cleanup
+run_test "test harness stops after the first failing command" test_run_test_stops_after_first_failure
 run_test "APK artifacts are isolated and checksummed" test_apk_artifact_preparation
+run_test "APK artifacts validate staged copies" test_apk_artifacts_validate_staged_copies
 run_test "release archive contains verified build artifacts" test_release_archive_creation
+run_test "release archive rejects frontend symlinks" test_release_archive_rejects_frontend_symlink
 
 exit "${FAILURES}"
