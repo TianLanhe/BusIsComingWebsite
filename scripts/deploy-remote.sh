@@ -93,28 +93,59 @@ validate_domain() {
   done
 }
 
+physical_directory() {
+  local directory="$1"
+  local physical
+
+  physical="$(cd "${directory}" 2>/dev/null && pwd -P)" || return 1
+  while [[ "${physical}" == //* ]]; do
+    physical="${physical#/}"
+  done
+  printf '%s\n' "${physical}"
+}
+
 test_command_path() {
   local command_name="$1"
   local test_bin="${TEST_BIN%/}"
   local command_path="${test_bin}/${command_name}"
+  local physical_test_bin
+  local physical_command_parent
+  local physical_path_entry
+  local path_entry
+  local remaining_path
+  local path_matches=0
 
   [[ "${command_name}" =~ ^[A-Za-z0-9._-]+$ ]] || return 1
   [[ -n "${test_bin}" && "${test_bin}" == /* ]] || return 1
-  [[ -d "${test_bin}" && ! -L "${test_bin}" ]] || return 1
-  case ":${PATH}:" in
-    *":${test_bin}:"*)
-      ;;
-    *)
+  physical_test_bin="$(physical_directory "${test_bin}")" || return 1
+
+  case "${physical_test_bin}" in
+    /|/bin|/bin/*|/sbin|/sbin/*|/usr|/usr/*|/lib|/lib/*|/lib64|/lib64/*|/System|/System/*|/Library|/Library/*|/Applications|/Applications/*|/opt/homebrew|/opt/homebrew/*|/opt/local|/opt/local/*)
       return 1
       ;;
   esac
 
-  case "${test_bin}" in
-    /bin|/bin/*|/sbin|/sbin/*|/usr/bin|/usr/bin/*|/usr/sbin|/usr/sbin/*|/usr/local/bin|/usr/local/bin/*|/usr/local/sbin|/usr/local/sbin/*|/opt/homebrew/bin|/opt/homebrew/bin/*|/opt/homebrew/sbin|/opt/homebrew/sbin/*|/opt/local/bin|/opt/local/bin/*|/opt/local/sbin|/opt/local/sbin/*|/System|/System/*)
-      return 1
-      ;;
-  esac
+  remaining_path="${PATH}:"
+  while [[ "${remaining_path}" == *:* ]]; do
+    path_entry="${remaining_path%%:*}"
+    remaining_path="${remaining_path#*:}"
+    [[ -n "${path_entry}" && "${path_entry}" == /* ]] || continue
+    physical_path_entry="$(physical_directory "${path_entry}")" || continue
+    if [[ "${physical_path_entry}" == "${physical_test_bin}" ]]; then
+      path_matches=1
+      break
+    fi
+  done
+  [[ "${path_matches}" -eq 1 ]] || return 1
 
+  [[ -f "${command_path}" && -x "${command_path}" && ! -L "${command_path}" ]] ||
+    return 1
+  physical_command_parent="$(
+    physical_directory "${command_path%/*}"
+  )" || return 1
+  [[ "${physical_command_parent}" == "${physical_test_bin}" ]] || return 1
+
+  command_path="${physical_command_parent}/${command_path##*/}"
   [[ -f "${command_path}" && -x "${command_path}" && ! -L "${command_path}" ]] ||
     return 1
 

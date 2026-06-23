@@ -1400,6 +1400,55 @@ test_remote_test_mode_rejects_system_commands_and_skips_without_fakes() {
   rm -rf "${temp}"
 }
 
+test_remote_test_mode_rejects_physical_system_bin_aliases() {
+  local temp
+  local alias_path
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/aliases"
+  ln -s / "${temp}/aliases/root"
+  ln -s /usr/bin "${temp}/aliases/system-bin"
+
+  for alias_path in \
+    "${temp}/aliases/root/usr/bin" \
+    "${temp}/aliases/system-bin"; do
+    if BUS_DEPLOY_TEST_BIN="${alias_path}" \
+      PATH="${alias_path}:/usr/bin:/bin" \
+      bash -c 'source "$1"; test_command_path true' \
+        _ "${REMOTE_SCRIPT}" >/dev/null 2>&1; then
+      printf '  expected physical system bin alias to be rejected: %s\n' \
+        "${alias_path}"
+      return 1
+    fi
+  done
+
+  rm -rf "${temp}"
+}
+
+test_remote_test_mode_rejects_symlinked_fake_command() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/bin"
+  ln -s /usr/bin/true "${temp}/bin/journalctl"
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+      BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" logs \
+        --root "${temp}" --service backend 2>&1
+  )"; then
+    printf '  expected a symlinked fake command to be rejected\n'
+    return 1
+  fi
+  assert_contains "${output}" \
+    "Test mode requires an injected fake journalctl command" || return 1
+
+  rm -rf "${temp}"
+}
+
 test_remote_config_loader_rejects_unsafe_files() {
   local temp
   local output
@@ -1720,6 +1769,8 @@ run_test "remote list rejects invalid managed release targets" test_remote_list_
 run_test "remote list rejects a symlinked releases directory" test_remote_list_rejects_symlinked_releases_directory
 run_test "remote logs validate services and map journal units" test_remote_logs_validates_service_and_maps_units
 run_test "remote test mode rejects system commands and skips without fakes" test_remote_test_mode_rejects_system_commands_and_skips_without_fakes
+run_test "remote test mode rejects physical system bin aliases" test_remote_test_mode_rejects_physical_system_bin_aliases
+run_test "remote test mode rejects symlinked fake commands" test_remote_test_mode_rejects_symlinked_fake_command
 run_test "remote config parsing rejects unsafe files" test_remote_config_loader_rejects_unsafe_files
 run_test "remote config parsing rejects dangling symlinks" test_remote_config_loader_rejects_dangling_symlink
 run_test "remote config parsing rejects symlinked parent paths" test_remote_config_loader_rejects_symlinked_parent_paths
