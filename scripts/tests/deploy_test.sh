@@ -607,25 +607,27 @@ test_environment_defaults_and_cli_overrides() {
     BUS_DEPLOY_HOST=192.0.2.10 \
     BUS_DEPLOY_DOMAIN=www.env.example \
     BUS_DEPLOY_KEEP=7 \
+    BUS_DEPLOY_DNS_MODE=proxied \
       bash -c '
         source "$1"
         parse_args deploy
-        printf "%s|%s|%s\n" "$HOST" "$DOMAIN" "$KEEP"
+        printf "%s|%s|%s|%s\n" "$HOST" "$DOMAIN" "$KEEP" "$DNS_MODE"
       ' _ "${DEPLOY_SCRIPT}"
   )"
-  assert_equals "${defaults}" "192.0.2.10|www.env.example|7" || return 1
+  assert_equals "${defaults}" "192.0.2.10|www.env.example|7|proxied" || return 1
 
   overrides="$(
     BUS_DEPLOY_HOST=192.0.2.10 \
     BUS_DEPLOY_DOMAIN=www.env.example \
     BUS_DEPLOY_KEEP=7 \
+    BUS_DEPLOY_DNS_MODE=proxied \
       bash -c '
         source "$1"
-        parse_args deploy --host 198.51.100.20 --domain www.cli.example
-        printf "%s|%s|%s\n" "$HOST" "$DOMAIN" "$KEEP"
+        parse_args deploy --host 198.51.100.20 --domain www.cli.example --dns-mode direct
+        printf "%s|%s|%s|%s\n" "$HOST" "$DOMAIN" "$KEEP" "$DNS_MODE"
       ' _ "${DEPLOY_SCRIPT}"
   )"
-  assert_equals "${overrides}" "198.51.100.20|www.cli.example|7"
+  assert_equals "${overrides}" "198.51.100.20|www.cli.example|7|direct"
 }
 
 test_require_command_uses_path() {
@@ -711,6 +713,7 @@ test_validate_dns_queries_both_names_and_requires_exact_host() {
     export FAKE_DIG_BARE_RESULT="192.0.2.10"
     HOST="192.0.2.10"
     DOMAIN="www.busiscoming.com"
+    DNS_MODE=direct
     validate_dns
   ) || return 1
 
@@ -729,6 +732,7 @@ test_validate_dns_queries_both_names_and_requires_exact_host() {
       export FAKE_DIG_BARE_RESULT="192.0.2.10"
       HOST="192.0.2.10"
       DOMAIN="www.busiscoming.com"
+      DNS_MODE=direct
       validate_dns
     ) 2>&1
   )" && {
@@ -737,6 +741,50 @@ test_validate_dns_queries_both_names_and_requires_exact_host() {
   }
   assert_contains "${output}" \
     "DNS A record for www.busiscoming.com does not include 192.0.2.10" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_validate_dns_allows_proxied_records_when_explicit() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  write_fake_dig "${temp}/bin"
+
+  (
+    export PATH="${temp}/bin:${PATH}"
+    export FAKE_DIG_LOG="${temp}/proxied-queries.log"
+    export FAKE_DIG_MAIN_NAME="www.busiscoming.com"
+    export FAKE_DIG_BARE_NAME="busiscoming.com"
+    export FAKE_DIG_MAIN_RESULT="104.21.33.2
+172.67.139.49"
+    export FAKE_DIG_BARE_RESULT="104.21.33.2
+172.67.139.49"
+    HOST="192.0.2.10"
+    DOMAIN="www.busiscoming.com"
+    DNS_MODE=proxied
+    validate_dns
+  ) || return 1
+
+  output="$(
+    (
+      export PATH="${temp}/bin:${PATH}"
+      export FAKE_DIG_LOG="${temp}/empty-queries.log"
+      export FAKE_DIG_MAIN_NAME="www.busiscoming.com"
+      export FAKE_DIG_BARE_NAME="busiscoming.com"
+      export FAKE_DIG_MAIN_RESULT=""
+      export FAKE_DIG_BARE_RESULT="104.21.33.2"
+      HOST="192.0.2.10"
+      DOMAIN="www.busiscoming.com"
+      DNS_MODE=proxied
+      validate_dns
+    ) 2>&1
+  )" && {
+    printf '  expected proxied DNS mode to reject empty records\n'
+    return 1
+  }
+  assert_contains "${output}" "DNS A record for www.busiscoming.com is empty" || return 1
 
   rm -rf "${temp}"
 }
@@ -2638,6 +2686,7 @@ run_test "CLI values override environment defaults" test_environment_defaults_an
 run_test "required commands are resolved through PATH" test_require_command_uses_path
 run_test "Git preflight honors branch and dirty overrides" test_git_preflight_honors_branch_and_dirty_overrides
 run_test "DNS validation queries both names and matches the exact host" test_validate_dns_queries_both_names_and_requires_exact_host
+run_test "DNS validation supports explicit proxied records" test_validate_dns_allows_proxied_records_when_explicit
 run_test "dirty worktrees mark custom and default versions once" test_dirty_version_marking
 run_test "local build sequences commands from expected directories" test_run_local_build_sequences_commands_from_expected_directories
 run_test "local build skips only test stages when requested" test_run_local_build_skips_only_tests_when_requested

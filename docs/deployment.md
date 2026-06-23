@@ -14,7 +14,9 @@
 ssh root@<server-ip>
 ```
 
-- DNS：`www.busiscoming.com` 和 `busiscoming.com` 的 A 记录都必须指向同一服务器 IP。
+- DNS：默认 `direct` 模式要求 `www.busiscoming.com` 和 `busiscoming.com` 的 A 记录都
+  包含同一服务器 IP。若域名由 Cloudflare 等代理托管，使用 `proxied` 模式，只要求两
+  个域名有 A 记录，不要求解析结果等于源站 IP。
 - 公网端口：22、80、443 需要可访问；后端只监听 `127.0.0.1:8080`。
 - 本机工具：`bash`、`ssh`、`scp`、`tar`、`git`、`npm`、`node`、`go`、`shasum`、
   `dig`、`file`、`mktemp`。
@@ -31,6 +33,20 @@ export BUS_DEPLOY_DOMAIN=www.busiscoming.com
 
 ./scripts/deploy.sh deploy
 ./scripts/deploy.sh status
+```
+
+如果域名启用了 Cloudflare 代理：
+
+```bash
+export BUS_DEPLOY_DNS_MODE=proxied
+
+./scripts/deploy.sh deploy
+```
+
+也可以只对单次命令传参：
+
+```bash
+./scripts/deploy.sh deploy --dns-mode proxied
 ```
 
 默认部署根目录是 `/opt/busiscoming`，保留最新 3 个 release，同时保护
@@ -130,8 +146,9 @@ Caddy 配置写入 `/etc/caddy/Caddyfile`，后端 systemd unit 写入
 
 ## 故障处理
 
-- DNS 校验失败：确认 `www.busiscoming.com` 和 `busiscoming.com` 的 A 记录都包含
-  `BUS_DEPLOY_HOST`。
+- DNS 校验失败：`direct` 模式下确认 `www.busiscoming.com` 和 `busiscoming.com` 的
+  A 记录都包含 `BUS_DEPLOY_HOST`；Cloudflare 代理场景改用
+  `BUS_DEPLOY_DNS_MODE=proxied` 或 `--dns-mode proxied`。
 - 80/443 被占用：脚本会拒绝覆盖非 Caddy 进程，请先手动处理占用。
 - Caddy reload 失败：脚本会恢复旧 Caddyfile。
 - 后端或 HTTPS 健康检查失败：脚本会恢复旧 `current/previous`，并保留失败 release

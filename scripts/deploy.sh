@@ -11,6 +11,7 @@ HOST="${BUS_DEPLOY_HOST:-}"
 DOMAIN="${BUS_DEPLOY_DOMAIN:-}"
 KEEP="${BUS_DEPLOY_KEEP:-3}"
 DEPLOY_ROOT="${BUS_DEPLOY_ROOT:-/opt/busiscoming}"
+DNS_MODE="${BUS_DEPLOY_DNS_MODE:-direct}"
 VERSION=""
 SERVICE=""
 LINES=100
@@ -35,6 +36,7 @@ usage() {
   cat <<'EOF'
 Usage:
   deploy.sh deploy [--host IP] [--domain DOMAIN] [--version VERSION]
+                   [--dns-mode direct|proxied]
                    [--skip-apk] [--skip-tests] [--allow-dirty]
                    [--allow-non-master]
   deploy.sh list [--host IP]
@@ -193,21 +195,29 @@ validate_dns() {
   local name
   local resolved
   local matched
+  local has_record
 
   BARE_DOMAIN="$(derive_bare_domain "${DOMAIN}")" ||
     die "Domain must start with www."
 
   for name in "${DOMAIN}" "${BARE_DOMAIN}"; do
     matched=0
+    has_record=0
     while IFS= read -r resolved; do
+      [[ -n "${resolved}" ]] || continue
+      has_record=1
       if [[ "${resolved}" == "${HOST}" ]]; then
         matched=1
         break
       fi
     done < <(dig +short A "${name}")
 
-    [[ "${matched}" -eq 1 ]] ||
-      die "DNS A record for ${name} does not include ${HOST}"
+    [[ "${has_record}" -eq 1 ]] ||
+      die "DNS A record for ${name} is empty"
+    if [[ "${DNS_MODE}" == "direct" ]]; then
+      [[ "${matched}" -eq 1 ]] ||
+        die "DNS A record for ${name} does not include ${HOST}"
+    fi
   done
 }
 
@@ -235,6 +245,13 @@ validate_deploy_inputs() {
     die "BUS_DEPLOY_KEEP must be a positive integer"
   validate_ipv4 "${HOST}" || die "Deploy host must be an IPv4 address"
   validate_domain "${DOMAIN}" || die "Invalid deployment domain: ${DOMAIN}"
+  case "${DNS_MODE}" in
+    direct|proxied)
+      ;;
+    *)
+      die "DNS mode must be direct or proxied"
+      ;;
+  esac
 
   BARE_DOMAIN="$(derive_bare_domain "${DOMAIN}")" ||
     die "Domain must start with www."
@@ -611,7 +628,7 @@ validate_command_option() {
   local option="$1"
 
   case "${COMMAND}:${option}" in
-    deploy:--host|deploy:--domain|deploy:--version|deploy:--skip-apk|deploy:--skip-tests|deploy:--allow-dirty|deploy:--allow-non-master)
+    deploy:--host|deploy:--domain|deploy:--version|deploy:--dns-mode|deploy:--skip-apk|deploy:--skip-tests|deploy:--allow-dirty|deploy:--allow-non-master)
       return 0
       ;;
     list:--host|status:--host|rollback:--host)
@@ -667,6 +684,12 @@ parse_args() {
         validate_command_option "$1"
         [[ $# -ge 2 ]] || die "--version requires a value"
         VERSION="$2"
+        shift 2
+        ;;
+      --dns-mode)
+        validate_command_option "$1"
+        [[ $# -ge 2 ]] || die "--dns-mode requires a value"
+        DNS_MODE="$2"
         shift 2
         ;;
       --service)
