@@ -2490,6 +2490,58 @@ test_remote_deploy_without_apk_requires_existing_valid_apk() {
   rm -rf "${temp}"
 }
 
+test_remote_deploy_creates_runtime_user_before_group_owned_directories() {
+  local temp
+  local order
+
+  temp="$(mktemp -d)"
+  if ! BUS_DEPLOY_TEST_MODE=0 bash -c '
+    set -euo pipefail
+    source "$1"
+    ROOT="$2"
+    DOMAIN=www.busiscoming.com
+    BARE_DOMAIN=busiscoming.com
+    VERSION=v1
+    APK_DIR="$2/apk"
+    ARCHIVE="$2/release-v1.tar.gz"
+    ARCHIVE_SHA="$2/release-v1.tar.gz.sha256"
+    KEEP=3
+    TEST_MODE=0
+    : > "$2/order.log"
+
+    acquire_lock() { printf "lock\n" >> "$ROOT/order.log"; }
+    ensure_runtime_user() { printf "user\n" >> "$ROOT/order.log"; }
+    ensure_directories() {
+      printf "dirs\n" >> "$ROOT/order.log"
+      mkdir -p "$ROOT/.deploy-tmp" "$ROOT/shared/deploy"
+    }
+    snapshot_caddy_config() { printf "absent\n"; }
+    managed_link_target() { return 0; }
+    initialize_runtime() { printf "init\n" >> "$ROOT/order.log"; }
+    validate_remote_apk_directory() { printf "apk\n" >> "$ROOT/order.log"; }
+    install_release_archive() {
+      printf "archive\n" >> "$ROOT/order.log"
+      mkdir -p "$ROOT/releases/v1"
+      printf "%s/releases/v1\n" "$ROOT"
+    }
+    replace_apk_directory() { printf "replace-apk\n" >> "$ROOT/order.log"; }
+    atomic_link() { printf "link:%s:%s\n" "$1" "$2" >> "$ROOT/order.log"; }
+    verify_active_release() { printf "health\n" >> "$ROOT/order.log"; }
+    write_deploy_config() { printf "config\n" >> "$ROOT/order.log"; }
+    prune_releases() { printf "prune\n" >> "$ROOT/order.log"; }
+
+    command_deploy
+  ' _ "${REMOTE_SCRIPT}" "${temp}"; then
+    return 1
+  fi
+
+  order="$(cat "${temp}/order.log")"
+  assert_contains "${order}" "user
+dirs" || return 1
+
+  rm -rf "${temp}"
+}
+
 test_remote_switch_and_rollback_update_release_links() {
   local temp
 
@@ -2731,6 +2783,7 @@ run_test "remote port and UFW guards are non-destructive" test_remote_port_and_u
 run_test "remote deploy installs first release and APK" test_remote_deploy_installs_first_release_and_apk
 run_test "remote deploy restores code on health failure" test_remote_deploy_restores_code_on_health_failure
 run_test "remote deploy without APK requires an existing valid APK" test_remote_deploy_without_apk_requires_existing_valid_apk
+run_test "remote deploy creates runtime user before group-owned directories" test_remote_deploy_creates_runtime_user_before_group_owned_directories
 run_test "remote switch and rollback update release links" test_remote_switch_and_rollback_update_release_links
 run_test "remote switch restores links on health failure" test_remote_switch_restores_links_on_health_failure
 run_test "remote cleanup protects current previous and newest releases" test_remote_cleanup_protects_current_previous_and_newest_releases

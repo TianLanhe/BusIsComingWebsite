@@ -1033,6 +1033,7 @@ command_deploy() {
   local config_had_previous=0
 
   acquire_lock
+  ensure_runtime_user
   ensure_directories
   caddy_snapshot="${ROOT}/.deploy-tmp/Caddyfile.snapshot.$$"
   caddy_state="$(snapshot_caddy_config "${caddy_snapshot}")"
