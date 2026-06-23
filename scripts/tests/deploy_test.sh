@@ -1102,6 +1102,26 @@ test_remote_root_validation() {
   done
 }
 
+test_remote_rejects_symlinked_root() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/real-root/releases/v1"
+  ln -s "${temp}/real-root" "${temp}/linked-root"
+
+  if output="$(
+    BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" list --root "${temp}/linked-root" 2>&1
+  )"; then
+    printf '  expected a symlinked deployment root to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "Unsafe deployment root" || return 1
+
+  rm -rf "${temp}"
+}
+
 test_remote_version_and_positive_integer_validation() {
   local max_length
   local too_long
@@ -1255,6 +1275,28 @@ test_remote_list_rejects_invalid_managed_release_targets() {
   fi
   assert_contains "${output}" "Managed link target is not a real release directory" ||
     return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_list_rejects_symlinked_releases_directory() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/root" "${temp}/external-releases/v1"
+  ln -s "${temp}/external-releases" "${temp}/root/releases"
+  ln -s "${temp}/root/releases/v1" "${temp}/root/current"
+
+  if output="$(
+    BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" list --root "${temp}/root" 2>&1
+  )"; then
+    printf '  expected a symlinked releases directory to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "Managed path must not be a symlink" || return 1
+  assert_contains "${output}" "${temp}/root/releases" || return 1
 
   rm -rf "${temp}"
 }
@@ -1447,6 +1489,48 @@ test_remote_config_loader_rejects_dangling_symlink() {
   rm -rf "${temp}"
 }
 
+test_remote_config_loader_rejects_symlinked_parent_paths() {
+  local temp
+  local output
+  local parent_case
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/root" "${temp}/external/shared/deploy"
+  cat > "${temp}/external/shared/deploy/config.env" <<EOF
+DOMAIN=www.busiscoming.com
+BARE_DOMAIN=busiscoming.com
+DEPLOY_ROOT=${temp}/root
+KEEP=3
+EOF
+
+  for parent_case in shared deploy; do
+    rm -rf "${temp}/root/shared"
+    case "${parent_case}" in
+      shared)
+        ln -s "${temp}/external/shared" "${temp}/root/shared"
+        ;;
+      deploy)
+        mkdir -p "${temp}/root/shared"
+        ln -s \
+          "${temp}/external/shared/deploy" \
+          "${temp}/root/shared/deploy"
+        ;;
+    esac
+
+    if output="$(
+      BUS_DEPLOY_TEST_MODE=1 \
+        "${REMOTE_SCRIPT}" status --root "${temp}/root" 2>&1
+    )"; then
+      printf '  expected symlinked config parent to fail: %s\n' "${parent_case}"
+      return 1
+    fi
+    assert_contains "${output}" "Managed path must not be a symlink" ||
+      return 1
+  done
+
+  rm -rf "${temp}"
+}
+
 test_remote_status_uses_fake_checks_and_prints_config() {
   local temp
   local output
@@ -1628,14 +1712,17 @@ run_test "release archive contains verified build artifacts" test_release_archiv
 run_test "release archive rejects frontend symlinks" test_release_archive_rejects_frontend_symlink
 run_test "frontend validation fails closed when find fails" test_frontend_validation_fails_when_find_fails
 run_test "remote roots reject unsafe absolute paths" test_remote_root_validation
+run_test "remote rejects a symlinked deployment root" test_remote_rejects_symlinked_root
 run_test "remote versions and counts use strict validators" test_remote_version_and_positive_integer_validation
 run_test "remote commands enforce option allowlists and values" test_remote_argument_allowlists_and_missing_values
 run_test "remote list marks only valid absolute release links" test_remote_list_marks_only_valid_absolute_links
 run_test "remote list rejects invalid managed release targets" test_remote_list_rejects_invalid_managed_release_targets
+run_test "remote list rejects a symlinked releases directory" test_remote_list_rejects_symlinked_releases_directory
 run_test "remote logs validate services and map journal units" test_remote_logs_validates_service_and_maps_units
 run_test "remote test mode rejects system commands and skips without fakes" test_remote_test_mode_rejects_system_commands_and_skips_without_fakes
 run_test "remote config parsing rejects unsafe files" test_remote_config_loader_rejects_unsafe_files
 run_test "remote config parsing rejects dangling symlinks" test_remote_config_loader_rejects_dangling_symlink
+run_test "remote config parsing rejects symlinked parent paths" test_remote_config_loader_rejects_symlinked_parent_paths
 run_test "remote status uses fake checks and prints configuration" test_remote_status_uses_fake_checks_and_prints_config
 run_test "remote status skips public checks without configuration" test_remote_status_skips_public_checks_without_config
 run_test "remote status fails required service and health checks" test_remote_status_fails_required_checks

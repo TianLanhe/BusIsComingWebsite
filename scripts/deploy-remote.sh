@@ -42,6 +42,7 @@ validate_root() {
       ;;
   esac
   [[ "${value}" != *//* && "${value}" != */ ]] || return 1
+  [[ ! -L "${value}" ]] || return 1
 
   remaining="${value#/}"
   while :; do
@@ -51,6 +52,13 @@ validate_root() {
     [[ "${remaining}" == */* ]] || break
     remaining="${remaining#*/}"
   done
+}
+
+reject_managed_symlink() {
+  local path="$1"
+
+  [[ ! -L "${path}" ]] ||
+    die "Managed path must not be a symlink: ${path}"
 }
 
 validate_version() {
@@ -209,6 +217,7 @@ version_from_link() {
   local target
   local version
 
+  reject_managed_symlink "${ROOT}/releases"
   [[ -L "${link}" ]] || return 0
   target="$(readlink "${link}")" || return 0
   [[ "${target}" == /* ]] || return 0
@@ -228,6 +237,7 @@ command_list() {
   local name
   local marker
 
+  reject_managed_symlink "${ROOT}/releases"
   current="$(version_from_link "${ROOT}/current")"
   previous="$(version_from_link "${ROOT}/previous")"
   [[ -d "${ROOT}/releases" ]] || return 0
@@ -248,6 +258,8 @@ command_list() {
 }
 
 load_config() {
+  local shared="${ROOT}/shared"
+  local deploy="${ROOT}/shared/deploy"
   local config="${ROOT}/shared/deploy/config.env"
   local line
   local key
@@ -260,6 +272,10 @@ load_config() {
   local config_bare_domain=""
   local config_keep=""
 
+  reject_managed_symlink "${shared}"
+  reject_managed_symlink "${deploy}"
+  [[ ! -L "${config}" ]] ||
+    die "Invalid deployment config: Managed path must not be a symlink: ${config}"
   if [[ ! -e "${config}" && ! -L "${config}" ]]; then
     return 0
   fi
