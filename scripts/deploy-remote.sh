@@ -15,6 +15,7 @@ KEEP=3
 LINES=100
 TEST_MODE="${BUS_DEPLOY_TEST_MODE:-0}"
 TEST_BIN="${BUS_DEPLOY_TEST_BIN:-}"
+ETC_ROOT="${BUS_DEPLOY_ETC_ROOT:-}"
 CONFIG_PRESENT=0
 STATUS_FAILED=0
 
@@ -167,6 +168,9 @@ validate_command_option() {
     logs:--root|logs:--service|logs:--lines)
       return 0
       ;;
+    render-config:--root|render-config:--domain|render-config:--bare-domain)
+      return 0
+      ;;
     *)
       die "Option ${option} is not valid for command: ${COMMAND}"
       ;;
@@ -188,7 +192,7 @@ parse_args() {
   COMMAND="$1"
   shift
   case "${COMMAND}" in
-    list|status|logs)
+    list|status|logs|render-config)
       ;;
     *)
       die "Unknown remote command: ${COMMAND}"
@@ -197,12 +201,18 @@ parse_args() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --root|--service|--lines)
+      --root|--domain|--bare-domain|--service|--lines)
         validate_command_option "$1"
         require_option_value "$1" "$#" "${2:-}"
         case "$1" in
           --root)
             ROOT="$2"
+            ;;
+          --domain)
+            DOMAIN="$2"
+            ;;
+          --bare-domain)
+            BARE_DOMAIN="$2"
             ;;
           --service)
             SERVICE="$2"
@@ -246,6 +256,275 @@ validate_command_args() {
     validate_positive_integer "${LINES}" ||
       die "--lines must be a positive integer"
   fi
+  if [[ "${COMMAND}" == "render-config" ]]; then
+    [[ "${TEST_MODE}" -eq 1 ]] ||
+      die "render-config is available only in test mode"
+    validate_domain "${DOMAIN}" ||
+      die "Invalid domain: ${DOMAIN}"
+    [[ "${DOMAIN}" == www.* && -n "${DOMAIN#www.}" ]] ||
+      die "Domain must start with www."
+    validate_domain "${BARE_DOMAIN}" ||
+      die "Invalid bare domain: ${BARE_DOMAIN}"
+    [[ "${BARE_DOMAIN}" == "${DOMAIN#www.}" ]] ||
+      die "Bare domain must match domain"
+    [[ -n "${ETC_ROOT}" && "${ETC_ROOT}" == /* ]] ||
+      die "BUS_DEPLOY_ETC_ROOT is required in test mode"
+  fi
+}
+
+ensure_runtime_user() {
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    return 0
+  fi
+  if ! id busiscoming >/dev/null 2>&1; then
+    useradd --system --home-dir /nonexistent \
+      --shell /usr/sbin/nologin busiscoming
+  fi
+}
+
+ensure_directories() {
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    mkdir -p \
+      "${ROOT}/releases" \
+      "${ROOT}/shared/downloads" \
+      "${ROOT}/shared/env" \
+      "${ROOT}/shared/deploy" \
+      "${ROOT}/.deploy-tmp"
+    chmod 0755 "${ROOT}" "${ROOT}/releases"
+    chmod 0750 \
+      "${ROOT}/shared/downloads" \
+      "${ROOT}/shared/env" \
+      "${ROOT}/shared/deploy"
+    chmod 0700 "${ROOT}/.deploy-tmp"
+    return 0
+  fi
+
+  install -d -o root -g busiscoming -m 0755 \
+    "${ROOT}" "${ROOT}/releases"
+  install -d -o root -g busiscoming -m 0750 \
+    "${ROOT}/shared/downloads" "${ROOT}/shared/env"
+  install -d -o root -g root -m 0750 "${ROOT}/shared/deploy"
+  install -d -o root -g root -m 0700 "${ROOT}/.deploy-tmp"
+}
+
+install_runtime_dependencies() {
+  [[ "${TEST_MODE}" -eq 1 ]] && return 0
+  apt-get update
+  apt-get install -y \
+    ca-certificates \
+    debian-keyring \
+    debian-archive-keyring \
+    apt-transport-https \
+    curl \
+    gnupg \
+    jq \
+    openssl \
+    util-linux \
+    iproute2
+}
+
+install_caddy_if_missing() {
+  [[ "${TEST_MODE}" -eq 1 ]] && return 0
+  command -v caddy >/dev/null 2>&1 && return 0
+
+  curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key |
+    gpg --batch --yes --dearmor \
+      -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  curl -1sLf \
+    https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt \
+    -o /etc/apt/sources.list.d/caddy-stable.list
+  chmod 0644 \
+    /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
+    /etc/apt/sources.list.d/caddy-stable.list
+  apt-get update
+  apt-get install -y caddy
+}
+
+ensure_backend_env() {
+  local env_file="${ROOT}/shared/env/backend.env"
+  local candidate="${env_file}.new.$$"
+  local secret
+
+  if [[ -e "${env_file}" || -L "${env_file}" ]]; then
+    [[ -f "${env_file}" && ! -L "${env_file}" ]] ||
+      die "Backend environment path is unsafe: ${env_file}"
+    return 0
+  fi
+
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    secret="test-only-secret"
+  else
+    secret="$(openssl rand -hex 32)"
+  fi
+  {
+    printf 'BUS_HTTP_HOST=127.0.0.1\n'
+    printf 'PORT=8080\n'
+    printf 'BUS_DOWNLOAD_ROOT=%s/shared/downloads/android\n' "${ROOT}"
+    printf 'GIN_MODE=release\n'
+    printf 'ROUTE_QUERY_TOKEN_SECRET=%s\n' "${secret}"
+  } > "${candidate}"
+  chmod 0640 "${candidate}"
+  if [[ "${TEST_MODE}" -ne 1 ]]; then
+    chown root:busiscoming "${candidate}"
+  fi
+  mv -f "${candidate}" "${env_file}"
+}
+
+render_systemd_service() {
+  local service_dir="${ETC_ROOT}/etc/systemd/system"
+  local service_file="${service_dir}/busiscoming-backend.service"
+  local candidate="${service_file}.new.$$"
+
+  install -d -m 0755 "${service_dir}"
+  {
+    printf '[Unit]\n'
+    printf 'Description=BusIsComing website backend\n'
+    printf 'Wants=network-online.target\n'
+    printf 'After=network-online.target\n\n'
+    printf '[Service]\n'
+    printf 'Type=simple\n'
+    printf 'User=busiscoming\n'
+    printf 'Group=busiscoming\n'
+    printf 'EnvironmentFile=%s/shared/env/backend.env\n' "${ROOT}"
+    printf 'WorkingDirectory=%s/current/backend\n' "${ROOT}"
+    printf 'ExecStart=%s/current/backend/busiscoming-server\n' "${ROOT}"
+    printf 'Restart=on-failure\n'
+    printf 'RestartSec=3\n'
+    printf 'TimeoutStartSec=30\n'
+    printf 'TimeoutStopSec=15\n'
+    printf 'NoNewPrivileges=true\n'
+    printf 'PrivateTmp=true\n'
+    printf 'ProtectHome=true\n'
+    printf 'ProtectSystem=strict\n\n'
+    printf '[Install]\n'
+    printf 'WantedBy=multi-user.target\n'
+  } > "${candidate}"
+  chmod 0644 "${candidate}"
+  mv -f "${candidate}" "${service_file}"
+}
+
+render_caddyfile() {
+  local output="$1"
+
+  {
+    printf '%s {\n' "${BARE_DOMAIN}"
+    printf '    redir https://%s{uri} permanent\n' "${DOMAIN}"
+    printf '}\n\n'
+    printf '%s {\n' "${DOMAIN}"
+    printf '    encode zstd gzip\n\n'
+    printf '    header {\n'
+    printf '        X-Content-Type-Options nosniff\n'
+    printf '        Referrer-Policy strict-origin-when-cross-origin\n'
+    printf '        X-Frame-Options DENY\n'
+    printf '    }\n\n'
+    printf '    handle /api/* {\n'
+    printf '        reverse_proxy 127.0.0.1:8080\n'
+    printf '    }\n\n'
+    printf '    handle {\n'
+    printf '        root * %s/current/frontend/dist\n' "${ROOT}"
+    printf '        try_files {path} /index.html\n'
+    printf '        file_server\n'
+    printf '    }\n'
+    printf '}\n'
+  } > "${output}"
+}
+
+install_caddy_config() {
+  local caddy_dir="${ETC_ROOT}/etc/caddy"
+  local caddy_file="${caddy_dir}/Caddyfile"
+  local candidate="${caddy_file}.new.$$"
+  local backup="${caddy_file}.backup.$$"
+  local had_previous=0
+
+  install -d -m 0755 "${caddy_dir}"
+  render_caddyfile "${candidate}"
+  chmod 0644 "${candidate}"
+
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    mv -f "${candidate}" "${caddy_file}"
+    return 0
+  fi
+
+  caddy fmt --overwrite "${candidate}"
+  caddy validate --config "${candidate}" --adapter caddyfile
+  if [[ -e "${caddy_file}" ]]; then
+    [[ -f "${caddy_file}" && ! -L "${caddy_file}" ]] ||
+      die "Existing Caddyfile is unsafe: ${caddy_file}"
+    cp -p "${caddy_file}" "${backup}"
+    had_previous=1
+  fi
+  mv -f "${candidate}" "${caddy_file}"
+  if systemctl is-active --quiet caddy; then
+    systemctl reload caddy && {
+      rm -f "${backup}"
+      return 0
+    }
+  elif systemctl enable --now caddy; then
+    rm -f "${backup}"
+    return 0
+  fi
+
+  if [[ "${had_previous}" -eq 1 ]]; then
+    mv -f "${backup}" "${caddy_file}"
+    if systemctl is-active --quiet caddy; then
+      systemctl reload caddy || true
+    else
+      systemctl enable --now caddy || true
+    fi
+  else
+    rm -f "${caddy_file}"
+  fi
+  die "Caddy reload failed; previous configuration restored"
+}
+
+check_public_ports() {
+  local listeners
+
+  [[ "${TEST_MODE}" -eq 1 ]] && return 0
+  listeners="$(ss -ltnp '( sport = :80 or sport = :443 )' 2>/dev/null || true)"
+  while IFS= read -r line; do
+    [[ -n "${line}" && "${line}" != State* ]] || continue
+    [[ "${line}" == *caddy* ]] ||
+      die "Port 80 or 443 is already used by a non-Caddy process"
+  done <<< "${listeners}"
+}
+
+configure_ufw() {
+  local status
+
+  [[ "${TEST_MODE}" -eq 1 ]] && return 0
+  command -v ufw >/dev/null 2>&1 || return 0
+  status="$(ufw status 2>/dev/null || true)"
+  case "${status}" in
+    *"Status: active"*)
+      ufw allow OpenSSH
+      ufw allow "Caddy Full"
+      ;;
+  esac
+}
+
+initialize_runtime() {
+  install_runtime_dependencies
+  install_caddy_if_missing
+  ensure_runtime_user
+  ensure_directories
+  ensure_backend_env
+  render_systemd_service
+  check_public_ports
+  install_caddy_config
+  configure_ufw
+
+  if [[ "${TEST_MODE}" -ne 1 ]]; then
+    systemctl daemon-reload
+    systemctl enable busiscoming-backend
+  fi
+}
+
+command_render_config() {
+  ensure_directories
+  ensure_backend_env
+  render_systemd_service
+  install_caddy_config
 }
 
 version_from_link() {
@@ -525,6 +804,9 @@ main() {
       ;;
     logs)
       command_logs
+      ;;
+    render-config)
+      command_render_config
       ;;
   esac
 }

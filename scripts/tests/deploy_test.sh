@@ -1914,6 +1914,191 @@ test_remote_production_status_runs_checks_and_fails_closed() {
   rm -rf "${temp}"
 }
 
+test_remote_renders_systemd_caddy_and_environment() {
+  local temp
+  local env_file
+  local service_file
+  local caddy_file
+  local original_env
+
+  temp="$(mktemp -d)"
+  BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}" \
+    "${REMOTE_SCRIPT}" render-config \
+      --root "${temp}/opt/busiscoming" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com
+
+  env_file="${temp}/opt/busiscoming/shared/env/backend.env"
+  service_file="${temp}/etc/systemd/system/busiscoming-backend.service"
+  caddy_file="${temp}/etc/caddy/Caddyfile"
+
+  grep -F "BUS_HTTP_HOST=127.0.0.1" "${env_file}" >/dev/null
+  grep -F "PORT=8080" "${env_file}" >/dev/null
+  grep -F \
+    "BUS_DOWNLOAD_ROOT=${temp}/opt/busiscoming/shared/downloads/android" \
+    "${env_file}" >/dev/null
+  grep -F "ROUTE_QUERY_TOKEN_SECRET=test-only-secret" "${env_file}" >/dev/null
+
+  grep -F "User=busiscoming" "${service_file}" >/dev/null
+  grep -F \
+    "ExecStart=${temp}/opt/busiscoming/current/backend/busiscoming-server" \
+    "${service_file}" >/dev/null
+  grep -F "NoNewPrivileges=true" "${service_file}" >/dev/null
+  grep -F "ProtectSystem=strict" "${service_file}" >/dev/null
+
+  grep -F "reverse_proxy 127.0.0.1:8080" "${caddy_file}" >/dev/null
+  grep -F \
+    "redir https://www.busiscoming.com{uri} permanent" \
+    "${caddy_file}" >/dev/null
+  grep -F \
+    "root * ${temp}/opt/busiscoming/current/frontend/dist" \
+    "${caddy_file}" >/dev/null
+  grep -F "try_files {path} /index.html" "${caddy_file}" >/dev/null
+
+  original_env="$(cat "${env_file}")"
+  BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}" \
+    "${REMOTE_SCRIPT}" render-config \
+      --root "${temp}/opt/busiscoming" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com
+  assert_equals "$(cat "${env_file}")" "${original_env}" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_render_config_is_test_only_and_validates_domains() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+
+  if output="$(
+    BUS_DEPLOY_ETC_ROOT="${temp}" \
+      "${REMOTE_SCRIPT}" render-config \
+        --root "${temp}/root" \
+        --domain www.busiscoming.com \
+        --bare-domain busiscoming.com 2>&1
+  )"; then
+    printf '  expected production render-config to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "only in test mode" || return 1
+
+  if output="$(
+    BUS_DEPLOY_TEST_MODE=1 \
+      BUS_DEPLOY_ETC_ROOT="${temp}" \
+      "${REMOTE_SCRIPT}" render-config \
+        --root "${temp}/root" \
+        --domain www.busiscoming.com \
+        --bare-domain other.example 2>&1
+  )"; then
+    printf '  expected mismatched domains to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "Bare domain must match domain" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_caddy_config_restores_previous_file_on_reload_failure() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/bin" "${temp}/etc/caddy"
+  printf 'old configuration\n' > "${temp}/etc/caddy/Caddyfile"
+  cat > "${temp}/bin/caddy" <<'EOF'
+#!/bin/sh
+exit 0
+EOF
+  cat > "${temp}/bin/systemctl" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+  chmod +x "${temp}/bin/caddy" "${temp}/bin/systemctl"
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      bash -c '
+        source "$1"
+        TEST_MODE=0
+        ETC_ROOT="$2"
+        ROOT="$2/opt/busiscoming"
+        DOMAIN="www.busiscoming.com"
+        BARE_DOMAIN="busiscoming.com"
+        install_caddy_config
+      ' _ "${REMOTE_SCRIPT}" "${temp}" 2>&1
+  )"; then
+    printf '  expected failed Caddy reload to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "previous configuration restored" || return 1
+  assert_equals "$(cat "${temp}/etc/caddy/Caddyfile")" \
+    "old configuration" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_port_and_ufw_guards_are_non_destructive() {
+  local temp
+  local output
+  local log
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/bin"
+  cat > "${temp}/bin/ss" <<'EOF'
+#!/bin/sh
+printf '%s\n' 'State Recv-Q Send-Q Local Address:Port Peer Address:Port Process'
+printf '%s\n' "${FAKE_SS_LINE:-}"
+EOF
+  cat > "${temp}/bin/ufw" <<'EOF'
+#!/bin/sh
+printf 'ufw|%s\n' "$*" >> "${FAKE_UFW_LOG}"
+if [ "${1:-}" = "status" ]; then
+  printf 'Status: %s\n' "${FAKE_UFW_STATUS:-inactive}"
+fi
+EOF
+  chmod +x "${temp}/bin/ss" "${temp}/bin/ufw"
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_SS_LINE='LISTEN 0 4096 0.0.0.0:80 0.0.0.0:* users:(("nginx",pid=1,fd=1))' \
+      bash -c 'source "$1"; TEST_MODE=0; check_public_ports' \
+        _ "${REMOTE_SCRIPT}" 2>&1
+  )"; then
+    printf '  expected non-Caddy port listener to fail\n'
+    return 1
+  fi
+  assert_contains "${output}" "non-Caddy process" || return 1
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_SS_LINE='LISTEN 0 4096 0.0.0.0:80 0.0.0.0:* users:(("caddy",pid=1,fd=1))' \
+    bash -c 'source "$1"; TEST_MODE=0; check_public_ports' \
+      _ "${REMOTE_SCRIPT}" || return 1
+
+  : > "${temp}/ufw.log"
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_UFW_LOG="${temp}/ufw.log" \
+    FAKE_UFW_STATUS=active \
+    bash -c 'source "$1"; TEST_MODE=0; configure_ufw' \
+      _ "${REMOTE_SCRIPT}" || return 1
+  log="$(cat "${temp}/ufw.log")"
+  assert_contains "${log}" "ufw|allow OpenSSH" || return 1
+  assert_contains "${log}" "ufw|allow Caddy Full" || return 1
+
+  : > "${temp}/ufw.log"
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_UFW_LOG="${temp}/ufw.log" \
+    FAKE_UFW_STATUS=inactive \
+    bash -c 'source "$1"; TEST_MODE=0; configure_ufw' \
+      _ "${REMOTE_SCRIPT}" || return 1
+  assert_equals "$(cat "${temp}/ufw.log")" "ufw|status" || return 1
+
+  rm -rf "${temp}"
+}
+
 run_test "help lists deployment commands" test_help_lists_commands
 run_test "unknown command fails clearly" test_unknown_command_fails
 run_test "logs rejects an invalid service" test_logs_rejects_invalid_service
@@ -1966,5 +2151,9 @@ run_test "remote status uses fake checks and prints configuration" test_remote_s
 run_test "remote status skips public checks without configuration" test_remote_status_skips_public_checks_without_config
 run_test "remote status fails required service and health checks" test_remote_status_fails_required_checks
 run_test "remote production status runs checks and fails closed" test_remote_production_status_runs_checks_and_fails_closed
+run_test "remote renders systemd Caddy and backend environment" test_remote_renders_systemd_caddy_and_environment
+run_test "remote render-config is test-only and validates domains" test_remote_render_config_is_test_only_and_validates_domains
+run_test "remote restores Caddy config after reload failure" test_remote_caddy_config_restores_previous_file_on_reload_failure
+run_test "remote port and UFW guards are non-destructive" test_remote_port_and_ufw_guards_are_non_destructive
 
 exit "${FAILURES}"
