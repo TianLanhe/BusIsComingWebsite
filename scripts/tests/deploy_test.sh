@@ -306,6 +306,11 @@ write_apk_fixture() {
   cat > "${directory}/current.json" <<EOF
 {"fileName":"BusIsComing.apk","relativePath":"${metadata_name}","sizeBytes":${size},"sha256":"${sha}","status":"available"}
 EOF
+  (
+    cd "${directory}"
+    shasum -a 256 BusIsComing.apk > BusIsComing.apk.sha256
+    shasum -a 256 current.json > current.json.sha256
+  )
 }
 
 write_release_fixture() {
@@ -408,6 +413,21 @@ case "${url}" in
 esac
 EOF
   chmod +x "${bin_dir}/systemctl" "${bin_dir}/curl"
+}
+
+write_fake_ssh_scp() {
+  local bin_dir="$1"
+
+  mkdir -p "${bin_dir}"
+  cat > "${bin_dir}/ssh" <<'EOF'
+#!/bin/sh
+printf 'ssh|%s\n' "$*" >> "${FAKE_TRANSPORT_LOG}"
+EOF
+  cat > "${bin_dir}/scp" <<'EOF'
+#!/bin/sh
+printf 'scp|%s\n' "$*" >> "${FAKE_TRANSPORT_LOG}"
+EOF
+  chmod +x "${bin_dir}/ssh" "${bin_dir}/scp"
 }
 
 deploy_fixture_release() {
@@ -2546,6 +2566,63 @@ test_remote_cleanup_protects_current_previous_and_newest_releases() {
   rm -rf "${temp}"
 }
 
+test_local_status_uses_ssh_without_running_builds() {
+  local temp
+  local log
+
+  temp="$(mktemp -d)"
+  write_fake_ssh_scp "${temp}/bin"
+  : > "${temp}/transport.log"
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_TRANSPORT_LOG="${temp}/transport.log" \
+    BUS_DEPLOY_HOST=192.0.2.10 \
+    BUS_DEPLOY_TEST_MODE=1 \
+    "${DEPLOY_SCRIPT}" status || return 1
+
+  log="$(cat "${temp}/transport.log")"
+  assert_contains "${log}" "ssh|root@192.0.2.10 mkdir -p /tmp/busiscoming-deploy-" || return 1
+  assert_contains "${log}" "scp|${REMOTE_SCRIPT} root@192.0.2.10:/tmp/busiscoming-deploy-" || return 1
+  assert_contains "${log}" "ssh|root@192.0.2.10 chmod 0700 /tmp/busiscoming-deploy-" || return 1
+  assert_contains "${log}" "deploy-remote.sh status --root /opt/busiscoming" || return 1
+  assert_not_contains "${log}" "StrictHostKeyChecking=no" || return 1
+  assert_not_contains "${log}" "npm" || return 1
+  assert_not_contains "${log}" " go " || return 1
+
+  rm -rf "${temp}"
+}
+
+test_local_deploy_uploads_artifacts_and_invokes_remote_deploy() {
+  local temp
+  local log
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_apk_fixture "${temp}/apk"
+  write_fake_ssh_scp "${temp}/bin"
+  : > "${temp}/transport.log"
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_TRANSPORT_LOG="${temp}/transport.log" \
+    BUS_DEPLOY_HOST=192.0.2.10 \
+    BUS_DEPLOY_DOMAIN=www.busiscoming.com \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_TEST_ARTIFACT_ROOT="${temp}" \
+    "${DEPLOY_SCRIPT}" deploy --version v1 || return 1
+
+  log="$(cat "${temp}/transport.log")"
+  assert_contains "${log}" "scp|${REMOTE_SCRIPT} root@192.0.2.10:/tmp/busiscoming-deploy-" || return 1
+  assert_contains "${log}" "scp|${temp}/release-v1.tar.gz ${temp}/release-v1.tar.gz.sha256 root@192.0.2.10:/tmp/busiscoming-deploy-" || return 1
+  assert_contains "${log}" "scp|${temp}/apk/BusIsComing.apk ${temp}/apk/current.json" || return 1
+  assert_contains "${log}" "deploy-remote.sh deploy --root /opt/busiscoming --domain www.busiscoming.com --bare-domain busiscoming.com --keep 3 --version v1" || return 1
+  assert_contains "${log}" "--archive /tmp/busiscoming-deploy-" || return 1
+  assert_contains "${log}" "--archive-sha /tmp/busiscoming-deploy-" || return 1
+  assert_contains "${log}" "--apk-dir /tmp/busiscoming-deploy-" || return 1
+  assert_not_contains "${log}" "StrictHostKeyChecking=no" || return 1
+
+  rm -rf "${temp}"
+}
+
 run_test "help lists deployment commands" test_help_lists_commands
 run_test "unknown command fails clearly" test_unknown_command_fails
 run_test "logs rejects an invalid service" test_logs_rejects_invalid_service
@@ -2608,5 +2685,7 @@ run_test "remote deploy without APK requires an existing valid APK" test_remote_
 run_test "remote switch and rollback update release links" test_remote_switch_and_rollback_update_release_links
 run_test "remote switch restores links on health failure" test_remote_switch_restores_links_on_health_failure
 run_test "remote cleanup protects current previous and newest releases" test_remote_cleanup_protects_current_previous_and_newest_releases
+run_test "local status uses SSH without running builds" test_local_status_uses_ssh_without_running_builds
+run_test "local deploy uploads artifacts and invokes remote deploy" test_local_deploy_uploads_artifacts_and_invokes_remote_deploy
 
 exit "${FAILURES}"

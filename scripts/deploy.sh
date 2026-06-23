@@ -24,6 +24,10 @@ BUILD_ROOT_OWNED=0
 CLEANUP_TRAPS_INSTALLED=0
 ARCHIVE=""
 APK_DIR=""
+TEST_MODE="${BUS_DEPLOY_TEST_MODE:-0}"
+TEST_ARTIFACT_ROOT="${BUS_DEPLOY_TEST_ARTIFACT_ROOT:-}"
+SSH_TARGET=""
+REMOTE_TEMP=""
 APK_INPUT="${REPO_ROOT}/backend/downloads/android/BusIsComing.apk"
 APK_METADATA_INPUT="${REPO_ROOT}/backend/downloads/android/current.json"
 
@@ -56,6 +60,12 @@ preflight_requirements() {
   for command_name in bash ssh scp tar git npm node go shasum dig file mktemp; do
     require_command "${command_name}"
   done
+}
+
+transport_requirements() {
+  require_command ssh
+  require_command scp
+  require_command mktemp
 }
 
 validate_version() {
@@ -278,6 +288,17 @@ cleanup_all() {
   return 0
 }
 
+remote_cleanup() {
+  if [[ -z "${SSH_TARGET:-}" || -z "${REMOTE_TEMP:-}" ]]; then
+    return 0
+  fi
+  case "${REMOTE_TEMP}" in
+    /tmp/busiscoming-deploy-*)
+      ssh "${SSH_TARGET}" rm -rf -- "${REMOTE_TEMP}" >/dev/null 2>&1 || true
+      ;;
+  esac
+}
+
 handle_cleanup_signal() {
   local status="$1"
 
@@ -464,6 +485,128 @@ create_release_archive() {
   prepare_apk_artifacts
 }
 
+progress() {
+  printf '%s\n' "$*" >&2
+}
+
+prepare_test_artifacts() {
+  [[ -n "${TEST_ARTIFACT_ROOT}" && -d "${TEST_ARTIFACT_ROOT}" ]] ||
+    die "BUS_DEPLOY_TEST_ARTIFACT_ROOT is required in test mode"
+  [[ -n "${VERSION}" ]] ||
+    die "Test mode deploy requires --version"
+
+  BUILD_ROOT="${TEST_ARTIFACT_ROOT}"
+  BUILD_ROOT_OWNED=0
+  ARCHIVE="${TEST_ARTIFACT_ROOT}/release-${VERSION}.tar.gz"
+  [[ -f "${ARCHIVE}" && -f "${ARCHIVE}.sha256" ]] ||
+    die "Test release archive fixture is missing"
+
+  APK_DIR=""
+  if [[ "${SKIP_APK}" -ne 1 ]]; then
+    APK_DIR="${TEST_ARTIFACT_ROOT}/apk"
+    [[ -d "${APK_DIR}" ]] ||
+      die "Test APK fixture is missing"
+  fi
+}
+
+remote_setup() {
+  transport_requirements
+  [[ -f "${REMOTE_SCRIPT}" ]] ||
+    die "Remote helper is missing: ${REMOTE_SCRIPT}"
+
+  SSH_TARGET="root@${HOST}"
+  REMOTE_TEMP="/tmp/busiscoming-deploy-$(date '+%s')-$$"
+  ssh "${SSH_TARGET}" mkdir -p "${REMOTE_TEMP}"
+  scp "${REMOTE_SCRIPT}" "${SSH_TARGET}:${REMOTE_TEMP}/deploy-remote.sh"
+  ssh "${SSH_TARGET}" chmod 0700 "${REMOTE_TEMP}/deploy-remote.sh"
+}
+
+remote_run() {
+  ssh "${SSH_TARGET}" "${REMOTE_TEMP}/deploy-remote.sh" "$@"
+}
+
+upload_release_artifacts() {
+  [[ -f "${ARCHIVE}" && -f "${ARCHIVE}.sha256" ]] ||
+    die "Release archive is missing"
+  scp "${ARCHIVE}" "${ARCHIVE}.sha256" "${SSH_TARGET}:${REMOTE_TEMP}/"
+}
+
+upload_apk_artifacts() {
+  [[ -n "${APK_DIR}" && -d "${APK_DIR}" ]] ||
+    die "APK artifacts are missing"
+  ssh "${SSH_TARGET}" mkdir -p "${REMOTE_TEMP}/apk"
+  scp \
+    "${APK_DIR}/BusIsComing.apk" \
+    "${APK_DIR}/current.json" \
+    "${APK_DIR}/BusIsComing.apk.sha256" \
+    "${APK_DIR}/current.json.sha256" \
+    "${SSH_TARGET}:${REMOTE_TEMP}/apk/"
+}
+
+command_deploy() {
+  local remote_archive
+  local remote_archive_sha
+  local remote_args
+
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    validate_deploy_inputs
+    BARE_DOMAIN="$(derive_bare_domain "${DOMAIN}")"
+    validate_version "${VERSION}" || die "Invalid version: ${VERSION}"
+    progress "[1/6] Validating repository"
+    prepare_test_artifacts
+  else
+    progress "[1/6] Validating repository"
+    deployment_preflight
+    progress "[2/6] Running tests"
+    progress "[3/6] Building release"
+    run_local_build
+    create_release_archive
+  fi
+
+  progress "[4/6] Uploading artifacts"
+  remote_setup
+  upload_release_artifacts
+  if [[ "${SKIP_APK}" -ne 1 ]]; then
+    upload_apk_artifacts
+  fi
+
+  remote_archive="${REMOTE_TEMP}/${ARCHIVE##*/}"
+  remote_archive_sha="${remote_archive}.sha256"
+  remote_args=(
+    deploy
+    --root "${DEPLOY_ROOT}"
+    --domain "${DOMAIN}"
+    --bare-domain "${BARE_DOMAIN}"
+    --keep "${KEEP}"
+    --version "${VERSION}"
+    --archive "${remote_archive}"
+    --archive-sha "${remote_archive_sha}"
+  )
+  if [[ "${SKIP_APK}" -ne 1 ]]; then
+    remote_args+=(--apk-dir "${REMOTE_TEMP}/apk")
+  fi
+
+  progress "[5/6] Activating remote release"
+  remote_run "${remote_args[@]}"
+  progress "[6/6] Deployment verified"
+}
+
+command_remote_passthrough() {
+  local remote_args
+
+  remote_setup
+  remote_args=("${COMMAND}" --root "${DEPLOY_ROOT}")
+  case "${COMMAND}" in
+    switch)
+      remote_args+=(--version "${VERSION}")
+      ;;
+    logs)
+      remote_args+=(--service "${SERVICE}" --lines "${LINES}")
+      ;;
+  esac
+  remote_run "${remote_args[@]}"
+}
+
 validate_command_option() {
   local option="$1"
 
@@ -598,7 +741,14 @@ main() {
   install_cleanup_traps
   parse_args "$@"
   validate_command_args
-  die "Command implementation is not available yet: ${COMMAND}"
+  case "${COMMAND}" in
+    deploy)
+      command_deploy
+      ;;
+    list|switch|rollback|status|logs)
+      command_remote_passthrough
+      ;;
+  esac
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
