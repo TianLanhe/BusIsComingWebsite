@@ -388,6 +388,16 @@ for argument in "$@"; do
 done
 case "${url}" in
   http://127.0.0.1:8080/healthz)
+    if [ -n "${FAKE_DEPLOY_LOCAL_FAILS:-}" ]; then
+      count_file="${FAKE_DEPLOY_LOCAL_COUNT_FILE:-/tmp/busiscoming-local-health-count.$$}"
+      count=0
+      [ -f "${count_file}" ] && count="$(cat "${count_file}")"
+      count=$((count + 1))
+      printf '%s\n' "${count}" > "${count_file}"
+      if [ "${count}" -le "${FAKE_DEPLOY_LOCAL_FAILS}" ]; then
+        exit 22
+      fi
+    fi
     [ "${FAKE_DEPLOY_LOCAL:-ok}" = "ok" ]
     ;;
   "https://${FAKE_DOMAIN:-www.busiscoming.com}/")
@@ -2367,6 +2377,47 @@ test_remote_deploy_installs_first_release_and_apk() {
   rm -rf "${temp}"
 }
 
+test_remote_deploy_waits_for_local_health() {
+  local temp
+  local current_target
+  local local_checks
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_apk_fixture "${temp}/apk"
+  write_fake_deployment_commands "${temp}/bin"
+  : > "${temp}/deploy.log"
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DEPLOY_LOCAL_FAILS=2 \
+    FAKE_DEPLOY_LOCAL_COUNT_FILE="${temp}/local-health-count" \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_LOCAL_HEALTH_ATTEMPTS=3 \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" deploy \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --keep 3 \
+      --version v1 \
+      --archive "${temp}/release-v1.tar.gz" \
+      --archive-sha "${temp}/release-v1.tar.gz.sha256" \
+      --apk-dir "${temp}/apk" || return 1
+
+  current_target="$(readlink "${temp}/root/current")"
+  assert_equals "$(basename "${current_target}")" "v1" || return 1
+  local_checks="$(
+    grep -c 'http://127.0.0.1:8080/healthz' "${temp}/deploy.log"
+  )"
+  assert_equals "${local_checks}" "3" || return 1
+
+  rm -rf "${temp}"
+}
+
 test_remote_deploy_restores_code_on_health_failure() {
   local temp
   local output
@@ -2791,6 +2842,7 @@ run_test "remote render-config is test-only and validates domains" test_remote_r
 run_test "remote restores Caddy config after reload failure" test_remote_caddy_config_restores_previous_file_on_reload_failure
 run_test "remote port and UFW guards are non-destructive" test_remote_port_and_ufw_guards_are_non_destructive
 run_test "remote deploy installs first release and APK" test_remote_deploy_installs_first_release_and_apk
+run_test "remote deploy waits for local health" test_remote_deploy_waits_for_local_health
 run_test "remote deploy restores code on health failure" test_remote_deploy_restores_code_on_health_failure
 run_test "remote deploy without APK requires an existing valid APK" test_remote_deploy_without_apk_requires_existing_valid_apk
 run_test "remote deploy creates runtime user before group-owned directories" test_remote_deploy_creates_runtime_user_before_group_owned_directories

@@ -495,7 +495,7 @@ create_release_archive() {
   )
 
   ARCHIVE="${BUILD_ROOT}/release-${VERSION}.tar.gz"
-  COPYFILE_DISABLE=1 tar -C "${stage}" -czf "${ARCHIVE}" .
+  COPYFILE_DISABLE=1 tar --no-xattrs -C "${stage}" -czf "${ARCHIVE}" .
   archive_sha="$(shasum -a 256 "${ARCHIVE}" | awk '{print $1}')"
   printf '%s  %s\n' "${archive_sha}" "${ARCHIVE##*/}" > "${ARCHIVE}.sha256"
 

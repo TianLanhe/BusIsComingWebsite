@@ -925,6 +925,8 @@ deployment_command_path() {
 verify_active_release() {
   local systemctl_command
   local curl_command
+  local local_attempt=1
+  local local_max_attempts=18
   local attempt=1
   local max_attempts=18
   local main_code
@@ -934,10 +936,26 @@ verify_active_release() {
 
   systemctl_command="$(deployment_command_path systemctl)"
   curl_command="$(deployment_command_path curl)"
+  if [[ "${TEST_MODE}" -eq 1 ]]; then
+    local_max_attempts="${BUS_DEPLOY_TEST_LOCAL_HEALTH_ATTEMPTS:-1}"
+  fi
   "${systemctl_command}" restart busiscoming-backend || return 1
-  "${systemctl_command}" is-active --quiet busiscoming-backend || return 1
-  "${curl_command}" --fail --silent --show-error --max-time 5 \
-    http://127.0.0.1:8080/healthz >/dev/null || return 1
+  while [[ "${local_attempt}" -le "${local_max_attempts}" ]]; do
+    if "${systemctl_command}" is-active --quiet busiscoming-backend &&
+      "${curl_command}" --fail --silent --show-error --max-time 5 \
+        http://127.0.0.1:8080/healthz >/dev/null; then
+      break
+    fi
+    local_attempt=$((local_attempt + 1))
+    if [[ "${local_attempt}" -le "${local_max_attempts}" &&
+      "${TEST_MODE}" -ne 1 ]]; then
+      sleep 2
+    fi
+  done
+  if [[ "${local_attempt}" -gt "${local_max_attempts}" ]]; then
+    printf 'Local backend health check failed\n' >&2
+    return 1
+  fi
 
   if [[ "${TEST_MODE}" -eq 1 ]]; then
     max_attempts=1
