@@ -270,8 +270,8 @@ cleanup_all() {
   if ! cleanup_build_root; then
     printf 'Warning: failed to clean local build directory\n' >&2
   fi
-  if declare -F cleanup_remote_temp >/dev/null 2>&1; then
-    if ! cleanup_remote_temp; then
+  if declare -F remote_cleanup >/dev/null 2>&1; then
+    if ! remote_cleanup; then
       printf 'Warning: failed to clean remote deployment directory\n' >&2
     fi
   fi
@@ -372,12 +372,29 @@ prepare_apk_artifacts() {
 validate_frontend_dist_entries() {
   local dist_root="$1"
   local entry
+  local entries_file
+  local unsupported_entry=""
+
+  entries_file="$(
+    mktemp "${TMPDIR:-/tmp}/busiscoming-dist-entries.XXXXXX"
+  )" || die "Unable to create frontend build inspection file"
+
+  if ! find "${dist_root}" -print0 > "${entries_file}"; then
+    rm -f "${entries_file}"
+    die "Unable to inspect frontend build output: ${dist_root}"
+  fi
 
   while IFS= read -r -d '' entry; do
     if [[ -L "${entry}" || (! -f "${entry}" && ! -d "${entry}") ]]; then
-      die "Frontend build output contains unsupported entry: ${entry}"
+      unsupported_entry="${entry}"
+      break
     fi
-  done < <(find "${dist_root}" -print0)
+  done < "${entries_file}"
+
+  rm -f "${entries_file}"
+  if [[ -n "${unsupported_entry}" ]]; then
+    die "Frontend build output contains unsupported entry: ${unsupported_entry}"
+  fi
 }
 
 create_release_archive() {

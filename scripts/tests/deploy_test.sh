@@ -663,7 +663,7 @@ test_cleanup_all_removes_build_root_and_runs_future_hook() {
     SKIP_TESTS=1
     run_local_build
     [ -d "${BUILD_ROOT}" ]
-    cleanup_remote_temp() {
+    remote_cleanup() {
       printf 'remote-cleaned\n' > "${temp}/remote-cleanup.log"
     }
     cleanup_all
@@ -952,6 +952,39 @@ test_release_archive_rejects_frontend_symlink() {
   rm -rf "${temp}"
 }
 
+test_frontend_validation_fails_when_find_fails() {
+  local temp
+  local output
+  local real_find
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/dist" "${temp}/bin" "${temp}/tmp"
+  printf 'content\n' > "${temp}/dist/index.html"
+  real_find="$(command -v find)"
+  cat > "${temp}/bin/find" <<'EOF'
+#!/bin/sh
+printf '%s\0' "$1"
+exit 42
+EOF
+  chmod +x "${temp}/bin/find"
+
+  if output="$(
+    (
+      export PATH="${temp}/bin:${PATH}"
+      export TMPDIR="${temp}/tmp"
+      validate_frontend_dist_entries "${temp}/dist"
+    ) 2>&1
+  )"; then
+    printf '  expected frontend validation to fail when find fails\n'
+    return 1
+  fi
+  assert_contains "${output}" "Unable to inspect frontend build output" || return 1
+  [ -z "$("${real_find}" "${temp}/tmp" -mindepth 1 -maxdepth 1 -print)" ] ||
+    return 1
+
+  rm -rf "${temp}"
+}
+
 run_test "help lists deployment commands" test_help_lists_commands
 run_test "unknown command fails clearly" test_unknown_command_fails
 run_test "logs rejects an invalid service" test_logs_rejects_invalid_service
@@ -980,5 +1013,6 @@ run_test "APK artifacts are isolated and checksummed" test_apk_artifact_preparat
 run_test "APK artifacts validate staged copies" test_apk_artifacts_validate_staged_copies
 run_test "release archive contains verified build artifacts" test_release_archive_creation
 run_test "release archive rejects frontend symlinks" test_release_archive_rejects_frontend_symlink
+run_test "frontend validation fails closed when find fails" test_frontend_validation_fails_when_find_fails
 
 exit "${FAILURES}"
