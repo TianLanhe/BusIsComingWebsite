@@ -274,6 +274,25 @@ KEEP=${keep}
 EOF
 }
 
+assert_remote_inspection_fails() {
+  local root="$1"
+  local expected="$2"
+  local command_name
+  local output
+
+  for command_name in list status; do
+    if output="$(
+      BUS_DEPLOY_TEST_MODE=1 \
+        "${REMOTE_SCRIPT}" "${command_name}" --root "${root}" 2>&1
+    )"; then
+      printf '  expected %s to reject malformed state under: %s\n' \
+        "${command_name}" "${root}"
+      return 1
+    fi
+    assert_contains "${output}" "${expected}" || return 1
+  done
+}
+
 write_apk_fixture() {
   local directory="$1"
   local metadata_name="${2:-BusIsComing.apk}"
@@ -1122,6 +1141,54 @@ test_remote_rejects_symlinked_root() {
   rm -rf "${temp}"
 }
 
+test_remote_allows_genuinely_absent_first_deploy_state() {
+  local temp
+  local missing_root
+  local output
+
+  temp="$(mktemp -d)"
+  missing_root="${temp}/missing-root"
+
+  output="$(
+    BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" list --root "${missing_root}"
+  )" || return 1
+  assert_equals "${output}" "" || return 1
+
+  output="$(
+    BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" status --root "${missing_root}"
+  )" || return 1
+  assert_contains "${output}" "current: (none)" || return 1
+  assert_contains "${output}" "previous: (none)" || return 1
+  assert_contains "${output}" "config: (absent)" || return 1
+
+  mkdir -p "${missing_root}"
+  output="$(
+    BUS_DEPLOY_TEST_MODE=1 \
+      "${REMOTE_SCRIPT}" list --root "${missing_root}"
+  )" || return 1
+  assert_equals "${output}" "" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_rejects_wrong_type_root_and_releases() {
+  local temp
+
+  temp="$(mktemp -d)"
+  printf 'not a directory\n' > "${temp}/root-file"
+  assert_remote_inspection_fails \
+    "${temp}/root-file" "Unsafe deployment root" || return 1
+
+  mkdir -p "${temp}/root"
+  printf 'not a directory\n' > "${temp}/root/releases"
+  assert_remote_inspection_fails \
+    "${temp}/root" "Managed path must be a real directory" || return 1
+
+  rm -rf "${temp}"
+}
+
 test_remote_version_and_positive_integer_validation() {
   local max_length
   local too_long
@@ -1230,17 +1297,54 @@ v2 [current]" || return 1
   assert_not_contains "${output}" "file-entry" || return 1
   assert_not_contains "${output}" "symlink-entry" || return 1
 
-  rm "${temp}/current"
-  ln -s "/tmp/releases/v2" "${temp}/current"
-  output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root "${temp}")" ||
-    return 1
-  assert_not_contains "${output}" "v2 [current]" || return 1
+  rm -rf "${temp}"
+}
 
-  rm "${temp}/current"
-  ln -s "releases/v2" "${temp}/current"
-  output="$(BUS_DEPLOY_TEST_MODE=1 "${REMOTE_SCRIPT}" list --root "${temp}")" ||
-    return 1
-  assert_not_contains "${output}" "v2 [current]" || return 1
+test_remote_rejects_malformed_current_and_previous() {
+  local temp
+  local managed_path
+  local malformed_case
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/root/releases/v1" "${temp}/external"
+  managed_path="${temp}/root/current"
+
+  for malformed_case in \
+    file \
+    directory \
+    relative_link \
+    outside_link \
+    dangling_link \
+    malformed_link; do
+    rm -rf "${managed_path}"
+    case "${malformed_case}" in
+      file)
+        printf 'not a link\n' > "${managed_path}"
+        ;;
+      directory)
+        mkdir -p "${managed_path}"
+        ;;
+      relative_link)
+        ln -s "releases/v1" "${managed_path}"
+        ;;
+      outside_link)
+        ln -s "${temp}/external" "${managed_path}"
+        ;;
+      dangling_link)
+        ln -s "${temp}/root/releases/missing" "${managed_path}"
+        ;;
+      malformed_link)
+        ln -s "${temp}/root/releases/v1/child" "${managed_path}"
+        ;;
+    esac
+    assert_remote_inspection_fails \
+      "${temp}/root" "Managed link" || return 1
+  done
+
+  rm -rf "${managed_path}"
+  printf 'not a link\n' > "${temp}/root/previous"
+  assert_remote_inspection_fails \
+    "${temp}/root" "Managed link" || return 1
 
   rm -rf "${temp}"
 }
@@ -1295,7 +1399,7 @@ test_remote_list_rejects_symlinked_releases_directory() {
     printf '  expected a symlinked releases directory to fail\n'
     return 1
   fi
-  assert_contains "${output}" "Managed path must not be a symlink" || return 1
+  assert_contains "${output}" "Managed path must be a real directory" || return 1
   assert_contains "${output}" "${temp}/root/releases" || return 1
 
   rm -rf "${temp}"
@@ -1573,8 +1677,87 @@ EOF
       printf '  expected symlinked config parent to fail: %s\n' "${parent_case}"
       return 1
     fi
-    assert_contains "${output}" "Managed path must not be a symlink" ||
+    assert_contains "${output}" "Managed path must be a real directory" ||
       return 1
+  done
+
+  rm -rf "${temp}"
+}
+
+test_remote_config_loader_rejects_wrong_type_paths() {
+  local temp
+  local output
+  local wrong_type
+
+  temp="$(mktemp -d)"
+  mkdir -p "${temp}/root"
+
+  for wrong_type in shared deploy config; do
+    rm -rf "${temp}/root/shared"
+    case "${wrong_type}" in
+      shared)
+        printf 'not a directory\n' > "${temp}/root/shared"
+        ;;
+      deploy)
+        mkdir -p "${temp}/root/shared"
+        printf 'not a directory\n' > "${temp}/root/shared/deploy"
+        ;;
+      config)
+        mkdir -p "${temp}/root/shared/deploy/config.env"
+        ;;
+    esac
+
+    if output="$(
+      BUS_DEPLOY_TEST_MODE=1 \
+        "${REMOTE_SCRIPT}" status --root "${temp}/root" 2>&1
+    )"; then
+      printf '  expected wrong-type config path to fail: %s\n' "${wrong_type}"
+      return 1
+    fi
+    case "${wrong_type}" in
+      shared|deploy)
+        assert_contains "${output}" "Managed path must be a real directory" ||
+          return 1
+        ;;
+      config)
+        assert_contains "${output}" "Invalid deployment config" || return 1
+        ;;
+    esac
+  done
+
+  rm -rf "${temp}"
+}
+
+test_remote_config_requires_www_domain_and_matching_bare_domain() {
+  local temp
+  local output
+  local config_case
+
+  temp="$(mktemp -d)"
+
+  for config_case in non_www empty_www mismatched_bare; do
+    case "${config_case}" in
+      non_www)
+        write_remote_config "${temp}" "api.busiscoming.com" "busiscoming.com"
+        ;;
+      empty_www)
+        write_remote_config "${temp}" "www." "busiscoming.com"
+        ;;
+      mismatched_bare)
+        write_remote_config \
+          "${temp}" "www.busiscoming.com" "other.example"
+        ;;
+    esac
+
+    if output="$(
+      BUS_DEPLOY_TEST_MODE=1 \
+        "${REMOTE_SCRIPT}" status --root "${temp}" 2>&1
+    )"; then
+      printf '  expected invalid domain relationship to fail: %s\n' \
+        "${config_case}"
+      return 1
+    fi
+    assert_contains "${output}" "Invalid deployment config" || return 1
   done
 
   rm -rf "${temp}"
@@ -1762,9 +1945,12 @@ run_test "release archive rejects frontend symlinks" test_release_archive_reject
 run_test "frontend validation fails closed when find fails" test_frontend_validation_fails_when_find_fails
 run_test "remote roots reject unsafe absolute paths" test_remote_root_validation
 run_test "remote rejects a symlinked deployment root" test_remote_rejects_symlinked_root
+run_test "remote allows genuinely absent first-deploy state" test_remote_allows_genuinely_absent_first_deploy_state
+run_test "remote rejects wrong-type root and releases paths" test_remote_rejects_wrong_type_root_and_releases
 run_test "remote versions and counts use strict validators" test_remote_version_and_positive_integer_validation
 run_test "remote commands enforce option allowlists and values" test_remote_argument_allowlists_and_missing_values
 run_test "remote list marks only valid absolute release links" test_remote_list_marks_only_valid_absolute_links
+run_test "remote inspections reject malformed current and previous" test_remote_rejects_malformed_current_and_previous
 run_test "remote list rejects invalid managed release targets" test_remote_list_rejects_invalid_managed_release_targets
 run_test "remote list rejects a symlinked releases directory" test_remote_list_rejects_symlinked_releases_directory
 run_test "remote logs validate services and map journal units" test_remote_logs_validates_service_and_maps_units
@@ -1774,6 +1960,8 @@ run_test "remote test mode rejects symlinked fake commands" test_remote_test_mod
 run_test "remote config parsing rejects unsafe files" test_remote_config_loader_rejects_unsafe_files
 run_test "remote config parsing rejects dangling symlinks" test_remote_config_loader_rejects_dangling_symlink
 run_test "remote config parsing rejects symlinked parent paths" test_remote_config_loader_rejects_symlinked_parent_paths
+run_test "remote config parsing rejects wrong-type paths" test_remote_config_loader_rejects_wrong_type_paths
+run_test "remote config requires www and matching bare domain" test_remote_config_requires_www_domain_and_matching_bare_domain
 run_test "remote status uses fake checks and prints configuration" test_remote_status_uses_fake_checks_and_prints_config
 run_test "remote status skips public checks without configuration" test_remote_status_skips_public_checks_without_config
 run_test "remote status fails required service and health checks" test_remote_status_fails_required_checks

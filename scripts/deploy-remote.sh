@@ -42,7 +42,9 @@ validate_root() {
       ;;
   esac
   [[ "${value}" != *//* && "${value}" != */ ]] || return 1
-  [[ ! -L "${value}" ]] || return 1
+  if [[ -e "${value}" || -L "${value}" ]]; then
+    [[ -d "${value}" && ! -L "${value}" ]] || return 1
+  fi
 
   remaining="${value#/}"
   while :; do
@@ -54,11 +56,14 @@ validate_root() {
   done
 }
 
-reject_managed_symlink() {
+validate_optional_managed_directory() {
   local path="$1"
 
-  [[ ! -L "${path}" ]] ||
-    die "Managed path must not be a symlink: ${path}"
+  if [[ ! -e "${path}" && ! -L "${path}" ]]; then
+    return 0
+  fi
+  [[ -d "${path}" && ! -L "${path}" ]] ||
+    die "Managed path must be a real directory: ${path}"
 }
 
 validate_version() {
@@ -248,14 +253,22 @@ version_from_link() {
   local target
   local version
 
-  reject_managed_symlink "${ROOT}/releases"
-  [[ -L "${link}" ]] || return 0
-  target="$(readlink "${link}")" || return 0
-  [[ "${target}" == /* ]] || return 0
+  validate_optional_managed_directory "${ROOT}/releases"
+  if [[ ! -e "${link}" && ! -L "${link}" ]]; then
+    return 0
+  fi
+  [[ -L "${link}" ]] ||
+    die "Managed link path is not a symlink: ${link}"
+  target="$(readlink "${link}")" ||
+    die "Managed link target cannot be read: ${link}"
+  [[ "${target}" == /* ]] ||
+    die "Managed link target must be absolute: ${link} -> ${target}"
 
   version="$(basename "${target}")"
-  validate_version "${version}" || return 0
-  [[ "${target}" == "${ROOT}/releases/${version}" ]] || return 0
+  validate_version "${version}" ||
+    die "Managed link target has an invalid version: ${link} -> ${target}"
+  [[ "${target}" == "${ROOT}/releases/${version}" ]] ||
+    die "Managed link target is outside the release root: ${link} -> ${target}"
   [[ -d "${target}" && ! -L "${target}" ]] ||
     die "Managed link target is not a real release directory: ${link} -> ${target}"
   printf '%s\n' "${version}"
@@ -268,7 +281,7 @@ command_list() {
   local name
   local marker
 
-  reject_managed_symlink "${ROOT}/releases"
+  validate_optional_managed_directory "${ROOT}/releases"
   current="$(version_from_link "${ROOT}/current")"
   previous="$(version_from_link "${ROOT}/previous")"
   [[ -d "${ROOT}/releases" ]] || return 0
@@ -303,8 +316,8 @@ load_config() {
   local config_bare_domain=""
   local config_keep=""
 
-  reject_managed_symlink "${shared}"
-  reject_managed_symlink "${deploy}"
+  validate_optional_managed_directory "${shared}"
+  validate_optional_managed_directory "${deploy}"
   [[ ! -L "${config}" ]] ||
     die "Invalid deployment config: Managed path must not be a symlink: ${config}"
   if [[ ! -e "${config}" && ! -L "${config}" ]]; then
@@ -375,6 +388,10 @@ load_config() {
     die "Invalid deployment config: missing DEPLOY_ROOT"
   [[ "${seen_keep}" -eq 1 ]] ||
     die "Invalid deployment config: missing KEEP"
+  [[ "${config_domain}" == www.* && -n "${config_domain#www.}" ]] ||
+    die "Invalid deployment config: DOMAIN must start with www."
+  [[ "${config_bare_domain}" == "${config_domain#www.}" ]] ||
+    die "Invalid deployment config: BARE_DOMAIN must match DOMAIN"
 
   DOMAIN="${config_domain}"
   BARE_DOMAIN="${config_bare_domain}"
