@@ -1169,6 +1169,11 @@ test_release_archive_creation() {
   printf '<!doctype html>\n' > "${temp}/repo/frontend/dist/index.html"
   printf 'asset-data\n' > "${temp}/repo/frontend/dist/assets/app.js"
   printf 'nested-data\n' > "${temp}/repo/frontend/dist/assets/nested/chunk.css"
+  if command -v xattr >/dev/null 2>&1; then
+    xattr -w com.apple.metadata:kMDItemFinderComment \
+      "deployment archive fixture" \
+      "${temp}/repo/frontend/dist/assets/app.js" >/dev/null 2>&1 || true
+  fi
   printf '#!/bin/sh\nexit 0\n' > "${temp}/build/busiscoming-server"
   chmod +x "${temp}/build/busiscoming-server"
   write_fake_git "${temp}/bin"
@@ -1193,6 +1198,11 @@ test_release_archive_creation() {
   assert_contains "${listing}" "./frontend/dist/index.html" || return 1
   assert_contains "${listing}" "./backend/busiscoming-server" || return 1
   assert_contains "${listing}" "./release-manifest.txt" || return 1
+  if grep -E '(^|/)\._' >/dev/null <<< "${listing}"; then
+    printf '  expected release archive not to contain AppleDouble metadata\n'
+    printf '  actual archive listing: %s\n' "${listing}"
+    return 1
+  fi
 
   assert_contains "$(cat "${manifest}")" "version=${version}" || return 1
   assert_contains "$(cat "${manifest}")" "branch=master" || return 1
