@@ -12,10 +12,10 @@
 
 **目的**：整理当前设计证据、视觉验收目录和 feature 入口，确保实现者不会凭口头描述实现。
 
-- [ ] T001 将 `specs/005-homepage-experience-polish/figma-plugin/README.md` 中已有的 Figma node ID 回填到 `specs/005-homepage-experience-polish/figma.md`
-- [ ] T002 创建视觉验收目录说明 `specs/005-homepage-experience-polish/visual-review/README.md`，列出 4 张必交截图、检查项和命名规则
-- [ ] T003 更新 `specs/005-homepage-experience-polish/quickstart.md`，加入当前 Figma node ID、visual-review 目录和本轮验证命令清单
-- [ ] T004 [P] 确认 `AGENTS.md` 当前 plan 指向 `specs/005-homepage-experience-polish/plan.md`
+- [X] T001 将 `specs/005-homepage-experience-polish/figma-plugin/README.md` 中已有的 Figma node ID 回填到 `specs/005-homepage-experience-polish/figma.md`
+- [X] T002 创建视觉验收目录说明 `specs/005-homepage-experience-polish/visual-review/README.md`，列出 4 张必交截图、检查项和命名规则
+- [X] T003 更新 `specs/005-homepage-experience-polish/quickstart.md`，加入当前 Figma node ID、visual-review 目录和本轮验证命令清单
+- [X] T004 [P] 确认 `AGENTS.md` 当前 plan 指向 `specs/005-homepage-experience-polish/plan.md`
 
 ---
 
@@ -23,12 +23,12 @@
 
 **目的**：完成所有用户故事共享的内容契约、类型和事实来源。此阶段完成前不能开始用户故事实现。
 
-- [ ] T005 同步首页体验内容不变量到 `shared/contracts/homepage-content.schema.json`，覆盖 3 秒轮播、无缩略图、真实 logo、联系邮箱和三语要求
-- [ ] T006 更新 UI 状态长期契约 `shared/contracts/ui-state-contract.md`，记录 cinematic phone rail、暂停状态、减少动态效果、无编号和无常驻箭头规则
-- [ ] T007 [P] 扩展内容类型 `frontend/src/content/types.ts`，加入 FeatureCarouselPage、ScreenshotGroup、BrandLogoAsset、ContactEntry、LocalizedCopyItem 和 VisualReviewEvidence 字段
-- [ ] T008 [P] 更新事实来源清单 `frontend/src/content/sourceReferences.ts`，记录 Android icon 源路径、香港文案参考来源、005 feature contracts 和 Figma 文件链接
-- [ ] T009 [P] 增加契约验证测试 `frontend/src/tests/content-contract.test.ts`，校验 `specs/005-homepage-experience-polish/contracts/homepage-experience-content.schema.json` 与共享内容配置一致
-- [ ] T010 [P] 更新截图资产契约测试 `frontend/src/tests/screenshot-assets-contract.test.ts`，校验真实截图 manifest 的 gallery、defaultImageId、alt 三语和 approved 状态
+- [X] T005 同步首页体验内容不变量到 `shared/contracts/homepage-content.schema.json`，覆盖 3 秒轮播、无缩略图、真实 logo、联系邮箱和三语要求
+- [X] T006 更新 UI 状态长期契约 `shared/contracts/ui-state-contract.md`，记录 cinematic phone rail、暂停状态、减少动态效果、无编号和无常驻箭头规则
+- [X] T007 [P] 扩展内容类型 `frontend/src/content/types.ts`，加入 FeatureCarouselPage、ScreenshotGroup、BrandLogoAsset、ContactEntry、LocalizedCopyItem 和 VisualReviewEvidence 字段
+- [X] T008 [P] 更新事实来源清单 `frontend/src/content/sourceReferences.ts`，记录 Android icon 源路径、香港文案参考来源、005 feature contracts 和 Figma 文件链接
+- [X] T009 [P] 增加契约验证测试 `frontend/src/tests/content-contract.test.ts`，校验 `specs/005-homepage-experience-polish/contracts/homepage-experience-content.schema.json` 与共享内容配置一致
+- [X] T010 [P] 更新截图资产契约测试 `frontend/src/tests/screenshot-assets-contract.test.ts`，校验真实截图 manifest 的 gallery、defaultImageId、alt 三语和 approved 状态
 
 **检查点**：共享类型、契约和事实来源稳定，可以并行推进用户故事。
 
@@ -42,20 +42,20 @@
 
 ### 用户故事 1 的测试或验证
 
-- [ ] T011 [P] [US1] 更新组件测试 `frontend/src/tests/hero-carousel.test.tsx`，覆盖 autoAdvanceMs=3000、10 秒内至少 2 次切换、无 `01/02/03/04`、无常驻箭头和无缩略图控件
-- [ ] T012 [P] [US1] 更新浏览器测试 `frontend/playwright/hero-carousel.spec.ts`，覆盖桌面拖动、手机触控滑动、hover/focus/drag/touch 暂停和语言切换后索引保持
-- [ ] T013 [P] [US1] 更新首屏浏览器测试 `frontend/playwright/homepage-hero.spec.ts`，断言 cinematic rail 在 1440px 和 390px 下不遮挡 hero 文案和主要行动入口
-- [ ] T014 [US1] 在 `specs/005-homepage-experience-polish/quickstart.md` 补充 US1 独立验证步骤和预期失败样例
+- [X] T011 [P] [US1] 更新组件测试 `frontend/src/tests/hero-carousel.test.tsx`，覆盖 autoAdvanceMs=3000、10 秒内至少 2 次切换、键盘可访问切换、读屏标签、无 `01/02/03/04`、无常驻箭头和无缩略图控件
+- [X] T012 [P] [US1] 更新浏览器测试 `frontend/playwright/hero-carousel.spec.ts`，覆盖桌面拖动、手机触控滑动、键盘切换、hover/focus/drag/touch 暂停和语言切换后索引保持
+- [X] T013 [P] [US1] 更新首屏浏览器测试 `frontend/playwright/homepage-hero.spec.ts`，断言 cinematic rail 在 1440px 和 390px 下不遮挡 hero 文案和主要行动入口
+- [X] T014 [US1] 在 `specs/005-homepage-experience-polish/quickstart.md` 补充 US1 独立验证步骤和预期失败样例
 
 ### 用户故事 1 的实现
 
-- [ ] T015 [US1] 更新轮播内容模型 `frontend/src/content/carouselSlides.ts`，按 favorite-citybus-routes、route-comparison、eta-details、predeparture-monitor 固定 4 个功能页和 gallery 规则
-- [ ] T016 [US1] 重构轮播状态机 `frontend/src/components/hero/AppPreviewCarousel.tsx`，实现自动播放、暂停/恢复、拖动/滑动阈值、减少动态效果和语言切换状态保持
-- [ ] T017 [US1] 重构轮播样式 `frontend/src/components/hero/AppPreviewCarousel.module.css`，实现单主图、左右低强调预览、300-700ms 过渡和无底部缩略图布局
-- [ ] T018 [US1] 改造截图展示组件 `frontend/src/components/hero/ScreenshotStack.tsx`，移除底部小图堆叠、胶片条、缩略图按钮组和常驻箭头逻辑
-- [ ] T019 [US1] 改造截图展示样式 `frontend/src/components/hero/ScreenshotStack.module.css`，确保单图功能页不显示相邻预览或更多截图暗示
-- [ ] T020 [US1] 更新首屏集成 `frontend/src/components/hero/HeroSection.tsx`，确保 hero 文案、轮播和 CTA 在桌面/手机布局中互不遮挡
-- [ ] T021 [US1] 在 `frontend/src/components/hero/AppPreviewCarousel.tsx` 为非显而易见的轮播状态机、手势阈值和减少动态效果边界补充中文注释
+- [X] T015 [US1] 更新轮播内容模型 `frontend/src/content/carouselSlides.ts`，按 favorite-citybus-routes、route-comparison、eta-details、predeparture-monitor 固定 4 个功能页和 gallery 规则
+- [X] T016 [US1] 重构轮播状态机 `frontend/src/components/hero/AppPreviewCarousel.tsx`，实现自动播放、暂停/恢复、拖动/滑动阈值、键盘/读屏可访问的非视觉抢占式切换控件、减少动态效果和语言切换状态保持
+- [X] T017 [US1] 重构轮播样式 `frontend/src/components/hero/AppPreviewCarousel.module.css`，实现单主图、左右低强调预览、300-700ms 过渡和无底部缩略图布局
+- [X] T018 [US1] 改造截图展示组件 `frontend/src/components/hero/ScreenshotStack.tsx`，移除底部小图堆叠、胶片条、缩略图按钮组和常驻箭头逻辑
+- [X] T019 [US1] 改造截图展示样式 `frontend/src/components/hero/ScreenshotStack.module.css`，确保单图功能页不显示相邻预览或更多截图暗示
+- [X] T020 [US1] 更新首屏集成 `frontend/src/components/hero/HeroSection.tsx`，确保 hero 文案、轮播和 CTA 在桌面/手机布局中互不遮挡
+- [X] T021 [US1] 在 `frontend/src/components/hero/AppPreviewCarousel.tsx` 为非显而易见的轮播状态机、手势阈值、键盘/读屏切换和减少动态效果边界补充中文注释
 
 **检查点**：用户故事 1 可独立运行和验收，是本功能 MVP。
 
@@ -69,19 +69,19 @@
 
 ### 用户故事 2 的测试或验证
 
-- [ ] T022 [P] [US2] 更新三语完整性测试 `frontend/src/tests/i18n-completeness.test.tsx`，覆盖 header、hero、carousel、features、online-query、download、faq、footer、status、accessibility
-- [ ] T023 [P] [US2] 更新内容回归测试 `frontend/src/tests/sections-content.test.ts`，断言 `zh-Hant` 关键短语使用香港交通语境且保留 Citybus / 城巴范围排除说明
-- [ ] T024 [P] [US2] 更新首屏内容测试 `frontend/src/tests/hero-content.test.ts`，断言轮播和 hero 三语事实一致且 `zh-Hant` 不是 `zh-Hans` 简单字形转换
-- [ ] T025 [US2] 新增繁体文案审校记录 `specs/005-homepage-experience-polish/zh-hant-copy-review.md`，列出参考来源、关键用词、范围排除和审校结论
+- [X] T022 [P] [US2] 更新三语完整性测试 `frontend/src/tests/i18n-completeness.test.tsx`，覆盖 header、hero、carousel、features、online-query、download、faq、footer、status、accessibility
+- [X] T023 [P] [US2] 更新内容回归测试 `frontend/src/tests/sections-content.test.ts`，断言 `zh-Hant` 关键短语使用香港交通语境且保留 Citybus / 城巴范围排除说明
+- [X] T024 [P] [US2] 更新首屏内容测试 `frontend/src/tests/hero-content.test.ts`，断言轮播和 hero 三语事实一致且 `zh-Hant` 不是 `zh-Hans` 简单字形转换
+- [X] T025 [US2] 新增繁体文案审校记录 `specs/005-homepage-experience-polish/zh-hant-copy-review.md`，列出参考来源、关键用词、范围排除和审校结论
 
 ### 用户故事 2 的实现
 
-- [ ] T026 [US2] 改写全局 UI 文案 `frontend/src/content/uiCopy.ts`，将支持语义改为联系语义并补齐所有按钮、状态、错误、aria 三语
-- [ ] T027 [US2] 改写首页主内容 `frontend/src/content/homepageContent.ts`，让 `zh-Hant` 使用香港实用书面语，`zh-Hans` 和 `en` 保持同一产品事实
-- [ ] T028 [US2] 改写轮播文案 `frontend/src/content/carouselSlides.ts`，覆盖 4 个功能页标题、说明、alt 和范围边界
-- [ ] T029 [US2] 改写功能、下载、FAQ 与页脚内容 `frontend/src/content/sectionsContent.ts`，明确当前聚焦 Citybus / 城巴且不支持九巴、港铁、铁路、渡轮或完整路线规划
-- [ ] T030 [US2] 改写在线查询示例和状态文案 `frontend/src/content/onlineQueryDemo.ts`，使用香港交通语境并保留既有降级事实
-- [ ] T031 [US2] 更新文案来源映射 `frontend/src/content/sourceReferences.ts`，把 Citybus、HKeMobility、Transport Department、GovHK 仅标记为措辞参考而非功能事实来源
+- [X] T026 [US2] 改写全局 UI 文案 `frontend/src/content/uiCopy.ts`，将支持语义改为联系语义并补齐所有按钮、状态、错误、aria 三语
+- [X] T027 [US2] 改写首页主内容 `frontend/src/content/homepageContent.ts`，让 `zh-Hant` 使用香港实用书面语，`zh-Hans` 和 `en` 保持同一产品事实
+- [X] T028 [US2] 改写轮播文案 `frontend/src/content/carouselSlides.ts`，覆盖 4 个功能页标题、说明、alt 和范围边界
+- [X] T029 [US2] 改写功能、下载、FAQ 与页脚内容 `frontend/src/content/sectionsContent.ts`，明确当前聚焦 Citybus / 城巴且不支持九巴、港铁、铁路、渡轮或完整路线规划
+- [X] T030 [US2] 改写在线查询示例和状态文案 `frontend/src/content/onlineQueryDemo.ts`，使用香港交通语境并保留既有降级事实
+- [X] T031 [US2] 更新文案来源映射 `frontend/src/content/sourceReferences.ts`，把 Citybus、HKeMobility、Transport Department、GovHK 仅标记为措辞参考而非功能事实来源
 
 **检查点**：用户故事 2 可独立切换三语并通过内容测试。
 
@@ -95,20 +95,20 @@
 
 ### 用户故事 3 的测试或验证
 
-- [ ] T032 [P] [US3] 更新品牌与联系内容测试 `frontend/src/tests/sections-content.test.ts`，断言三语联系标签、`mailto:hezhenyu966@gmail.com` 和旧邮箱清除
-- [ ] T033 [P] [US3] 更新首屏与页脚浏览器测试 `frontend/playwright/homepage-sections.spec.ts`，断言 header/footer 显示真实 logo 图像且联系入口可点击
-- [ ] T034 [P] [US3] 更新首页浏览器测试 `frontend/playwright/homepage-hero.spec.ts`，断言 favicon、header logo、语言切换和联系入口在 1440px/390px 下无重叠
+- [X] T032 [P] [US3] 更新品牌与联系内容测试 `frontend/src/tests/sections-content.test.ts`，断言三语联系标签、`mailto:hezhenyu966@gmail.com` 和旧邮箱清除
+- [X] T033 [P] [US3] 更新首屏与页脚浏览器测试 `frontend/playwright/homepage-sections.spec.ts`，断言 header/footer 显示真实 logo 图像且联系入口可点击
+- [X] T034 [P] [US3] 更新首页浏览器测试 `frontend/playwright/homepage-hero.spec.ts`，断言 favicon、header logo、语言切换和联系入口在 1440px/390px 下无重叠
 
 ### 用户故事 3 的实现
 
-- [ ] T035 [US3] 从 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png` 导出透明巴士主体到 `frontend/src/assets/brand/busiscoming-logo-foreground.png`
-- [ ] T036 [US3] 基于同源前景图更新 favicon 资产 `frontend/public/favicon.webp`，不得恢复 launcher 背景底板
-- [ ] T037 [US3] 更新品牌资产说明 `frontend/src/assets/brand/README.md`，记录 Android 源路径、裁切规则、透明背景和 header/footer/favicon 使用范围
-- [ ] T038 [US3] 更新 header 组件 `frontend/src/components/sections/Header.tsx`，使用真实 logo 图像并显示三语“联系我们 / Contact Us”入口
-- [ ] T039 [US3] 更新 header 样式 `frontend/src/components/sections/Header.module.css`，保证 logo、品牌名、语言切换和联系入口在桌面/手机不重叠
-- [ ] T040 [US3] 更新 footer 组件 `frontend/src/components/sections/FooterContact.tsx`，使用同一 logo 口径、真实邮箱和 `mailto:hezhenyu966@gmail.com`
-- [ ] T041 [US3] 更新 footer 样式 `frontend/src/components/sections/FooterContact.module.css`，保证联系信息在 390px 和 1440px 下清晰可点
-- [ ] T042 [US3] 更新 favicon 引用 `frontend/index.html`，确保页面使用 `frontend/public/favicon.webp`
+- [X] T035 [US3] 从 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png` 导出透明巴士主体到 `frontend/src/assets/brand/busiscoming-logo-foreground.png`
+- [X] T036 [US3] 基于同源前景图更新 favicon 资产 `frontend/public/favicon.webp`，不得恢复 launcher 背景底板
+- [X] T037 [US3] 更新品牌资产说明 `frontend/src/assets/brand/README.md`，记录 Android 源路径、裁切规则、透明背景和 header/footer/favicon 使用范围
+- [X] T038 [US3] 更新 header 组件 `frontend/src/components/sections/Header.tsx`，使用真实 logo 图像并显示三语“联系我们 / Contact Us”入口
+- [X] T039 [US3] 更新 header 样式 `frontend/src/components/sections/Header.module.css`，保证 logo、品牌名、语言切换和联系入口在桌面/手机不重叠
+- [X] T040 [US3] 更新 footer 组件 `frontend/src/components/sections/FooterContact.tsx`，使用同一 logo 口径、真实邮箱和 `mailto:hezhenyu966@gmail.com`
+- [X] T041 [US3] 更新 footer 样式 `frontend/src/components/sections/FooterContact.module.css`，保证联系信息在 390px 和 1440px 下清晰可点
+- [X] T042 [US3] 更新 favicon 引用 `frontend/index.html`，确保页面使用 `frontend/public/favicon.webp`
 
 **检查点**：用户故事 3 可独立验收品牌和联系入口。
 
@@ -122,18 +122,18 @@
 
 ### 用户故事 4 的测试或验证
 
-- [ ] T043 [P] [US4] 新增视觉回归浏览器测试 `frontend/playwright/homepage-experience-polish.spec.ts`，保存桌面和手机轮播、品牌联系截图到 `specs/005-homepage-experience-polish/visual-review/`
-- [ ] T044 [P] [US4] 新增全站旧内容清除测试 `frontend/src/tests/homepage-experience-regression.test.ts`，搜索 `feedback@busiscoming.local`、旧支持语义、`01/02/03/04` 和缩略图控件线索
-- [ ] T045 [US4] 更新 Playwright 配置 `frontend/playwright.config.ts`，确保 1440px 桌面和 390px 手机项目可稳定生成本 feature 截图
+- [X] T043 [P] [US4] 新增视觉回归浏览器测试 `frontend/playwright/homepage-experience-polish.spec.ts`，保存桌面和手机轮播、品牌联系截图到 `specs/005-homepage-experience-polish/visual-review/`
+- [X] T044 [P] [US4] 新增全站旧内容清除测试 `frontend/src/tests/homepage-experience-regression.test.ts`，搜索 `feedback@busiscoming.local`、旧支持语义、`01/02/03/04` 和缩略图控件线索
+- [X] T045 [US4] 更新 Playwright 配置 `frontend/playwright.config.ts`，确保 1440px 桌面和 390px 手机项目可稳定生成本 feature 截图
 
 ### 用户故事 4 的实现
 
-- [ ] T046 [US4] 生成桌面轮播截图 `specs/005-homepage-experience-polish/visual-review/desktop-1440-carousel-rail.png`
-- [ ] T047 [US4] 生成手机轮播截图 `specs/005-homepage-experience-polish/visual-review/mobile-390-carousel-rail.png`
-- [ ] T048 [US4] 生成桌面品牌联系截图 `specs/005-homepage-experience-polish/visual-review/desktop-1440-brand-contact.png`
-- [ ] T049 [US4] 生成手机品牌联系截图 `specs/005-homepage-experience-polish/visual-review/mobile-390-brand-contact.png`
-- [ ] T050 [US4] 在 `specs/005-homepage-experience-polish/visual-review/README.md` 记录 4 张截图的验收结论、无重叠结论和剩余风险
-- [ ] T051 [US4] 更新 `specs/005-homepage-experience-polish/quickstart.md`，记录最终验证命令、截图路径、Figma 节点和服务端 API 未漂移结论
+- [X] T046 [US4] 生成桌面轮播截图 `specs/005-homepage-experience-polish/visual-review/desktop-1440-carousel-rail.png`
+- [X] T047 [US4] 生成手机轮播截图 `specs/005-homepage-experience-polish/visual-review/mobile-390-carousel-rail.png`
+- [X] T048 [US4] 生成桌面品牌联系截图 `specs/005-homepage-experience-polish/visual-review/desktop-1440-brand-contact.png`
+- [X] T049 [US4] 生成手机品牌联系截图 `specs/005-homepage-experience-polish/visual-review/mobile-390-brand-contact.png`
+- [X] T050 [US4] 在 `specs/005-homepage-experience-polish/visual-review/README.md` 记录 4 张截图的验收结论、无重叠结论和剩余风险
+- [X] T051 [US4] 更新 `specs/005-homepage-experience-polish/quickstart.md`，记录最终验证命令、截图路径、Figma 节点和服务端 API 未漂移结论
 
 **检查点**：全部用户故事均可通过自动化和视觉证据独立验收。
 
@@ -143,14 +143,14 @@
 
 **目的**：处理影响多个用户故事的质量、文档、性能和回归验证。
 
-- [ ] T052 [P] 运行并修复前端静态测试，命令记录在 `specs/005-homepage-experience-polish/quickstart.md`
-- [ ] T053 [P] 运行并修复前端构建，命令记录在 `specs/005-homepage-experience-polish/quickstart.md`
-- [ ] T054 [P] 运行并修复浏览器端到端测试，命令记录在 `specs/005-homepage-experience-polish/quickstart.md`
-- [ ] T055 确认新增 logo 资产体积、透明度和小尺寸清晰度，结果记录在 `frontend/src/assets/brand/README.md`
-- [ ] T056 确认 `backend/`、`shared/contracts/openapi/download-api.openapi.yaml` 和 `shared/contracts/openapi/route-query-api.openapi.yaml` 未因本功能发生服务端 API 漂移
-- [ ] T057 搜索并清理用户可见旧内容，检查范围为 `frontend/src/`、`frontend/playwright/` 和 `specs/005-homepage-experience-polish/visual-review/README.md`
-- [ ] T058 确认复杂轮播状态、手势阈值、logo 来源和文案审校边界已有必要中文注释，检查范围为 `frontend/src/components/hero/AppPreviewCarousel.tsx` 和 `frontend/src/content/sourceReferences.ts`
-- [ ] T059 更新最终实施记录 `specs/005-homepage-experience-polish/quickstart.md`，包含测试结果、截图结果、未修改后端 API 和剩余风险
+- [X] T052 [P] 运行并修复前端静态测试，命令记录在 `specs/005-homepage-experience-polish/quickstart.md`
+- [X] T053 [P] 运行并修复前端构建，命令记录在 `specs/005-homepage-experience-polish/quickstart.md`
+- [X] T054 [P] 运行并修复浏览器端到端测试，命令记录在 `specs/005-homepage-experience-polish/quickstart.md`
+- [X] T055 确认新增 logo 资产体积、透明度和小尺寸清晰度，结果记录在 `frontend/src/assets/brand/README.md`
+- [X] T056 确认 `backend/`、`shared/contracts/openapi/download-api.openapi.yaml` 和 `shared/contracts/openapi/route-query-api.openapi.yaml` 未因本功能发生服务端 API 漂移
+- [X] T057 搜索并清理用户可见旧内容，检查范围为 `frontend/src/`、`frontend/playwright/` 和 `specs/005-homepage-experience-polish/visual-review/README.md`
+- [X] T058 确认复杂轮播状态、手势阈值、logo 来源和文案审校边界已有必要中文注释，检查范围为 `frontend/src/components/hero/AppPreviewCarousel.tsx` 和 `frontend/src/content/sourceReferences.ts`
+- [X] T059 更新最终实施记录 `specs/005-homepage-experience-polish/quickstart.md`，包含测试结果、截图结果、未修改后端 API 和剩余风险
 
 ---
 

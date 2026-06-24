@@ -2,7 +2,7 @@
 
 ## 状态
 
-当前会话没有可调用的 Figma MCP 写入工具，因此本阶段未直接写入 Figma 文件，也不伪造 node ID。本目录提供本地 Figma 插件，后续任务必须导入插件生成节点并回填实际 node ID。
+当前会话没有可调用的 Figma MCP 写入工具，因此本阶段通过本地 Figma 插件生成节点。插件运行报告已回填；后续实现以这些节点作为视觉和交互参考。
 
 ## 目标文件
 
@@ -20,6 +20,16 @@
 | `Brand Contact States` | Header/footer logo、`聯絡我們 / 联系我们 / Contact Us`、真实邮箱 |
 | `Spec Notes` | 禁止形态、文案策略、验收截图说明 |
 
+## 已回填节点
+
+| 节点名称 | Node ID |
+|----------|---------|
+| `Desktop 1440 / Cinematic Rail` | `29:3` |
+| `Mobile 390 / Swipe Rail` | `29:44` |
+| `Carousel States / No Thumbnail Stack` | `29:83` |
+| `Brand Contact States` | `29:101` |
+| `Spec Notes` | `29:108` |
+
 ## 本地插件
 
 插件目录：`specs/005-homepage-experience-polish/figma-plugin/`
@@ -35,4 +45,5 @@
 
 ## 版本说明
 
-- `2026-06-24`: 计划阶段生成本地插件设计源；等待后续导入 Figma 并回填实际节点 ID。
+- `2026-06-24`: 计划阶段生成本地插件设计源。
+- `2026-06-25`: 已从插件运行报告回填实际 node ID。

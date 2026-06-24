@@ -23,10 +23,16 @@ test("downstream sections appear in the confirmed order with required scope info
   expect(boxes[3]!.y).toBeLessThan(boxes[4]!.y);
 
   await expect(online.getByText(/完整出行規劃|full trip planning/)).toBeVisible();
-  await expect(online.getByText(/九巴、港鐵、鐵路或渡輪|KMB, MTR, rail, or ferry/)).toBeVisible();
+  await expect(online.getByText(/九巴、港鐵、鐵路、渡輪|KMB, MTR, rail, ferry/)).toBeVisible();
+  await expect(page.getByRole("link", { name: /聯絡我們|Contact Us/ })).toBeVisible();
+  await expect(contact.locator("img").first()).toHaveAttribute("src", /busiscoming-logo-foreground/);
+  await expect(contact.getByRole("link", { name: /hezhenyu966@gmail.com/ })).toHaveAttribute(
+    "href",
+    "mailto:hezhenyu966@gmail.com",
+  );
 
   await page.screenshot({
-    path: `../specs/003-homepage-ui-optimization/visual-review/${testInfo.project.name}-sections-v2.png`,
+    path: `../specs/005-homepage-experience-polish/visual-review/${testInfo.project.name}-sections.png`,
     fullPage: true,
   });
 });

@@ -22,6 +22,7 @@
         "visualMode",
         "supportsSwipe",
         "supportsDesktopDrag",
+        "supportsKeyboardSwitching",
         "showsNumericLabels",
         "usesThumbnailStack",
         "usesPersistentArrows"
@@ -42,6 +43,7 @@
         "visualMode": { "const": "cinematic-phone-rail" },
         "supportsSwipe": { "const": true },
         "supportsDesktopDrag": { "const": true },
+        "supportsKeyboardSwitching": { "const": true },
         "showsNumericLabels": { "const": false },
         "usesThumbnailStack": { "const": false },
         "usesPersistentArrows": { "const": false }
@@ -50,11 +52,15 @@
     },
     "brandLogo": {
       "type": "object",
-      "required": ["sourcePath", "backgroundRemoved", "transparent", "usesLauncherPlate", "placements"],
+      "required": ["sourcePath", "outputPath", "backgroundRemoved", "transparent", "usesLauncherPlate", "placements"],
       "properties": {
         "sourcePath": {
           "type": "string",
           "pattern": "app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground\\.png$"
+        },
+        "outputPath": {
+          "type": "string",
+          "pattern": "^frontend/src/assets/brand/.+\\.(png|webp)$"
         },
         "backgroundRemoved": { "const": true },
         "transparent": { "const": true },

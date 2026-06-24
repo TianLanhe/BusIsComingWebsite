@@ -1,10 +1,9 @@
-import { act, fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppPreviewCarousel } from "../components/hero/AppPreviewCarousel";
 import { LanguageSwitcher } from "../components/i18n/LanguageSwitcher";
 import { I18nProvider } from "../components/i18n/I18nProvider";
 import { carouselSlides } from "../content/carouselSlides";
-import { render } from "@testing-library/react";
 
 describe("AppPreviewCarousel", () => {
   beforeEach(() => {
@@ -28,7 +27,7 @@ describe("AppPreviewCarousel", () => {
     expect(carouselSlides.every((slide) => slide.gallery.images.every((image) => image.desensitizationStatus === "approved"))).toBe(true);
   });
 
-  it("auto-rotates the four feature items without left or right arrow buttons", () => {
+  it("auto-rotates the four feature items every three seconds without visible arrow controls", () => {
     render(
       <I18nProvider>
         <LanguageSwitcher label="Language" />
@@ -36,15 +35,41 @@ describe("AppPreviewCarousel", () => {
       </I18nProvider>,
     );
 
-    expect(screen.queryByLabelText("Next slide")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Previous slide")).not.toBeInTheDocument();
+    expect(screen.queryByText("01")).not.toBeInTheDocument();
+    expect(screen.queryByText("02")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("screenshot-stack-thumbnails")).not.toBeInTheDocument();
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
 
     act(() => {
-      vi.advanceTimersByTime(4_600);
+      vi.advanceTimersByTime(3_100);
     });
 
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
+
+    act(() => {
+      vi.advanceTimersByTime(6_100);
+    });
+
+    expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "predeparture-monitor");
+  });
+
+  it("supports keyboard and screen-reader switching without persistent visual arrows", () => {
+    render(
+      <I18nProvider>
+        <LanguageSwitcher label="Language" />
+        <AppPreviewCarousel />
+      </I18nProvider>,
+    );
+
+    const carousel = screen.getByTestId("feature-showcase");
+    expect(screen.getByRole("button", { name: "Next feature" })).toHaveAttribute("data-testid", "carousel-next-feature");
+    expect(screen.getByRole("button", { name: "Previous feature" })).toHaveAttribute("data-testid", "carousel-previous-feature");
+
+    fireEvent.keyDown(carousel, { key: "ArrowRight" });
+    expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
+
+    fireEvent.keyDown(carousel, { key: "ArrowLeft" });
+    expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
   });
 
   it("pauses automatic feature rotation during user interaction and keeps state after language switching", () => {
@@ -65,12 +90,12 @@ describe("AppPreviewCarousel", () => {
 
     fireEvent.pointerLeave(screen.getByTestId("feature-showcase"));
     act(() => {
-      vi.advanceTimersByTime(4_600);
+      vi.advanceTimersByTime(3_100);
     });
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
 
     fireEvent.click(screen.getByTitle("English"));
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
-    expect(screen.getByText("Compare total fare, time, and walking distance")).toBeInTheDocument();
+    expect(within(screen.getByTestId("active-slide")).getByText("Compare total fare, time, and walking distance")).toBeInTheDocument();
   });
 });

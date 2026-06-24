@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import downloadManifestSchema from "../../../shared/contracts/download-manifest.schema.json";
 import homepageContentSchema from "../../../shared/contracts/homepage-content.schema.json";
 import homepageContentV2Schema from "../../../specs/003-homepage-ui-optimization/contracts/homepage-content-v2.schema.json";
+import homepageExperiencePolishSchema from "../../../specs/005-homepage-experience-polish/contracts/homepage-experience-content.schema.json";
 import { downloadManifest } from "../content/downloadManifest";
 import { homepageContent } from "../content/homepageContent";
 import { onlineQueryDemo } from "../content/onlineQueryDemo";
@@ -35,7 +36,11 @@ describe("content contracts", () => {
       kind: action.kind,
     });
     const homepageV2 = {
-      metadata: homepageContent.metadata,
+      metadata: {
+        ...homepageContent.metadata,
+        version: "2026-06-16.homepage-v2",
+        lastUpdated: "2026-06-16",
+      },
       hero: {
         headline: homepageContent.hero.headline,
         subheading: homepageContent.hero.subheading,
@@ -79,6 +84,17 @@ describe("content contracts", () => {
     };
 
     expect(validate(homepageV2), JSON.stringify(validate.errors, null, 2)).toBe(true);
+  });
+
+  it("validates homepage experience polish invariants against the feature contract", () => {
+    const validate = ajv.compile(homepageExperiencePolishSchema);
+
+    expect(validate(homepageContent.homepageExperience), JSON.stringify(validate.errors, null, 2)).toBe(true);
+    expect(homepageContent.homepageExperience.carousel.autoAdvanceMs).toBe(3000);
+    expect(homepageContent.homepageExperience.carousel.usesThumbnailStack).toBe(false);
+    expect(homepageContent.homepageExperience.carousel.usesPersistentArrows).toBe(false);
+    expect(homepageContent.homepageExperience.carousel.supportsKeyboardSwitching).toBe(true);
+    expect(homepageContent.homepageExperience.contact.email).toBe("hezhenyu966@gmail.com");
   });
 
   it("validates download manifest against the shared contract", () => {

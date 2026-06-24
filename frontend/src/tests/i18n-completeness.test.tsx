@@ -50,5 +50,7 @@ describe("i18n completeness", () => {
 
     expect(homepageContent.hero.headline["zh-Hant"]).toContain("城巴");
     expect(homepageContent.featureShowcase[0].description["zh-Hant"]).toContain("城巴");
+    expect(homepageContent.featureShowcase[2].title["zh-Hant"]).toContain("抵站時間");
+    expect(homepageContent.onlineQueryDemo.scopeNotice["zh-Hant"]).toContain("港鐵");
   });
 });
