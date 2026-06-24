@@ -1,37 +1,37 @@
-# Specification Quality Checklist: 首页体验精修
+# 规格质量检查清单：首页体验精修
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-06-24
-**Feature**: [spec.md](../spec.md)
+**目的**：在进入计划阶段前验证规格完整性和质量
+**创建日期**：2026-06-24
+**功能规格**：[spec.md](../spec.md)
 
-## Content Quality
+## 内容质量
 
-- [x] No implementation details (languages, frameworks, APIs)
-- [x] Focused on user value and business needs
-- [x] Written for non-technical stakeholders
-- [x] All mandatory sections completed
+- [x] 不包含实现细节（语言、框架、API）
+- [x] 聚焦用户价值和业务需求
+- [x] 面向非技术干系人可读
+- [x] 所有必填章节均已完成
 
-## Requirement Completeness
+## 需求完整性
 
-- [x] No [NEEDS CLARIFICATION] markers remain
-- [x] Requirements are testable and unambiguous
-- [x] Success criteria are measurable
-- [x] Success criteria are technology-agnostic (no implementation details)
-- [x] All acceptance scenarios are defined
-- [x] Edge cases are identified
-- [x] Scope is clearly bounded
-- [x] Dependencies and assumptions identified
+- [x] 不存在未解决的澄清标记
+- [x] 需求可测试且无歧义
+- [x] 成功标准可衡量
+- [x] 成功标准不依赖具体技术实现
+- [x] 所有验收场景均已定义
+- [x] 边界情况均已识别
+- [x] 范围边界清晰
+- [x] 依赖和假设均已说明
 
-## Feature Readiness
+## 功能就绪度
 
-- [x] All functional requirements have clear acceptance criteria
-- [x] User scenarios cover primary flows
-- [x] Feature meets measurable outcomes defined in Success Criteria
-- [x] No implementation details leak into specification
+- [x] 所有功能需求都有清晰验收标准
+- [x] 用户场景覆盖主要流程
+- [x] 功能满足成功标准定义的可衡量结果
+- [x] 规格中没有泄露实现细节
 
-## Notes
+## 备注
 
-- Validation pass 1: all checklist items pass.
-- The spec intentionally records logo source paths because the user explicitly required the website logo to come from the Android App project and to crop out the launcher background.
-- The spec intentionally states OpenAPI and service-side DDD as N/A because this feature does not change service-side HTTP API behavior.
-- The feature is ready for `/speckit-plan`; planning must create or update Figma nodes before implementation.
+- 第 1 轮验证：全部检查项通过。
+- 规格有意记录 logo 来源路径，因为用户明确要求网站 logo 来自 Android App 项目，并裁掉 launcher 背景。
+- 规格有意将 OpenAPI 和服务端 DDD 标为 N/A，因为本功能不改变服务端 HTTP API 行为。
+- 功能已准备进入 `/speckit-plan`；实现前必须创建或更新 Figma 节点。
