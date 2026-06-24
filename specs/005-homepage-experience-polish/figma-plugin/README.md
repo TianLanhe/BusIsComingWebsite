@@ -12,10 +12,12 @@
 
 ## 生成内容
 
-- Desktop 1440 / Cinematic Rail
-- Mobile 390 / Swipe Rail
-- Carousel States / No Thumbnail Stack
-- Brand Contact States
-- Spec Notes
+Figma file: https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec
+Page: Homepage Experience Polish - 005
+- Desktop 1440 / Cinematic Rail: 29:3
+- Mobile 390 / Swipe Rail: 29:44
+- Carousel States / No Thumbnail Stack: 29:83
+- Brand Contact States: 29:101
+- Spec Notes: 29:108
 
 插件是计划阶段 Figma MCP 不可用时的 fallback；运行后仍需要人工检查视觉效果。
