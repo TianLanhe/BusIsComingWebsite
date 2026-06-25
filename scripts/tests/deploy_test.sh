@@ -638,6 +638,17 @@ test_environment_defaults_and_cli_overrides() {
       ' _ "${DEPLOY_SCRIPT}"
   )"
   assert_equals "${overrides}" "198.51.100.20|www.cli.example|7|direct"
+
+  if output="$(
+    bash -c '
+      source "$1"
+      parse_args deploy --health-mode origin
+    ' _ "${DEPLOY_SCRIPT}" 2>&1
+  )"; then
+    printf '  expected deploy to reject --health-mode\n'
+    return 1
+  fi
+  assert_contains "${output}" "Unknown option: --health-mode" || return 1
 }
 
 test_require_command_uses_path() {
@@ -2777,6 +2788,7 @@ test_local_deploy_uploads_artifacts_and_invokes_remote_deploy() {
   assert_contains "${log}" "scp|${temp}/release-v1.tar.gz ${temp}/release-v1.tar.gz.sha256 root@192.0.2.10:/tmp/busiscoming-deploy-" || return 1
   assert_contains "${log}" "scp|${temp}/apk/BusIsComing.apk ${temp}/apk/current.json" || return 1
   assert_contains "${log}" "deploy-remote.sh deploy --root /opt/busiscoming --domain www.busiscoming.com --bare-domain busiscoming.com --keep 3 --version v1" || return 1
+  assert_not_contains "${log}" "--health-mode" || return 1
   assert_contains "${log}" "--archive /tmp/busiscoming-deploy-" || return 1
   assert_contains "${log}" "--archive-sha /tmp/busiscoming-deploy-" || return 1
   assert_contains "${log}" "--apk-dir /tmp/busiscoming-deploy-" || return 1
