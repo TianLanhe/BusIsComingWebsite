@@ -1,0 +1,4 @@
+interface:
+  display_name: "BusIsComing Website Deploy"
+  short_description: "Deploy and debug this website safely"
+  default_prompt: "Use $busiscoming-website-deploy to deploy the BusIsComing website and verify production health."

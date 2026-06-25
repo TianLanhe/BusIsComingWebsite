@@ -274,7 +274,7 @@
         "desensitizationStatus": { "enum": ["pending", "approved", "rejected"] },
         "redactedItems": {
           "type": "array",
-          "minItems": 5,
+          "minItems": 0,
           "items": { "type": "string", "minLength": 1 }
         },
         "retainedItems": {

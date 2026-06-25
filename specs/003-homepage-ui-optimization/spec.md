@@ -103,7 +103,7 @@
 
 ## 宪法对齐（必填）
 
-- **产品来源**：Android 主项目 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/AGENTS.md`、`README.md`；真实截图来源为本仓库 `app真实截图/`；当前下载事实来源为 `specs/002-android-apk-download/spec.md` 和现有下载 manifest。
+- **产品来源**：Android 主项目 `/Users/jianglijie/AndroidStudioProjects/BusIsComming/AGENTS.md`、`README.md`；真实截图资产来源为本仓库 `frontend/src/assets/app-screenshots/real/`；当前下载事实来源为 `specs/002-android-apk-download/spec.md` 和现有下载 manifest。
 - **产品范围**：本功能服务软件功能介绍、试用城巴查询理解和下载 App 三个核心范围，同时优化反馈前的可信展示体验。
 - **排除范围**：不提供完整出行路线规划；不提供九巴、港铁、铁路、渡轮或其他非城巴交通工具查询；不新增 iPhone 下载；不新增历史 APK 版本选择。
 - **前后端边界**：前端负责首页 UI、轮播、截图图集、三语文案、下载入口展示和双端体验；后端继续负责既有 Android APK 下载服务。本轮不改变下载 API 路径和后端下载业务逻辑。
@@ -178,7 +178,7 @@
 ## 假设
 
 - 当前 Android App 的真实能力以 Android 主项目 `AGENTS.md` 和 `README.md` 为准。
-- `app真实截图/` 下按 4 个目录分组的截图对应 4 个核心功能点，文件名或序号为 `1` 的图片作为该组默认主图。
+- `frontend/src/assets/app-screenshots/real/` 下的截图按 4 个功能分组映射到 4 个核心功能点，主图由 manifest 的 `isDefault` 标记确认。
 - 路线比较功能点当前只有 1 张截图，因此不显示堆叠切换目标。
 - 本轮可以先复用现有 Figma 文件链接，但计划阶段必须新增或更新 v2 节点并记录具体节点。
 - 本轮不修改下载 API 路径和下载后端业务语义。

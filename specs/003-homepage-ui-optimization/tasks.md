@@ -116,7 +116,7 @@
 
 - [X] T037 [US3] 在 `/Users/jianglijie/Documents/BusIsCommingWebsite/frontend/scripts/sanitize-homepage-screenshots.mjs` 创建截图脱敏脚本，按 manifest 标注模糊地点、路线和手机无关内容并保留价格、时间、ETA
 - [X] T038 [US3] 在 `/Users/jianglijie/Documents/BusIsCommingWebsite/frontend/package.json` 增加 `sanitize:screenshots` 脚本和必要的本地图片处理依赖
-- [X] T039 [US3] 在 `/Users/jianglijie/Documents/BusIsCommingWebsite/frontend/src/assets/app-screenshots/real/manifest.json` 为 `/Users/jianglijie/Documents/BusIsCommingWebsite/app真实截图` 的截图建立 4 个功能点分组、主图序号和脱敏区域元数据
+- [X] T039 [US3] 在 `/Users/jianglijie/Documents/BusIsCommingWebsite/frontend/src/assets/app-screenshots/real/manifest.json` 为项目内截图资产建立 4 个功能点分组、主图序号和脱敏区域元数据
 - [X] T040 [US3] 在 `/Users/jianglijie/Documents/BusIsCommingWebsite/frontend/src/assets/app-screenshots/real/` 生成并提交脱敏后的 WebP/PNG 展示资产，禁止提交未脱敏原图
 - [X] T041 [US3] 在 `/Users/jianglijie/Documents/BusIsCommingWebsite/frontend/src/content/carouselSlides.ts` 将 4 个功能点绑定到脱敏截图 manifest，并确保每组序号 1 作为默认主图
 - [X] T042 [US3] 在 `/Users/jianglijie/Documents/BusIsCommingWebsite/frontend/src/components/hero/ScreenshotStack.tsx` 创建手动截图堆叠组件，支持主图、缩略图、键盘切换和 aria 当前项

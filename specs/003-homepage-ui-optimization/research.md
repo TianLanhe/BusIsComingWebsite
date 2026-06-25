@@ -12,7 +12,7 @@
 
 ## 决策 2：原始截图不进入前端，使用脱敏副本和 manifest
 
-**Decision**：将 `app真实截图/` 仅视为原始输入；实施阶段生成脱敏副本到 `frontend/src/assets/app-screenshots/real/`，并维护截图资产 manifest。manifest 记录原始分组、主图、输出路径、脱敏方式、可展示状态和保留数值说明。
+**Decision**：截图资产统一进入 `frontend/src/assets/app-screenshots/real/`；实施阶段生成可展示副本并维护截图资产 manifest。manifest 记录功能分组、主图、项目内路径、脱敏方式、可展示状态和保留数值说明。
 
 **Rationale**：用户要求使用真实截图，同时要求替换真实地点、巴士路线等真实信息，并模糊手机无关内容；又明确价格、时间和 ETA 不需要替换。manifest 能把这类例外沉淀为可审查资产契约，避免实现阶段靠口头记忆。
 

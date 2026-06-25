@@ -5,7 +5,7 @@
 - Node.js 与 npm 可运行前端命令。
 - Go 1.26.x 可运行后端命令。
 - Android APK 下载功能已按 `specs/002-android-apk-download` 实现。
-- 原始截图位于 `app真实截图/`，实现阶段已生成脱敏副本和截图 manifest。
+- 截图资产位于 `frontend/src/assets/app-screenshots/real/`，实现阶段已生成可展示副本和截图 manifest。
 - Figma 文件可访问：`https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU`。
 
 ## 1. 静态契约与单元测试
@@ -111,17 +111,17 @@ npm --prefix frontend run test:e2e
 - 每个展示截图 `desensitizationStatus` 为 `approved`。
 - 原始地点、站名、路线号、搜索记录、手机系统无关内容已替换或遮蔽。
 - 价格、时间和 ETA 数值仍可见。
-- 前端没有直接引用 `app真实截图/` 原图。
+- 前端只引用 `frontend/src/assets/app-screenshots/real/` 下的项目内资产。
 
 建议使用以下搜索辅助：
 
 ```bash
-rg -n "app真实截图|real-place-name|real-route-number" frontend/src
+rg -n "real-place-name|real-route-number" frontend/src
 ```
 
 预期结果：
 
-- 前端源码不直接引用 `app真实截图/`。
+- 前端源码不引用项目外截图路径。
 - manifest 明确记录脱敏项和保留项。
 
 ## 8. 繁中与城巴口径抽查

@@ -14,7 +14,7 @@ describe("feature screenshot gallery", () => {
   it("shows the default image first and lets the user drag to the adjacent rail image", () => {
     renderWithI18n(<AppPreviewCarousel />);
 
-    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "favorite-citybus-routes-1");
+    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
     expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-visual-mode", "cinematic-phone-rail");
     expect(screen.getAllByTestId("screenshot-rail-preview")).toHaveLength(1);
     expect(screen.queryByTestId("screenshot-stack-thumbnails")).not.toBeInTheDocument();
@@ -22,14 +22,29 @@ describe("feature screenshot gallery", () => {
     fireEvent(screen.getByTestId("feature-showcase"), dragEvent("pointerdown", 240));
     fireEvent(screen.getByTestId("feature-showcase"), dragEvent("pointerup", 120));
 
-    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "favorite-citybus-routes-2");
+    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-all-routes-sheet");
   });
 
   it("hides adjacent rail previews and stack controls when the active feature has a single screenshot", () => {
     renderWithI18n(<AppPreviewCarousel initialFeatureId="route-comparison" />);
 
-    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "route-comparison-1");
+    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
     expect(screen.queryByTestId("screenshot-rail-preview")).not.toBeInTheDocument();
     expect(screen.queryByTestId("screenshot-stack-thumbnails")).not.toBeInTheDocument();
+  });
+
+  it("keeps the user-confirmed image mapping for detail and monitor scenes", () => {
+    renderWithI18n(<AppPreviewCarousel initialFeatureId="eta-details" />);
+
+    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "route-detail-expanded");
+    expect(screen.getAllByTestId("screenshot-rail-preview")).toHaveLength(1);
+
+    fireEvent(screen.getByTestId("feature-showcase"), dragEvent("pointerdown", 240));
+    fireEvent(screen.getByTestId("feature-showcase"), dragEvent("pointerup", 120));
+    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "eta-arrivals-sheet");
+
+    renderWithI18n(<AppPreviewCarousel initialFeatureId="predeparture-monitor" />);
+    const rails = screen.getAllByTestId("screenshot-rail");
+    expect(rails[1]).toHaveAttribute("data-active-image-id", "lockscreen-monitor");
   });
 });

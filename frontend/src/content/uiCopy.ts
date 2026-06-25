@@ -157,9 +157,9 @@ export const uiCopy = {
     en: "Save time on everyday Citybus trips",
   },
   temporaryMock: {
-    "zh-Hant": "已使用脫敏真實截圖",
-    "zh-Hans": "已使用脱敏真实截图",
-    en: "Sanitized real app screenshot",
+    "zh-Hant": "已使用真實 App 截圖",
+    "zh-Hans": "已使用真实 App 截图",
+    en: "Real app screenshot",
   },
   originLabel: {
     "zh-Hant": "出發地",

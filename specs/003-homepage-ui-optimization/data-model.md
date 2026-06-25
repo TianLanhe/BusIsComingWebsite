@@ -48,7 +48,7 @@
 | 字段 | 类型 | 规则 |
 |------|------|------|
 | `id` | string | 稳定 ID，建议包含功能点和顺序 |
-| `sourcePath` | string | 原始截图路径，例如 `app真实截图/1常用路线/1.jpg` |
+| `sourcePath` | string | 项目内截图资产路径，例如 `frontend/src/assets/app-screenshots/real/favorite-citybus-routes-1.webp` |
 | `assetPath` | string | 脱敏后前端资产路径，例如 `frontend/src/assets/app-screenshots/real/favorite-citybus-routes-1.webp` |
 | `order` | integer | 同组顺序；1 为主图 |
 | `isDefault` | boolean | 只有序号 1 为 `true` |
@@ -62,7 +62,7 @@
 - `desensitizationStatus` 为 `approved` 前不得被前端引用。
 - `redactedItems` 至少覆盖真实地点、站名、路线号、搜索记录和手机系统无关内容。
 - `retainedItems` 必须说明价格、时间、ETA 数值已保留。
-- 前端不得导入 `sourcePath` 指向的原始截图。
+- 前端不得导入项目外原始截图路径。
 
 ## 下载入口状态 `DownloadEntryState`
 
@@ -139,8 +139,8 @@ HomePageContent
 
 ## 生命周期
 
-1. 原始截图进入 `app真实截图/`，仅作为输入。
-2. 实施阶段生成脱敏截图与 manifest。
+1. 截图资产进入 `frontend/src/assets/app-screenshots/real/`，作为前端可引用的项目内资产。
+2. 实施阶段生成或确认可展示截图与 manifest。
 3. `FeatureShowcaseItem` 引用 `approved` 的脱敏截图。
 4. 页面加载后展示默认功能点和默认主图。
 5. 外层功能点按时间自动轮播，用户交互时暂停。

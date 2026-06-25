@@ -20,7 +20,7 @@
 
 **主要依赖**：前端沿用 React、Vite、lucide-react、Vitest、Playwright、Ajv；后端沿用 Gin、Go 单元测试、`httptest`；OpenAPI 预览和 lint 沿用 Redocly CLI。
 
-**数据与存储**：前端静态内容、i18n 文案、脱敏截图资产和截图资产 manifest。原始截图来源为 `app真实截图/`，不得直接进入前端展示；脱敏后资产建议沉淀到 `frontend/src/assets/app-screenshots/real/`。下载 APK 继续使用 `backend/downloads/android/BusIsComing.apk` 和现有元数据。
+**数据与存储**：前端静态内容、i18n 文案、脱敏截图资产和截图资产 manifest。截图资产必须沉淀到 `frontend/src/assets/app-screenshots/real/` 后再被前端引用，不得直接引用项目外原图目录。下载 APK 继续使用 `backend/downloads/android/BusIsComing.apk` 和现有元数据。
 
 **测试**：Vitest 覆盖内容契约、i18n 完整性、下载入口状态、轮播暂停和截图图集状态；Playwright 覆盖桌面 1440px、手机 390px、下载直触发、外层自动轮播、内层手动切换、语言切换状态保持和截图证据；Go 测试继续覆盖下载服务；`curl`/同局域网访问用于验证监听地址；Redocly lint 用于确认既有下载 OpenAPI 未破坏。
 
@@ -133,7 +133,7 @@ shared/
     └── openapi/download-api.openapi.yaml
 ```
 
-**结构决策**：本轮以 `frontend/src/content` 作为首页 v2 内容和状态的来源，`frontend/src/components/hero` 承载外层自动轮播和内层手动截图栈，`frontend/src/components/download` 与 `frontend/src/components/sections/DownloadSection.tsx` 承载直接下载与详情卡。真实截图先在 `app真实截图/` 保留原始输入，实施阶段生成脱敏副本到前端 assets 并记录 manifest。后端只调整入口监听配置，保持下载领域、应用、基础设施和 HTTP 适配层边界不变。
+**结构决策**：本轮以 `frontend/src/content` 作为首页 v2 内容和状态的来源，`frontend/src/components/hero` 承载外层自动轮播和内层手动截图栈，`frontend/src/components/download` 与 `frontend/src/components/sections/DownloadSection.tsx` 承载直接下载与详情卡。真实截图资产统一沉淀到 `frontend/src/assets/app-screenshots/real/` 并记录 manifest，前端不得引用项目外原图目录。后端只调整入口监听配置，保持下载领域、应用、基础设施和 HTTP 适配层边界不变。
 
 ## 复杂度跟踪
 
@@ -141,7 +141,7 @@ shared/
 
 | 复杂点 | 为什么必要 | 被拒绝的更简单方案 |
 |--------|------------|--------------------|
-| 建立截图脱敏副本和 manifest，而不是直接引用原图 | 用户明确要求使用真实截图且先脱敏；规格要求价格、时间、ETA 保留但地点/路线等真实信息移除 | 直接复制 `app真实截图/` 到前端会泄露真实地点、路线号、搜索记录和系统无关内容 |
+| 建立截图脱敏副本和 manifest，而不是直接引用原图 | 用户明确要求使用真实截图且先脱敏；规格要求价格、时间、ETA 保留但地点/路线等真实信息移除 | 直接引用未纳入项目资产目录的原图会泄露真实地点、路线号、搜索记录和系统无关内容 |
 | 拆分外层自动轮播与内层手动截图栈状态 | 用户确认 4 个核心功能点自动轮播，同功能点图集只能手动切换 | 用一个通用 carousel 同时处理功能点和截图会混淆暂停、动画和状态保持规则 |
 | 同时调整前端与后端监听入口 | 用户要求本地开发可通过本机 IP 访问，且正式前端支持标准 HTTP 入口 | 只改 Vite 或只改 Go 服务会导致手机端验收仍卡在另一个回环地址 |
 

@@ -1,26 +1,18 @@
-import etaDetails1 from "../assets/app-screenshots/real/eta-details-1.jpg";
-import etaDetails2 from "../assets/app-screenshots/real/eta-details-2.jpg";
-import favoriteRoutes1 from "../assets/app-screenshots/real/favorite-citybus-routes-1.jpg";
-import favoriteRoutes2 from "../assets/app-screenshots/real/favorite-citybus-routes-2.jpg";
-import favoriteRoutes3 from "../assets/app-screenshots/real/favorite-citybus-routes-3.jpg";
+import etaArrivalsSheet from "../assets/app-screenshots/real/eta-arrivals-sheet.png";
+import homeAllRoutesSheet from "../assets/app-screenshots/real/home-all-routes-sheet.png";
+import homeFavoritesResults from "../assets/app-screenshots/real/home-favorites-results.png";
+import lockscreenMonitor from "../assets/app-screenshots/real/lockscreen-monitor.png";
 import screenshotManifest from "../assets/app-screenshots/real/manifest.json";
-import monitor1 from "../assets/app-screenshots/real/predeparture-monitor-1.jpg";
-import monitor2 from "../assets/app-screenshots/real/predeparture-monitor-2.jpg";
-import monitor3 from "../assets/app-screenshots/real/predeparture-monitor-3.jpg";
-import routeComparison1 from "../assets/app-screenshots/real/route-comparison-1.jpg";
+import routeDetailExpanded from "../assets/app-screenshots/real/route-detail-expanded.png";
 import { sourceReferences } from "./sourceReferences";
 import type { CarouselSlide, FeatureShowcaseId, SanitizedScreenshotAsset } from "./types";
 
 const imageSources: Record<string, string> = {
-  "favorite-citybus-routes-1": favoriteRoutes1,
-  "favorite-citybus-routes-2": favoriteRoutes2,
-  "favorite-citybus-routes-3": favoriteRoutes3,
-  "route-comparison-1": routeComparison1,
-  "eta-details-1": etaDetails1,
-  "eta-details-2": etaDetails2,
-  "predeparture-monitor-1": monitor1,
-  "predeparture-monitor-2": monitor2,
-  "predeparture-monitor-3": monitor3,
+  "home-favorites-results": homeFavoritesResults,
+  "home-all-routes-sheet": homeAllRoutesSheet,
+  "route-detail-expanded": routeDetailExpanded,
+  "eta-arrivals-sheet": etaArrivalsSheet,
+  "lockscreen-monitor": lockscreenMonitor,
 };
 
 function screenshotStatus(value: string): SanitizedScreenshotAsset["desensitizationStatus"] {

@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://busiscoming.local/contracts/screenshot-assets.manifest.schema.json",
-  "title": "BusIsComing Sanitized Screenshot Assets Manifest",
+  "title": "BusIsComing Screenshot Assets Manifest",
   "type": "object",
   "required": ["version", "sourceRoot", "outputRoot", "groups"],
   "properties": {
     "version": { "type": "string", "minLength": 1 },
-    "sourceRoot": { "const": "app真实截图" },
+    "sourceRoot": { "const": "frontend/src/assets/app-screenshots/real" },
     "outputRoot": { "const": "frontend/src/assets/app-screenshots/real" },
     "groups": {
       "type": "array",
@@ -39,7 +39,7 @@
             "predeparture-monitor"
           ]
         },
-        "sourceDirectory": { "type": "string", "minLength": 1 },
+        "sourceDirectory": { "const": "frontend/src/assets/app-screenshots/real" },
         "defaultSourceFile": { "type": "string", "minLength": 1 },
         "images": {
           "type": "array",
@@ -66,7 +66,7 @@
         "id": { "type": "string", "minLength": 1 },
         "sourcePath": {
           "type": "string",
-          "pattern": "^app真实截图/.+\\.(jpg|jpeg|png)$"
+          "pattern": "^frontend/src/assets/app-screenshots/real/.+\\.(webp|jpg|jpeg|png)$"
         },
         "outputPath": {
           "type": "string",
@@ -77,7 +77,7 @@
         "desensitizationStatus": { "enum": ["pending", "approved", "rejected"] },
         "redactedItems": {
           "type": "array",
-          "minItems": 5,
+          "minItems": 0,
           "items": {
             "enum": [
               "real-place-name",

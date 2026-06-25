@@ -1,167 +1,122 @@
 {
-  "version": "2026-06-16.homepage-v2",
-  "sourceRoot": "app真实截图",
+  "version": "2026-06-25.project-assets",
+  "sourceRoot": "frontend/src/assets/app-screenshots/real",
   "outputRoot": "frontend/src/assets/app-screenshots/real",
   "groups": [
     {
       "featureId": "favorite-citybus-routes",
-      "sourceDirectory": "app真实截图/1常用路线",
-      "defaultSourceFile": "1.jpg",
+      "sourceDirectory": "frontend/src/assets/app-screenshots/real",
+      "defaultSourceFile": "home-favorites-results.png",
       "images": [
         {
-          "id": "favorite-citybus-routes-1",
-          "sourcePath": "app真实截图/1常用路线/1.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/favorite-citybus-routes-1.jpg",
+          "id": "home-favorites-results",
+          "sourcePath": "frontend/src/assets/app-screenshots/real/home-favorites-results.png",
+          "outputPath": "frontend/src/assets/app-screenshots/real/home-favorites-results.png",
           "order": 1,
           "isDefault": true,
           "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
+          "redactedItems": [],
           "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
           "alt": {
-            "zh-Hant": "已脫敏的常用城巴路線主畫面",
-            "zh-Hans": "已脱敏的常用城巴路线主画面",
-            "en": "Sanitized saved Citybus route setup 1"
+            "zh-Hant": "常用路線查詢結果主畫面",
+            "zh-Hans": "常用路线查询结果主画面",
+            "en": "Saved route results screen"
           }
         },
         {
-          "id": "favorite-citybus-routes-2",
-          "sourcePath": "app真实截图/1常用路线/2.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/favorite-citybus-routes-2.jpg",
+          "id": "home-all-routes-sheet",
+          "sourcePath": "frontend/src/assets/app-screenshots/real/home-all-routes-sheet.png",
+          "outputPath": "frontend/src/assets/app-screenshots/real/home-all-routes-sheet.png",
           "order": 2,
           "isDefault": false,
           "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
+          "redactedItems": [],
           "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
           "alt": {
-            "zh-Hant": "已脫敏的常用城巴路線管理畫面",
-            "zh-Hans": "已脱敏的常用城巴路线管理画面",
-            "en": "Show saved Citybus route setup 2"
-          }
-        },
-        {
-          "id": "favorite-citybus-routes-3",
-          "sourcePath": "app真实截图/1常用路线/3.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/favorite-citybus-routes-3.jpg",
-          "order": 3,
-          "isDefault": false,
-          "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "已脫敏的常用城巴路線列表畫面",
-            "zh-Hans": "已脱敏的常用城巴路线列表画面",
-            "en": "Show saved Citybus route setup 3"
+            "zh-Hant": "常用路線列表底部面板",
+            "zh-Hans": "常用路线列表底部面板",
+            "en": "Saved route list bottom sheet"
           }
         }
       ]
     },
     {
       "featureId": "route-comparison",
-      "sourceDirectory": "app真实截图/2路线比较",
-      "defaultSourceFile": "a919babddf1364e8d733adf561633e03.jpg",
+      "sourceDirectory": "frontend/src/assets/app-screenshots/real",
+      "defaultSourceFile": "home-favorites-results.png",
       "images": [
         {
-          "id": "route-comparison-1",
-          "sourcePath": "app真实截图/2路线比较/a919babddf1364e8d733adf561633e03.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/route-comparison-1.jpg",
+          "id": "home-favorites-results",
+          "sourcePath": "frontend/src/assets/app-screenshots/real/home-favorites-results.png",
+          "outputPath": "frontend/src/assets/app-screenshots/real/home-favorites-results.png",
           "order": 1,
           "isDefault": true,
           "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
+          "redactedItems": [],
           "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
           "alt": {
-            "zh-Hant": "已脫敏的城巴路線比較結果",
-            "zh-Hans": "已脱敏的城巴路线比较结果",
-            "en": "Sanitized Citybus route comparison result 1"
+            "zh-Hant": "路線結果比較畫面",
+            "zh-Hans": "路线结果比较画面",
+            "en": "Route comparison results screen"
           }
         }
       ]
     },
     {
       "featureId": "eta-details",
-      "sourceDirectory": "app真实截图/3路线详情&多班eta",
-      "defaultSourceFile": "1.jpg",
+      "sourceDirectory": "frontend/src/assets/app-screenshots/real",
+      "defaultSourceFile": "route-detail-expanded.png",
       "images": [
         {
-          "id": "eta-details-1",
-          "sourcePath": "app真实截图/3路线详情&多班eta/1.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/eta-details-1.jpg",
+          "id": "route-detail-expanded",
+          "sourcePath": "frontend/src/assets/app-screenshots/real/route-detail-expanded.png",
+          "outputPath": "frontend/src/assets/app-screenshots/real/route-detail-expanded.png",
           "order": 1,
           "isDefault": true,
           "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
+          "redactedItems": [],
           "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
           "alt": {
-            "zh-Hant": "已脫敏的城巴路線詳情與 ETA 畫面",
-            "zh-Hans": "已脱敏的城巴路线详情与 ETA 画面",
-            "en": "Sanitized Citybus ETA detail screen 1"
+            "zh-Hant": "路線詳情展開主畫面",
+            "zh-Hans": "路线详情展开主画面",
+            "en": "Expanded route detail screen"
           }
         },
         {
-          "id": "eta-details-2",
-          "sourcePath": "app真实截图/3路线详情&多班eta/2.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/eta-details-2.jpg",
+          "id": "eta-arrivals-sheet",
+          "sourcePath": "frontend/src/assets/app-screenshots/real/eta-arrivals-sheet.png",
+          "outputPath": "frontend/src/assets/app-screenshots/real/eta-arrivals-sheet.png",
           "order": 2,
           "isDefault": false,
           "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
+          "redactedItems": [],
           "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
           "alt": {
-            "zh-Hant": "已脫敏的城巴多班 ETA 畫面",
-            "zh-Hans": "已脱敏的城巴多班 ETA 画面",
-            "en": "Show sanitized Citybus ETA detail screen 2"
+            "zh-Hant": "多班 ETA 候車時間面板",
+            "zh-Hans": "多班 ETA 候车时间面板",
+            "en": "Multiple ETA arrival time sheet"
           }
         }
       ]
     },
     {
       "featureId": "predeparture-monitor",
-      "sourceDirectory": "app真实截图/4监控&语音播报",
-      "defaultSourceFile": "1.jpg",
+      "sourceDirectory": "frontend/src/assets/app-screenshots/real",
+      "defaultSourceFile": "lockscreen-monitor.png",
       "images": [
         {
-          "id": "predeparture-monitor-1",
-          "sourcePath": "app真实截图/4监控&语音播报/1.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-1.jpg",
+          "id": "lockscreen-monitor",
+          "sourcePath": "frontend/src/assets/app-screenshots/real/lockscreen-monitor.png",
+          "outputPath": "frontend/src/assets/app-screenshots/real/lockscreen-monitor.png",
           "order": 1,
           "isDefault": true,
           "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
+          "redactedItems": [],
           "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
           "alt": {
-            "zh-Hant": "已脫敏的出門前 ETA 通知畫面",
-            "zh-Hans": "已脱敏的出门前 ETA 通知画面",
-            "en": "Sanitized pre-departure ETA notification 1"
-          }
-        },
-        {
-          "id": "predeparture-monitor-2",
-          "sourcePath": "app真实截图/4监控&语音播报/2.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-2.jpg",
-          "order": 2,
-          "isDefault": false,
-          "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "已脫敏的出門前監測狀態畫面",
-            "zh-Hans": "已脱敏的出门前监测状态画面",
-            "en": "Show sanitized pre-departure monitor state 2"
-          }
-        },
-        {
-          "id": "predeparture-monitor-3",
-          "sourcePath": "app真实截图/4监控&语音播报/3.jpg",
-          "outputPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-3.jpg",
-          "order": 3,
-          "isDefault": false,
-          "desensitizationStatus": "approved",
-          "redactedItems": ["real-place-name", "real-stop-name", "real-route-number", "search-history", "phone-system-content"],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "已脫敏的語音提醒與監測畫面",
-            "zh-Hans": "已脱敏的语音提醒与监测画面",
-            "en": "Show sanitized voice reminder monitor screen 3"
+            "zh-Hant": "鎖定畫面的出門前 ETA 監測通知",
+            "zh-Hans": "锁屏上的出门前 ETA 监测通知",
+            "en": "Lock screen pre-departure ETA notification"
           }
         }
       ]
