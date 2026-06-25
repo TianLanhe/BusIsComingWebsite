@@ -14,6 +14,7 @@ export default defineConfig({
   },
   use: {
     baseURL: `http://${browserHost}:${frontendPort}`,
+    reducedMotion: "no-preference",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },

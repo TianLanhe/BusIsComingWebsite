@@ -1,4 +1,5 @@
-import { BusFront, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import brandLogo from "../../assets/brand/busiscoming-logo-foreground.png";
 import { homepageContent } from "../../content/homepageContent";
 import { useI18n } from "../i18n/I18nProvider";
 import styles from "./FooterContact.module.css";
@@ -11,7 +12,7 @@ export function FooterContact() {
     <footer id="contact" className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.brand}>
-          <BusFront aria-hidden="true" size={28} />
+          <img src={brandLogo} alt="" aria-hidden="true" />
           <strong>{text(homepageContent.navigation.brand)}</strong>
         </div>
         <div className={styles.contact}>
@@ -19,7 +20,7 @@ export function FooterContact() {
           <p>{text(entry.description)}</p>
           <a href={entry.href}>
             <Mail aria-hidden="true" size={18} />
-            feedback@busiscoming.local
+            {homepageContent.homepageExperience.contact.email}
           </a>
         </div>
       </div>

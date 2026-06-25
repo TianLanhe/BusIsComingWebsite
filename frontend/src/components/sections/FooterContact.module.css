@@ -21,6 +21,13 @@
   font: var(--text-brand);
 }
 
+.brand img {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
 .contact {
   display: grid;
   gap: 10px;
@@ -54,5 +61,10 @@
 @media (max-width: 720px) {
   .inner {
     display: grid;
+  }
+
+  .contact a {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 }

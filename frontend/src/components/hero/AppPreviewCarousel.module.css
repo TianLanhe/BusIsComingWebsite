@@ -1,9 +1,18 @@
 .carousel {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(230px, 340px) minmax(230px, 1fr);
-  gap: var(--space-7);
+  grid-template-columns: minmax(270px, 390px) minmax(240px, 1fr);
+  gap: clamp(24px, 4vw, 44px);
   align-items: center;
   min-width: 0;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.carousel:focus-visible {
+  border-radius: 24px;
+  outline: 3px solid rgba(0, 84, 91, 0.24);
+  outline-offset: 8px;
 }
 
 .copy {
@@ -11,12 +20,6 @@
   gap: 14px;
   min-width: 0;
   animation: feature-copy-in 640ms ease both;
-}
-
-.order {
-  margin: 0;
-  color: var(--brand);
-  font: var(--text-overline);
 }
 
 .copy h2 {
@@ -36,6 +39,40 @@
   align-items: center;
   gap: 7px;
   margin-top: var(--space-2);
+}
+
+.accessibleControls {
+  position: absolute;
+  inset: auto auto 12px 12px;
+  z-index: 4;
+  display: flex;
+  gap: 8px;
+}
+
+.accessibleControls button,
+.srStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.accessibleControls button:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 9px 12px;
+  border: 1px solid var(--brand);
+  border-radius: 8px;
+  clip: auto;
+  color: var(--brand-dark);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  font: var(--text-control);
 }
 
 .dot,

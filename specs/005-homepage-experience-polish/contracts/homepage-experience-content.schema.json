@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://busiscoming.local/contracts/homepage-experience-content.schema.json",
+  "title": "BusIsComing Homepage Experience Polish Contract",
+  "type": "object",
+  "required": ["metadata", "carousel", "brandLogo", "contact", "localizedCopyReview", "figmaReference"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["version", "lastUpdated"],
+      "properties": {
+        "version": { "type": "string", "pattern": "^2026-06-24\\.homepage-experience-polish" },
+        "lastUpdated": { "type": "string", "format": "date" }
+      },
+      "additionalProperties": false
+    },
+    "carousel": {
+      "type": "object",
+      "required": [
+        "autoAdvanceMs",
+        "featureOrder",
+        "visualMode",
+        "supportsSwipe",
+        "supportsDesktopDrag",
+        "supportsKeyboardSwitching",
+        "showsNumericLabels",
+        "usesThumbnailStack",
+        "usesPersistentArrows"
+      ],
+      "properties": {
+        "autoAdvanceMs": { "const": 3000 },
+        "featureOrder": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "favorite-citybus-routes" },
+            { "const": "route-comparison" },
+            { "const": "eta-details" },
+            { "const": "predeparture-monitor" }
+          ],
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "visualMode": { "const": "cinematic-phone-rail" },
+        "supportsSwipe": { "const": true },
+        "supportsDesktopDrag": { "const": true },
+        "supportsKeyboardSwitching": { "const": true },
+        "showsNumericLabels": { "const": false },
+        "usesThumbnailStack": { "const": false },
+        "usesPersistentArrows": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "brandLogo": {
+      "type": "object",
+      "required": ["sourcePath", "outputPath", "backgroundRemoved", "transparent", "usesLauncherPlate", "placements"],
+      "properties": {
+        "sourcePath": {
+          "type": "string",
+          "pattern": "app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground\\.png$"
+        },
+        "outputPath": {
+          "type": "string",
+          "pattern": "^frontend/src/assets/brand/.+\\.(png|webp)$"
+        },
+        "backgroundRemoved": { "const": true },
+        "transparent": { "const": true },
+        "usesLauncherPlate": { "const": false },
+        "placements": {
+          "type": "array",
+          "allOf": [
+            { "contains": { "const": "header" } },
+            { "contains": { "const": "footer" } }
+          ],
+          "items": { "enum": ["header", "footer", "favicon"] },
+          "uniqueItems": true,
+          "minItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "contact": {
+      "type": "object",
+      "required": ["navLabel", "email", "href"],
+      "properties": {
+        "navLabel": {
+          "type": "object",
+          "required": ["zh-Hant", "zh-Hans", "en"],
+          "properties": {
+            "zh-Hant": { "const": "聯絡我們" },
+            "zh-Hans": { "const": "联系我们" },
+            "en": { "const": "Contact Us" }
+          },
+          "additionalProperties": false
+        },
+        "email": { "const": "hezhenyu966@gmail.com" },
+        "href": { "const": "mailto:hezhenyu966@gmail.com" }
+      },
+      "additionalProperties": false
+    },
+    "localizedCopyReview": {
+      "type": "object",
+      "required": ["scope", "zhHantTone", "allLocalesRequired"],
+      "properties": {
+        "scope": {
+          "type": "array",
+          "minItems": 8,
+          "items": {
+            "enum": [
+              "navigation",
+              "hero",
+              "carousel",
+              "features",
+              "online-query",
+              "download",
+              "faq",
+              "footer",
+              "status",
+              "accessibility"
+            ]
+          }
+        },
+        "zhHantTone": { "const": "hong-kong-practical-written" },
+        "allLocalesRequired": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "zh-Hant" },
+            { "const": "zh-Hans" },
+            { "const": "en" }
+          ],
+          "minItems": 3,
+          "maxItems": 3
+        }
+      },
+      "additionalProperties": false
+    },
+    "figmaReference": {
+      "type": "object",
+      "required": ["fileUrl", "pluginPath", "pageName", "nodeNames"],
+      "properties": {
+        "fileUrl": { "type": "string", "format": "uri" },
+        "pluginPath": { "const": "specs/005-homepage-experience-polish/figma-plugin/manifest.json" },
+        "pageName": { "const": "Homepage Experience Polish - 005" },
+        "nodeNames": {
+          "type": "array",
+          "minItems": 5,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

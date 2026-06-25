@@ -66,6 +66,8 @@ export interface ScreenshotGallery {
   defaultImageId: string;
   manualOnly: true;
   hideStackWhenSingleImage: true;
+  visualMode: "cinematic-phone-rail";
+  allowThumbnailControls: false;
   images: SanitizedScreenshotAsset[];
 }
 
@@ -80,6 +82,62 @@ export interface HomepageFeatureShowcaseItem {
 }
 
 export type CarouselSlide = HomepageFeatureShowcaseItem;
+
+export type LocalizedCopyScope =
+  | "navigation"
+  | "hero"
+  | "carousel"
+  | "features"
+  | "online-query"
+  | "download"
+  | "faq"
+  | "footer"
+  | "status"
+  | "accessibility";
+
+export interface BrandLogoAsset {
+  sourcePath: string;
+  outputPath: string;
+  backgroundRemoved: true;
+  transparent: true;
+  usesLauncherPlate: false;
+  placements: Array<"header" | "footer" | "favicon">;
+}
+
+export interface HomepageExperiencePolishContract {
+  metadata: {
+    version: string;
+    lastUpdated: string;
+  };
+  carousel: {
+    autoAdvanceMs: 3000;
+    featureOrder: FeatureShowcaseId[];
+    visualMode: "cinematic-phone-rail";
+    supportsSwipe: true;
+    supportsDesktopDrag: true;
+    supportsKeyboardSwitching: true;
+    showsNumericLabels: false;
+    usesThumbnailStack: false;
+    usesPersistentArrows: false;
+  };
+  brandLogo: BrandLogoAsset;
+  contact: {
+    navLabel: LocalizedString;
+    email: "hezhenyu966@gmail.com";
+    href: "mailto:hezhenyu966@gmail.com";
+  };
+  localizedCopyReview: {
+    scope: LocalizedCopyScope[];
+    zhHantTone: "hong-kong-practical-written";
+    allLocalesRequired: Locale[];
+  };
+  figmaReference: {
+    fileUrl: string;
+    pluginPath: "specs/005-homepage-experience-polish/figma-plugin/manifest.json";
+    pageName: "Homepage Experience Polish - 005";
+    nodeNames: string[];
+  };
+}
 
 export interface FeatureItem {
   id: string;
@@ -157,6 +215,7 @@ export interface HomePageContent {
   faq: FAQItem[];
   contact: ContactEntry[];
   scopeExclusions: LocalizedString[];
+  homepageExperience: HomepageExperiencePolishContract;
   figmaReference: {
     fileUrl: string;
     pageNode: string;

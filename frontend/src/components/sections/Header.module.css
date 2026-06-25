@@ -23,8 +23,11 @@
   white-space: nowrap;
 }
 
-.brand svg {
-  stroke-width: 2.4;
+.brand img {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
 }
 
 .nav {
@@ -47,12 +50,34 @@
 
 @media (max-width: 820px) {
   .header {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(42px, 1fr) auto auto;
     min-height: 66px;
     gap: var(--space-3);
   }
 
   .nav {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .nav a:not([data-nav-id="contact"]) {
+    display: none;
+  }
+
+  .nav a[data-nav-id="contact"] {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand span {
     display: none;
   }
 }

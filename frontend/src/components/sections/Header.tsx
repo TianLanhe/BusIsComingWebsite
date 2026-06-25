@@ -1,4 +1,4 @@
-import { BusFront } from "lucide-react";
+import brandLogo from "../../assets/brand/busiscoming-logo-foreground.png";
 import { homepageContent } from "../../content/homepageContent";
 import { uiCopy } from "../../content/uiCopy";
 import { useI18n } from "../i18n/I18nProvider";
@@ -11,13 +11,13 @@ export function Header() {
   return (
     <header className={styles.header}>
       <a className={styles.brand} href="#hero" aria-label={text(homepageContent.navigation.brand)}>
-        <BusFront aria-hidden="true" size={28} />
+        <img src={brandLogo} alt="" aria-hidden="true" />
         <span>{text(homepageContent.navigation.brand)}</span>
       </a>
 
       <nav className={styles.nav} aria-label={text(uiCopy.primaryNavigation)}>
         {homepageContent.navigation.items.map((item) => (
-          <a key={item.id} href={item.target}>
+          <a key={item.id} href={item.target} data-nav-id={item.id}>
             {text(item.label)}
           </a>
         ))}

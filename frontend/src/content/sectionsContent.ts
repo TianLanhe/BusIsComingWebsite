@@ -26,7 +26,7 @@ export const features: FeatureItem[] = [
       en: "Compare Citybus options",
     },
     description: {
-      "zh-Hant": "多程總車費、時間、步行距離與 ETA 一頁看清。",
+      "zh-Hant": "交通費用、行程時間、步行距離與抵站時間一頁看清。",
       "zh-Hans": "多程总车费、时间、步行距离与 ETA 一页看清。",
       en: "Review total multi-leg fare, travel time, walking distance, and ETA together.",
     },
@@ -36,12 +36,12 @@ export const features: FeatureItem[] = [
     id: "multiple-eta",
     icon: "clock",
     title: {
-      "zh-Hant": "多班 ETA",
+      "zh-Hant": "多班抵站時間",
       "zh-Hans": "多班 ETA",
       en: "Multiple ETAs",
     },
     description: {
-      "zh-Hant": "查看城巴最多 3 班到站時間，判斷是否要出門。",
+      "zh-Hant": "查看城巴最多 3 班抵站時間，判斷是否要出門。",
       "zh-Hans": "查看最多 3 班到站时间，判断是否要出门。",
       en: "Inspect up to three Citybus arrival times before deciding when to leave.",
     },
@@ -66,12 +66,12 @@ export const features: FeatureItem[] = [
     id: "short-monitor",
     icon: "bell",
     title: {
-      "zh-Hant": "短時通知監測",
+      "zh-Hant": "出門前通知監測",
       "zh-Hans": "短时通知监测",
       en: "Short notification monitoring",
     },
     description: {
-      "zh-Hant": "出門前監測首程城巴 ETA，安心準備。",
+      "zh-Hant": "出門前監測首程城巴抵站時間，安心準備。",
       "zh-Hans": "出门前监测首程城巴 ETA，安心准备。",
       en: "Monitor first-leg Citybus ETA shortly before departure.",
     },
@@ -81,12 +81,12 @@ export const features: FeatureItem[] = [
     id: "hkd-display",
     icon: "dollar",
     title: {
-      "zh-Hant": "多程總車費一眼睇清",
+      "zh-Hant": "交通費用一眼睇清",
       "zh-Hans": "多程总车费一眼看清",
       en: "Clear multi-leg total fare",
     },
     description: {
-      "zh-Hant": "比較城巴方案時，可直接看到多程全程總車費，而不只是幣種標示。",
+      "zh-Hant": "比較城巴方案時，可直接看到多程交通費用，而不只是幣種標示。",
       "zh-Hans": "比较城巴方案时，可直接看到多程全程总车费，而不只是币种显示。",
       en: "Compare Citybus options by total multi-leg fare, not just the currency label.",
     },
@@ -132,7 +132,7 @@ export const faq: FAQItem[] = [
       en: "Is the online query live?",
     },
     answer: {
-      "zh-Hant": "網站提供基礎城巴路線試用，結果依賴 Citybus 和公開 ETA 資料；保存路線、監控、多班 ETA 和更多詳情請下載 App 使用。",
+      "zh-Hant": "網站提供基礎城巴路線試查，結果依賴 Citybus 和公開抵站資料；儲存路線、監測、多班抵站時間和更多詳情請下載 App 使用。",
       "zh-Hans": "网站提供基础城巴路线试用，结果依赖 Citybus 和公开 ETA 资料；保存路线、监控、多班 ETA 和更多详情请下载 App 使用。",
       en: "The website provides a basic Citybus route trial backed by Citybus and public ETA data. Download the app for saved routes, monitoring, multi-ETA views, and more detail.",
     },
@@ -157,16 +157,16 @@ export const contact: ContactEntry[] = [
   {
     id: "feedback",
     label: {
-      "zh-Hant": "問題回報與聯絡開發者",
-      "zh-Hans": "问题反馈与联系开发者",
-      en: "Feedback and developer contact",
+      "zh-Hant": "聯絡我們",
+      "zh-Hans": "联系我们",
+      en: "Contact Us",
     },
     description: {
-      "zh-Hant": "如果下載或查詢說明有問題，可先透過專案入口回報。",
-      "zh-Hans": "如果下载或查询说明有问题，可先通过项目入口反馈。",
-      en: "Report issues with download or query information through the project contact entry.",
+      "zh-Hant": "如對下載、網頁試查或 App 說明有疑問，歡迎直接聯絡開發者。",
+      "zh-Hans": "如对下载、网页试查或 App 说明有疑问，欢迎直接联系开发者。",
+      en: "Contact the developer about download, website trial, or app information.",
     },
-    href: "mailto:feedback@busiscoming.local",
+    href: "mailto:hezhenyu966@gmail.com",
     priority: "secondary",
   },
 ];

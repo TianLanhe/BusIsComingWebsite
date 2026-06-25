@@ -6,8 +6,8 @@ import type { HomePageContent } from "./types";
 
 export const homepageContent: HomePageContent = {
   metadata: {
-    version: "2026-06-16.homepage-v2",
-    lastUpdated: "2026-06-16",
+    version: "2026-06-24.homepage-experience-polish",
+    lastUpdated: "2026-06-25",
     sourceReferences: sourceReferenceList,
   },
   navigation: {
@@ -29,7 +29,7 @@ export const homepageContent: HomePageContent = {
       {
         id: "online-query",
         label: {
-          "zh-Hant": "在線查詢",
+          "zh-Hant": "網上試查",
           "zh-Hans": "在线查询",
           en: "Online Query",
         },
@@ -47,9 +47,9 @@ export const homepageContent: HomePageContent = {
       {
         id: "contact",
         label: {
-          "zh-Hant": "支援我們",
-          "zh-Hans": "支持我们",
-          en: "Support",
+          "zh-Hant": "聯絡我們",
+          "zh-Hans": "联系我们",
+          en: "Contact Us",
         },
         target: "#contact",
       },
@@ -67,7 +67,7 @@ export const homepageContent: HomePageContent = {
       en: "Citybus lookup before you head out",
     },
     subheading: {
-      "zh-Hant": "為日常搭城巴而設的 Android App，保存常用起終點，快速比較 Citybus 路線、多程總車費、步行距離與首程 ETA。",
+      "zh-Hant": "為日常搭城巴而設的 Android App，儲低常用起點和目的地，快速比較 Citybus 路線、交通費用、步行距離與首程抵站時間。",
       "zh-Hans": "为日常乘坐城巴而设的 Android App，保存常用起终点，快速比较 Citybus 路线、多程总车费、步行距离与首程 ETA。",
       en: "An Android app for daily Citybus trips: save frequent searches and compare Citybus routes, total multi-leg fare, walking distance, and first-leg ETA.",
     },
@@ -79,7 +79,7 @@ export const homepageContent: HomePageContent = {
           en: "Save frequent trips",
         },
         description: {
-          "zh-Hant": "一按重開常用城巴查詢",
+          "zh-Hant": "常用城巴查詢一按再開",
           "zh-Hans": "一键重打开常用城巴查询",
           en: "Reopen commute searches in one tap",
         },
@@ -91,7 +91,7 @@ export const homepageContent: HomePageContent = {
           en: "Compare fare, time, and walk",
         },
         description: {
-          "zh-Hant": "以多程總車費、總行程時間和 ETA 輔助判斷",
+          "zh-Hant": "用交通費用、行程時間和抵站時間輔助判斷",
           "zh-Hans": "以多程总车费、总行程时间和 ETA 辅助判断",
           en: "Use total fare, journey time, and ETA to decide",
         },
@@ -103,7 +103,7 @@ export const homepageContent: HomePageContent = {
           en: "Pre-departure monitoring",
         },
         description: {
-          "zh-Hant": "監測首程 ETA，安心出門",
+          "zh-Hant": "監測首程抵站時間，安心出門",
           "zh-Hans": "监测首程 ETA，安心出门",
           en: "Keep first-leg ETA visible before leaving",
         },
@@ -121,7 +121,7 @@ export const homepageContent: HomePageContent = {
     },
     secondaryAction: {
       label: {
-        "zh-Hant": "在線查詢",
+        "zh-Hant": "網上試查",
         "zh-Hans": "在线查询",
         en: "Online Query",
       },
@@ -149,7 +149,7 @@ export const homepageContent: HomePageContent = {
       en: "Download BusIsComing",
     },
     description: {
-      "zh-Hant": "現時先提供 Android APK，按下即可下載；iPhone 版本暫未支援。",
+      "zh-Hant": "現時先提供 Android APK，一按即可下載；iPhone 版本暫未支援。",
       "zh-Hans": "Android 是第一优先平台，当前 APK 可直接下载；iPhone 暂未支持。",
       en: "Android is the first target platform, and the current APK is available now; iPhone is not supported yet.",
     },
@@ -195,14 +195,65 @@ export const homepageContent: HomePageContent = {
   faq,
   contact,
   scopeExclusions,
+  homepageExperience: {
+    metadata: {
+      version: "2026-06-24.homepage-experience-polish",
+      lastUpdated: "2026-06-25",
+    },
+    carousel: {
+      autoAdvanceMs: 3000,
+      featureOrder: ["favorite-citybus-routes", "route-comparison", "eta-details", "predeparture-monitor"],
+      visualMode: "cinematic-phone-rail",
+      supportsSwipe: true,
+      supportsDesktopDrag: true,
+      supportsKeyboardSwitching: true,
+      showsNumericLabels: false,
+      usesThumbnailStack: false,
+      usesPersistentArrows: false,
+    },
+    brandLogo: {
+      sourcePath: sourceReferences.androidLauncherForeground,
+      outputPath: "frontend/src/assets/brand/busiscoming-logo-foreground.png",
+      backgroundRemoved: true,
+      transparent: true,
+      usesLauncherPlate: false,
+      placements: ["header", "footer", "favicon"],
+    },
+    contact: {
+      navLabel: {
+        "zh-Hant": "聯絡我們",
+        "zh-Hans": "联系我们",
+        en: "Contact Us",
+      },
+      email: "hezhenyu966@gmail.com",
+      href: "mailto:hezhenyu966@gmail.com",
+    },
+    localizedCopyReview: {
+      scope: ["navigation", "hero", "carousel", "features", "online-query", "download", "faq", "footer", "status", "accessibility"],
+      zhHantTone: "hong-kong-practical-written",
+      allLocalesRequired: ["zh-Hant", "zh-Hans", "en"],
+    },
+    figmaReference: {
+      fileUrl: sourceReferences.figmaExperiencePolish,
+      pluginPath: "specs/005-homepage-experience-polish/figma-plugin/manifest.json",
+      pageName: "Homepage Experience Polish - 005",
+      nodeNames: [
+        "Desktop 1440 / Cinematic Rail: 29:3",
+        "Mobile 390 / Swipe Rail: 29:44",
+        "Carousel States / No Thumbnail Stack: 29:83",
+        "Brand Contact States: 29:101",
+        "Spec Notes: 29:108",
+      ],
+    },
+  },
   figmaReference: {
-    fileUrl: sourceReferences.figma,
-    pageNode: "10:2",
-    desktopNode: "10:3",
-    mobileNode: "10:44",
-    downloadStatesNode: "10:75",
-    carouselStatesNode: "10:87",
-    notesNode: "10:176",
-    versionNote: "2026-06-16 homepage v2 plan: desktop, mobile, download states, carousel, screenshot stack, and implementation notes.",
+    fileUrl: sourceReferences.figmaExperiencePolish,
+    pageNode: "Homepage Experience Polish - 005",
+    desktopNode: "29:3",
+    mobileNode: "29:44",
+    downloadStatesNode: "29:101",
+    carouselStatesNode: "29:83",
+    notesNode: "29:108",
+    versionNote: "2026-06-25 homepage experience polish: cinematic rail, mobile swipe rail, no thumbnail stack, brand contact states, and spec notes.",
   },
 };
