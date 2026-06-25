@@ -232,7 +232,7 @@
             "defaultImageId": { "type": "string", "minLength": 1 },
         "manualOnly": { "const": true },
         "hideStackWhenSingleImage": { "const": true },
-        "visualMode": { "const": "cinematic-phone-rail" },
+        "visualMode": { "const": "stair-card-deck" },
         "allowThumbnailControls": { "const": false },
         "images": {
               "type": "array",
@@ -373,7 +373,7 @@
               "minItems": 4,
               "maxItems": 4
             },
-            "visualMode": { "const": "cinematic-phone-rail" },
+            "visualMode": { "const": "stair-card-deck" },
             "supportsSwipe": { "const": true },
             "supportsDesktopDrag": { "const": true },
             "supportsKeyboardSwitching": { "const": true },

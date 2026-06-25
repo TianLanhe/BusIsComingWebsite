@@ -241,6 +241,11 @@ export const uiCopy = {
     "zh-Hans": "功能",
     en: "Feature",
   },
+  sameSceneScreenshotPrefix: {
+    "zh-Hant": "顯示同場景截圖",
+    "zh-Hans": "显示同场景截图",
+    en: "Show same-scene screenshot",
+  },
   faqHeading: {
     "zh-Hant": "常見問題",
     "zh-Hans": "常见问题",

@@ -14,6 +14,10 @@ function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 }
 
+function isButtonTarget(target: EventTarget | null) {
+  return target instanceof HTMLElement && Boolean(target.closest("button"));
+}
+
 interface AppPreviewCarouselProps {
   initialFeatureId?: FeatureShowcaseId;
 }
@@ -50,26 +54,9 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
     setActiveIndex((current) => (current + direction + orderedSlides.length) % orderedSlides.length);
   }
 
-  function moveGalleryImage(direction: 1 | -1) {
-    const orderedImages = [...activeSlide.gallery.images].sort((a, b) => a.order - b.order);
-    const currentIndex = Math.max(
-      0,
-      orderedImages.findIndex((image) => image.id === activeImageId),
-    );
-    const nextIndex = currentIndex + direction;
-    if (nextIndex < 0 || nextIndex >= orderedImages.length) {
-      return false;
-    }
-
-    setActiveImages((current) => ({ ...current, [activeSlide.id]: orderedImages[nextIndex].id }));
-    return true;
-  }
-
   function navigateDrag(direction: 1 | -1) {
     setIsPaused(true);
-    if (!moveGalleryImage(direction)) {
-      moveFeature(direction);
-    }
+    moveFeature(direction);
   }
 
   function navigateFeature(direction: 1 | -1) {
@@ -77,7 +64,21 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
     moveFeature(direction);
   }
 
+  function navigateToFeature(index: number) {
+    setIsPaused(true);
+    setActiveIndex(index);
+  }
+
+  function selectGalleryImage(imageId: string) {
+    setIsPaused(true);
+    setActiveImages((current) => ({ ...current, [activeSlide.id]: imageId }));
+  }
+
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
+    if (isButtonTarget(event.target)) {
+      return;
+    }
+
     if (event.pointerType === "mouse" && event.button !== 0) {
       return;
     }
@@ -144,6 +145,7 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
       <ScreenshotStack
         gallery={activeSlide.gallery}
         activeImageId={activeImageId}
+        onSelectImage={selectGalleryImage}
       />
 
       <div className={styles.copy} data-testid="active-slide" data-slide-id={activeSlide.id}>
@@ -152,11 +154,13 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
 
         <div className={styles.dots} aria-label={text(uiCopy.carouselPagination)}>
           {orderedSlides.map((slide, index) => (
-            <span
+            <button
+              type="button"
               key={slide.id}
               className={index === activeIndex ? styles.activeDot : styles.dot}
               aria-label={`${text(uiCopy.slideLabelPrefix)} ${text(slide.title)}`}
               aria-current={index === activeIndex}
+              onClick={() => navigateToFeature(index)}
             />
           ))}
         </div>

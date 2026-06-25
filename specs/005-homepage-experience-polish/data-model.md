@@ -35,13 +35,14 @@ auto-advancing -> reduced-motion-manual
 | `defaultImageId` | string | 必须存在于 `images` |
 | `images` | SanitizedScreenshotAsset[] | 至少 1 张 |
 | `manualOnly` | boolean | 必须为 true |
-| `visualMode` | enum | 本功能必须为 `cinematic-rail` |
+| `visualMode` | enum | 本功能必须为 `stair-card-deck` |
 | `allowThumbnailControls` | boolean | 必须为 false |
 
 ### 验证规则
 
-- 单图时不得显示相邻预览或更多截图暗示。
-- 多图时只允许横向滑动或拖动进入主图。
+- 单图时不得显示后方牌堆或更多截图暗示。
+- 多图时只允许点击后方牌堆图片切换同场景主图；横向滑动或拖动只能切换功能场景。
+- 后方牌堆图片桌面约 5 度旋转，手机可收敛到约 4 度；后方图片底部不得低于主图底部。
 - 不得显示底部缩略图、胶片条、图片按钮组或上下堆叠。
 
 ## SanitizedScreenshotAsset
@@ -119,9 +120,9 @@ auto-advancing -> reduced-motion-manual
 |------|------|------|
 | `viewport` | enum | `desktop-1440` 或 `mobile-390` |
 | `locale` | Locale | 至少覆盖主要繁体视图，必要时覆盖英文长文案 |
-| `state` | enum | `carousel-auto`、`carousel-drag`、`brand-contact`、`reduced-motion` |
+| `state` | enum | `carousel-auto`、`carousel-scene-drag`、`same-scene-deck-click`、`brand-contact`、`reduced-motion` |
 | `path` | string | 保存到 `specs/005-homepage-experience-polish/visual-review/` |
-| `checks` | string[] | 记录无缩略图、无编号、无箭头、logo、邮箱、无重叠等结论 |
+| `checks` | string[] | 记录牌堆基线、可点击露出面积、无缩略图、无编号、无箭头、logo、邮箱、无重叠等结论 |
 
 ## Relationships
 

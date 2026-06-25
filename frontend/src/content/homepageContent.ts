@@ -203,7 +203,7 @@ export const homepageContent: HomePageContent = {
     carousel: {
       autoAdvanceMs: 3000,
       featureOrder: ["favorite-citybus-routes", "route-comparison", "eta-details", "predeparture-monitor"],
-      visualMode: "cinematic-phone-rail",
+      visualMode: "stair-card-deck",
       supportsSwipe: true,
       supportsDesktopDrag: true,
       supportsKeyboardSwitching: true,
@@ -238,9 +238,9 @@ export const homepageContent: HomePageContent = {
       pluginPath: "specs/005-homepage-experience-polish/figma-plugin/manifest.json",
       pageName: "Homepage Experience Polish - 005",
       nodeNames: [
-        "Desktop 1440 / Cinematic Rail: 29:3",
-        "Mobile 390 / Swipe Rail: 29:44",
-        "Carousel States / No Thumbnail Stack: 29:83",
+        "Desktop 1440 / Stair Card Deck: 29:3",
+        "Mobile 390 / Stair Card Deck: 29:44",
+        "Carousel States / Scene Dots and Deck Click: 29:83",
         "Brand Contact States: 29:101",
         "Spec Notes: 29:108",
       ],
@@ -254,6 +254,7 @@ export const homepageContent: HomePageContent = {
     downloadStatesNode: "29:101",
     carouselStatesNode: "29:83",
     notesNode: "29:108",
-    versionNote: "2026-06-25 homepage experience polish: cinematic rail, mobile swipe rail, no thumbnail stack, brand contact states, and spec notes.",
+    versionNote:
+      "2026-06-25 homepage experience polish: stair-card-deck carousel, scene-only drag, same-scene deck click, brand contact states, and spec notes.",
   },
 };

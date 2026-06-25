@@ -48,8 +48,8 @@
 | 字段 | 类型 | 规则 |
 |------|------|------|
 | `id` | string | 稳定 ID，建议包含功能点和顺序 |
-| `sourcePath` | string | 项目内截图资产路径，例如 `frontend/src/assets/app-screenshots/real/favorite-citybus-routes-1.webp` |
-| `assetPath` | string | 脱敏后前端资产路径，例如 `frontend/src/assets/app-screenshots/real/favorite-citybus-routes-1.webp` |
+| `sourcePath` | string | 项目内截图资产路径，例如 `frontend/src/assets/app-screenshots/real/home-favorites-results.png` |
+| `assetPath` | string | 脱敏后前端资产路径，例如 `frontend/src/assets/app-screenshots/real/home-favorites-results.png` |
 | `order` | integer | 同组顺序；1 为主图 |
 | `isDefault` | boolean | 只有序号 1 为 `true` |
 | `desensitizationStatus` | enum | `pending`、`approved`、`rejected` |

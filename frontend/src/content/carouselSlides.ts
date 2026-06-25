@@ -49,7 +49,7 @@ function galleryFor(featureId: FeatureShowcaseId) {
     defaultImageId: images.find((image) => image.isDefault)?.id ?? images[0].id,
     manualOnly: true,
     hideStackWhenSingleImage: true,
-    visualMode: "cinematic-phone-rail",
+    visualMode: "stair-card-deck",
     allowThumbnailControls: false,
     images,
   } as const;

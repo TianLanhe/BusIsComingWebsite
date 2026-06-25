@@ -80,8 +80,11 @@
   display: inline-block;
   width: 9px;
   height: 9px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
   background: var(--border-strong);
+  cursor: pointer;
   transition:
     width 260ms ease,
     background 260ms ease;
@@ -90,6 +93,12 @@
 .activeDot {
   width: 26px;
   background: var(--brand);
+}
+
+.dot:focus-visible,
+.activeDot:focus-visible {
+  outline: 2px solid rgba(0, 84, 91, 0.32);
+  outline-offset: 4px;
 }
 
 @keyframes feature-copy-in {

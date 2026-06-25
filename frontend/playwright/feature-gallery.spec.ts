@@ -6,11 +6,10 @@ test("feature screenshot rail switches manually and does not auto-rotate inner g
   const showcase = page.getByTestId("feature-showcase");
   const rail = page.getByTestId("screenshot-rail");
   await expect(rail).toHaveAttribute("data-active-image-id", "home-favorites-results");
-  await expect(page.getByTestId("screenshot-rail-preview")).toHaveCount(1);
+  await expect(page.getByTestId("screenshot-deck-card")).toHaveCount(1);
   await expect(page.getByTestId("screenshot-stack-thumbnails")).toHaveCount(0);
 
-  await showcase.dispatchEvent("pointerdown", { clientX: 240, pointerId: 1, pointerType: "touch" });
-  await showcase.dispatchEvent("pointerup", { clientX: 120, pointerId: 1, pointerType: "touch" });
+  await showcase.locator('button[data-image-id="home-all-routes-sheet"]').click();
   await expect(rail).toHaveAttribute("data-active-image-id", "home-all-routes-sheet");
 
   await page.waitForTimeout(5_000);

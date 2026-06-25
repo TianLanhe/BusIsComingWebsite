@@ -72,6 +72,19 @@ describe("AppPreviewCarousel", () => {
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
   });
 
+  it("lets users jump directly to a feature scene by clicking its pagination dot", () => {
+    render(
+      <I18nProvider>
+        <LanguageSwitcher label="Language" />
+        <AppPreviewCarousel />
+      </I18nProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Feature Multiple ETAs and route details" }));
+
+    expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "eta-details");
+  });
+
   it("pauses automatic feature rotation during user interaction and keeps state after language switching", () => {
     render(
       <I18nProvider>

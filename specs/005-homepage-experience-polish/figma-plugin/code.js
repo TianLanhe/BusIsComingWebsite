@@ -241,18 +241,18 @@ function carouselRail(name, width, height, mobile = false) {
   rail.clipsContent = false;
   radius(rail, 24);
 
-  const backLeft = phoneScreen(`${name} / Previous low-emphasis preview`, mobile ? 92 : 124, mobile ? 178 : 238, "routes");
-  backLeft.opacity = 0.32;
-  backLeft.x = mobile ? 12 : 42;
-  backLeft.y = mobile ? 42 : 62;
-  backLeft.rotation = -4;
+  const backLeft = phoneScreen(`${name} / Back deck card left`, mobile ? 170 : 224, mobile ? 324 : 430, "routes");
+  backLeft.opacity = 0.76;
+  backLeft.x = mobile ? 38 : 98;
+  backLeft.y = mobile ? 70 : 52;
+  backLeft.rotation = mobile ? -4 : -5;
   rail.appendChild(backLeft);
 
-  const backRight = phoneScreen(`${name} / Next low-emphasis preview`, mobile ? 92 : 124, mobile ? 178 : 238, "eta");
-  backRight.opacity = 0.32;
-  backRight.x = width - backRight.width - (mobile ? 12 : 42);
-  backRight.y = mobile ? 42 : 62;
-  backRight.rotation = 4;
+  const backRight = phoneScreen(`${name} / Back deck card right`, mobile ? 158 : 210, mobile ? 304 : 406, "eta");
+  backRight.opacity = 0.68;
+  backRight.x = width - backRight.width - (mobile ? 44 : 104);
+  backRight.y = mobile ? 78 : 64;
+  backRight.rotation = mobile ? 4 : 5;
   rail.appendChild(backRight);
 
   const main = phoneScreen(`${name} / Main phone screenshot`, mobile ? 184 : 244, mobile ? 350 : 462, mobile ? "eta" : "routes");
@@ -260,8 +260,8 @@ function carouselRail(name, width, height, mobile = false) {
   main.y = mobile ? 18 : 24;
   rail.appendChild(main);
 
-  const hint = chip(`${name} / Swipe hint`, mobile ? "左右滑動" : "drag / swipe", "brand");
-  hint.x = (width - 90) / 2;
+  const hint = chip(`${name} / Interaction hint`, mobile ? "點牌堆切圖" : "deck click / scene drag", "brand");
+  hint.x = (width - 150) / 2;
   hint.y = height - 42;
   rail.appendChild(hint);
 
@@ -269,7 +269,7 @@ function carouselRail(name, width, height, mobile = false) {
 }
 
 function desktopFrame() {
-  const frame = fixedFrame("Desktop 1440 / Cinematic Rail", 1440, 960, colors.page);
+  const frame = fixedFrame("Desktop 1440 / Stair Card Deck", 1440, 960, colors.page);
 
   const header = fixedFrame("Desktop / Header", 1440, 78, colors.surface);
   stroke(header, colors.line);
@@ -303,7 +303,7 @@ function desktopFrame() {
   rail.y = 188;
   frame.appendChild(rail);
 
-  const copy = text("Desktop / Carousel copy", "抵站時間與路線詳情\n一個主畫面，左右滑動查看相鄰內容。", 34, 44, colors.ink, fonts.bold);
+  const copy = text("Desktop / Carousel copy", "抵站時間與路線詳情\n點按後方牌堆切換同場景截圖；左右拖動只切換功能場景。", 34, 44, colors.ink, fonts.bold);
   copy.x = 1080;
   copy.y = 410;
   copy.resize(260, 120);
@@ -313,7 +313,7 @@ function desktopFrame() {
 }
 
 function mobileFrame() {
-  const frame = fixedFrame("Mobile 390 / Swipe Rail", 390, 844, colors.page);
+  const frame = fixedFrame("Mobile 390 / Stair Card Deck", 390, 844, colors.page);
 
   const header = fixedFrame("Mobile / Header", 390, 66, colors.surface);
   stroke(header, colors.line);
@@ -338,7 +338,7 @@ function mobileFrame() {
   title.resize(326, 78);
   frame.appendChild(title);
 
-  const body = text("Mobile / Carousel body", "左右滑動查看相鄰截圖，不顯示底部縮略圖。", 17, 27, colors.muted);
+  const body = text("Mobile / Carousel body", "左右滑動切換功能場景；點按後方牌堆切換同場景截圖。", 17, 27, colors.muted);
   body.x = 34;
   body.y = 642;
   body.resize(322, 70);
@@ -348,7 +348,7 @@ function mobileFrame() {
 }
 
 function statesFrame() {
-  const frame = fixedFrame("Carousel States / No Thumbnail Stack", 760, 440, colors.surface);
+  const frame = fixedFrame("Carousel States / Scene Dots and Deck Click", 760, 440, colors.surface);
   radius(frame, 18);
   stroke(frame, colors.line);
   frame.effects = shadow(0.08, 18, 34);
@@ -360,14 +360,16 @@ function statesFrame() {
 
   const ok = [
     "3 秒自動切換 4 個功能頁",
-    "手機左右滑動，桌面拖動",
+    "手機左右滑動、桌面拖動只切場景",
+    "點點可切換到對應功能場景",
+    "點後方牌堆切同場景主圖",
     "hover / focus / drag / touch 暫停",
-    "只允許左右低強調預覽"
+    "後方圖底部不低於主圖底部"
   ];
   ok.forEach((item, index) => {
     const t = chip(`States / Allowed ${index + 1}`, item, "brand");
     t.x = 38;
-    t.y = 96 + index * 48;
+    t.y = 88 + index * 42;
     frame.appendChild(t);
   });
 
@@ -427,10 +429,11 @@ function notesFrame() {
     "Notes / Body",
     [
       "1. 不得把相鄰預覽做成可點擊縮略圖列表。",
-      "2. visual-review 必須保存桌面與手機截圖。",
+      "2. 同場景多圖只能點牌堆切換；滑動和點點只切功能場景。",
       "3. zh-Hant 採香港實用書面語，不直接轉換簡體。",
       "4. 不新增或修改服務端 HTTP API。",
-      `5. Figma 來源：${TARGET_FILE_URL}`
+      "5. visual-review 必須保存桌面與手機截圖，檢查牌堆底部基線。",
+      `6. Figma 來源：${TARGET_FILE_URL}`
     ].join("\n"),
     18,
     30,

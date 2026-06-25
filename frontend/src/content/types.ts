@@ -66,7 +66,7 @@ export interface ScreenshotGallery {
   defaultImageId: string;
   manualOnly: true;
   hideStackWhenSingleImage: true;
-  visualMode: "cinematic-phone-rail";
+  visualMode: "stair-card-deck";
   allowThumbnailControls: false;
   images: SanitizedScreenshotAsset[];
 }
@@ -112,7 +112,7 @@ export interface HomepageExperiencePolishContract {
   carousel: {
     autoAdvanceMs: 3000;
     featureOrder: FeatureShowcaseId[];
-    visualMode: "cinematic-phone-rail";
+    visualMode: "stair-card-deck";
     supportsSwipe: true;
     supportsDesktopDrag: true;
     supportsKeyboardSwitching: true;

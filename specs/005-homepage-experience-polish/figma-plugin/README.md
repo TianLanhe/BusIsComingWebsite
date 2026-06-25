@@ -14,9 +14,9 @@
 
 Figma file: https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec
 Page: Homepage Experience Polish - 005
-- Desktop 1440 / Cinematic Rail: 29:3
-- Mobile 390 / Swipe Rail: 29:44
-- Carousel States / No Thumbnail Stack: 29:83
+- Desktop 1440 / Stair Card Deck: 29:3
+- Mobile 390 / Stair Card Deck: 29:44
+- Carousel States / Scene Dots and Deck Click: 29:83
 - Brand Contact States: 29:101
 - Spec Notes: 29:108
 
