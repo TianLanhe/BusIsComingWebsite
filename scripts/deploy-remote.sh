@@ -477,7 +477,7 @@ render_caddyfile() {
     printf '    }\n\n'
     printf '    handle {\n'
     printf '        root * %s/current/frontend/dist\n' "${ROOT}"
-    printf '        try_files {path} /index.html\n'
+    printf '        # 只服务真实静态文件；未知路径返回 404，避免搜索引擎软 404。\n'
     printf '        file_server\n'
     printf '    }\n'
     printf '}\n'

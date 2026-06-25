@@ -2190,7 +2190,8 @@ test_remote_renders_systemd_caddy_and_environment() {
   grep -F \
     "root * ${temp}/opt/busiscoming/current/frontend/dist" \
     "${caddy_file}" >/dev/null
-  grep -F "try_files {path} /index.html" "${caddy_file}" >/dev/null
+  grep -F "file_server" "${caddy_file}" >/dev/null
+  assert_not_contains "$(cat "${caddy_file}")" "try_files {path} /index.html" || return 1
 
   original_env="$(cat "${env_file}")"
   BUS_DEPLOY_TEST_MODE=1 \

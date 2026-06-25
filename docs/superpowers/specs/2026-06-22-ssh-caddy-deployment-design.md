@@ -480,7 +480,7 @@ www.busiscoming.com {
 
     handle {
         root * /opt/busiscoming/current/frontend/dist
-        try_files {path} /index.html
+        # 只服务真实静态文件；未知路径返回 404，避免搜索引擎软 404。
         file_server
     }
 }
@@ -491,9 +491,9 @@ Caddy 自动处理：
 - HTTP 到 HTTPS 跳转。
 - 两个域名的公开 CA 证书申请和续期。
 - 静态文件服务。
+- 不存在的非 API 路径返回 404，避免把随机 URL 当作首页副本。
 - gzip/zstd 压缩。
 - `/api/*` 反向代理。
-- SPA 路由回退。
 
 第一版不设置 CSP，避免在未完成资源审计前误拦截图片、脚本或未来第三方资源。
 
