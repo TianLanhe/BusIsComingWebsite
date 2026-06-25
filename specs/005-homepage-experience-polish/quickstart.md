@@ -13,19 +13,19 @@
 2. 从插件开发入口导入 `specs/005-homepage-experience-polish/figma-plugin/manifest.json`。
 3. 运行插件，确认生成页面 `Homepage Experience Polish - 005`。
 4. 检查至少包含以下节点：
-   - `Desktop 1440 / Cinematic Rail`
-   - `Mobile 390 / Swipe Rail`
-   - `Carousel States / No Thumbnail Stack`
+   - `Desktop 1440 / Stair Card Deck`
+   - `Mobile 390 / Stair Card Deck`
+   - `Carousel States / Scene Dots and Deck Click`
    - `Brand Contact States`
    - `Spec Notes`
 5. 检查 `specs/005-homepage-experience-polish/figma.md` 中已回填的节点 ID：
-   - `Desktop 1440 / Cinematic Rail`: `29:3`
-   - `Mobile 390 / Swipe Rail`: `29:44`
-   - `Carousel States / No Thumbnail Stack`: `29:83`
+   - `Desktop 1440 / Stair Card Deck`: `29:3`
+   - `Mobile 390 / Stair Card Deck`: `29:44`
+   - `Carousel States / Scene Dots and Deck Click`: `29:83`
    - `Brand Contact States`: `29:101`
    - `Spec Notes`: `29:108`
 
-期望结果：设计节点清楚表达 3 秒轮播、左右滑动、无底部缩略图堆叠、真实 logo 和联系入口状态。
+期望结果：设计节点清楚表达 3 秒按场景轮播、左右滑动只切换场景、点点可切场景、同场景多图点击牌堆切主图、无底部缩略图堆叠、真实 logo 和联系入口状态。
 
 ## 2. 静态检查
 
@@ -47,6 +47,8 @@ US1 轮播独立验证还应确认：
 - 键盘焦点进入轮播后，方向键或读屏可访问按钮可切换功能页。
 - 读屏标签只说明上一项/下一项功能，不显示常驻视觉箭头。
 - 当前功能页切换语言后不重置。
+- 场景点点可点击，并切换到对应功能场景。
+- 多图场景点击后方牌堆图后只切换主图，不改变当前功能场景。
 - 若出现底部缩略图堆叠、胶片条或图片按钮组，视为失败样例。
 
 本轮实施结果（2026-06-25）：`npm --prefix frontend run test` 通过，10 个测试文件、37 个测试通过。
@@ -72,7 +74,8 @@ npm --prefix frontend run test:e2e -- hero-carousel.spec.ts homepage-hero.spec.t
 - 桌面 1440px 与手机 390px 均通过。
 - 轮播约 3 秒自动切换，10 秒内至少切换 2 次。
 - hover/focus/drag/touch 时暂停自动切换。
-- 手动左右滑动或拖动能切换轮播内容。
+- 手动左右滑动或拖动只切换功能场景。
+- 同场景多图只能通过点击后方牌堆图片切换主图。
 - 语言切换后轮播状态不重置。
 
 本轮实施结果（2026-06-25）：`desktop-1440` 与 `mobile-390` 共 8 个 Playwright 测试通过。
@@ -91,6 +94,7 @@ mobile-390-brand-contact.png
 每张截图检查：
 
 - 没有主图底部小图堆叠。
+- 后方牌堆图片底部不低于主图底部，露出部分可辨识且可点击。
 - 没有胶片条、缩略图按钮组或上下图片堆叠。
 - 没有 `01`、`02`、`03`、`04` 编号装饰。
 - 没有常驻左右箭头。

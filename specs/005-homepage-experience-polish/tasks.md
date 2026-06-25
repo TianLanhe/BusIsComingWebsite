@@ -24,7 +24,7 @@
 **目的**：完成所有用户故事共享的内容契约、类型和事实来源。此阶段完成前不能开始用户故事实现。
 
 - [X] T005 同步首页体验内容不变量到 `shared/contracts/homepage-content.schema.json`，覆盖 3 秒轮播、无缩略图、真实 logo、联系邮箱和三语要求
-- [X] T006 更新 UI 状态长期契约 `shared/contracts/ui-state-contract.md`，记录 cinematic phone rail、暂停状态、减少动态效果、无编号和无常驻箭头规则
+- [X] T006 更新 UI 状态长期契约 `shared/contracts/ui-state-contract.md`，记录低旋转阶梯牌堆、场景维度切换、同场景牌堆点击、暂停状态、减少动态效果、无编号和无常驻箭头规则
 - [X] T007 [P] 扩展内容类型 `frontend/src/content/types.ts`，加入 FeatureCarouselPage、ScreenshotGroup、BrandLogoAsset、ContactEntry、LocalizedCopyItem 和 VisualReviewEvidence 字段
 - [X] T008 [P] 更新事实来源清单 `frontend/src/content/sourceReferences.ts`，记录 Android icon 源路径、香港文案参考来源、005 feature contracts 和 Figma 文件链接
 - [X] T009 [P] 增加契约验证测试 `frontend/src/tests/content-contract.test.ts`，校验 `specs/005-homepage-experience-polish/contracts/homepage-experience-content.schema.json` 与共享内容配置一致
@@ -36,7 +36,7 @@
 
 ## 阶段 3：用户故事 1 - 以更丝滑的首屏轮播理解 App 功能（优先级：P1）MVP
 
-**目标**：把首屏轮播重构为 cinematic phone rail：约 3 秒自动切换、支持左右滑动/桌面拖动、无编号、无底部缩略图、无常驻箭头。
+**目标**：把首屏轮播重构为低旋转阶梯牌堆：约 3 秒自动切换功能场景、支持左右滑动/桌面拖动切换场景、点点切换对应场景、同场景多图点击牌堆切换主图、无编号、无底部缩略图、无常驻箭头。
 
 **独立测试**：在桌面 1440px 和手机 390px 打开首页，观察 10 秒并手动滑动/拖动一次；确认至少自动切换 2 次，交互期间暂停，减少动态效果下仍可手动查看。
 
@@ -44,7 +44,7 @@
 
 - [X] T011 [P] [US1] 更新组件测试 `frontend/src/tests/hero-carousel.test.tsx`，覆盖 autoAdvanceMs=3000、10 秒内至少 2 次切换、键盘可访问切换、读屏标签、无 `01/02/03/04`、无常驻箭头和无缩略图控件
 - [X] T012 [P] [US1] 更新浏览器测试 `frontend/playwright/hero-carousel.spec.ts`，覆盖桌面拖动、手机触控滑动、键盘切换、hover/focus/drag/touch 暂停和语言切换后索引保持
-- [X] T013 [P] [US1] 更新首屏浏览器测试 `frontend/playwright/homepage-hero.spec.ts`，断言 cinematic rail 在 1440px 和 390px 下不遮挡 hero 文案和主要行动入口
+- [X] T013 [P] [US1] 更新首屏浏览器测试 `frontend/playwright/homepage-hero.spec.ts`，断言 stair-card-deck 在 1440px 和 390px 下不遮挡 hero 文案和主要行动入口
 - [X] T014 [US1] 在 `specs/005-homepage-experience-polish/quickstart.md` 补充 US1 独立验证步骤和预期失败样例
 
 ### 用户故事 1 的实现
@@ -200,7 +200,7 @@
 
 1. 完成阶段 1 和阶段 2。
 2. 完成 US1 的测试、轮播实现和独立验收。
-3. 停止并用桌面/手机确认 cinematic phone rail 没有缩略图堆叠、编号或常驻箭头。
+3. 停止并用桌面/手机确认低旋转阶梯牌堆没有缩略图堆叠、编号或常驻箭头，并且后方图片底部不低于主图底部。
 
 ### 增量交付
 

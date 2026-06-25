@@ -14,9 +14,9 @@
 
 | 节点名称 | 说明 |
 |----------|------|
-| `Desktop 1440 / Cinematic Rail` | 桌面首屏 cinematic phone rail，单主图、左右浅层预览、联系入口和真实 logo |
-| `Mobile 390 / Swipe Rail` | 手机首屏上下布局，触控滑动轮播、真实 logo 和语言切换 |
-| `Carousel States / No Thumbnail Stack` | 3 秒自动、拖动中、减少动态效果、禁止底部缩略图状态 |
+| `Desktop 1440 / Stair Card Deck` | 桌面首屏低旋转阶梯牌堆，单主图、后方可点击牌堆、联系入口和真实 logo |
+| `Mobile 390 / Stair Card Deck` | 手机首屏上下布局，收敛牌堆、触控滑动场景切换、真实 logo 和语言切换 |
+| `Carousel States / Scene Dots and Deck Click` | 3 秒自动、点点切场景、拖动切场景、点击牌堆切同场景主图、减少动态效果、禁止底部缩略图状态 |
 | `Brand Contact States` | Header/footer logo、`聯絡我們 / 联系我们 / Contact Us`、真实邮箱 |
 | `Spec Notes` | 禁止形态、文案策略、验收截图说明 |
 
@@ -24,9 +24,9 @@
 
 | 节点名称 | Node ID |
 |----------|---------|
-| `Desktop 1440 / Cinematic Rail` | `29:3` |
-| `Mobile 390 / Swipe Rail` | `29:44` |
-| `Carousel States / No Thumbnail Stack` | `29:83` |
+| `Desktop 1440 / Stair Card Deck` | `29:3` |
+| `Mobile 390 / Stair Card Deck` | `29:44` |
+| `Carousel States / Scene Dots and Deck Click` | `29:83` |
 | `Brand Contact States` | `29:101` |
 | `Spec Notes` | `29:108` |
 
@@ -47,3 +47,4 @@
 
 - `2026-06-24`: 计划阶段生成本地插件设计源。
 - `2026-06-25`: 已从插件运行报告回填实际 node ID。
+- `2026-06-25`: 根据最终原型更新为低旋转阶梯牌堆；原型和设计说明见 `docs/superpowers/specs/2026-06-25-homepage-carousel-stair-deck-design.md`。

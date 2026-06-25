@@ -11,8 +11,10 @@
 | 自动切换间隔 | 约 3 秒切换一次，10 秒内至少切换 2 次 |
 | 自动切换范围 | 只在 4 个功能页之间切换：常用路线、路线比较、抵站时间 / 路线详情、出门前监测 |
 | 主视觉 | 任一时刻只有一个主手机截图作为视觉焦点 |
-| 相邻预览 | 只允许左右低透明、浅裁切、低强调预览，用于暗示可滑动 |
-| 手动切换 | 手机支持触控左右滑动；桌面支持鼠标或触控板拖动 |
+| 同场景多图 | 使用低旋转阶梯牌堆展示；后方最多两张图露出、可点击、透明度足够辨识 |
+| 牌堆基线 | 后方截图底部不得低于主图底部；桌面约 5 度旋转，手机可收敛到约 4 度 |
+| 手动切换 | 手机触控左右滑动、桌面鼠标或触控板拖动只切换功能场景 |
+| 场景点点 | 必须可点击，并直接切换到对应功能场景 |
 | 可访问切换 | 键盘或读屏用户可切换上一项/下一项功能，视觉上不得出现抢占式常驻箭头 |
 | 暂停规则 | hover、focus、drag、touch 期间暂停自动切换 |
 | 减少动态效果 | `prefers-reduced-motion: reduce` 下停止或弱化自动动画，但保留手动查看能力 |
@@ -33,9 +35,9 @@
 
 | 场景 | 契约 |
 |------|------|
-| 单图功能页 | 只显示主图，不显示相邻截图或更多图片暗示 |
-| 多图功能页 | 可通过横向滑动/拖动切换同组截图或相邻功能页 |
-| 同组截图 | 不自动逐张乱跳，不通过缩略图切换 |
+| 单图功能页 | 只显示主图，不显示后方牌堆或更多图片暗示 |
+| 多图功能页 | 显示主图和最多两张后方牌堆图；后方图露出部分必须可点击 |
+| 同组截图 | 只通过点击后方牌堆图切换主图；不自动逐张乱跳，不通过缩略图切换，不通过场景滑动切换 |
 
 ## 品牌 logo
 
@@ -78,9 +80,9 @@
 - 目标文件：`https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU`
 - 本阶段生成本地插件 `specs/005-homepage-experience-polish/figma-plugin/`。
 - 插件必须生成或更新以下设计节点：
-  - `Homepage Experience Polish - 005 / Desktop 1440 / Cinematic Rail`
-  - `Homepage Experience Polish - 005 / Mobile 390 / Swipe Rail`
-  - `Homepage Experience Polish - 005 / Carousel States / No Thumbnail Stack`
+  - `Homepage Experience Polish - 005 / Desktop 1440 / Stair Card Deck`
+  - `Homepage Experience Polish - 005 / Mobile 390 / Stair Card Deck`
+  - `Homepage Experience Polish - 005 / Carousel States / Scene Dots and Deck Click`
   - `Homepage Experience Polish - 005 / Brand Contact States`
   - `Homepage Experience Polish - 005 / Spec Notes`
 - 插件运行后必须把实际 node ID 回填到 `figma.md` 或后续 tasks。
@@ -96,6 +98,7 @@
 
 每张截图的验收记录必须说明：
 
+- 后方牌堆底部不低于主图底部，且露出部分可点击、可辨识
 - 没有底部缩略图堆叠
 - 没有编号装饰
 - 没有常驻左右箭头

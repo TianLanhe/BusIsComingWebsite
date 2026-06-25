@@ -8,7 +8,7 @@
 
 ## 摘要
 
-本功能把首页已有的 UI v2 做一次聚焦体验精修：首屏功能轮播从“主图 + 底部缩略图堆叠”改为 cinematic phone rail，3 秒自动切换，支持左右滑动/拖动，去掉 `01/02/03/04` 编号，并把“禁止底部缩略图、胶片条、图片按钮组、常驻箭头”的验收要求写入契约。品牌区改用 Android App 真实图标前景中的巴士主体，裁掉 launcher 背景底板；导航和页脚从“支持我们”语义改为“联系我们”，底部邮箱改为 `hezhenyu966@gmail.com`。
+本功能把首页已有的 UI v2 做一次聚焦体验精修：首屏功能轮播从“主图 + 底部缩略图堆叠”改为低旋转阶梯牌堆，3 秒按功能场景自动切换，支持左右滑动/拖动切换场景，支持点击场景点点切换到对应场景，同一场景多图只通过点击后方牌堆图片切换主图，去掉 `01/02/03/04` 编号，并把“禁止底部缩略图、胶片条、图片按钮组、常驻箭头”的验收要求写入契约。品牌区改用 Android App 真实图标前景中的巴士主体，裁掉 launcher 背景底板；导航和页脚从“支持我们”语义改为“联系我们”，底部邮箱改为 `hezhenyu966@gmail.com`。
 
 技术路线保持前后端分离但本轮仅改前端：首页 React/Vite 内容模型、轮播组件、品牌资产、三语文案、测试与视觉验收。后端下载服务和在线查询 API 不新增、不修改、不移除；既有 OpenAPI 契约保持不变。计划阶段生成首页体验契约、内容/品牌数据模型、Figma 本地插件设计源和验证 quickstart。当前会话未暴露可调用的 Figma MCP 写入工具，因此本阶段不伪造 Figma 节点 ID，而是在 `figma-plugin/` 生成可导入插件；后续任务必须先在目标 Figma 文件中运行插件并回填实际节点信息。
 
@@ -30,7 +30,7 @@
 
 **性能目标**：首屏轮播自动切换间隔约 3 秒；轮播切换动画控制在用户可感知但不拖沓的 300-700ms；新增 logo 资产保持小体积透明图，避免替换后增加明显首屏负担；桌面 1440px 和手机 390px 下 header、hero、轮播、语言切换和联系入口无重叠、无截断、可操作。
 
-**约束**：三语 i18n；`zh-Hant` 独立香港实用书面语；现代、简洁、优雅；禁止底部缩略图堆叠、胶片条、图片按钮组和常驻箭头；logo 必须来自 Android 真实图标前景主体；当前聚焦 Citybus / 城巴，不提供九巴、港铁、铁路、渡轮或完整出行规划；不新增服务端 HTTP API。
+**约束**：三语 i18n；`zh-Hant` 独立香港实用书面语；现代、简洁、优雅；禁止底部缩略图堆叠、胶片条、图片按钮组和常驻箭头；同场景多图必须使用低旋转阶梯牌堆，桌面约 5 度、手机可收敛，后方图片底部不得低于主图底部；logo 必须来自 Android 真实图标前景主体；当前聚焦 Citybus / 城巴，不提供九巴、港铁、铁路、渡轮或完整出行规划；不新增服务端 HTTP API。
 
 **规模/范围**：1 个首页首屏功能轮播重构；1 组品牌 logo 资产替换；header/footer 联系入口和邮箱更新；全站用户可见文案三语审校；2 份 feature 契约；1 份 Figma 插件设计源；桌面和手机两类视觉验收截图。服务端代码、下载 API 和在线查询 API 均不在本轮范围。
 
@@ -46,11 +46,11 @@
 
 **代码注释与可读性**：实现阶段需要用中文注释解释非显而易见的轮播状态机、滑动/拖动阈值、自动暂停/恢复、减少动态效果、logo 裁切来源和文案审校边界。普通样式、简单赋值、直接文案映射不加噪音注释。
 
-**UI 可视化产物**：Superpowers 视觉 mock 已沉淀在 [设计记录](../../docs/superpowers/specs/2026-06-24-homepage-experience-polish-design.md)，对应本地 companion 文件 `.superpowers/brainstorm/41636-1782310801/content/carousel-directions.html`（不纳入 git）。本计划还生成 Figma 本地插件 `specs/005-homepage-experience-polish/figma-plugin/` 和说明 `figma.md`。
+**UI 可视化产物**：最终 Superpowers 牌堆原型已沉淀在 [轮播牌堆设计记录](../../docs/superpowers/specs/2026-06-25-homepage-carousel-stair-deck-design.md)，对应可打开原型 [HTML](../../docs/superpowers/prototypes/2026-06-25-homepage-carousel-stair-deck.html)。本计划还保留 Figma 本地插件 `specs/005-homepage-experience-polish/figma-plugin/` 和说明 `figma.md`。
 
-**Figma 设计引用**：目标文件沿用 [BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU)。本阶段因没有可调用 Figma MCP 写入工具，生成本地 Figma 插件，计划创建页面 `Homepage Experience Polish - 005`，关键节点名包括 `Desktop 1440 / Cinematic Rail`、`Mobile 390 / Swipe Rail`、`Carousel States / No Thumbnail Stack`、`Brand Contact States`、`Spec Notes`。导入插件后必须把实际节点 ID 回填到 `figma.md` 或后续 tasks。
+**Figma 设计引用**：目标文件沿用 [BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU)。本阶段因没有可调用 Figma MCP 写入工具，生成本地 Figma 插件，计划创建页面 `Homepage Experience Polish - 005`，关键节点名更新为 `Desktop 1440 / Stair Card Deck`、`Mobile 390 / Stair Card Deck`、`Carousel States / Scene Dots and Deck Click`、`Brand Contact States`、`Spec Notes`。导入插件后必须把实际节点 ID 回填到 `figma.md` 或后续 tasks。
 
-**双端适配范围**：桌面以 1440px 宽为主要视觉基准，手机以 390px 宽为主要视觉基准。验证覆盖 header logo、语言切换、hero 文案、轮播主图、左右浅层预览、手动滑动/拖动、下载入口、在线查询入口和页脚联系入口。
+**双端适配范围**：桌面以 1440px 宽为主要视觉基准，手机以 390px 宽为主要视觉基准。验证覆盖 header logo、语言切换、hero 文案、轮播主图、低旋转牌堆、手动滑动/拖动、下载入口、在线查询入口和页脚联系入口。
 
 ## 宪法检查
 
@@ -143,7 +143,7 @@ shared/
     └── ui-state-contract.md
 ```
 
-**结构决策**：前端继续在现有 `components/hero` 和 `content` 模块内演进，不新建页面或改动路由。`ScreenshotStack` 可被重构为 cinematic phone rail 内部视图或被新的更准确组件替代，但功能边界仍归 `AppPreviewCarousel` 负责。品牌资产进入 `frontend/src/assets/brand/`，README 必须记录 Android 前景图标来源。共享契约先在 feature contracts 中定义，若实现改变长期内容结构，则同步 `shared/contracts/`。
+**结构决策**：前端继续在现有 `components/hero` 和 `content` 模块内演进，不新建页面或改动路由。`ScreenshotStack` 负责低旋转阶梯牌堆的主图、后方图和点击区域，功能场景切换状态仍归 `AppPreviewCarousel` 负责。品牌资产进入 `frontend/src/assets/brand/`，README 必须记录 Android 前景图标来源。共享契约先在 feature contracts 中定义，若实现改变长期内容结构，则同步 `shared/contracts/`。
 
 ## 复杂度跟踪
 

@@ -38,12 +38,12 @@ describe("sanitized screenshot assets manifest", () => {
     }
   });
 
-  it("exposes cinematic rail galleries with approved assets and complete alt text", () => {
+  it("exposes stair-card-deck galleries with approved assets and complete alt text", () => {
     for (const slide of carouselSlides) {
       const defaultImage = slide.gallery.images.find((image) => image.id === slide.gallery.defaultImageId);
 
       expect(slide.gallery.manualOnly, slide.id).toBe(true);
-      expect(slide.gallery.visualMode, slide.id).toBe("cinematic-phone-rail");
+      expect(slide.gallery.visualMode, slide.id).toBe("stair-card-deck");
       expect(slide.gallery.allowThumbnailControls, slide.id).toBe(false);
       expect(defaultImage, `${slide.id} default image`).toBeTruthy();
       expect(defaultImage?.desensitizationStatus, `${slide.id} status`).toBe("approved");
