@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BusIsComing Homepage UI Polish Follow-up</title>
+    <style>
+      :root {
+        color: #17373a;
+        background: #f6fbfa;
+        font-family:
+          Inter, "Noto Sans SC", "Noto Sans TC", system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      main {
+        display: grid;
+        gap: 48px;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 48px 22px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        color: #073f43;
+        font-size: 34px;
+        line-height: 1.15;
+      }
+
+      h2 {
+        color: #073f43;
+        font-size: 24px;
+      }
+
+      h3 {
+        font-size: 17px;
+      }
+
+      p {
+        color: #506765;
+        line-height: 1.7;
+      }
+
+      .section {
+        display: grid;
+        gap: 18px;
+      }
+
+      .panel {
+        border: 1px solid #dbe9e7;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 18px 48px rgba(17, 34, 38, 0.08);
+      }
+
+      .hero-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 500px) minmax(280px, 1fr);
+        gap: 28px;
+        align-items: center;
+        padding: 30px 28px;
+      }
+
+      .screenshot-zone {
+        position: relative;
+        display: grid;
+        place-items: center;
+        min-height: 430px;
+        overflow: hidden;
+      }
+
+      .phone {
+        position: absolute;
+        width: 210px;
+        height: 420px;
+        border: 1px solid rgba(18, 92, 95, 0.18);
+        border-radius: 34px;
+        background: linear-gradient(#d7e0ee 0 24%, #111722 24%);
+        box-shadow: 0 32px 72px rgba(17, 34, 38, 0.25);
+      }
+
+      .phone.back-left {
+        transform: translate(-76px, 8px) scale(0.92) rotate(-5deg);
+        opacity: 0.72;
+      }
+
+      .phone.back-right {
+        transform: translate(82px, 10px) scale(0.86) rotate(5deg);
+        opacity: 0.6;
+      }
+
+      .phone.main {
+        z-index: 3;
+      }
+
+      .copy-zone {
+        display: grid;
+        gap: 14px;
+      }
+
+      .copy-zone h2 {
+        font-size: 42px;
+        line-height: 1.12;
+      }
+
+      .dots {
+        display: flex;
+        gap: 7px;
+        margin-top: 8px;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #c8dcda;
+      }
+
+      .dot.active {
+        width: 26px;
+        background: #006870;
+      }
+
+      .mobile-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(280px, 1fr));
+        gap: 18px;
+      }
+
+      .phone-frame {
+        max-width: 360px;
+        margin: 0 auto;
+        border: 1px solid #dbe9e7;
+        border-radius: 26px;
+        background: #f5fbfa;
+        padding: 18px 14px;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .feature-card {
+        min-height: 82px;
+        border: 1px solid #dbe9e7;
+        border-radius: 10px;
+        background: #ffffff;
+        padding: 10px 10px;
+      }
+
+      .feature-icon {
+        color: #006870;
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      .feature-card strong {
+        display: block;
+        margin-top: 7px;
+        color: #17373a;
+        font-size: 14px;
+        line-height: 1.25;
+      }
+
+      .feature-card span {
+        display: block;
+        margin-top: 4px;
+        color: #687c7a;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
+      .route-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .route-card {
+        display: grid;
+        gap: 10px;
+        border: 1px solid #dbe9e7;
+        border-radius: 10px;
+        background: #ffffff;
+        padding: 13px 14px;
+      }
+
+      .route-top,
+      .route-path {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .route-number {
+        color: #111c18;
+        font-size: 24px;
+        font-weight: 760;
+      }
+
+      .eta-pill {
+        border-radius: 999px;
+        background: #e7f5f2;
+        color: #006870;
+        padding: 5px 9px;
+        font-size: 13px;
+        font-weight: 760;
+        white-space: nowrap;
+      }
+
+      .route-path {
+        color: #506765;
+        font-size: 13px;
+      }
+
+      .route-metrics {
+        display: grid;
+        grid-template-columns: 0.9fr 0.95fr 1.2fr;
+        gap: 7px;
+      }
+
+      .metric span {
+        color: #7a8d8b;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .metric strong {
+        margin-left: 4px;
+        color: #17373a;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .notes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .note {
+        border: 1px solid #dbe9e7;
+        border-radius: 10px;
+        background: #ffffff;
+        padding: 14px;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          padding: 30px 14px;
+        }
+
+        .hero-panel,
+        .mobile-row,
+        .notes {
+          grid-template-columns: 1fr;
+        }
+
+        .copy-zone h2 {
+          font-size: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="section">
+        <h1>首页 UI 体验优化确认稿</h1>
+        <p>
+          本原型沉淀 2026-06-27 用户确认的补充优化：桌面 hero 截图组中等放大、
+          手机功能介绍 2 列紧凑展示、路线结果卡片紧凑标签值布局，以及截图区和文字区分离手势。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>桌面 hero：截图组中等放大</h2>
+        <div class="panel hero-panel">
+          <div class="screenshot-zone" aria-label="截图区：拖动只切同功能截图，点击主截图打开大图">
+            <div class="phone back-left"></div>
+            <div class="phone back-right"></div>
+            <div class="phone main"></div>
+          </div>
+          <div class="copy-zone" aria-label="文字区：拖动切换整个功能">
+            <h2>出门前监测<br />与语音提醒</h2>
+            <p>
+              临出门前短时间监测程城巴抵站时间，配合通知与语音提示，
+              少一点赶车压力。
+            </p>
+            <div class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot active"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>手机功能介绍：2 列紧凑卡片</h2>
+        <div class="mobile-row">
+          <div class="panel phone-frame">
+            <div class="feature-grid">
+              <div class="feature-card">
+                <div class="feature-icon">□</div>
+                <strong>常用路线</strong>
+                <span>一按回到日常查询</span>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">$</div>
+                <strong>车费一眼看清</strong>
+                <span>车费、耗时、步行一起比较</span>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">◷</div>
+                <strong>多班抵站时间</strong>
+                <span>最多 3 班 ETA</span>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">☰</div>
+                <strong>路线详情</strong>
+                <span>站点、转乘段清楚看</span>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <strong>出门前监测</strong>
+                <span>少一点赶车压力</span>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">↔</div>
+                <strong>快速切换方向</strong>
+                <span>回程查询更快</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel phone-frame">
+            <div class="route-list">
+              <div class="route-card">
+                <div class="route-top">
+                  <strong class="route-number">82</strong>
+                  <span class="eta-pill">候车暂不可用</span>
+                </div>
+                <div class="route-path">站点资料暂未返回</div>
+                <div class="route-metrics">
+                  <div class="metric"><span>车费</span><strong>$4.90</strong></div>
+                  <div class="metric"><span>耗时</span><strong>9 分钟</strong></div>
+                  <div class="metric"><span>步行</span><strong>269 米</strong></div>
+                </div>
+              </div>
+
+              <div class="route-card">
+                <div class="route-top">
+                  <strong class="route-number">8X</strong>
+                  <span class="eta-pill">等候 1 分钟</span>
+                </div>
+                <div class="route-path">
+                  <span>兴华邨兴翠楼</span>
+                  <span>→</span>
+                  <span>渔湾邨</span>
+                </div>
+                <div class="route-metrics">
+                  <div class="metric"><span>车费</span><strong>$4.30</strong></div>
+                  <div class="metric"><span>耗时</span><strong>7 分钟</strong></div>
+                  <div class="metric"><span>步行</span><strong>180 米</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>交互规则</h2>
+        <div class="notes">
+          <div class="note">
+            <h3>截图区</h3>
+            <p>页面内左右拖动只切换同功能截图；点击后排截图也只切换同功能截图。</p>
+          </div>
+          <div class="note">
+            <h3>文字区</h3>
+            <p>文字介绍区左右拖动切换整个功能；圆点仍用于跳转到指定功能。</p>
+          </div>
+          <div class="note">
+            <h3>大图模式</h3>
+            <p>点击主截图打开大图；支持缩放、平移和同功能截图切换，不跨功能。</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
