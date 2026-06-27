@@ -163,9 +163,10 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
       tabIndex={0}
       onKeyDown={handleKeyDown}
       onPointerEnter={() => setIsPaused(true)}
-      onPointerLeave={() => setIsPaused(false)}
+      onPointerMove={() => setIsPaused(true)}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseMove={() => setIsPaused(true)}
       onFocusCapture={() => setIsPaused(true)}
-      onBlurCapture={() => setIsPaused(false)}
     >
       <ScreenshotStack
         gallery={activeSlide.gallery}

@@ -83,9 +83,8 @@
   }
 
   .item {
-    gap: 6px;
-    min-height: 118px;
-    padding: 14px 10px;
+    gap: 5px;
+    padding: 12px 9px;
   }
 
   .item + .item {
@@ -101,16 +100,15 @@
   }
 
   .item svg {
-    width: 23px;
-    height: 23px;
+    width: 21px;
+    height: 21px;
   }
 
   .item h3 {
-    font: var(--text-caption);
-    font-weight: 700;
+    font: 700 12px / 1.24 var(--font-sans);
   }
 
   .item p {
-    font: 500 12px / 1.32 var(--font-sans);
+    font: 500 11px / 1.25 var(--font-sans);
   }
 }

@@ -22,12 +22,13 @@ test("feature screenshot rail switches manually and does not auto-rotate inner g
   await expect(page.getByTestId("lightbox-image")).toHaveAttribute("data-zoom", "1.25");
   await page.getByRole("button", { name: "Next screenshot in this feature" }).click();
   await expect(page.getByTestId("lightbox-image")).toHaveAttribute("data-image-id", "home-favorites-results");
-  await page.keyboard.press("Escape");
-  await expect(page.getByTestId("screenshot-lightbox")).toHaveCount(0);
-  await expect(rail).toHaveAttribute("data-active-image-id", "home-favorites-results");
 
   await page.screenshot({
     path: `../specs/007-homepage-ui-polish/visual-review/${testInfo.project.name}-feature-rail-lightbox.png`,
     fullPage: false,
   });
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("screenshot-lightbox")).toHaveCount(0);
+  await expect(rail).toHaveAttribute("data-active-image-id", "home-favorites-results");
 });

@@ -131,8 +131,9 @@ describe("AppPreviewCarousel", () => {
     act(() => {
       vi.advanceTimersByTime(3_100);
     });
-    expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
+    expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
 
+    fireEvent.click(screen.getByRole("button", { name: "Feature Fare at a glance" }));
     fireEvent.click(screen.getByTitle("English"));
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
     expect(within(screen.getByTestId("active-slide")).getByText("Fare at a glance")).toBeInTheDocument();

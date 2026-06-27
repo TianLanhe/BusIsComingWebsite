@@ -111,12 +111,12 @@
 **Purpose**: 完成整体视觉记录、Figma 沉淀、构建和回归验证。
 
 - [X] T036 更新 `specs/007-homepage-ui-polish/figma.md`，回填最终 Figma 文件/链接、关键节点、交互状态和版本说明；如 MCP 仍未授权，记录本地插件产物和待回填事项
-- [ ] T037 按 `specs/007-homepage-ui-polish/quickstart.md` 截取并保存桌面 hero、手机功能区、手机路线结果卡、lightbox 到 `specs/007-homepage-ui-polish/visual-review/`
+- [X] T037 按 `specs/007-homepage-ui-polish/quickstart.md` 截取并保存桌面 hero、手机功能区、手机路线结果卡、lightbox 到 `specs/007-homepage-ui-polish/visual-review/`
 - [X] T038 运行 `cd frontend && npm run test -- --run src/tests/hero-carousel.test.tsx src/tests/feature-gallery.test.tsx src/tests/online-query-demo.test.tsx src/tests/sections-content.test.ts src/tests/hero-content.test.ts src/tests/i18n-completeness.test.tsx`
 - [X] T039 运行 `cd frontend && npm run build`
-- [ ] T040 运行 `cd frontend && npm run test:e2e -- playwright/hero-carousel.spec.ts playwright/feature-gallery.spec.ts playwright/homepage-sections.spec.ts playwright/online-query-demo.spec.ts`
+- [X] T040 运行 `cd frontend && npm run test:e2e -- playwright/hero-carousel.spec.ts playwright/feature-gallery.spec.ts playwright/homepage-sections.spec.ts playwright/online-query-demo.spec.ts`
 - [X] T041 运行 `cd frontend && npm run openapi:lint && npm run openapi:routes:lint`，确认本次无服务端 API 契约漂移
-- [ ] T042 对照 `specs/007-homepage-ui-polish/contracts/homepage-ui-polish.contract.md` 手动检查 US1/US2/US3 所有状态，必要时补充测试或截图证据
+- [X] T042 对照 `specs/007-homepage-ui-polish/contracts/homepage-ui-polish.contract.md` 手动检查 US1/US2/US3 所有状态，必要时补充测试或截图证据
 - [X] T043 确认 `AGENTS.md` 仍指向 `specs/007-homepage-ui-polish/plan.md`，并检查 `git status --short` 只包含本次任务相关文件
 
 ---
