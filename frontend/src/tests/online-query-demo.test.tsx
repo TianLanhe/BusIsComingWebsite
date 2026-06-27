@@ -85,6 +85,15 @@ describe("OnlineQueryDemoSection", () => {
     expect(await screen.findByText("606")).toBeInTheDocument();
     expect(screen.getByText("Hing Wah Estate")).toBeInTheDocument();
     expect(screen.getByText("Yue Wan Estate")).toBeInTheDocument();
+    const routeCard = screen.getByTestId("route-card");
+    expect(routeCard).toHaveAttribute("data-mobile-layout", "compact");
+    expect(screen.getByTestId("route-metrics")).toHaveAttribute("data-layout", "inline-label-value");
+    expect(screen.getByTestId("route-metric-fare")).toHaveTextContent("Fare");
+    expect(screen.getByTestId("route-metric-fare")).toHaveTextContent("$6.10");
+    expect(screen.getByTestId("route-metric-duration")).toHaveTextContent("Time");
+    expect(screen.getByTestId("route-metric-duration")).toHaveTextContent("10 min");
+    expect(screen.getByTestId("route-metric-walking")).toHaveTextContent("Walk");
+    expect(screen.getByTestId("route-metric-walking")).toHaveTextContent("266 m");
     expect(await screen.findByText("Wait 49 min")).toBeInTheDocument();
     expect(fetchSpy).toHaveBeenCalledWith(
       "/api/routes/query_etas",
@@ -167,6 +176,46 @@ describe("OnlineQueryDemoSection", () => {
     await waitFor(() => expect(screen.queryByText("11A")).not.toBeInTheDocument());
     expect(screen.getByText("22X")).toBeInTheDocument();
     expect(fetchSpy).toHaveBeenCalled();
+  });
+
+  it("renders a compact missing-stop fallback instead of empty boarding and alighting placeholders", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const url = String(input);
+      const body = JSON.parse(String(init?.body ?? "{}")) as Record<string, string>;
+      if (url.endsWith("/query_places")) {
+        const placeName = body.query.includes("origin") ? "Origin Place" : "Destination Place";
+        const token = body.query.includes("origin") ? "origin-token" : "destination-token";
+        return jsonEnvelope<QueryPlacesData>({
+          places: [{ placeToken: token, name: placeName, provider: "citybus", expiresAt: "2026-06-16T12:15:00Z" }],
+          expiresAt: "2026-06-16T12:15:00Z",
+        });
+      }
+      if (url.endsWith("/query_routes")) {
+        return jsonEnvelope<QueryRoutesData>({
+          queriedAt: "2026-06-16T12:00:00Z",
+          resultLimit: 20,
+          routes: [
+            {
+              ...routeFixture("route-missing", "82", "eta-missing"),
+              boardingStop: { name: "" },
+              alightingStop: { name: "" },
+            },
+          ],
+        });
+      }
+      return jsonEnvelope<QueryEtasData>({ queriedAt: "2026-06-16T12:00:01Z", etas: [] });
+    });
+
+    renderWithI18n(<OnlineQueryDemoSection />);
+
+    await choosePlace("Origin", "origin", "Origin Place");
+    await choosePlace("Destination", "destination", "Destination Place");
+    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+    expect(await screen.findByText("82")).toBeInTheDocument();
+    expect(screen.getByTestId("route-stop-fallback")).toHaveTextContent("Stop details unavailable");
+    expect(screen.queryByText("Boarding stop")).not.toBeInTheDocument();
+    expect(screen.queryByText("Alighting stop")).not.toBeInTheDocument();
   });
 });
 

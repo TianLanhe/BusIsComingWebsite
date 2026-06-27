@@ -4,6 +4,7 @@ import downloadManifestSchema from "../../../shared/contracts/download-manifest.
 import homepageContentSchema from "../../../shared/contracts/homepage-content.schema.json";
 import homepageContentV2Schema from "../../../specs/003-homepage-ui-optimization/contracts/homepage-content-v2.schema.json";
 import homepageExperiencePolishSchema from "../../../specs/005-homepage-experience-polish/contracts/homepage-experience-content.schema.json";
+import homepageUiPolishSchema from "../../../specs/007-homepage-ui-polish/contracts/homepage-ui-polish-content.schema.json";
 import { downloadManifest } from "../content/downloadManifest";
 import { homepageContent } from "../content/homepageContent";
 import { onlineQueryDemo } from "../content/onlineQueryDemo";
@@ -97,6 +98,32 @@ describe("content contracts", () => {
     expect(homepageContent.homepageExperience.contact.email).toBe("hezhenyu966@gmail.com");
     expect(homepageContent.homepageExperience.localizedCopyReview.enTone).toBe("natural-restrained-product");
     expect(homepageContent.homepageExperience.localizedCopyReview.translationMode).toBe("locale-adapted-not-literal");
+  });
+
+  it("validates homepage UI polish invariants against the feature contract", () => {
+    const validate = ajv.compile(homepageUiPolishSchema);
+
+    expect(validate(homepageContent.homepageUiPolish), JSON.stringify(validate.errors, null, 2)).toBe(true);
+    expect(homepageContent.homepageUiPolish.heroGallery.desktopScale).toBe("medium");
+    expect(homepageContent.homepageUiPolish.heroGallery.showZoomIndicator).toBe(false);
+    expect(homepageContent.homepageUiPolish.heroGallery.splitGestureZones.screenshotZoneAction).toBe("switch-same-feature-image");
+    expect(homepageContent.homepageUiPolish.heroGallery.splitGestureZones.copyZoneAction).toBe("switch-feature");
+    expect(homepageContent.homepageUiPolish.heroGallery.lightbox.supportsZoom).toBe(true);
+    expect(homepageContent.homepageUiPolish.routeResultCard.metricLayout).toBe("inline-label-value");
+    expect(homepageContent.homepageUiPolish.routeResultCard.missingStopFallback.en).toBe("Stop details unavailable");
+    expect(homepageContent.homepageUiPolish.figmaReference.pageName).toBe("Homepage UI Polish - 007");
+  });
+
+  it("does not leak old fare implementation notes into user-facing content", () => {
+    const { forbiddenPhrases, ...fareCopy } = homepageContent.homepageUiPolish.fareCopy;
+    const content = JSON.stringify({ ...homepageContent, homepageUiPolish: { ...homepageContent.homepageUiPolish, fareCopy } });
+
+    for (const forbidden of forbiddenPhrases) {
+      expect(content).not.toContain(forbidden);
+    }
+    expect(homepageContent.homepageUiPolish.fareCopy.title["zh-Hans"]).toBe("车费一眼看清");
+    expect(homepageContent.homepageUiPolish.fareCopy.title["zh-Hant"]).toBe("車費一眼看清");
+    expect(homepageContent.homepageUiPolish.fareCopy.title.en).toBe("Fare at a glance");
   });
 
   it("validates download manifest against the shared contract", () => {

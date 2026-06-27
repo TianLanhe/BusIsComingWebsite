@@ -81,6 +81,11 @@ export const uiCopy = {
     "zh-Hans": "下车站",
     en: "Alighting stop",
   },
+  stopInfoUnavailable: {
+    "zh-Hant": "站點資料暫未返回",
+    "zh-Hans": "站点资料暂未返回",
+    en: "Stop details unavailable",
+  },
   waitLabel: {
     "zh-Hant": "等候",
     "zh-Hans": "等候",
@@ -177,14 +182,14 @@ export const uiCopy = {
     en: "Fare",
   },
   durationLabel: {
-    "zh-Hant": "總行程時間",
-    "zh-Hans": "总行程时间",
-    en: "Journey time",
+    "zh-Hant": "耗時",
+    "zh-Hans": "耗时",
+    en: "Time",
   },
   walkingLabel: {
-    "zh-Hant": "步行距離",
-    "zh-Hans": "步行距离",
-    en: "Walking distance",
+    "zh-Hant": "步行",
+    "zh-Hans": "步行",
+    en: "Walk",
   },
   downloadUnavailable: {
     "zh-Hant": "下載資源暫不可用，請稍後再試。",
@@ -245,6 +250,41 @@ export const uiCopy = {
     "zh-Hant": "顯示同場景截圖",
     "zh-Hans": "显示同场景截图",
     en: "Show same-scene screenshot",
+  },
+  screenshotLightboxTitle: {
+    "zh-Hant": "查看 App 截圖",
+    "zh-Hans": "查看 App 截图",
+    en: "View app screenshot",
+  },
+  closeLightbox: {
+    "zh-Hant": "關閉大圖",
+    "zh-Hans": "关闭大图",
+    en: "Close image viewer",
+  },
+  zoomInScreenshot: {
+    "zh-Hant": "放大截圖",
+    "zh-Hans": "放大截图",
+    en: "Zoom in",
+  },
+  zoomOutScreenshot: {
+    "zh-Hant": "縮小截圖",
+    "zh-Hans": "缩小截图",
+    en: "Zoom out",
+  },
+  resetScreenshotZoom: {
+    "zh-Hant": "重設縮放",
+    "zh-Hans": "重置缩放",
+    en: "Reset zoom",
+  },
+  previousScreenshot: {
+    "zh-Hant": "上一張同功能截圖",
+    "zh-Hans": "上一张同功能截图",
+    en: "Previous screenshot in this feature",
+  },
+  nextScreenshot: {
+    "zh-Hant": "下一張同功能截圖",
+    "zh-Hans": "下一张同功能截图",
+    en: "Next screenshot in this feature",
   },
   faqHeading: {
     "zh-Hant": "常見問題",

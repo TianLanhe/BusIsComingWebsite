@@ -480,29 +480,37 @@ function RouteCard({
   locale: Locale;
   text: ReturnType<typeof useI18n>["text"];
 }) {
+  const hasStopPath = Boolean(route.boardingStop.name && route.alightingStop.name);
+
   return (
-    <article className={styles.routeRow}>
+    <article className={styles.routeRow} data-testid="route-card" data-mobile-layout="compact">
       <div className={styles.routeMain}>
         <span className={styles.routeNumber}>{route.routeNumbers.length > 0 ? route.routeNumbers.join(" -> ") : route.routeLabel}</span>
         <em>{formatEta(route, eta, text)}</em>
       </div>
-      <div className={styles.stopLine}>
-        <span>{route.boardingStop.name || text(uiCopy.boardingStopLabel)}</span>
-        <span aria-hidden="true">→</span>
-        <span>{route.alightingStop.name || text(uiCopy.alightingStopLabel)}</span>
-      </div>
-      <dl>
-        <div>
-          <dt>{text(uiCopy.fareLabel)}</dt>
-          <dd>{formatFare(route.fare.amount, locale)}</dd>
+      {hasStopPath ? (
+        <div className={styles.stopLine}>
+          <span>{route.boardingStop.name}</span>
+          <span aria-hidden="true">→</span>
+          <span>{route.alightingStop.name}</span>
         </div>
-        <div>
-          <dt>{text(uiCopy.durationLabel)}</dt>
-          <dd>{formatMinutes(route.durationMinutes, locale, text)}</dd>
+      ) : (
+        <div className={styles.stopFallback} data-testid="route-stop-fallback">
+          {text(uiCopy.stopInfoUnavailable)}
         </div>
-        <div>
-          <dt>{text(uiCopy.walkingLabel)}</dt>
-          <dd>{formatMeters(route.walkingDistanceMeters, locale)}</dd>
+      )}
+      <dl className={styles.metrics} data-testid="route-metrics" data-layout="inline-label-value">
+        <div className={styles.metric} data-testid="route-metric-fare">
+          <dt className={styles.metricLabel}>{text(uiCopy.fareLabel)}</dt>
+          <dd className={styles.metricValue}>{formatFare(route.fare.amount, locale)}</dd>
+        </div>
+        <div className={styles.metric} data-testid="route-metric-duration">
+          <dt className={styles.metricLabel}>{text(uiCopy.durationLabel)}</dt>
+          <dd className={styles.metricValue}>{formatMinutes(route.durationMinutes, locale, text)}</dd>
+        </div>
+        <div className={styles.metric} data-testid="route-metric-walking">
+          <dt className={styles.metricLabel}>{text(uiCopy.walkingLabel)}</dt>
+          <dd className={styles.metricValue}>{formatMeters(route.walkingDistanceMeters, locale)}</dd>
         </div>
       </dl>
     </article>

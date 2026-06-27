@@ -15,6 +15,7 @@
     "contact",
     "scopeExclusions",
     "homepageExperience",
+    "homepageUiPolish",
     "figmaReference"
   ],
   "properties": {
@@ -146,6 +147,7 @@
       "items": { "$ref": "#/$defs/localizedString" }
     },
     "homepageExperience": { "$ref": "#/$defs/homepageExperience" },
+    "homepageUiPolish": { "$ref": "#/$defs/homepageUiPolish" },
     "figmaReference": {
       "type": "object",
       "required": ["fileUrl", "pageNode", "desktopNode", "mobileNode", "downloadStatesNode", "carouselStatesNode", "notesNode", "versionNote"],
@@ -217,6 +219,7 @@
             "manualOnly",
             "hideStackWhenSingleImage",
             "visualMode",
+            "lightboxEnabled",
             "allowThumbnailControls",
             "images"
           ],
@@ -233,6 +236,7 @@
         "manualOnly": { "const": true },
         "hideStackWhenSingleImage": { "const": true },
         "visualMode": { "const": "stair-card-deck" },
+        "lightboxEnabled": { "const": true },
         "allowThumbnailControls": { "const": false },
         "images": {
               "type": "array",
@@ -481,6 +485,138 @@
               "minItems": 5,
               "items": { "type": "string", "minLength": 1 }
             }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "homepageUiPolish": {
+      "type": "object",
+      "required": ["metadata", "heroGallery", "featureGrid", "routeResultCard", "fareCopy", "figmaReference"],
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "required": ["version", "lastUpdated"],
+          "properties": {
+            "version": { "const": "2026-06-27.homepage-ui-polish" },
+            "lastUpdated": { "type": "string", "format": "date" }
+          },
+          "additionalProperties": false
+        },
+        "heroGallery": {
+          "type": "object",
+          "required": ["desktopScale", "showZoomIndicator", "splitGestureZones", "lightbox"],
+          "properties": {
+            "desktopScale": { "const": "medium" },
+            "showZoomIndicator": { "const": false },
+            "splitGestureZones": {
+              "type": "object",
+              "required": ["screenshotZoneAction", "copyZoneAction"],
+              "properties": {
+                "screenshotZoneAction": { "const": "switch-same-feature-image" },
+                "copyZoneAction": { "const": "switch-feature" }
+              },
+              "additionalProperties": false
+            },
+            "lightbox": {
+              "type": "object",
+              "required": [
+                "enabled",
+                "sameFeatureOnly",
+                "supportsZoom",
+                "supportsPan",
+                "supportsKeyboardClose",
+                "controls"
+              ],
+              "properties": {
+                "enabled": { "const": true },
+                "sameFeatureOnly": { "const": true },
+                "supportsZoom": { "const": true },
+                "supportsPan": { "const": true },
+                "supportsKeyboardClose": { "const": true },
+                "controls": {
+                  "type": "object",
+                  "required": ["close", "zoomIn", "zoomOut", "resetZoom", "previousImage", "nextImage"],
+                  "properties": {
+                    "close": { "$ref": "#/$defs/localizedString" },
+                    "zoomIn": { "$ref": "#/$defs/localizedString" },
+                    "zoomOut": { "$ref": "#/$defs/localizedString" },
+                    "resetZoom": { "$ref": "#/$defs/localizedString" },
+                    "previousImage": { "$ref": "#/$defs/localizedString" },
+                    "nextImage": { "$ref": "#/$defs/localizedString" }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "featureGrid": {
+          "type": "object",
+          "required": ["mobileColumns", "desktopUnchanged", "minimumFeatureCount", "futureFeatureCount"],
+          "properties": {
+            "mobileColumns": { "const": 2 },
+            "desktopUnchanged": { "const": true },
+            "minimumFeatureCount": { "type": "integer", "minimum": 6 },
+            "futureFeatureCount": { "type": "integer", "minimum": 10 }
+          },
+          "additionalProperties": false
+        },
+        "routeResultCard": {
+          "type": "object",
+          "required": ["mobileCompact", "desktopUnchanged", "metricLayout", "missingStopFallback", "metrics"],
+          "properties": {
+            "mobileCompact": { "const": true },
+            "desktopUnchanged": { "const": true },
+            "metricLayout": { "const": "inline-label-value" },
+            "missingStopFallback": { "$ref": "#/$defs/localizedString" },
+            "metrics": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "required": ["id", "label", "valueStyle"],
+                "properties": {
+                  "id": { "enum": ["fare", "duration", "walking"] },
+                  "label": { "$ref": "#/$defs/localizedString" },
+                  "valueStyle": { "const": "emphasized" }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "fareCopy": {
+          "type": "object",
+          "required": ["title", "description", "forbiddenPhrases"],
+          "properties": {
+            "title": { "$ref": "#/$defs/localizedString" },
+            "description": { "$ref": "#/$defs/localizedString" },
+            "forbiddenPhrases": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            }
+          },
+          "additionalProperties": false
+        },
+        "figmaReference": {
+          "type": "object",
+          "required": ["fileUrl", "pageName", "nodeNames", "nodeIdsResolved"],
+          "properties": {
+            "fileUrl": { "type": "string", "format": "uri" },
+            "pageName": { "const": "Homepage UI Polish - 007" },
+            "nodeNames": {
+              "type": "array",
+              "minItems": 6,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "nodeIdsResolved": { "type": "boolean" }
           },
           "additionalProperties": false
         }

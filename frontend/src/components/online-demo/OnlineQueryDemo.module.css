@@ -251,8 +251,8 @@
 
 .routeRow {
   display: grid;
-  gap: 16px;
-  padding: 18px;
+  gap: 14px;
+  padding: 16px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
@@ -261,7 +261,7 @@
 .routeNumber {
   overflow-wrap: anywhere;
   color: #111c18;
-  font: var(--text-route);
+  font: 750 19px / 1.12 var(--font-sans);
 }
 
 .routeMain em {
@@ -290,29 +290,39 @@
   text-align: right;
 }
 
-.routeRow dl {
+.stopFallback {
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--muted);
+  background: #f4f8f7;
+  font: var(--text-small);
+}
+
+.metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
   margin: 0;
-  padding-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--border);
 }
 
-.routeRow dl div {
+.metric {
   display: grid;
-  gap: 4px;
+  gap: 3px;
+  min-width: 0;
 }
 
-.routeRow dt {
+.metricLabel {
   color: var(--muted);
   font: var(--text-caption);
 }
 
-.routeRow dd {
+.metricValue {
   margin: 0;
   color: var(--text);
   font: var(--text-small-strong);
+  overflow-wrap: anywhere;
 }
 
 .notice {
@@ -367,23 +377,47 @@
   }
 
   .routeMain {
-    display: grid;
-    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .routeMain em {
-    text-align: left;
+    min-width: max-content;
+    text-align: right;
   }
 
   .stopLine {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 8px;
   }
 
   .stopLine span:last-child {
-    text-align: left;
+    text-align: right;
   }
 
-  .routeRow dl {
-    grid-template-columns: 1fr;
+  .routeRow {
+    gap: 11px;
+    padding: 13px;
+  }
+
+  .routeNumber {
+    font: 700 18px / 1.1 var(--font-sans);
+  }
+
+  .metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding-top: 10px;
+  }
+
+  .metric {
+    gap: 2px;
+  }
+
+  .metricLabel {
+    font: 600 11px / 1.15 var(--font-sans);
+  }
+
+  .metricValue {
+    font: 750 14px / 1.16 var(--font-sans);
   }
 }

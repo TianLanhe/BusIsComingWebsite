@@ -3,8 +3,17 @@
   "$id": "https://busiscoming.local/contracts/homepage-ui-polish-content.schema.json",
   "title": "BusIsComing Homepage UI Polish Content Contract",
   "type": "object",
-  "required": ["heroGallery", "featureGrid", "routeResultCard", "fareCopy", "figmaReference"],
+  "required": ["metadata", "heroGallery", "featureGrid", "routeResultCard", "fareCopy", "figmaReference"],
   "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["version", "lastUpdated"],
+      "properties": {
+        "version": { "const": "2026-06-27.homepage-ui-polish" },
+        "lastUpdated": { "type": "string", "format": "date" }
+      },
+      "additionalProperties": false
+    },
     "heroGallery": {
       "type": "object",
       "required": ["desktopScale", "showZoomIndicator", "splitGestureZones", "lightbox"],
@@ -22,13 +31,26 @@
         },
         "lightbox": {
           "type": "object",
-          "required": ["enabled", "sameFeatureOnly", "supportsZoom", "supportsPan", "supportsKeyboardClose"],
+          "required": ["enabled", "sameFeatureOnly", "supportsZoom", "supportsPan", "supportsKeyboardClose", "controls"],
           "properties": {
             "enabled": { "const": true },
             "sameFeatureOnly": { "const": true },
             "supportsZoom": { "const": true },
             "supportsPan": { "const": true },
-            "supportsKeyboardClose": { "const": true }
+            "supportsKeyboardClose": { "const": true },
+            "controls": {
+              "type": "object",
+              "required": ["close", "zoomIn", "zoomOut", "resetZoom", "previousImage", "nextImage"],
+              "properties": {
+                "close": { "$ref": "#/$defs/localizedString" },
+                "zoomIn": { "$ref": "#/$defs/localizedString" },
+                "zoomOut": { "$ref": "#/$defs/localizedString" },
+                "resetZoom": { "$ref": "#/$defs/localizedString" },
+                "previousImage": { "$ref": "#/$defs/localizedString" },
+                "nextImage": { "$ref": "#/$defs/localizedString" }
+              },
+              "additionalProperties": false
+            }
           },
           "additionalProperties": false
         }
@@ -48,10 +70,11 @@
     },
     "routeResultCard": {
       "type": "object",
-      "required": ["mobileCompact", "desktopUnchanged", "metrics", "missingStopFallback"],
+      "required": ["mobileCompact", "desktopUnchanged", "metricLayout", "metrics", "missingStopFallback"],
       "properties": {
         "mobileCompact": { "const": true },
         "desktopUnchanged": { "const": true },
+        "metricLayout": { "const": "inline-label-value" },
         "missingStopFallback": { "$ref": "#/$defs/localizedString" },
         "metrics": {
           "type": "array",

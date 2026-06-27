@@ -5,6 +5,14 @@ import { LanguageSwitcher } from "../components/i18n/LanguageSwitcher";
 import { I18nProvider } from "../components/i18n/I18nProvider";
 import { carouselSlides } from "../content/carouselSlides";
 
+function pointerDragEvent(type: "pointerdown" | "pointerup", clientX: number) {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperty(event, "clientX", { value: clientX });
+  Object.defineProperty(event, "pointerId", { value: 1 });
+  Object.defineProperty(event, "pointerType", { value: "touch" });
+  return event;
+}
+
 describe("AppPreviewCarousel", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -85,6 +93,24 @@ describe("AppPreviewCarousel", () => {
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "eta-details");
   });
 
+  it("uses the copy zone for feature drag without letting screenshot drags switch features", () => {
+    render(
+      <I18nProvider>
+        <LanguageSwitcher label="Language" />
+        <AppPreviewCarousel />
+      </I18nProvider>,
+    );
+
+    fireEvent(screen.getByTestId("screenshot-rail"), pointerDragEvent("pointerdown", 260));
+    fireEvent(screen.getByTestId("screenshot-rail"), pointerDragEvent("pointerup", 120));
+    expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
+    expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-all-routes-sheet");
+
+    fireEvent(screen.getByTestId("active-slide"), pointerDragEvent("pointerdown", 260));
+    fireEvent(screen.getByTestId("active-slide"), pointerDragEvent("pointerup", 120));
+    expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
+  });
+
   it("pauses automatic feature rotation during user interaction and keeps state after language switching", () => {
     render(
       <I18nProvider>
@@ -109,6 +135,6 @@ describe("AppPreviewCarousel", () => {
 
     fireEvent.click(screen.getByTitle("English"));
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
-    expect(within(screen.getByTestId("active-slide")).getByText("Compare total fare, time, and walking distance")).toBeInTheDocument();
+    expect(within(screen.getByTestId("active-slide")).getByText("Fare at a glance")).toBeInTheDocument();
   });
 });

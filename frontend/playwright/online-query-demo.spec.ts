@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("online query selects places, shows loading, renders route cards, and updates ETA", async ({ page }, testInfo) => {
-  const visualPrefix = `../specs/004-online-bus-query/visual-review/${testInfo.project.name}`;
+  const visualPrefix = `../specs/007-homepage-ui-polish/visual-review/${testInfo.project.name}`;
   await page.route("**/api/routes/query_places", async (route) => {
     const body = route.request().postDataJSON() as { query: string };
     const isOrigin = body.query.toLowerCase().includes("origin");
@@ -107,6 +107,14 @@ test("online query selects places, shows loading, renders route cards, and updat
   await expect(page.getByText("606")).toBeVisible();
   await expect(page.getByText("Hing Wah Estate")).toBeVisible();
   await expect(page.getByText("Yue Wan Estate")).toBeVisible();
+  await expect(page.getByTestId("route-card")).toHaveAttribute("data-mobile-layout", "compact");
+  await expect(page.getByTestId("route-metrics")).toHaveAttribute("data-layout", "inline-label-value");
+  await expect(page.getByTestId("route-metric-fare")).toContainText("Fare");
+  await expect(page.getByTestId("route-metric-fare")).toContainText("$6.10");
+  await expect(page.getByTestId("route-metric-duration")).toContainText("Time");
+  await expect(page.getByTestId("route-metric-duration")).toContainText("10 min");
+  await expect(page.getByTestId("route-metric-walking")).toContainText("Walk");
+  await expect(page.getByTestId("route-metric-walking")).toContainText("266 m");
   await expect(page.getByText(/Wait 49 min|等候 49/)).toBeVisible();
   await page.locator("#online-query").evaluate((element) => element.scrollIntoView({ block: "start" }));
 

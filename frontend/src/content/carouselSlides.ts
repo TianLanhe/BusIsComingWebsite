@@ -50,6 +50,7 @@ function galleryFor(featureId: FeatureShowcaseId) {
     manualOnly: true,
     hideStackWhenSingleImage: true,
     visualMode: "stair-card-deck",
+    lightboxEnabled: true,
     allowThumbnailControls: false,
     images,
   } as const;
@@ -77,14 +78,14 @@ export const carouselSlides: CarouselSlide[] = [
     id: "route-comparison",
     order: 2,
     title: {
-      "zh-Hant": "比較交通費用、時間與步行",
-      "zh-Hans": "比较总车费、时间与步行",
-      en: "Compare total fare, time, and walking distance",
+      "zh-Hant": "車費一眼看清",
+      "zh-Hans": "车费一眼看清",
+      en: "Fare at a glance",
     },
     description: {
-      "zh-Hant": "同頁比較城巴候選路線，交通費用、候車時間和步行距離一次看清。",
-      "zh-Hans": "同页比较城巴候选路线，连多程总车费、等候时间和步行距离一起看清。",
-      en: "Compare Citybus options with multi-leg total fare, wait time, and walking distance in one view.",
+      "zh-Hant": "同頁比較城巴候選路線的車費、行程時間和步行距離，揀路線前更有把握。",
+      "zh-Hans": "同页比较城巴候选路线的车费、行程时间和步行距离，选择路线前更有把握。",
+      en: "Compare Citybus fare, journey time, and walking distance on one screen before choosing a route.",
     },
     gallery: galleryFor("route-comparison"),
     sourceReference: sourceReferences.routeResultsSpec,

@@ -67,6 +67,7 @@ export interface ScreenshotGallery {
   manualOnly: true;
   hideStackWhenSingleImage: true;
   visualMode: "stair-card-deck";
+  lightboxEnabled: true;
   allowThumbnailControls: false;
   images: SanitizedScreenshotAsset[];
 }
@@ -139,6 +140,64 @@ export interface HomepageExperiencePolishContract {
     pluginPath: "specs/005-homepage-experience-polish/figma-plugin/manifest.json";
     pageName: "Homepage Experience Polish - 005";
     nodeNames: string[];
+  };
+}
+
+export interface HomepageUiPolishContract {
+  metadata: {
+    version: string;
+    lastUpdated: string;
+  };
+  heroGallery: {
+    desktopScale: "medium";
+    showZoomIndicator: false;
+    splitGestureZones: {
+      screenshotZoneAction: "switch-same-feature-image";
+      copyZoneAction: "switch-feature";
+    };
+    lightbox: {
+      enabled: true;
+      sameFeatureOnly: true;
+      supportsZoom: true;
+      supportsPan: true;
+      supportsKeyboardClose: true;
+      controls: {
+        close: LocalizedString;
+        zoomIn: LocalizedString;
+        zoomOut: LocalizedString;
+        resetZoom: LocalizedString;
+        previousImage: LocalizedString;
+        nextImage: LocalizedString;
+      };
+    };
+  };
+  featureGrid: {
+    mobileColumns: 2;
+    desktopUnchanged: true;
+    minimumFeatureCount: number;
+    futureFeatureCount: number;
+  };
+  routeResultCard: {
+    mobileCompact: true;
+    desktopUnchanged: true;
+    metricLayout: "inline-label-value";
+    missingStopFallback: LocalizedString;
+    metrics: Array<{
+      id: "fare" | "duration" | "walking";
+      label: LocalizedString;
+      valueStyle: "emphasized";
+    }>;
+  };
+  fareCopy: {
+    title: LocalizedString;
+    description: LocalizedString;
+    forbiddenPhrases: string[];
+  };
+  figmaReference: {
+    fileUrl: string;
+    pageName: "Homepage UI Polish - 007";
+    nodeNames: string[];
+    nodeIdsResolved: boolean;
   };
 }
 
@@ -219,6 +278,7 @@ export interface HomePageContent {
   contact: ContactEntry[];
   scopeExclusions: LocalizedString[];
   homepageExperience: HomepageExperiencePolishContract;
+  homepageUiPolish: HomepageUiPolishContract;
   figmaReference: {
     fileUrl: string;
     pageNode: string;

@@ -45,3 +45,5 @@
 
 - `2026-06-27`: 用户确认中等放大、无放大提示器、2 列功能卡、路线卡标签值布局和大图同功能切换。
 - `2026-06-27`: Figma MCP 要求重新认证，本阶段生成本地插件 fallback，节点 ID 待回填。
+- `2026-06-27`: 实现阶段已把关键 UI 状态映射到代码测试入口：`[data-testid="screenshot-rail"]` 表示截图手势区，`[data-testid="active-slide"]` 表示文字功能切换区，`[data-testid="screenshot-lightbox"]` 表示大图查看模式，`[data-testid="feature-grid"]` 表示手机 2 列功能区，`[data-testid="route-metrics"]` 表示路线卡指标带。
+- `2026-06-27`: Figma MCP 仍未在本实现阶段提供可写入节点，继续使用本地插件和 HTML 原型作为 fallback；真实 Node ID 仍待认证恢复后回填，不伪造。

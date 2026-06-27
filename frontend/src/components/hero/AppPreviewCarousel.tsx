@@ -5,6 +5,7 @@ import type { FeatureShowcaseId } from "../../content/types";
 import { uiCopy } from "../../content/uiCopy";
 import { useI18n } from "../i18n/I18nProvider";
 import styles from "./AppPreviewCarousel.module.css";
+import { ScreenshotLightbox } from "./ScreenshotLightbox";
 import { ScreenshotStack } from "./ScreenshotStack";
 
 const intervalMs = 3_000;
@@ -25,7 +26,8 @@ interface AppPreviewCarouselProps {
 export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps) {
   const { text } = useI18n();
   const orderedSlides = useMemo(() => [...carouselSlides].sort((a, b) => a.order - b.order), []);
-  const pointerStartX = useRef<number | null>(null);
+  const copyPointerStartX = useRef<number | null>(null);
+  const lastLightboxTrigger = useRef<HTMLElement | null>(null);
   const initialIndex = Math.max(
     0,
     orderedSlides.findIndex((slide) => slide.id === initialFeatureId),
@@ -35,11 +37,12 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
   const [activeImages, setActiveImages] = useState<Record<string, string>>(() =>
     Object.fromEntries(orderedSlides.map((slide) => [slide.id, slide.gallery.defaultImageId])),
   );
+  const [lightboxImageId, setLightboxImageId] = useState<string | null>(null);
   const activeSlide = orderedSlides[activeIndex];
   const activeImageId = activeImages[activeSlide.id] ?? activeSlide.gallery.defaultImageId;
 
   useEffect(() => {
-    if (isPaused || prefersReducedMotion()) {
+    if (isPaused || lightboxImageId || prefersReducedMotion()) {
       return;
     }
 
@@ -48,13 +51,13 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
     }, intervalMs);
 
     return () => window.clearInterval(timer);
-  }, [isPaused, orderedSlides.length]);
+  }, [isPaused, lightboxImageId, orderedSlides.length]);
 
   function moveFeature(direction: 1 | -1) {
     setActiveIndex((current) => (current + direction + orderedSlides.length) % orderedSlides.length);
   }
 
-  function navigateDrag(direction: 1 | -1) {
+  function navigateCopyDrag(direction: 1 | -1) {
     setIsPaused(true);
     moveFeature(direction);
   }
@@ -72,9 +75,36 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
   function selectGalleryImage(imageId: string) {
     setIsPaused(true);
     setActiveImages((current) => ({ ...current, [activeSlide.id]: imageId }));
+    setLightboxImageId((current) => (current ? imageId : current));
   }
 
-  function handlePointerDown(event: PointerEvent<HTMLElement>) {
+  function moveGalleryImage(direction: 1 | -1) {
+    const images = [...activeSlide.gallery.images].sort((a, b) => a.order - b.order);
+    if (images.length <= 1) {
+      return;
+    }
+    const currentIndex = Math.max(
+      0,
+      images.findIndex((image) => image.id === activeImageId),
+    );
+    const nextImage = images[(currentIndex + direction + images.length) % images.length];
+    selectGalleryImage(nextImage.id);
+  }
+
+  function openLightbox() {
+    setIsPaused(true);
+    lastLightboxTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setLightboxImageId(activeImageId);
+  }
+
+  function closeLightbox() {
+    setLightboxImageId(null);
+    window.setTimeout(() => {
+      lastLightboxTrigger.current?.focus();
+    }, 0);
+  }
+
+  function handleCopyPointerDown(event: PointerEvent<HTMLElement>) {
     if (isButtonTarget(event.target)) {
       return;
     }
@@ -83,22 +113,22 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
       return;
     }
 
-    pointerStartX.current = event.clientX;
+    copyPointerStartX.current = event.clientX;
     setIsPaused(true);
     event.currentTarget.setPointerCapture?.(event.pointerId);
   }
 
-  function handlePointerUp(event: PointerEvent<HTMLElement>) {
-    if (pointerStartX.current === null) {
+  function handleCopyPointerUp(event: PointerEvent<HTMLElement>) {
+    if (copyPointerStartX.current === null) {
       return;
     }
 
-    const deltaX = event.clientX - pointerStartX.current;
-    pointerStartX.current = null;
+    const deltaX = event.clientX - copyPointerStartX.current;
+    copyPointerStartX.current = null;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
 
     if (Math.abs(deltaX) >= dragThresholdPx) {
-      navigateDrag(deltaX < 0 ? 1 : -1);
+      navigateCopyDrag(deltaX < 0 ? 1 : -1);
     }
   }
 
@@ -132,11 +162,6 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
       data-paused={isPaused}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={() => {
-        pointerStartX.current = null;
-      }}
       onPointerEnter={() => setIsPaused(true)}
       onPointerLeave={() => setIsPaused(false)}
       onFocusCapture={() => setIsPaused(true)}
@@ -146,9 +171,21 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
         gallery={activeSlide.gallery}
         activeImageId={activeImageId}
         onSelectImage={selectGalleryImage}
+        onMoveImage={moveGalleryImage}
+        onOpenLightbox={openLightbox}
       />
 
-      <div className={styles.copy} data-testid="active-slide" data-slide-id={activeSlide.id}>
+      <div
+        className={styles.copy}
+        data-testid="active-slide"
+        data-slide-id={activeSlide.id}
+        data-gesture-zone="copy"
+        onPointerDown={handleCopyPointerDown}
+        onPointerUp={handleCopyPointerUp}
+        onPointerCancel={() => {
+          copyPointerStartX.current = null;
+        }}
+      >
         <h2>{text(activeSlide.title)}</h2>
         <p>{text(activeSlide.description)}</p>
 
@@ -178,6 +215,15 @@ export function AppPreviewCarousel({ initialFeatureId }: AppPreviewCarouselProps
       <p className={styles.srStatus} aria-live="polite">
         {text(activeSlide.title)}
       </p>
+
+      {lightboxImageId ? (
+        <ScreenshotLightbox
+          gallery={activeSlide.gallery}
+          activeImageId={lightboxImageId}
+          onSelectImage={selectGalleryImage}
+          onClose={closeLightbox}
+        />
+      ) : null}
     </section>
   );
 }

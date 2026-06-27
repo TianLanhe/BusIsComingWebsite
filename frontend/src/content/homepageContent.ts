@@ -3,6 +3,7 @@ import { onlineQueryDemo } from "./onlineQueryDemo";
 import { contact, faq, features, scopeExclusions } from "./sectionsContent";
 import { sourceReferenceList, sourceReferences } from "./sourceReferences";
 import type { HomePageContent } from "./types";
+import { uiCopy } from "./uiCopy";
 
 export const homepageContent: HomePageContent = {
   metadata: {
@@ -68,8 +69,8 @@ export const homepageContent: HomePageContent = {
     },
     subheading: {
       "zh-Hant": "為日常搭城巴而設的 Android App，儲低常用起點和目的地，快速比較 Citybus 路線、交通費用、步行距離與首程抵站時間。",
-      "zh-Hans": "为日常乘坐城巴而设的 Android App，保存常用起终点，快速比较 Citybus 路线、多程总车费、步行距离与首程 ETA。",
-      en: "An Android app for daily Citybus trips: save frequent searches and compare Citybus routes, total multi-leg fare, walking distance, and first-leg ETA.",
+      "zh-Hans": "为日常乘坐城巴而设的 Android App，保存常用起终点，快速比较 Citybus 路线、车费、步行距离与首程 ETA。",
+      en: "An Android app for daily Citybus trips: save frequent searches and compare Citybus routes, fare, walking distance, and first-leg ETA.",
     },
     bullets: [
       {
@@ -86,13 +87,13 @@ export const homepageContent: HomePageContent = {
       },
       {
         title: {
-          "zh-Hant": "比較總車費、時間與步行距離",
-          "zh-Hans": "比较总车费、时间与步行距离",
+          "zh-Hant": "車費一眼看清",
+          "zh-Hans": "车费一眼看清",
           en: "Compare fare, time, and walk",
         },
         description: {
           "zh-Hant": "用交通費用、行程時間和抵站時間輔助判斷",
-          "zh-Hans": "以多程总车费、总行程时间和 ETA 辅助判断",
+          "zh-Hans": "以车费、总行程时间和 ETA 辅助判断",
           en: "Use total fare, journey time, and ETA to decide",
         },
       },
@@ -259,5 +260,95 @@ export const homepageContent: HomePageContent = {
     notesNode: "29:108",
     versionNote:
       "2026-06-25 homepage experience polish: stair-card-deck carousel, scene-only drag, same-scene deck click, brand contact states, and spec notes.",
+  },
+  homepageUiPolish: {
+    metadata: {
+      version: "2026-06-27.homepage-ui-polish",
+      lastUpdated: "2026-06-27",
+    },
+    heroGallery: {
+      desktopScale: "medium",
+      showZoomIndicator: false,
+      splitGestureZones: {
+        screenshotZoneAction: "switch-same-feature-image",
+        copyZoneAction: "switch-feature",
+      },
+      lightbox: {
+        enabled: true,
+        sameFeatureOnly: true,
+        supportsZoom: true,
+        supportsPan: true,
+        supportsKeyboardClose: true,
+        controls: {
+          close: uiCopy.closeLightbox,
+          zoomIn: uiCopy.zoomInScreenshot,
+          zoomOut: uiCopy.zoomOutScreenshot,
+          resetZoom: uiCopy.resetScreenshotZoom,
+          previousImage: uiCopy.previousScreenshot,
+          nextImage: uiCopy.nextScreenshot,
+        },
+      },
+    },
+    featureGrid: {
+      mobileColumns: 2,
+      desktopUnchanged: true,
+      minimumFeatureCount: 6,
+      futureFeatureCount: 10,
+    },
+    routeResultCard: {
+      mobileCompact: true,
+      desktopUnchanged: true,
+      metricLayout: "inline-label-value",
+      missingStopFallback: uiCopy.stopInfoUnavailable,
+      metrics: [
+        {
+          id: "fare",
+          label: uiCopy.fareLabel,
+          valueStyle: "emphasized",
+        },
+        {
+          id: "duration",
+          label: uiCopy.durationLabel,
+          valueStyle: "emphasized",
+        },
+        {
+          id: "walking",
+          label: uiCopy.walkingLabel,
+          valueStyle: "emphasized",
+        },
+      ],
+    },
+    fareCopy: {
+      title: {
+        "zh-Hant": "車費一眼看清",
+        "zh-Hans": "车费一眼看清",
+        en: "Fare at a glance",
+      },
+      description: {
+        "zh-Hant": "同頁比較車費、行程時間和步行距離，方便按日常需要揀城巴路線。",
+        "zh-Hans": "同页比较车费、行程时间和步行距离，方便按日常需要选择城巴路线。",
+        en: "Compare fare, journey time, and walking distance together when choosing a Citybus route.",
+      },
+      forbiddenPhrases: [
+        "多程总车费一眼看清",
+        "多程總車費一眼看清",
+        "比较城巴方案时，可直接看到多程全程总车费，而不只是币种显示。",
+        "比較城巴方案時，可直接看到多程全程總車費，而不只是幣種顯示。",
+        "not just the currency label",
+      ],
+    },
+    figmaReference: {
+      fileUrl: sourceReferences.figmaExperiencePolish,
+      pageName: "Homepage UI Polish - 007",
+      nodeNames: [
+        "Desktop 1440 / Hero Medium Screenshot Deck",
+        "Desktop 1440 / Screenshot Lightbox",
+        "Mobile 390 / Compact Feature Grid",
+        "Mobile 390 / Compact Route Result Card",
+        "Interaction States / Split Gesture Zones",
+        "Spec Notes",
+      ],
+      nodeIdsResolved: false,
+    },
   },
 };

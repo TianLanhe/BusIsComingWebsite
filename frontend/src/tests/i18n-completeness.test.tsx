@@ -53,4 +53,20 @@ describe("i18n completeness", () => {
     expect(homepageContent.featureShowcase[2].title["zh-Hant"]).toContain("抵站時間");
     expect(homepageContent.onlineQueryDemo.scopeNotice["zh-Hant"]).toContain("港鐵");
   });
+
+  it("keeps homepage UI polish copy complete and naturally localized", () => {
+    const polish = homepageContent.homepageUiPolish;
+
+    expect(polish.fareCopy.title["zh-Hant"]).toBe("車費一眼看清");
+    expect(polish.fareCopy.title["zh-Hans"]).toBe("车费一眼看清");
+    expect(polish.fareCopy.title.en).toBe("Fare at a glance");
+    expect(polish.fareCopy.description.en).toContain("fare");
+    expect(polish.fareCopy.description.en).not.toContain("currency label");
+    expect(uiCopy.durationLabel["zh-Hant"]).toBe("耗時");
+    expect(uiCopy.durationLabel["zh-Hans"]).toBe("耗时");
+    expect(uiCopy.durationLabel.en).toBe("Time");
+    expect(uiCopy.walkingLabel.en).toBe("Walk");
+    expect(uiCopy.closeLightbox["zh-Hant"]).not.toBe(uiCopy.closeLightbox["zh-Hans"]);
+    expect(uiCopy.stopInfoUnavailable.en).toBe("Stop details unavailable");
+  });
 });

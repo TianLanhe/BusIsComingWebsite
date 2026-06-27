@@ -22,11 +22,11 @@ export function FeatureGrid() {
         <div className={styles.heading}>
           <h2>{text(uiCopy.featureHeading)}</h2>
         </div>
-        <div className={styles.grid}>
+        <div className={styles.grid} data-testid="feature-grid" data-mobile-columns="2">
           {homepageContent.features.map((feature) => {
             const Icon = icons[feature.icon as keyof typeof icons] ?? Bookmark;
             return (
-              <article className={styles.item} key={feature.id}>
+              <article className={styles.item} key={feature.id} data-testid="feature-card" data-feature-id={feature.id}>
                 <Icon aria-hidden="true" size={28} />
                 <h3>{text(feature.title)}</h3>
                 <p>{text(feature.description)}</p>

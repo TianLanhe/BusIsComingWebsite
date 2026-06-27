@@ -11,9 +11,9 @@
 
 **Purpose**: 准备实现记录、视觉验证目录和 Figma 交付入口。
 
-- [ ] T001 在 `specs/007-homepage-ui-polish/visual-review/README.md` 建立视觉验收目录说明，列出桌面 1440、手机 390、lightbox 三类截图要求
-- [ ] T002 在 `specs/007-homepage-ui-polish/figma.md` 补充本阶段实现需要回填的 Figma 节点清单、交互状态和版本记录占位
-- [ ] T003 检查 `frontend/src/components/hero/`、`frontend/src/components/sections/`、`frontend/src/components/online-demo/` 与现有测试文件的 selector/data-testid，记录需要复用或补齐的测试入口
+- [X] T001 在 `specs/007-homepage-ui-polish/visual-review/README.md` 建立视觉验收目录说明，列出桌面 1440、手机 390、lightbox 三类截图要求
+- [X] T002 在 `specs/007-homepage-ui-polish/figma.md` 补充本阶段实现需要回填的 Figma 节点清单、交互状态和版本记录占位
+- [X] T003 检查 `frontend/src/components/hero/`、`frontend/src/components/sections/`、`frontend/src/components/online-demo/` 与现有测试文件的 selector/data-testid，记录需要复用或补齐的测试入口
 
 ---
 
@@ -21,12 +21,12 @@
 
 **Purpose**: 更新跨故事共享的内容模型、UI 状态契约和三语文案基础。
 
-- [ ] T004 [P] 更新 `specs/007-homepage-ui-polish/contracts/homepage-ui-polish-content.schema.json`，覆盖截图组、大图查看会话、手机功能卡和路线结果指标的内容字段
-- [ ] T005 [P] 更新 `shared/contracts/ui-state-contract.md`，补充 feature-copy-zone、screenshot-zone、lightbox、mobile-feature-grid、route-result-card 的状态约束
-- [ ] T006 [P] 更新 `frontend/src/content/types.ts`，为截图分组、lightbox 控制、路线指标标签和值、缺失站点状态补齐类型
-- [ ] T007 [P] 更新 `frontend/src/content/uiCopy.ts`，补齐 lightbox 控件、路线指标标签、缺失站点、截图切换的 `zh-Hant`、`zh-Hans`、`en` 文案
-- [ ] T008 [P] 更新 `frontend/src/tests/content-contract.test.ts`，校验内容契约新增字段和禁止回退到旧的临时描述
-- [ ] T009 [P] 更新 `frontend/src/tests/i18n-completeness.test.tsx`，校验新增 UI 文案三语完整且 key 一致
+- [X] T004 [P] 更新 `specs/007-homepage-ui-polish/contracts/homepage-ui-polish-content.schema.json`，覆盖截图组、大图查看会话、手机功能卡和路线结果指标的内容字段
+- [X] T005 [P] 更新 `shared/contracts/ui-state-contract.md`，补充 feature-copy-zone、screenshot-zone、lightbox、mobile-feature-grid、route-result-card 的状态约束
+- [X] T006 [P] 更新 `frontend/src/content/types.ts`，为截图分组、lightbox 控制、路线指标标签和值、缺失站点状态补齐类型
+- [X] T007 [P] 更新 `frontend/src/content/uiCopy.ts`，补齐 lightbox 控件、路线指标标签、缺失站点、截图切换的 `zh-Hant`、`zh-Hans`、`en` 文案
+- [X] T008 [P] 更新 `frontend/src/tests/content-contract.test.ts`，校验内容契约新增字段和禁止回退到旧的临时描述
+- [X] T009 [P] 更新 `frontend/src/tests/i18n-completeness.test.tsx`，校验新增 UI 文案三语完整且 key 一致
 
 **Checkpoint**: 内容契约、类型和三语文案已能支持三个用户故事独立落地。
 
@@ -40,20 +40,20 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] 更新 `frontend/src/tests/hero-carousel.test.tsx`，覆盖文字区域拖动切换功能、截图区域拖动不冒泡切换功能
-- [ ] T011 [P] [US1] 更新 `frontend/src/tests/feature-gallery.test.tsx`，覆盖同一功能内多截图切换、单截图功能不显示无效切换状态
-- [ ] T012 [P] [US1] 更新 `frontend/playwright/hero-carousel.spec.ts`，验证桌面 hero 截图展示尺寸、功能切换手势和无放大提示器
-- [ ] T013 [P] [US1] 更新 `frontend/playwright/feature-gallery.spec.ts`，验证点击截图打开 lightbox、缩放、平移、关闭和键盘可达性
+- [X] T010 [P] [US1] 更新 `frontend/src/tests/hero-carousel.test.tsx`，覆盖文字区域拖动切换功能、截图区域拖动不冒泡切换功能
+- [X] T011 [P] [US1] 更新 `frontend/src/tests/feature-gallery.test.tsx`，覆盖同一功能内多截图切换、单截图功能不显示无效切换状态
+- [X] T012 [P] [US1] 更新 `frontend/playwright/hero-carousel.spec.ts`，验证桌面 hero 截图展示尺寸、功能切换手势和无放大提示器
+- [X] T013 [P] [US1] 更新 `frontend/playwright/feature-gallery.spec.ts`，验证点击截图打开 lightbox、缩放、平移、关闭和键盘可达性
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] 重构 `frontend/src/components/hero/AppPreviewCarousel.tsx`，将功能切换手势绑定到文字/说明区域并隔离截图区域事件
-- [ ] T015 [US1] 重构 `frontend/src/components/hero/ScreenshotStack.tsx`，支持截图区域左右拖动、点击主图打开大图、同功能截图索引状态
-- [ ] T016 [US1] 新增 `frontend/src/components/hero/ScreenshotLightbox.tsx`，实现大图查看、关闭、缩放、平移、同功能截图切换和焦点管理
-- [ ] T017 [US1] 新增 `frontend/src/components/hero/ScreenshotLightbox.module.css`，实现桌面与手机可用的大图查看布局、触控缩放区域和无障碍焦点样式
-- [ ] T018 [US1] 更新 `frontend/src/components/hero/AppPreviewCarousel.module.css`，适当放大桌面功能展示区并保持 hero 左右内容平衡
-- [ ] T019 [US1] 更新 `frontend/src/components/hero/ScreenshotStack.module.css`，让前景与后置堆叠截图同等放大，并移除任何放大提示器样式
-- [ ] T020 [US1] 更新 `frontend/src/content/carouselSlides.ts`，补齐同一功能截图组、alt 文案和 lightbox 所需图片元数据
+- [X] T014 [US1] 重构 `frontend/src/components/hero/AppPreviewCarousel.tsx`，将功能切换手势绑定到文字/说明区域并隔离截图区域事件
+- [X] T015 [US1] 重构 `frontend/src/components/hero/ScreenshotStack.tsx`，支持截图区域左右拖动、点击主图打开大图、同功能截图索引状态
+- [X] T016 [US1] 新增 `frontend/src/components/hero/ScreenshotLightbox.tsx`，实现大图查看、关闭、缩放、平移、同功能截图切换和焦点管理
+- [X] T017 [US1] 新增 `frontend/src/components/hero/ScreenshotLightbox.module.css`，实现桌面与手机可用的大图查看布局、触控缩放区域和无障碍焦点样式
+- [X] T018 [US1] 更新 `frontend/src/components/hero/AppPreviewCarousel.module.css`，适当放大桌面功能展示区并保持 hero 左右内容平衡
+- [X] T019 [US1] 更新 `frontend/src/components/hero/ScreenshotStack.module.css`，让前景与后置堆叠截图同等放大，并移除任何放大提示器样式
+- [X] T020 [US1] 更新 `frontend/src/content/carouselSlides.ts`，补齐同一功能截图组、alt 文案和 lightbox 所需图片元数据
 
 **Checkpoint**: US1 可独立在桌面端验证，不依赖 US2/US3 的移动端布局和文案调整。
 
@@ -67,18 +67,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T021 [P] [US2] 更新 `frontend/playwright/homepage-sections.spec.ts`，验证手机端功能区两列、卡片高度紧凑、桌面端功能区布局不变
-- [ ] T022 [P] [US2] 更新 `frontend/src/tests/online-query-demo.test.tsx`，覆盖路线结果卡的 route number、候车状态、上下车站、缺失站点和指标标签/值结构
-- [ ] T023 [P] [US2] 更新 `frontend/playwright/online-query-demo.spec.ts`，验证手机端路线结果卡车费、耗时、步行在一行内展示且文字不重叠
-- [ ] T024 [P] [US2] 更新 `frontend/src/tests/sections-content.test.ts`，确保功能介绍内容可支持 10 个主要功能且不依赖分组胶囊
+- [X] T021 [P] [US2] 更新 `frontend/playwright/homepage-sections.spec.ts`，验证手机端功能区两列、卡片高度紧凑、桌面端功能区布局不变
+- [X] T022 [P] [US2] 更新 `frontend/src/tests/online-query-demo.test.tsx`，覆盖路线结果卡的 route number、候车状态、上下车站、缺失站点和指标标签/值结构
+- [X] T023 [P] [US2] 更新 `frontend/playwright/online-query-demo.spec.ts`，验证手机端路线结果卡车费、耗时、步行在一行内展示且文字不重叠
+- [X] T024 [P] [US2] 更新 `frontend/src/tests/sections-content.test.ts`，确保功能介绍内容可支持 10 个主要功能且不依赖分组胶囊
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] 更新 `frontend/src/components/sections/FeatureGrid.module.css`，仅在手机断点改为两列紧凑网格，压缩卡片高度、图标尺寸和行间距
-- [ ] T026 [US2] 更新 `frontend/src/components/sections/FeatureGrid.tsx`，补齐稳定的测试属性和适合 10 个功能扩展的语义结构
-- [ ] T027 [US2] 更新 `frontend/src/components/online-demo/OnlineQueryDemo.tsx`，重排路线结果卡片结构，降低巴士号码视觉权重并合并车费/耗时/步行指标
-- [ ] T028 [US2] 更新 `frontend/src/components/online-demo/OnlineQueryDemo.module.css`，优化手机端路线卡片宽度、内边距、指标行、站点缺失态和长文本换行
-- [ ] T029 [US2] 更新 `frontend/src/content/onlineQueryDemo.ts`，补齐路线结果指标标签、缺失站点展示文本和示例数据需要的三语字段
+- [X] T025 [US2] 更新 `frontend/src/components/sections/FeatureGrid.module.css`，仅在手机断点改为两列紧凑网格，压缩卡片高度、图标尺寸和行间距
+- [X] T026 [US2] 更新 `frontend/src/components/sections/FeatureGrid.tsx`，补齐稳定的测试属性和适合 10 个功能扩展的语义结构
+- [X] T027 [US2] 更新 `frontend/src/components/online-demo/OnlineQueryDemo.tsx`，重排路线结果卡片结构，降低巴士号码视觉权重并合并车费/耗时/步行指标
+- [X] T028 [US2] 更新 `frontend/src/components/online-demo/OnlineQueryDemo.module.css`，优化手机端路线卡片宽度、内边距、指标行、站点缺失态和长文本换行
+- [X] T029 [US2] 更新 `frontend/src/content/onlineQueryDemo.ts`，补齐路线结果指标标签、缺失站点展示文本和示例数据需要的三语字段
 
 **Checkpoint**: US2 可独立在手机端验证，桌面端现有功能区布局无回归。
 
@@ -92,15 +92,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T030 [P] [US3] 更新 `frontend/src/tests/sections-content.test.ts`，断言 `zh-Hans` 使用“车费一眼看清”、`zh-Hant` 使用“車費一眼看清”且不包含旧需求描述
-- [ ] T031 [P] [US3] 更新 `frontend/src/tests/hero-content.test.ts`，校验 hero 摘要和功能亮点不再引用旧的“多程总车费”表述
-- [ ] T032 [P] [US3] 更新 `frontend/src/tests/i18n-completeness.test.tsx`，校验车费功能文案三语完整且英文语义为 fare comparison 而非 currency display
+- [X] T030 [P] [US3] 更新 `frontend/src/tests/sections-content.test.ts`，断言 `zh-Hans` 使用“车费一眼看清”、`zh-Hant` 使用“車費一眼看清”且不包含旧需求描述
+- [X] T031 [P] [US3] 更新 `frontend/src/tests/hero-content.test.ts`，校验 hero 摘要和功能亮点不再引用旧的“多程总车费”表述
+- [X] T032 [P] [US3] 更新 `frontend/src/tests/i18n-completeness.test.tsx`，校验车费功能文案三语完整且英文语义为 fare comparison 而非 currency display
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] 更新 `frontend/src/content/sectionsContent.ts`，将功能标题改为“车费一眼看清/車費一眼看清”并替换为自然介绍
-- [ ] T034 [US3] 更新 `frontend/src/content/carouselSlides.ts`，同步截图轮播中的车费功能标题、摘要和 alt 文案
-- [ ] T035 [US3] 更新 `frontend/src/content/homepageContent.ts`，同步首页其他入口中涉及车费比较的三语文案
+- [X] T033 [US3] 更新 `frontend/src/content/sectionsContent.ts`，将功能标题改为“车费一眼看清/車費一眼看清”并替换为自然介绍
+- [X] T034 [US3] 更新 `frontend/src/content/carouselSlides.ts`，同步截图轮播中的车费功能标题、摘要和 alt 文案
+- [X] T035 [US3] 更新 `frontend/src/content/homepageContent.ts`，同步首页其他入口中涉及车费比较的三语文案
 
 **Checkpoint**: US3 可独立通过内容测试验证，不依赖 US1/US2 的布局改动。
 
@@ -110,14 +110,14 @@
 
 **Purpose**: 完成整体视觉记录、Figma 沉淀、构建和回归验证。
 
-- [ ] T036 更新 `specs/007-homepage-ui-polish/figma.md`，回填最终 Figma 文件/链接、关键节点、交互状态和版本说明；如 MCP 仍未授权，记录本地插件产物和待回填事项
+- [X] T036 更新 `specs/007-homepage-ui-polish/figma.md`，回填最终 Figma 文件/链接、关键节点、交互状态和版本说明；如 MCP 仍未授权，记录本地插件产物和待回填事项
 - [ ] T037 按 `specs/007-homepage-ui-polish/quickstart.md` 截取并保存桌面 hero、手机功能区、手机路线结果卡、lightbox 到 `specs/007-homepage-ui-polish/visual-review/`
-- [ ] T038 运行 `cd frontend && npm run test -- --run src/tests/hero-carousel.test.tsx src/tests/feature-gallery.test.tsx src/tests/online-query-demo.test.tsx src/tests/sections-content.test.ts src/tests/hero-content.test.ts src/tests/i18n-completeness.test.tsx`
-- [ ] T039 运行 `cd frontend && npm run build`
+- [X] T038 运行 `cd frontend && npm run test -- --run src/tests/hero-carousel.test.tsx src/tests/feature-gallery.test.tsx src/tests/online-query-demo.test.tsx src/tests/sections-content.test.ts src/tests/hero-content.test.ts src/tests/i18n-completeness.test.tsx`
+- [X] T039 运行 `cd frontend && npm run build`
 - [ ] T040 运行 `cd frontend && npm run test:e2e -- playwright/hero-carousel.spec.ts playwright/feature-gallery.spec.ts playwright/homepage-sections.spec.ts playwright/online-query-demo.spec.ts`
-- [ ] T041 运行 `cd frontend && npm run openapi:lint && npm run openapi:routes:lint`，确认本次无服务端 API 契约漂移
+- [X] T041 运行 `cd frontend && npm run openapi:lint && npm run openapi:routes:lint`，确认本次无服务端 API 契约漂移
 - [ ] T042 对照 `specs/007-homepage-ui-polish/contracts/homepage-ui-polish.contract.md` 手动检查 US1/US2/US3 所有状态，必要时补充测试或截图证据
-- [ ] T043 确认 `AGENTS.md` 仍指向 `specs/007-homepage-ui-polish/plan.md`，并检查 `git status --short` 只包含本次任务相关文件
+- [X] T043 确认 `AGENTS.md` 仍指向 `specs/007-homepage-ui-polish/plan.md`，并检查 `git status --short` 只包含本次任务相关文件
 
 ---
 

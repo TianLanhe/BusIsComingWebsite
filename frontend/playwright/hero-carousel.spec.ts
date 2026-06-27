@@ -4,18 +4,23 @@ async function clickExposedBackCard(page: Page, imageId: string) {
   await page.locator(`button[data-image-id="${imageId}"]`).click();
 }
 
-test("carousel keeps the expected order and preserves state after locale switch", async ({ page }, testInfo) => {
+test("carousel keeps the expected order and separates screenshot and copy gestures", async ({ page }, testInfo) => {
   await page.goto("/");
 
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
   await expect(page.getByTestId("feature-showcase")).toHaveAttribute("data-paused", "false");
   await expect(page.getByText("01")).toHaveCount(0);
+  await expect(page.getByText(/点击放大|點擊放大|click to enlarge/i)).toHaveCount(0);
   await expect(page.getByTestId("screenshot-stack-thumbnails")).toHaveCount(0);
   await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-visual-mode", "stair-card-deck");
+  if (testInfo.project.name === "desktop-1440") {
+    const mainBox = await page.getByTestId("screenshot-deck-main").boundingBox();
+    expect(mainBox?.width ?? 0).toBeGreaterThan(250);
+  }
   await clickExposedBackCard(page, "home-all-routes-sheet");
   await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-all-routes-sheet");
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
-  await page.getByRole("button", { name: "Feature Compare total fare, time, and walking distance" }).click();
+  await page.getByRole("button", { name: "Feature Fare at a glance" }).click();
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
   await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison", { timeout: 7_000 });
@@ -28,19 +33,29 @@ test("carousel keeps the expected order and preserves state after locale switch"
   await page.keyboard.press("ArrowRight");
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "eta-details");
 
-  const box = await page.getByTestId("active-slide").boundingBox();
-  expect(box).not.toBeNull();
-  await page.mouse.move(box!.x + box!.width * 0.9, box!.y + box!.height * 0.5);
+  const copyBox = await page.getByTestId("active-slide").boundingBox();
+  expect(copyBox).not.toBeNull();
+  await page.mouse.move(copyBox!.x + copyBox!.width * 0.9, copyBox!.y + copyBox!.height * 0.5);
   await page.mouse.down();
-  await page.mouse.move(box!.x + box!.width * 0.1, box!.y + box!.height * 0.5, { steps: 8 });
+  await page.mouse.move(copyBox!.x + copyBox!.width * 0.1, copyBox!.y + copyBox!.height * 0.5, { steps: 8 });
   await page.mouse.up();
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "predeparture-monitor");
 
+  await page.getByRole("button", { name: "Feature Saved Citybus routes in one tap" }).click();
+  const railBox = await page.getByTestId("screenshot-rail").boundingBox();
+  expect(railBox).not.toBeNull();
+  await page.mouse.move(railBox!.x + railBox!.width * 0.82, railBox!.y + railBox!.height * 0.48);
+  await page.mouse.down();
+  await page.mouse.move(railBox!.x + railBox!.width * 0.2, railBox!.y + railBox!.height * 0.48, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
+  await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-all-routes-sheet");
+
   await page.getByTitle("English").click();
-  await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "predeparture-monitor");
+  await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
 
   await page.screenshot({
-    path: `../specs/005-homepage-experience-polish/visual-review/${testInfo.project.name}-feature-carousel.png`,
+    path: `../specs/007-homepage-ui-polish/visual-review/${testInfo.project.name}-feature-carousel.png`,
     fullPage: false,
   });
 });

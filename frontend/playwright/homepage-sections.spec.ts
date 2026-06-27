@@ -30,9 +30,26 @@ test("downstream sections appear in the confirmed order with required scope info
     "href",
     "mailto:hezhenyu966@gmail.com",
   );
+  await expect(page.getByTestId("feature-card")).toHaveCount(6);
+  const firstFeature = await page.getByTestId("feature-card").nth(0).boundingBox();
+  const secondFeature = await page.getByTestId("feature-card").nth(1).boundingBox();
+  const thirdFeature = await page.getByTestId("feature-card").nth(2).boundingBox();
+  expect(firstFeature).not.toBeNull();
+  expect(secondFeature).not.toBeNull();
+  expect(thirdFeature).not.toBeNull();
+  if (testInfo.project.name === "mobile-390") {
+    expect(Math.abs(firstFeature!.y - secondFeature!.y)).toBeLessThan(6);
+    expect(secondFeature!.x).toBeGreaterThan(firstFeature!.x);
+    expect(thirdFeature!.y).toBeGreaterThan(firstFeature!.y);
+    expect(firstFeature!.height).toBeLessThan(150);
+  } else {
+    expect(Math.abs(firstFeature!.y - thirdFeature!.y)).toBeLessThan(6);
+    expect(secondFeature!.x).toBeGreaterThan(firstFeature!.x);
+    expect(thirdFeature!.x).toBeGreaterThan(secondFeature!.x);
+  }
 
   await page.screenshot({
-    path: `../specs/005-homepage-experience-polish/visual-review/${testInfo.project.name}-sections.png`,
+    path: `../specs/007-homepage-ui-polish/visual-review/${testInfo.project.name}-sections.png`,
     fullPage: true,
   });
 });
