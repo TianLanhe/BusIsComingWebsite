@@ -1,0 +1,9 @@
+{
+  "name": "BusIsComing Homepage UI Polish 007 Builder",
+  "id": "1504062400500500007",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
+}

@@ -1,9 +1,7 @@
 <!-- SPECKIT START -->
-Current plan: `specs/005-homepage-experience-polish/plan.md`
-
-For technologies, project structure, shell commands, validation steps, and
-other feature-specific context, read the current plan above before planning,
-task generation, or implementation.
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+at specs/007-homepage-ui-polish/plan.md
 <!-- SPECKIT END -->
 
 ## 项目约束

@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://busiscoming.local/contracts/homepage-ui-polish-content.schema.json",
+  "title": "BusIsComing Homepage UI Polish Content Contract",
+  "type": "object",
+  "required": ["heroGallery", "featureGrid", "routeResultCard", "fareCopy", "figmaReference"],
+  "properties": {
+    "heroGallery": {
+      "type": "object",
+      "required": ["desktopScale", "showZoomIndicator", "splitGestureZones", "lightbox"],
+      "properties": {
+        "desktopScale": { "enum": ["medium"] },
+        "showZoomIndicator": { "const": false },
+        "splitGestureZones": {
+          "type": "object",
+          "required": ["screenshotZoneAction", "copyZoneAction"],
+          "properties": {
+            "screenshotZoneAction": { "const": "switch-same-feature-image" },
+            "copyZoneAction": { "const": "switch-feature" }
+          },
+          "additionalProperties": false
+        },
+        "lightbox": {
+          "type": "object",
+          "required": ["enabled", "sameFeatureOnly", "supportsZoom", "supportsPan", "supportsKeyboardClose"],
+          "properties": {
+            "enabled": { "const": true },
+            "sameFeatureOnly": { "const": true },
+            "supportsZoom": { "const": true },
+            "supportsPan": { "const": true },
+            "supportsKeyboardClose": { "const": true }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "featureGrid": {
+      "type": "object",
+      "required": ["mobileColumns", "desktopUnchanged", "minimumFeatureCount", "futureFeatureCount"],
+      "properties": {
+        "mobileColumns": { "const": 2 },
+        "desktopUnchanged": { "const": true },
+        "minimumFeatureCount": { "type": "integer", "minimum": 6 },
+        "futureFeatureCount": { "type": "integer", "minimum": 10 }
+      },
+      "additionalProperties": false
+    },
+    "routeResultCard": {
+      "type": "object",
+      "required": ["mobileCompact", "desktopUnchanged", "metrics", "missingStopFallback"],
+      "properties": {
+        "mobileCompact": { "const": true },
+        "desktopUnchanged": { "const": true },
+        "missingStopFallback": { "$ref": "#/$defs/localizedString" },
+        "metrics": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "valueStyle"],
+            "properties": {
+              "id": { "enum": ["fare", "duration", "walking"] },
+              "label": { "$ref": "#/$defs/localizedString" },
+              "valueStyle": { "const": "emphasized" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "fareCopy": {
+      "type": "object",
+      "required": ["title", "description", "forbiddenPhrases"],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "forbiddenPhrases": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "figmaReference": {
+      "type": "object",
+      "required": ["fileUrl", "pageName", "nodeNames", "nodeIdsResolved"],
+      "properties": {
+        "fileUrl": { "type": "string", "format": "uri" },
+        "pageName": { "const": "Homepage UI Polish - 007" },
+        "nodeNames": {
+          "type": "array",
+          "minItems": 6,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "nodeIdsResolved": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "localizedString": {
+      "type": "object",
+      "required": ["zh-Hant", "zh-Hans", "en"],
+      "properties": {
+        "zh-Hant": { "type": "string", "minLength": 1 },
+        "zh-Hans": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
