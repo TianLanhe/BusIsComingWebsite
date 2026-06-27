@@ -432,7 +432,7 @@
         },
         "localizedCopyReview": {
           "type": "object",
-          "required": ["scope", "zhHantTone", "allLocalesRequired"],
+          "required": ["scope", "zhHantTone", "enTone", "translationMode", "toneGuardrail", "allLocalesRequired"],
           "properties": {
             "scope": {
               "type": "array",
@@ -453,6 +453,9 @@
               }
             },
             "zhHantTone": { "const": "hong-kong-practical-written" },
+            "enTone": { "const": "natural-restrained-product" },
+            "translationMode": { "const": "locale-adapted-not-literal" },
+            "toneGuardrail": { "const": "clear-natural-not-colloquial-or-bureaucratic" },
             "allLocalesRequired": {
               "type": "array",
               "prefixItems": [

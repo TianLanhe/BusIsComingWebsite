@@ -26,6 +26,8 @@ description: "功能实现任务清单模板"
 - **OpenAPI 接口文档**：`specs/[###-feature-name]/contracts/*.openapi.yaml`，实现阶段同步到 `shared/contracts/` 或其 `openapi/` 子目录，并生成中文 API UI
 - **文档与验证记录**：`docs/`、`specs/[###-feature-name]/quickstart.md`
 - **Figma 设计引用**：`specs/[###-feature-name]/figma.md`
+- **i18n 文案审校**：涉及用户可见文案时，在 `specs/[###-feature-name]/` 下记录 `zh-Hant`
+  香港语气、`en` 英语产品语气和非机械直译审校结论
 - **代码可读性**：需要在对应源码文件内补充中文注释，避免重复代码字面含义
 - **服务端稳健性**：服务端入口、goroutine、后台任务和外部依赖必须有 recovery、错误传递和脱敏日志
 
@@ -51,7 +53,7 @@ description: "功能实现任务清单模板"
 - [ ] T002 初始化前端项目依赖和构建脚本
 - [ ] T003 初始化后端项目依赖和运行脚本
 - [ ] T004 [P] 配置 lint、format 和基础测试命令
-- [ ] T005 [P] 建立 `zh-Hant`、`zh-Hans`、`en` i18n 资源结构
+- [ ] T005 [P] 建立 `zh-Hant`、`zh-Hans`、`en` i18n 资源结构和文案审校记录入口
 
 ---
 
@@ -59,10 +61,10 @@ description: "功能实现任务清单模板"
 
 **目的**：完成所有用户故事依赖的基础能力。此阶段完成前不能开始用户故事实现。
 
-**关键要求**：基础任务必须支撑前后端分离、三语、契约和降级策略。
+**关键要求**：基础任务必须支撑前后端分离、三语、文案语气审校、契约和降级策略。
 
 - [ ] T006 定义前后端 API 或共享契约；涉及服务端 HTTP API 时创建或更新 OpenAPI 3.1 YAML，并规划中文 API UI 输出路径
-- [ ] T007 [P] 建立前端路由、页面框架和 i18n 加载机制
+- [ ] T007 [P] 建立前端路由、页面框架、i18n 加载机制和 `zh-Hant`/`en` 文案语气审校记录
 - [ ] T008 [P] 建立后端 DDD bounded context 目录，至少包含 domain、application、infrastructure、interfaces 层
 - [ ] T009 [P] 建立后端 API 路由、中间件、panic recovery、请求日志和错误格式，确保路由只位于 interfaces 层
 - [ ] T010 建立产品内容来源清单，记录 Android 主项目事实来源
@@ -88,14 +90,14 @@ description: "功能实现任务清单模板"
 
 - [ ] T016 [P] [US1] 为 [OpenAPI/契约或组件] 增加测试、lint、中文 API UI 生成或等价验证，路径：[contract/test path]
 - [ ] T017 [P] [US1] 为 [领域实体或应用服务] 增加单元测试，路径：backend/internal/[bounded-context]/[layer]/[name]_test.*
-- [ ] T018 [US1] 定义三语、手机和电脑双端视觉验证步骤，路径：specs/[###-feature-name]/quickstart.md
+- [ ] T018 [US1] 定义三语、文案语气、手机和电脑双端视觉验证步骤，路径：specs/[###-feature-name]/quickstart.md
 - [ ] T019 [US1] 生成或保存手机与电脑 UI 图片、截图、设计稿或可视化 mock，路径：[artifact path]
 - [ ] T020 [US1] 将 Figma 文件/链接、关键节点和交互状态记录到 specs/[###-feature-name]/figma.md
 
 ### 用户故事 1 的实现
 
 - [ ] T021 [P] [US1] 在 `frontend/src/pages/[page].*` 实现页面结构
-- [ ] T022 [P] [US1] 在 `frontend/src/i18n/` 补齐三语文案
+- [ ] T022 [P] [US1] 在 `frontend/src/i18n/` 补齐三语文案，并按审校记录调整 `zh-Hant` 和 `en` 自然语气
 - [ ] T023 [US1] 在 `backend/internal/[bounded-context]/domain/` 实现领域实体、值对象、领域服务或领域错误
 - [ ] T024 [US1] 在 `backend/internal/[bounded-context]/application/` 实现用例编排和端口
 - [ ] T025 [US1] 在 `backend/internal/[bounded-context]/infrastructure/` 实现文件、数据库、外部 API 或缓存适配
@@ -118,7 +120,7 @@ description: "功能实现任务清单模板"
 ### 用户故事 2 的测试或验证
 
 - [ ] T031 [P] [US2] 为 [组件或交互] 增加测试，路径：frontend/tests/[name].test.ts
-- [ ] T032 [US2] 补充三语、手机和电脑双端验证步骤
+- [ ] T032 [US2] 补充三语、文案语气、手机和电脑双端验证步骤
 - [ ] T033 [US2] 若涉及 UI，生成或保存手机与电脑图片、截图、设计稿或可视化 mock
 - [ ] T034 [US2] 若涉及 UI，更新 specs/[###-feature-name]/figma.md 的 Figma 文件/链接和节点说明
 
@@ -163,6 +165,7 @@ description: "功能实现任务清单模板"
 - [ ] TXXX 清理代码和重复逻辑
 - [ ] TXXX 优化图片、首屏加载和响应式表现
 - [ ] TXXX 确认所有 UI 讨论和展示均有图片、截图、设计稿或可视化 mock 作为用户可见依据
+- [ ] TXXX 确认 `zh-Hant` 与 `en` 用户可见文案已完成自然语气审校，未机械直译、逐句搬运、过度口语化或过分官方严肃
 - [ ] TXXX 确认 specs/[###-feature-name]/figma.md 已沉淀 Figma 文件/链接、关键节点、交互状态和版本说明
 - [ ] TXXX 确认服务端 HTTP API 的 OpenAPI 文档已同步到 feature contracts 和共享契约，已生成中文 API UI，并通过 lint/预览验证
 - [ ] TXXX 确认服务端没有以 panic 表达业务错误，HTTP 入口已启用 recovery 和请求日志，自建 goroutine 或后台任务已加 recover 包装并有脱敏日志
@@ -173,7 +176,7 @@ description: "功能实现任务清单模板"
 - [ ] TXXX [P] 补充单元测试或契约测试
 - [ ] TXXX 检查安全边界，确认无密钥或私有 token 下发到前端
 - [ ] TXXX 运行 quickstart.md 中的本地验证步骤
-- [ ] TXXX 启动本地服务并用浏览器验证三语、移动端和桌面端关键页面
+- [ ] TXXX 启动本地服务并用浏览器验证三语、文案语气、移动端和桌面端关键页面
 - [ ] TXXX 在本次 Spec Kit skill 验证通过后准备自动提交范围
 
 ---
@@ -206,7 +209,7 @@ description: "功能实现任务清单模板"
 - 范围排除和 UI 可视化产物先于用户确认页面方案
 - Figma 文件/链接和关键节点记录先于前端页面实现
 - 手机与电脑双端布局策略先于页面实现和用户确认
-- i18n 文案与组件实现同步完成
+- i18n 文案、`zh-Hant`/`en` 语气审校与组件实现同步完成
 - 加载、错误和降级状态必须随核心实现一起完成
 - 故事完成后先独立验证，再进入下一个故事
 

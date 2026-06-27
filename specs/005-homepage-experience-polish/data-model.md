@@ -102,7 +102,7 @@ auto-advancing -> reduced-motion-manual
 | `key` | string | 对应内容对象或 UI copy 键 |
 | `zh-Hant` | string | 香港实用书面语；不做简体直接转换 |
 | `zh-Hans` | string | 自然简体中文 |
-| `en` | string | 自然英文产品表达 |
+| `en` | string | 自然克制的英文产品表达；不做中文句式直译 |
 | `scope` | enum | `navigation`、`hero`、`carousel`、`features`、`online-query`、`download`、`faq`、`footer`、`status`、`accessibility` |
 | `reviewStatus` | enum | `pending`、`approved`、`needs-revision` |
 
@@ -110,6 +110,7 @@ auto-advancing -> reduced-motion-manual
 
 - 三语字段不能为空。
 - `zh-Hant` 关键抽查不得等于 `zh-Hans` 的单纯字形转换。
+- `en` 关键抽查不得采用中文句式直译；语气必须清楚、自然、可信，不过度口语化或官方严肃。
 - Citybus / 城巴范围和排除项必须在关键说明中保留。
 
 ## VisualReviewEvidence

@@ -30,11 +30,18 @@
 
 **性能目标**：首屏轮播自动切换间隔约 3 秒；轮播切换动画控制在用户可感知但不拖沓的 300-700ms；新增 logo 资产保持小体积透明图，避免替换后增加明显首屏负担；桌面 1440px 和手机 390px 下 header、hero、轮播、语言切换和联系入口无重叠、无截断、可操作。
 
-**约束**：三语 i18n；`zh-Hant` 独立香港实用书面语；现代、简洁、优雅；禁止底部缩略图堆叠、胶片条、图片按钮组和常驻箭头；同场景多图必须使用低旋转阶梯牌堆，桌面约 5 度、手机可收敛，后方图片底部不得低于主图底部；logo 必须来自 Android 真实图标前景主体；当前聚焦 Citybus / 城巴，不提供九巴、港铁、铁路、渡轮或完整出行规划；不新增服务端 HTTP API。
+**约束**：三语 i18n；`zh-Hant` 独立香港实用书面语；`en` 使用自然克制的英语产品表达；
+三语不得机械直译、逐句搬运、过度口语化或过分官方严肃；现代、简洁、优雅；禁止底部缩略图
+堆叠、胶片条、图片按钮组和常驻箭头；同场景多图必须使用低旋转阶梯牌堆，桌面约 5 度、手机
+可收敛，后方图片底部不得低于主图底部；logo 必须来自 Android 真实图标前景主体；当前聚焦
+Citybus / 城巴，不提供九巴、港铁、铁路、渡轮或完整出行规划；不新增服务端 HTTP API。
 
 **规模/范围**：1 个首页首屏功能轮播重构；1 组品牌 logo 资产替换；header/footer 联系入口和邮箱更新；全站用户可见文案三语审校；2 份 feature 契约；1 份 Figma 插件设计源；桌面和手机两类视觉验收截图。服务端代码、下载 API 和在线查询 API 均不在本轮范围。
 
-**i18n 范围**：必须覆盖 `zh-Hant`、`zh-Hans` 和 `en`。审校范围包括 header、hero、轮播、功能卡、在线查询区、下载区、FAQ、footer、按钮、状态提示、错误提示、图片 alt 和 aria 文案。`zh-Hant` 采用香港实用书面语；`zh-Hans` 与 `en` 保持同一产品事实但使用各自自然表达。
+**i18n 范围**：必须覆盖 `zh-Hant`、`zh-Hans` 和 `en`。审校范围包括 header、hero、轮播、功能卡、
+在线查询区、下载区、FAQ、footer、按钮、状态提示、错误提示、图片 alt 和 aria 文案。`zh-Hant`
+采用香港实用书面语；`en` 使用自然克制的英语产品表达；`zh-Hans` 使用自然简体中文。三语保持
+同一产品事实，但不得机械直译、逐句搬运、过度口语化或过分官方严肃。
 
 **前后端契约**：本 feature 契约位于 `specs/005-homepage-experience-polish/contracts/`。`homepage-experience-polish.contract.md` 固定轮播、logo、联系方式、文案和视觉验收不变量；`homepage-experience-content.schema.json` 固定可检查的内容、品牌和交互配置字段。实现阶段如需同步长期共享契约，更新 `shared/contracts/homepage-content.schema.json` 和 `shared/contracts/ui-state-contract.md`，但不得改变服务端 API 契约。
 
@@ -171,7 +178,7 @@ shared/
 | 范围排除 | 通过 | UI contract 要求所有范围说明继续排除九巴、港铁、铁路、渡轮和完整规划。 |
 | 前后端分离与契约优先 | 通过 | 前端契约与内容 schema 已生成；后端 N/A 写明。 |
 | OpenAPI 驱动的服务端接口文档 | 通过 | 无 API 变更；quickstart 记录可选未漂移检查。 |
-| 三语国际化 | 通过 | schema、UI contract 和 quickstart 均要求 `zh-Hant`、`zh-Hans`、`en` 覆盖。 |
+| 三语国际化 | 通过 | schema、UI contract、copy review 和 quickstart 均要求 `zh-Hant`、`zh-Hans`、`en` 覆盖，并检查 `zh-Hant`/`en` 非机械直译和自然克制语气。 |
 | 试用查询与可靠降级 | 通过 | 不改变在线查询外部服务；文案仍限制为 Citybus / 城巴试用查询。 |
 | 现代界面与可视化评审 | 通过 | Superpowers mock、Figma 插件和 visual-review 截图要求已沉淀。 |
 | 电脑与手机双端一致可用 | 通过 | figma.md、UI contract 和 quickstart 覆盖 1440px 与 390px。 |

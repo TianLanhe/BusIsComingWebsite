@@ -40,9 +40,12 @@
 - 使用 lucide 线框巴士：不是 App 真实 logo。
 - 手工重绘巴士图标：不可追溯到 Android App 真实素材。
 
-## Decision: `zh-Hant` 使用香港实用书面语，三语保持同事实不同语感
+## Decision: `zh-Hant` 使用香港实用书面语，`en` 使用自然克制英语产品表达
 
-**Rationale**：目标用户覆盖香港本地、简体中文用户和英文用户。繁体中文需要贴近香港交通产品语境；简体中文和英文不应硬套香港繁体词形。文案参考 Citybus、HKeMobility、Transport Department 和 GovHK 公开交通页面，但 App 功能事实仍以 Android 主项目为准。
+**Rationale**：目标用户覆盖香港本地、简体中文用户和英文用户。繁体中文需要贴近香港交通产品语境；
+英文需要像自然的产品页面，而不是中文句式直译。简体中文、繁体中文和英文都保持同一 App
+事实与范围边界，但语气按目标语言独立审校。文案参考 Citybus、HKeMobility、Transport Department
+和 GovHK 公开交通页面，但 App 功能事实仍以 Android 主项目为准。
 
 **Reference links**：
 
@@ -54,6 +57,7 @@
 **Alternatives considered**：
 
 - `zh-Hant` 从 `zh-Hans` 自动转换：会保留直译语气，用户已明确不接受。
+- `en` 从中文逐句翻译：会产生中文句式和不自然产品语气，影响英文用户理解。
 - 更口语化香港表达：亲近但可能降低 App 主页的可信和克制感。
 - 更政府公文式表达：稳妥但不像现代产品页面。
 

@@ -231,6 +231,9 @@ export const homepageContent: HomePageContent = {
     localizedCopyReview: {
       scope: ["navigation", "hero", "carousel", "features", "online-query", "download", "faq", "footer", "status", "accessibility"],
       zhHantTone: "hong-kong-practical-written",
+      enTone: "natural-restrained-product",
+      translationMode: "locale-adapted-not-literal",
+      toneGuardrail: "clear-natural-not-colloquial-or-bureaucratic",
       allLocalesRequired: ["zh-Hant", "zh-Hans", "en"],
     },
     figmaReference: {

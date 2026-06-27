@@ -61,23 +61,23 @@
 
 ---
 
-## 阶段 4：用户故事 2 - 通过香港语境的繁体文案理解网站（优先级：P1）
+## 阶段 4：用户故事 2 - 通过香港语境和自然英文理解网站（优先级：P1）
 
-**目标**：全站新增或修改文案覆盖 `zh-Hant`、`zh-Hans`、`en`，其中 `zh-Hant` 独立改写为香港实用书面语，并明确 Citybus / 城巴范围边界。
+**目标**：全站新增或修改文案覆盖 `zh-Hant`、`zh-Hans`、`en`，其中 `zh-Hant` 独立改写为香港实用书面语，`en` 使用自然克制的英语产品表达，并明确 Citybus / 城巴范围边界。
 
-**独立测试**：切换到繁体中文并抽查 header、hero、轮播、功能、在线查询、下载、FAQ、footer、状态提示、alt 和 aria；确认不是简体直转繁，并且三语事实同步。
+**独立测试**：切换到繁体中文和英文并抽查 header、hero、轮播、功能、在线查询、下载、FAQ、footer、状态提示、alt 和 aria；确认繁体不是简体直转繁，英文不是中文句式直译，并且三语事实同步。
 
 ### 用户故事 2 的测试或验证
 
 - [X] T022 [P] [US2] 更新三语完整性测试 `frontend/src/tests/i18n-completeness.test.tsx`，覆盖 header、hero、carousel、features、online-query、download、faq、footer、status、accessibility
 - [X] T023 [P] [US2] 更新内容回归测试 `frontend/src/tests/sections-content.test.ts`，断言 `zh-Hant` 关键短语使用香港交通语境且保留 Citybus / 城巴范围排除说明
 - [X] T024 [P] [US2] 更新首屏内容测试 `frontend/src/tests/hero-content.test.ts`，断言轮播和 hero 三语事实一致且 `zh-Hant` 不是 `zh-Hans` 简单字形转换
-- [X] T025 [US2] 新增繁体文案审校记录 `specs/005-homepage-experience-polish/zh-hant-copy-review.md`，列出参考来源、关键用词、范围排除和审校结论
+- [X] T025 [US2] 新增文案审校记录 `specs/005-homepage-experience-polish/zh-hant-copy-review.md`，列出参考来源、`zh-Hant` 关键用词、`en` 语气、范围排除和审校结论
 
 ### 用户故事 2 的实现
 
 - [X] T026 [US2] 改写全局 UI 文案 `frontend/src/content/uiCopy.ts`，将支持语义改为联系语义并补齐所有按钮、状态、错误、aria 三语
-- [X] T027 [US2] 改写首页主内容 `frontend/src/content/homepageContent.ts`，让 `zh-Hant` 使用香港实用书面语，`zh-Hans` 和 `en` 保持同一产品事实
+- [X] T027 [US2] 改写首页主内容 `frontend/src/content/homepageContent.ts`，让 `zh-Hant` 使用香港实用书面语，`en` 使用自然克制的英语产品表达，`zh-Hans` 保持自然简体表达
 - [X] T028 [US2] 改写轮播文案 `frontend/src/content/carouselSlides.ts`，覆盖 4 个功能页标题、说明、alt 和范围边界
 - [X] T029 [US2] 改写功能、下载、FAQ 与页脚内容 `frontend/src/content/sectionsContent.ts`，明确当前聚焦 Citybus / 城巴且不支持九巴、港铁、铁路、渡轮或完整路线规划
 - [X] T030 [US2] 改写在线查询示例和状态文案 `frontend/src/content/onlineQueryDemo.ts`，使用香港交通语境并保留既有降级事实

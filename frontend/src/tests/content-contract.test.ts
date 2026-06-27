@@ -95,6 +95,8 @@ describe("content contracts", () => {
     expect(homepageContent.homepageExperience.carousel.usesPersistentArrows).toBe(false);
     expect(homepageContent.homepageExperience.carousel.supportsKeyboardSwitching).toBe(true);
     expect(homepageContent.homepageExperience.contact.email).toBe("hezhenyu966@gmail.com");
+    expect(homepageContent.homepageExperience.localizedCopyReview.enTone).toBe("natural-restrained-product");
+    expect(homepageContent.homepageExperience.localizedCopyReview.translationMode).toBe("locale-adapted-not-literal");
   });
 
   it("validates download manifest against the shared contract", () => {

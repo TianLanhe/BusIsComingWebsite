@@ -129,6 +129,9 @@ export interface HomepageExperiencePolishContract {
   localizedCopyReview: {
     scope: LocalizedCopyScope[];
     zhHantTone: "hong-kong-practical-written";
+    enTone: "natural-restrained-product";
+    translationMode: "locale-adapted-not-literal";
+    toneGuardrail: "clear-natural-not-colloquial-or-bureaucratic";
     allLocalesRequired: Locale[];
   };
   figmaReference: {

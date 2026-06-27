@@ -279,7 +279,7 @@ See `docs/deployment.md` for the full deployment model and operational boundarie
 
 ## Project Guardrails
 
-- User-visible website copy must support `zh-Hant`, `zh-Hans`, and `en`.
+- User-visible website copy must support `zh-Hant`, `zh-Hans`, and `en`; `zh-Hant` and `en` copy must be localized with a natural, restrained product tone rather than literal translation.
 - Product facts come from the Android BusIsComing project and this repo's specs.
 - Scope is Hong Kong Citybus lookup only.
 - Service APIs must remain OpenAPI-first.
