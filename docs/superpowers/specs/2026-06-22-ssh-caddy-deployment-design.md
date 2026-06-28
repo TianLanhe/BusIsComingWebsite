@@ -478,6 +478,9 @@ www.busiscoming.com {
         reverse_proxy 127.0.0.1:8080
     }
 
+    @root path /
+    redir @root /zh-hant/ permanent
+
     handle {
         root * /opt/busiscoming/current/frontend/dist
         # 只服务真实静态文件；未知路径返回 404，避免搜索引擎软 404。

@@ -228,7 +228,7 @@ case "${url}" in
   http://127.0.0.1:8080/healthz)
     [ "${FAKE_LOCAL_HEALTH:-ok}" = "ok" ]
     ;;
-  "https://${FAKE_DOMAIN:-www.busiscoming.com}/")
+  "https://${FAKE_DOMAIN:-www.busiscoming.com}/zh-hant/")
     [ "${FAKE_MAIN_HEALTH:-ok}" = "ok" ]
     ;;
   "https://${FAKE_BARE_DOMAIN:-busiscoming.com}/")
@@ -400,7 +400,7 @@ case "${url}" in
     fi
     [ "${FAKE_DEPLOY_LOCAL:-ok}" = "ok" ]
     ;;
-  "https://${FAKE_DOMAIN:-www.busiscoming.com}/")
+  "https://${FAKE_DOMAIN:-www.busiscoming.com}/zh-hant/")
     if [ "${FAKE_DEPLOY_MAIN:-ok}" = "ok" ]; then
       [ -z "${write_out}" ] || printf '200'
       exit 0
@@ -2049,7 +2049,7 @@ test_remote_status_uses_fake_checks_and_prints_config() {
   assert_contains "${log}" "systemctl|is-active busiscoming-backend" || return 1
   assert_contains "${log}" "systemctl|is-active caddy" || return 1
   assert_contains "${log}" "http://127.0.0.1:8080/healthz" || return 1
-  assert_contains "${log}" "https://www.busiscoming.com/" || return 1
+  assert_contains "${log}" "https://www.busiscoming.com/zh-hant/" || return 1
   assert_contains "${log}" "https://busiscoming.com/" || return 1
   assert_equals "$(wc -l < "${temp}/remote.log" | tr -d ' ')" "5" || return 1
 
@@ -2198,6 +2198,8 @@ test_remote_renders_systemd_caddy_and_environment() {
   grep -F \
     "redir https://www.busiscoming.com{uri} permanent" \
     "${caddy_file}" >/dev/null
+  grep -F "@root path /" "${caddy_file}" >/dev/null
+  grep -F "redir @root /zh-hant/ permanent" "${caddy_file}" >/dev/null
   grep -F \
     "root * ${temp}/opt/busiscoming/current/frontend/dist" \
     "${caddy_file}" >/dev/null

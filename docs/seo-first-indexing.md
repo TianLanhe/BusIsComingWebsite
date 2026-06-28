@@ -9,13 +9,18 @@
 ```bash
 curl https://www.busiscoming.com/robots.txt
 curl https://www.busiscoming.com/sitemap.xml
+curl -I https://www.busiscoming.com/
+curl -I https://www.busiscoming.com/zh-hant/
+curl -I https://www.busiscoming.com/zh-hans/
+curl -I https://www.busiscoming.com/en/
 curl -I https://www.busiscoming.com/not-a-real-page-for-seo-check
 ```
 
 期望结果：
 
 - `robots.txt` 返回爬虫规则，并包含 `Sitemap: https://www.busiscoming.com/sitemap.xml`。
-- `sitemap.xml` 返回 XML 站点地图，并包含 `https://www.busiscoming.com/`。
+- `sitemap.xml` 返回 XML 站点地图，并包含 `/zh-hant/`、`/zh-hans/`、`/en/` 三个语言入口及对应 `hreflang`。
+- 根路径 `/` 返回到 `/zh-hant/` 的永久跳转；三个语言入口均返回 200。
 - 不存在的普通路径不要返回可索引的首页副本。
 
 ## Google Search Console 操作
@@ -24,8 +29,9 @@ curl -I https://www.busiscoming.com/not-a-real-page-for-seo-check
 2. 添加域名资源 `busiscoming.com`。
 3. 按 Google 提示完成 DNS 验证。
 4. 在 Sitemaps 中提交 `https://www.busiscoming.com/sitemap.xml`。
-5. 在 URL Inspection 中检查 `https://www.busiscoming.com/`。
-6. 确认页面可抓取后，请求编入索引。
+5. 在 URL Inspection 中分别检查 `https://www.busiscoming.com/zh-hant/`、
+   `https://www.busiscoming.com/zh-hans/` 和 `https://www.busiscoming.com/en/`。
+6. 确认语言入口可抓取后，请求编入索引。
 
 ## 后续观察
 

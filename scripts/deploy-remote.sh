@@ -475,6 +475,8 @@ render_caddyfile() {
     printf '    handle /api/* {\n'
     printf '        reverse_proxy 127.0.0.1:8080\n'
     printf '    }\n\n'
+    printf '    @root path /\n'
+    printf '    redir @root /zh-hant/ permanent\n\n'
     printf '    handle {\n'
     printf '        root * %s/current/frontend/dist\n' "${ROOT}"
     printf '        # 只服务真实静态文件；未知路径返回 404，避免搜索引擎软 404。\n'
@@ -964,7 +966,7 @@ verify_active_release() {
     main_code="$(
       "${curl_command}" --silent --show-error --max-time 10 \
         --output /dev/null --write-out '%{http_code}' \
-        "https://${DOMAIN}/" 2>/dev/null || true
+        "https://${DOMAIN}/zh-hant/" 2>/dev/null || true
     )"
     [[ "${main_code}" == "200" ]] && break
     attempt=$((attempt + 1))
@@ -1476,7 +1478,7 @@ command_status() {
   check_url "local health" "http://127.0.0.1:8080/healthz"
 
   if [[ "${CONFIG_PRESENT}" -eq 1 ]]; then
-    check_url "main HTTPS" "https://${DOMAIN}/" head
+    check_url "main HTTPS" "https://${DOMAIN}/zh-hant/" head
     check_url "bare URL" "https://${BARE_DOMAIN}/" head
   fi
 

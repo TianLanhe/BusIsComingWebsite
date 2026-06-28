@@ -143,6 +143,8 @@ export BUS_DEPLOY_KEEP=3
 
 Caddy 配置写入 `/etc/caddy/Caddyfile`，后端 systemd unit 写入
 `/etc/systemd/system/busiscoming-backend.service`。
+生产环境根路径 `/` 会永久重定向到 `/zh-hant/`，三语首页入口分别由
+`/zh-hant/`、`/zh-hans/` 和 `/en/` 的静态 `index.html` 提供。
 
 ## 故障处理
 

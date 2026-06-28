@@ -10,6 +10,9 @@
 
 .option,
 .active {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 34px;
   height: 32px;
   border: 0;
@@ -18,6 +21,7 @@
   color: var(--muted);
   font: var(--text-control);
   cursor: pointer;
+  text-decoration: none;
 }
 
 .active {

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getInitialLocale, t, writeStoredLocale } from "../../content/locales";
+import { localeFromPathname, localizedPathForLocale } from "../../content/seo";
 import type { Locale, LocalizedString } from "../../content/types";
 
 interface I18nContextValue {
@@ -10,17 +11,40 @@ interface I18nContextValue {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
+function getInitialLocaleForCurrentUrl(): Locale {
+  if (typeof window === "undefined") {
+    return getInitialLocale();
+  }
+  return localeFromPathname(window.location.pathname) ?? getInitialLocale();
+}
+
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => getInitialLocale());
+  const [locale, setLocaleState] = useState<Locale>(() => getInitialLocaleForCurrentUrl());
 
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
 
+  useEffect(() => {
+    const syncLocaleFromHistory = () => {
+      const localeFromUrl = localeFromPathname(window.location.pathname);
+      setLocaleState(localeFromUrl ?? getInitialLocale());
+    };
+
+    window.addEventListener("popstate", syncLocaleFromHistory);
+    return () => window.removeEventListener("popstate", syncLocaleFromHistory);
+  }, []);
+
   const value = useMemo<I18nContextValue>(() => {
     const setLocale = (nextLocale: Locale) => {
       setLocaleState(nextLocale);
       writeStoredLocale(nextLocale);
+      if (typeof window !== "undefined") {
+        const nextPath = localizedPathForLocale(nextLocale);
+        if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== nextPath) {
+          window.history.pushState({}, "", nextPath);
+        }
+      }
     };
 
     return {
