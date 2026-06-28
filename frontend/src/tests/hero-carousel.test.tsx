@@ -133,9 +133,9 @@ describe("AppPreviewCarousel", () => {
     });
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
 
-    fireEvent.click(screen.getByRole("button", { name: "Feature Fare at a glance" }));
+    fireEvent.click(screen.getByRole("button", { name: "Feature Clearer route comparison" }));
     fireEvent.click(screen.getByTitle("English"));
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
-    expect(within(screen.getByTestId("active-slide")).getByText("Fare at a glance")).toBeInTheDocument();
+    expect(within(screen.getByTestId("active-slide")).getByText("Clearer route comparison")).toBeInTheDocument();
   });
 });

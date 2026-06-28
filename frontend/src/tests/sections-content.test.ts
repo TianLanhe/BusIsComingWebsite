@@ -91,9 +91,9 @@ describe("downstream sections content", () => {
     expect(fareFeature?.title["zh-Hant"]).toBe("車費一眼看清");
     expect(fareFeature?.title["zh-Hans"]).toBe("车费一眼看清");
     expect(fareFeature?.title.en).toBe("Fare at a glance");
-    expect(fareFeature?.description["zh-Hant"]).toContain("車費");
-    expect(fareFeature?.description["zh-Hans"]).toContain("车费");
-    expect(fareFeature?.description.en).toContain("fare");
+    expect(fareFeature?.description["zh-Hant"]).toBe("每條候選路線直接顯示車費，毋須點入詳情才知道大約花費。");
+    expect(fareFeature?.description["zh-Hans"]).toBe("每条候选路线直接显示车费，不用点进详情才知道大致花费。");
+    expect(fareFeature?.description.en).toBe("See the fare on each route option without opening details first.");
     expect(userFacingContent).not.toContain("多程总车费");
     expect(userFacingContent).not.toContain("比较城巴方案时，可直接看到多程全程总车费，而不只是币种显示。");
     expect(userFacingContent).not.toContain("not just the currency label");

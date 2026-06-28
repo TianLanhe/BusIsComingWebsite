@@ -6,6 +6,9 @@ import { renderWithI18n } from "./test-utils";
 
 type EnvelopeData = QueryPlacesData | QueryRoutesData | QueryEtasData;
 
+const longOriginStop = "Very Long Origin Stop Name Near Hing Wah Estate Bus Terminus";
+const longDestinationStop = "Very Long Destination Stop Name Near Yue Wan Estate Shopping Centre";
+
 describe("OnlineQueryDemoSection", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -58,8 +61,8 @@ describe("OnlineQueryDemoSection", () => {
               operator: "citybus",
               routeNumbers: ["606"],
               routeLabel: "606",
-              boardingStop: { name: "Hing Wah Estate" },
-              alightingStop: { name: "Yue Wan Estate" },
+              boardingStop: { name: longOriginStop },
+              alightingStop: { name: longDestinationStop },
               fare: { currency: "HKD", amount: 6.1 },
               durationMinutes: 10,
               walkingDistanceMeters: 266,
@@ -83,8 +86,10 @@ describe("OnlineQueryDemoSection", () => {
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
     expect(await screen.findByText("606")).toBeInTheDocument();
-    expect(screen.getByText("Hing Wah Estate")).toBeInTheDocument();
-    expect(screen.getByText("Yue Wan Estate")).toBeInTheDocument();
+    expect(screen.getByText(longOriginStop)).toBeInTheDocument();
+    expect(screen.getByText(longDestinationStop)).toBeInTheDocument();
+    expect(screen.getByTestId("route-origin-stop")).toHaveAttribute("title", longOriginStop);
+    expect(screen.getByTestId("route-destination-stop")).toHaveAttribute("title", longDestinationStop);
     const routeCard = screen.getByTestId("route-card");
     expect(routeCard).toHaveAttribute("data-mobile-layout", "compact");
     expect(screen.getByTestId("route-metrics")).toHaveAttribute("data-layout", "inline-label-value");

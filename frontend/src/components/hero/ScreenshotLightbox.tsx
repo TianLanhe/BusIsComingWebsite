@@ -8,6 +8,17 @@ import styles from "./ScreenshotLightbox.module.css";
 const minZoom = 1;
 const maxZoom = 3;
 const zoomStep = 0.25;
+const swipeThresholdPx = 48;
+
+type PointerPoint = {
+  x: number;
+  y: number;
+};
+
+type GestureState =
+  | { type: "swipe"; pointerId: number; startX: number; startY: number }
+  | { type: "pan"; pointerId: number; pointerX: number; pointerY: number; panX: number; panY: number }
+  | { type: "pinch"; distance: number; zoom: number };
 
 interface ScreenshotLightboxProps {
   gallery: ScreenshotGallery;
@@ -19,7 +30,8 @@ interface ScreenshotLightboxProps {
 export function ScreenshotLightbox({ gallery, activeImageId, onSelectImage, onClose }: ScreenshotLightboxProps) {
   const { text } = useI18n();
   const dialogRef = useRef<HTMLDivElement | null>(null);
-  const panStartRef = useRef<{ pointerX: number; pointerY: number; panX: number; panY: number } | null>(null);
+  const activePointersRef = useRef<Map<number, PointerPoint>>(new Map());
+  const gestureRef = useRef<GestureState | null>(null);
   const [zoom, setZoom] = useState(minZoom);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const orderedImages = useMemo(() => [...gallery.images].sort((a, b) => a.order - b.order), [gallery.images]);
@@ -50,6 +62,68 @@ export function ScreenshotLightbox({ gallery, activeImageId, onSelectImage, onCl
     }
   }
 
+  function pointFromEvent(event: PointerEvent<HTMLDivElement>): PointerPoint {
+    return { x: event.clientX, y: event.clientY };
+  }
+
+  function distanceBetween(a: PointerPoint, b: PointerPoint) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function currentPinchDistance() {
+    const points = Array.from(activePointersRef.current.values());
+    if (points.length < 2) {
+      return null;
+    }
+    return distanceBetween(points[0], points[1]);
+  }
+
+  function beginSinglePointerGesture(event: PointerEvent<HTMLDivElement>) {
+    if (zoom > minZoom) {
+      // 放大后优先平移当前截图，避免用户查看细节时被误判成同功能切图。
+      gestureRef.current = {
+        type: "pan",
+        pointerId: event.pointerId,
+        pointerX: event.clientX,
+        pointerY: event.clientY,
+        panX: pan.x,
+        panY: pan.y,
+      };
+      return;
+    }
+
+    gestureRef.current = {
+      type: "swipe",
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+  }
+
+  function beginPinchGesture() {
+    const distance = currentPinchDistance();
+    if (!distance) {
+      return;
+    }
+    gestureRef.current = { type: "pinch", distance, zoom };
+  }
+
+  function setPointerCaptureSafely(target: HTMLDivElement, pointerId: number) {
+    try {
+      target.setPointerCapture?.(pointerId);
+    } catch {
+      // 浏览器合成触控事件可能没有真实 active pointer；忽略即可，手势状态仍由本组件维护。
+    }
+  }
+
+  function releasePointerCaptureSafely(target: HTMLDivElement, pointerId: number) {
+    try {
+      target.releasePointerCapture?.(pointerId);
+    } catch {
+      // 与 setPointerCaptureSafely 对称，避免合成事件在测试环境中抛错。
+    }
+  }
+
   function moveImage(direction: 1 | -1) {
     if (!hasImageSwitching) {
       return;
@@ -66,33 +140,66 @@ export function ScreenshotLightbox({ gallery, activeImageId, onSelectImage, onCl
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (zoom <= minZoom) {
+    if (event.pointerType === "mouse" && event.button !== 0) {
       return;
     }
-    // 放大后优先平移当前截图，避免用户查看细节时被误判成同功能切图。
-    panStartRef.current = {
-      pointerX: event.clientX,
-      pointerY: event.clientY,
-      panX: pan.x,
-      panY: pan.y,
-    };
-    event.currentTarget.setPointerCapture?.(event.pointerId);
+
+    activePointersRef.current.set(event.pointerId, pointFromEvent(event));
+    setPointerCaptureSafely(event.currentTarget, event.pointerId);
+
+    if (activePointersRef.current.size >= 2) {
+      beginPinchGesture();
+      return;
+    }
+
+    beginSinglePointerGesture(event);
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    const start = panStartRef.current;
-    if (!start) {
+    if (!activePointersRef.current.has(event.pointerId)) {
       return;
     }
-    setPan({
-      x: start.panX + event.clientX - start.pointerX,
-      y: start.panY + event.clientY - start.pointerY,
-    });
+
+    activePointersRef.current.set(event.pointerId, pointFromEvent(event));
+    const gesture = gestureRef.current;
+    if (!gesture) {
+      return;
+    }
+
+    if (gesture.type === "pinch") {
+      const distance = currentPinchDistance();
+      if (!distance) {
+        return;
+      }
+      updateZoom(gesture.zoom * (distance / gesture.distance));
+    }
+
+    if (gesture.type === "pan" && gesture.pointerId === event.pointerId) {
+      setPan({
+        x: gesture.panX + event.clientX - gesture.pointerX,
+        y: gesture.panY + event.clientY - gesture.pointerY,
+      });
+    }
   }
 
   function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
-    panStartRef.current = null;
-    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    const gesture = gestureRef.current;
+    if (gesture?.type === "swipe" && gesture.pointerId === event.pointerId) {
+      const deltaX = event.clientX - gesture.startX;
+      const deltaY = event.clientY - gesture.startY;
+      if (Math.abs(deltaX) >= swipeThresholdPx && Math.abs(deltaX) > Math.abs(deltaY)) {
+        moveImage(deltaX < 0 ? 1 : -1);
+      }
+    }
+
+    activePointersRef.current.delete(event.pointerId);
+    gestureRef.current = null;
+    releasePointerCaptureSafely(event.currentTarget, event.pointerId);
+  }
+
+  function handlePointerCancel(event: PointerEvent<HTMLDivElement>) {
+    activePointersRef.current.delete(event.pointerId);
+    gestureRef.current = null;
   }
 
   return (
@@ -107,12 +214,13 @@ export function ScreenshotLightbox({ gallery, activeImageId, onSelectImage, onCl
     >
       <div
         ref={dialogRef}
-        className={styles.dialog}
+        className={styles.overlay}
         role="dialog"
         aria-modal="true"
         aria-label={text(uiCopy.screenshotLightboxTitle)}
         tabIndex={-1}
         data-testid="screenshot-lightbox"
+        data-ui-mode="minimal-image-overlay"
         onKeyDown={(event) => {
           if (event.key === "Escape") {
             event.preventDefault();
@@ -128,34 +236,19 @@ export function ScreenshotLightbox({ gallery, activeImageId, onSelectImage, onCl
           }
         }}
       >
-        <div className={styles.toolbar}>
-          <span className={styles.title}>{text(activeImage.alt)}</span>
-          <div className={styles.actions}>
-            <button type="button" onClick={() => updateZoom(zoom + zoomStep)}>
-              {text(uiCopy.zoomInScreenshot)}
-            </button>
-            <button type="button" onClick={() => updateZoom(zoom - zoomStep)}>
-              {text(uiCopy.zoomOutScreenshot)}
-            </button>
-            <button type="button" onClick={() => updateZoom(minZoom)}>
-              {text(uiCopy.resetScreenshotZoom)}
-            </button>
-            <button type="button" className={styles.closeButton} onClick={onClose}>
-              {text(uiCopy.closeLightbox)}
-            </button>
-          </div>
-        </div>
+        <button type="button" className={styles.closeButton} aria-label={text(uiCopy.closeLightbox)} onClick={onClose}>
+          <span aria-hidden="true">×</span>
+        </button>
 
         <div
           className={styles.viewport}
+          data-testid="lightbox-viewport"
           data-zoomed={zoom > minZoom}
           onWheel={handleWheel}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onPointerCancel={() => {
-            panStartRef.current = null;
-          }}
+          onPointerCancel={handlePointerCancel}
         >
           <img
             src={activeImage.src}
@@ -168,17 +261,9 @@ export function ScreenshotLightbox({ gallery, activeImageId, onSelectImage, onCl
         </div>
 
         {hasImageSwitching ? (
-          <div className={styles.imageNav} aria-label={text(uiCopy.screenshotLightboxTitle)}>
-            <button type="button" onClick={() => moveImage(-1)}>
-              {text(uiCopy.previousScreenshot)}
-            </button>
-            <span>
-              {activeIndex + 1} / {orderedImages.length}
-            </span>
-            <button type="button" onClick={() => moveImage(1)}>
-              {text(uiCopy.nextScreenshot)}
-            </button>
-          </div>
+          <span className={styles.pageIndicator} data-testid="lightbox-page-indicator" aria-live="polite">
+            {activeIndex + 1} / {orderedImages.length}
+          </span>
         ) : null}
       </div>
     </div>

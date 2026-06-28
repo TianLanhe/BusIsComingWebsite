@@ -25,17 +25,19 @@ describe("hero content", () => {
     expect(homepageContent.homepageUiPolish.figmaReference.nodeNames).toContain("Desktop 1440 / Screenshot Lightbox");
   });
 
-  it("uses fare-at-a-glance hero and carousel copy without old multi-leg wording", () => {
+  it("uses route-comparison hero and carousel copy without old multi-leg wording", () => {
     const heroAndCarouselCopy = JSON.stringify({
       hero: homepageContent.hero,
       featureShowcase: homepageContent.featureShowcase,
     });
-    const fareSlide = homepageContent.featureShowcase.find((slide) => slide.id === "route-comparison");
+    const routeComparisonSlide = homepageContent.featureShowcase.find((slide) => slide.id === "route-comparison");
 
-    expect(homepageContent.hero.bullets[1].title["zh-Hans"]).toBe("车费一眼看清");
-    expect(fareSlide?.title["zh-Hant"]).toBe("車費一眼看清");
-    expect(fareSlide?.title["zh-Hans"]).toBe("车费一眼看清");
-    expect(fareSlide?.title.en).toBe("Fare at a glance");
+    expect(homepageContent.hero.bullets[1].title["zh-Hant"]).toBe("路線比較更清楚");
+    expect(homepageContent.hero.bullets[1].title["zh-Hans"]).toBe("路线比较更清楚");
+    expect(routeComparisonSlide?.title["zh-Hant"]).toBe("路線比較更清楚");
+    expect(routeComparisonSlide?.title["zh-Hans"]).toBe("路线比较更清楚");
+    expect(routeComparisonSlide?.title.en).toBe("Clearer route comparison");
+    expect(routeComparisonSlide?.description["zh-Hans"]).toBe("同页查看候选城巴路线的车费、行程时间和步行距离，选择路线前先比较清楚。");
     expect(heroAndCarouselCopy).not.toContain("多程总车费");
     expect(heroAndCarouselCopy).not.toContain("multi-leg");
   });

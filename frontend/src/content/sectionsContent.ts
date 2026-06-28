@@ -86,9 +86,9 @@ export const features: FeatureItem[] = [
       en: "Fare at a glance",
     },
     description: {
-      "zh-Hant": "同頁比較車費、行程時間和步行距離，揀路線時更快判斷。",
-      "zh-Hans": "同页比较车费、行程时间和步行距离，选择路线时更快判断。",
-      en: "Compare fare, journey time, and walking distance together before choosing a route.",
+      "zh-Hant": "每條候選路線直接顯示車費，毋須點入詳情才知道大約花費。",
+      "zh-Hans": "每条候选路线直接显示车费，不用点进详情才知道大致花费。",
+      en: "See the fare on each route option without opening details first.",
     },
     sourceReference: sourceReferences.routeResultsSpec,
   },

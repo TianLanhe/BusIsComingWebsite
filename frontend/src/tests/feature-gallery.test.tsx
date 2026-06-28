@@ -6,6 +6,7 @@ import { renderWithI18n } from "./test-utils";
 function dragEvent(type: "pointerdown" | "pointerup", clientX: number) {
   const event = new Event(type, { bubbles: true, cancelable: true });
   Object.defineProperty(event, "clientX", { value: clientX });
+  Object.defineProperty(event, "clientY", { value: 120 });
   Object.defineProperty(event, "pointerId", { value: 1 });
   Object.defineProperty(event, "pointerType", { value: "touch" });
   return event;
@@ -48,19 +49,31 @@ describe("feature screenshot gallery", () => {
     expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
   });
 
-  it("opens a same-feature lightbox with zoom controls and closes back to the current image", () => {
+  it("opens a minimal image overlay with gesture zoom, same-feature swipe, and close control", () => {
     renderWithI18n(<AppPreviewCarousel />);
 
     fireEvent.click(screen.getByTestId("screenshot-deck-main"));
     const dialog = screen.getByRole("dialog", { name: "View app screenshot" });
     expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAttribute("data-ui-mode", "minimal-image-overlay");
     expect(screen.getByTestId("lightbox-image")).toHaveAttribute("data-image-id", "home-favorites-results");
+    expect(screen.getByTestId("lightbox-page-indicator")).toHaveTextContent("1 / 2");
 
-    fireEvent.click(within(dialog).getByRole("button", { name: "Zoom in" }));
+    expect(within(dialog).queryByRole("button", { name: "Zoom in" })).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole("button", { name: "Zoom out" })).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole("button", { name: "Reset zoom" })).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole("button", { name: "Next screenshot in this feature" })).not.toBeInTheDocument();
+
+    fireEvent.wheel(screen.getByTestId("lightbox-viewport"), { deltaY: -100 });
     expect(screen.getByTestId("lightbox-image")).toHaveAttribute("data-zoom", "1.25");
 
-    fireEvent.click(within(dialog).getByRole("button", { name: "Next screenshot in this feature" }));
+    fireEvent.wheel(screen.getByTestId("lightbox-viewport"), { deltaY: 100 });
+    expect(screen.getByTestId("lightbox-image")).toHaveAttribute("data-zoom", "1");
+
+    fireEvent(screen.getByTestId("lightbox-viewport"), dragEvent("pointerdown", 260));
+    fireEvent(screen.getByTestId("lightbox-viewport"), dragEvent("pointerup", 80));
     expect(screen.getByTestId("lightbox-image")).toHaveAttribute("data-image-id", "home-all-routes-sheet");
+    expect(screen.getByTestId("lightbox-page-indicator")).toHaveTextContent("2 / 2");
     expect(screen.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
 
     fireEvent.keyDown(dialog, { key: "Escape" });
@@ -74,6 +87,7 @@ describe("feature screenshot gallery", () => {
     fireEvent.click(screen.getByTestId("screenshot-deck-main"));
     const dialog = screen.getByRole("dialog", { name: "View app screenshot" });
 
+    expect(screen.queryByTestId("lightbox-page-indicator")).not.toBeInTheDocument();
     expect(within(dialog).queryByRole("button", { name: "Next screenshot in this feature" })).not.toBeInTheDocument();
     expect(within(dialog).queryByRole("button", { name: "Previous screenshot in this feature" })).not.toBeInTheDocument();
   });

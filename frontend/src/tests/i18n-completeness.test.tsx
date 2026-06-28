@@ -60,7 +60,9 @@ describe("i18n completeness", () => {
     expect(polish.fareCopy.title["zh-Hant"]).toBe("車費一眼看清");
     expect(polish.fareCopy.title["zh-Hans"]).toBe("车费一眼看清");
     expect(polish.fareCopy.title.en).toBe("Fare at a glance");
-    expect(polish.fareCopy.description.en).toContain("fare");
+    expect(polish.fareCopy.description["zh-Hant"]).toBe("每條候選路線直接顯示車費，毋須點入詳情才知道大約花費。");
+    expect(polish.fareCopy.description["zh-Hans"]).toBe("每条候选路线直接显示车费，不用点进详情才知道大致花费。");
+    expect(polish.fareCopy.description.en).toBe("See the fare on each route option without opening details first.");
     expect(polish.fareCopy.description.en).not.toContain("currency label");
     expect(uiCopy.durationLabel["zh-Hant"]).toBe("耗時");
     expect(uiCopy.durationLabel["zh-Hans"]).toBe("耗时");

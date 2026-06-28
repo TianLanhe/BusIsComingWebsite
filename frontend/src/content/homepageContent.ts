@@ -87,14 +87,14 @@ export const homepageContent: HomePageContent = {
       },
       {
         title: {
-          "zh-Hant": "車費一眼看清",
-          "zh-Hans": "车费一眼看清",
-          en: "Compare fare, time, and walk",
+          "zh-Hant": "路線比較更清楚",
+          "zh-Hans": "路线比较更清楚",
+          en: "Compare route options",
         },
         description: {
-          "zh-Hant": "用交通費用、行程時間和抵站時間輔助判斷",
-          "zh-Hans": "以车费、总行程时间和 ETA 辅助判断",
-          en: "Use total fare, journey time, and ETA to decide",
+          "zh-Hant": "用車費、行程時間和步行距離輔助判斷",
+          "zh-Hans": "用车费、行程时间和步行距离辅助判断",
+          en: "Use fare, journey time, and walking distance to decide",
         },
       },
       {
@@ -325,9 +325,9 @@ export const homepageContent: HomePageContent = {
         en: "Fare at a glance",
       },
       description: {
-        "zh-Hant": "同頁比較車費、行程時間和步行距離，方便按日常需要揀城巴路線。",
-        "zh-Hans": "同页比较车费、行程时间和步行距离，方便按日常需要选择城巴路线。",
-        en: "Compare fare, journey time, and walking distance together when choosing a Citybus route.",
+        "zh-Hant": "每條候選路線直接顯示車費，毋須點入詳情才知道大約花費。",
+        "zh-Hans": "每条候选路线直接显示车费，不用点进详情才知道大致花费。",
+        en: "See the fare on each route option without opening details first.",
       },
       forbiddenPhrases: [
         "多程总车费一眼看清",

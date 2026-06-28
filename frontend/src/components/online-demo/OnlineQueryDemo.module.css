@@ -283,7 +283,12 @@
 
 .stopLine span {
   min-width: 0;
-  overflow-wrap: anywhere;
+}
+
+.stopName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stopLine span:last-child {

@@ -20,7 +20,7 @@ test("carousel keeps the expected order and separates screenshot and copy gestur
   await clickExposedBackCard(page, "home-all-routes-sheet");
   await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-all-routes-sheet");
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
-  await page.getByRole("button", { name: "Feature Fare at a glance" }).click();
+  await page.getByRole("button", { name: "Feature Clearer route comparison" }).click();
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
   await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison", { timeout: 7_000 });

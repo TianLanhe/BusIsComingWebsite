@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 
 test("online query selects places, shows loading, renders route cards, and updates ETA", async ({ page }, testInfo) => {
   const visualPrefix = `../specs/007-homepage-ui-polish/visual-review/${testInfo.project.name}`;
+  const longOriginStop = "Very Long Origin Stop Name Near Hing Wah Estate Bus Terminus";
+  const longDestinationStop = "Very Long Destination Stop Name Near Yue Wan Estate Shopping Centre";
   await page.route("**/api/routes/query_places", async (route) => {
     const body = route.request().postDataJSON() as { query: string };
     const isOrigin = body.query.toLowerCase().includes("origin");
@@ -53,8 +55,8 @@ test("online query selects places, shows loading, renders route cards, and updat
               operator: "citybus",
               routeNumbers: ["606"],
               routeLabel: "606",
-              boardingStop: { name: "Hing Wah Estate" },
-              alightingStop: { name: "Yue Wan Estate" },
+              boardingStop: { name: longOriginStop },
+              alightingStop: { name: longDestinationStop },
               fare: { currency: "HKD", amount: 6.1 },
               durationMinutes: 10,
               walkingDistanceMeters: 266,
@@ -105,8 +107,14 @@ test("online query selects places, shows loading, renders route cards, and updat
   await page.getByRole("button", { name: /Search|查詢|查询/ }).click();
   await expect(page.getByTestId("route-loading")).toBeVisible();
   await expect(page.getByText("606")).toBeVisible();
-  await expect(page.getByText("Hing Wah Estate")).toBeVisible();
-  await expect(page.getByText("Yue Wan Estate")).toBeVisible();
+  await expect(page.getByText(longOriginStop)).toBeVisible();
+  await expect(page.getByText(longDestinationStop)).toBeVisible();
+  await expect(page.getByTestId("route-origin-stop")).toHaveAttribute("title", longOriginStop);
+  await expect(page.getByTestId("route-destination-stop")).toHaveAttribute("title", longDestinationStop);
+  const originStopBox = await page.getByTestId("route-origin-stop").boundingBox();
+  const destinationStopBox = await page.getByTestId("route-destination-stop").boundingBox();
+  expect(originStopBox?.height ?? 99).toBeLessThan(24);
+  expect(destinationStopBox?.height ?? 99).toBeLessThan(24);
   await expect(page.getByTestId("route-card")).toHaveAttribute("data-mobile-layout", "compact");
   await expect(page.getByTestId("route-metrics")).toHaveAttribute("data-layout", "inline-label-value");
   await expect(page.getByTestId("route-metric-fare")).toContainText("Fare");

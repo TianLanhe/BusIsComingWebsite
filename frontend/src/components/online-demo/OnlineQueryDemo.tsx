@@ -490,9 +490,13 @@ function RouteCard({
       </div>
       {hasStopPath ? (
         <div className={styles.stopLine}>
-          <span>{route.boardingStop.name}</span>
+          <span className={styles.stopName} data-testid="route-origin-stop" title={route.boardingStop.name}>
+            {route.boardingStop.name}
+          </span>
           <span aria-hidden="true">→</span>
-          <span>{route.alightingStop.name}</span>
+          <span className={styles.stopName} data-testid="route-destination-stop" title={route.alightingStop.name}>
+            {route.alightingStop.name}
+          </span>
         </div>
       ) : (
         <div className={styles.stopFallback} data-testid="route-stop-fallback">
