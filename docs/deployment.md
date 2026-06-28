@@ -109,7 +109,7 @@ export BUS_DEPLOY_KEEP=3
 ./scripts/deploy.sh deploy --skip-tests
 ```
 
-默认必须在干净的 `master` 分支部署。临时例外可显式传参：
+默认必须在干净的 `main` 或 `master` 分支部署。临时例外可显式传参：
 
 ```bash
 ./scripts/deploy.sh deploy --allow-dirty
@@ -154,7 +154,8 @@ Caddy 配置写入 `/etc/caddy/Caddyfile`，后端 systemd unit 写入
 - 80/443 被占用：脚本会拒绝覆盖非 Caddy 进程，请先手动处理占用。
 - Caddy reload 失败：脚本会恢复旧 Caddyfile。
 - 后端或 HTTPS 健康检查失败：脚本会恢复旧 `current/previous`，并保留失败 release
-  目录用于排查。
+  目录用于排查。主域名 HTTPS 健康检查接受 `200` 或 `301`；裸域名必须永久重定向到
+  主域名。
 - 并发部署：远端使用锁，同一时间只允许一个修改型命令运行。
 
 不要把服务器环境文件、token、`ROUTE_QUERY_TOKEN_SECRET` 或完整第三方响应贴到公开日志。

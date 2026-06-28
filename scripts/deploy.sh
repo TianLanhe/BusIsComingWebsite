@@ -183,9 +183,15 @@ git_preflight() {
   local branch
 
   branch="$(git -C "${REPO_ROOT}" branch --show-current)"
-  if [[ "${branch}" != "master" && "${ALLOW_NON_MASTER}" -ne 1 ]]; then
-    die "Deployments must run from master; current branch: ${branch}"
-  fi
+  case "${branch}" in
+    main|master)
+      ;;
+    *)
+      if [[ "${ALLOW_NON_MASTER}" -ne 1 ]]; then
+        die "Deployments must run from main or master; current branch: ${branch}"
+      fi
+      ;;
+  esac
   if git_worktree_is_dirty && [[ "${ALLOW_DIRTY}" -ne 1 ]]; then
     die "Git worktree is dirty; commit changes or pass --allow-dirty"
   fi

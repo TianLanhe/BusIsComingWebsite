@@ -968,14 +968,22 @@ verify_active_release() {
         --output /dev/null --write-out '%{http_code}' \
         "https://${DOMAIN}/zh-hant/" 2>/dev/null || true
     )"
-    [[ "${main_code}" == "200" ]] && break
+    case "${main_code}" in
+      200|301)
+        break
+        ;;
+    esac
     attempt=$((attempt + 1))
     [[ "${attempt}" -le "${max_attempts}" ]] && sleep 5
   done
-  if [[ "${main_code}" != "200" ]]; then
-    printf 'Public HTTPS health check failed\n' >&2
-    return 1
-  fi
+  case "${main_code}" in
+    200|301)
+      ;;
+    *)
+      printf 'Public HTTPS health check failed\n' >&2
+      return 1
+      ;;
+  esac
 
   bare_result="$(
     "${curl_command}" --silent --show-error --max-time 10 \

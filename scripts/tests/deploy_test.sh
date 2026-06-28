@@ -401,12 +401,20 @@ case "${url}" in
     [ "${FAKE_DEPLOY_LOCAL:-ok}" = "ok" ]
     ;;
   "https://${FAKE_DOMAIN:-www.busiscoming.com}/zh-hant/")
-    if [ "${FAKE_DEPLOY_MAIN:-ok}" = "ok" ]; then
-      [ -z "${write_out}" ] || printf '200'
-      exit 0
-    fi
-    [ -z "${write_out}" ] || printf '503'
-    exit 22
+    case "${FAKE_DEPLOY_MAIN:-ok}" in
+      ok)
+        [ -z "${write_out}" ] || printf '200'
+        exit 0
+        ;;
+      redirect)
+        [ -z "${write_out}" ] || printf '301'
+        exit 0
+        ;;
+      *)
+        [ -z "${write_out}" ] || printf '503'
+        exit 22
+        ;;
+    esac
     ;;
   "https://${FAKE_BARE_DOMAIN:-busiscoming.com}/")
     if [ "${FAKE_DEPLOY_BARE:-ok}" = "ok" ]; then
@@ -690,10 +698,14 @@ test_git_preflight_honors_branch_and_dirty_overrides() {
       REPO_ROOT="${temp}/repo" ALLOW_NON_MASTER=0 ALLOW_DIRTY=0 \
       git_preflight 2>&1
   )" && {
-    printf '  expected non-master branch to fail\n'
+    printf '  expected non-main/master branch to fail\n'
     return 1
   }
-  assert_contains "${output}" "Deployments must run from master" || return 1
+  assert_contains "${output}" "Deployments must run from main or master" || return 1
+
+  PATH="${temp}/bin:${PATH}" FAKE_GIT_BRANCH=main FAKE_GIT_DIRTY=0 \
+    REPO_ROOT="${temp}/repo" ALLOW_NON_MASTER=0 ALLOW_DIRTY=0 \
+    git_preflight || return 1
 
   PATH="${temp}/bin:${PATH}" FAKE_GIT_BRANCH=feature FAKE_GIT_DIRTY=0 \
     REPO_ROOT="${temp}/repo" ALLOW_NON_MASTER=1 ALLOW_DIRTY=0 \
@@ -2391,6 +2403,40 @@ test_remote_deploy_installs_first_release_and_apk() {
   rm -rf "${temp}"
 }
 
+test_remote_deploy_accepts_main_https_redirect() {
+  local temp
+  local current_target
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_apk_fixture "${temp}/apk"
+  write_fake_deployment_commands "${temp}/bin"
+  : > "${temp}/deploy.log"
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_DEPLOY_MAIN=redirect \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" deploy \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --keep 3 \
+      --version v1 \
+      --archive "${temp}/release-v1.tar.gz" \
+      --archive-sha "${temp}/release-v1.tar.gz.sha256" \
+      --apk-dir "${temp}/apk" || return 1
+
+  current_target="$(readlink "${temp}/root/current")"
+  assert_equals "$(basename "${current_target}")" "v1" || return 1
+
+  rm -rf "${temp}"
+}
+
 test_remote_deploy_waits_for_local_health() {
   local temp
   local current_target
@@ -2857,6 +2903,7 @@ run_test "remote render-config is test-only and validates domains" test_remote_r
 run_test "remote restores Caddy config after reload failure" test_remote_caddy_config_restores_previous_file_on_reload_failure
 run_test "remote port and UFW guards are non-destructive" test_remote_port_and_ufw_guards_are_non_destructive
 run_test "remote deploy installs first release and APK" test_remote_deploy_installs_first_release_and_apk
+run_test "remote deploy accepts main HTTPS 301" test_remote_deploy_accepts_main_https_redirect
 run_test "remote deploy waits for local health" test_remote_deploy_waits_for_local_health
 run_test "remote deploy restores code on health failure" test_remote_deploy_restores_code_on_health_failure
 run_test "remote deploy without APK requires an existing valid APK" test_remote_deploy_without_apk_requires_existing_valid_apk

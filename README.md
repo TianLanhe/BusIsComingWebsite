@@ -5,6 +5,8 @@
 
 BusIsComing Android App 的官方网站：介绍香港 Citybus 查询能力、提供在线路线试用查询，并交付 Android APK 下载入口。
 
+[Official Website](https://www.busiscoming.com/)
+
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61dafb?style=flat-square&logo=react&logoColor=111)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6-646cff?style=flat-square&logo=vite&logoColor=white)](https://vite.dev/)

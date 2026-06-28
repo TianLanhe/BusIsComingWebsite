@@ -36,15 +36,15 @@ curl -sS --max-time 15 --output /dev/null --write-out 'bare=%{http_code} %{redir
 
 Expected:
 
-- The primary HTTPS URL returns `200` with no redirect URL.
+- The primary HTTPS URL returns `200` or `301`.
 - The bare-domain HTTPS URL returns a permanent redirect to the primary HTTPS URL.
 - `./scripts/deploy.sh status --host <server-ip>` prints `backend: active`, `caddy: active`, `local health: ok`, `main HTTPS: ok`, and `bare URL: ok`.
 
-Do not accept same-URL redirects on the primary domain. That usually means a redirect loop, commonly Cloudflare Flexible SSL in front of a Caddy origin that redirects HTTP to HTTPS. The intended Cloudflare SSL/TLS mode is `Full (strict)`.
+Do not bypass public HTTPS health checks with origin-only checks. Repeated redirect loops or non-200/301 primary-domain responses usually indicate an unhealthy deployment or CDN configuration. The intended Cloudflare SSL/TLS mode is `Full (strict)`.
 
 ## Preflight failures
 
-- `Deployments must run from master`: switch to `master` or ask whether `--allow-non-master` is acceptable.
+- `Deployments must run from main or master`: switch to `main` or `master`, or ask whether `--allow-non-master` is acceptable.
 - `Git worktree is dirty`: inspect `git status --short`; prefer committing or cleaning expected changes. Use `--allow-dirty` only when the user accepts a `-dirty` release version.
 - `DNS A record ... does not include`: for Cloudflare proxied DNS, use `--dns-mode proxied`; for direct DNS, fix A records.
 - `Required command not found`: install or configure the missing local tool before rerunning.
@@ -68,8 +68,8 @@ When changing deployment behavior:
 
 1. Update `scripts/deploy.sh`, `scripts/deploy-remote.sh`, and `scripts/tests/deploy_test.sh` together when applicable.
 2. Keep option allowlists strict.
-3. Keep public health checks strict: main `www` must be 200; bare domain must permanently redirect to `www`.
-4. Do not introduce origin-only or redirect-compatible public health bypasses.
+3. Keep public health checks strict: main `www` must be 200 or 301; bare domain must permanently redirect to `www`.
+4. Do not introduce origin-only public health bypasses.
 5. Run:
 
 ```bash

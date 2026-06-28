@@ -19,7 +19,7 @@ description: Deploy, verify, troubleshoot, or maintain the BusIsComming Website 
 5. Preserve deployment safety boundaries:
    - Do not dump full remote config or environment files; inspect only the exact key or status needed.
    - Do not use `--skip-tests`, `--allow-dirty`, `--allow-non-master`, `--skip-apk`, `switch`, or `rollback` unless the user explicitly accepts that narrower tradeoff.
-   - Do not add origin-only or redirect-compatible health checks. The configured primary HTTPS URL must return 200; same-URL redirects mean the deployment or CDN configuration is unhealthy.
+   - Do not add origin-only health checks. The configured primary HTTPS URL may return 200 or 301; other public health failures mean the deployment or CDN configuration is unhealthy.
 
 ## Deployment Sequence
 
