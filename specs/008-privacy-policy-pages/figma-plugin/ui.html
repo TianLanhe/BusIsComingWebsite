@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font: 13px/1.45 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #17202a;
+        background: #ffffff;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 16px;
+      }
+
+      p {
+        margin: 0 0 16px;
+        color: #526170;
+      }
+
+      button {
+        width: 100%;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 12px;
+        background: #0f766e;
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button:focus {
+        outline: 2px solid #14b8a6;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Privacy Policy Pages - 008</h1>
+    <p>Create desktop, mobile, footer state and SEO note frames for the BusIsComing privacy policy pages.</p>
+    <button id="create">Create privacy policy frames</button>
+
+    <script>
+      document.getElementById("create").onclick = () => {
+        parent.postMessage({ pluginMessage: { type: "create-frames" } }, "*");
+      };
+    </script>
+  </body>
+</html>
