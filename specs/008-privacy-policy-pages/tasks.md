@@ -27,7 +27,7 @@
 **目的**：准备实现前的记录、审校和设计引用入口。
 
 - [ ] T001 创建隐私政策三语文案审校记录文件 `specs/008-privacy-policy-pages/privacy-copy-review.md`
-- [ ] T002 [P] 补充 Figma fallback 导入或真实节点回填状态到 `specs/008-privacy-policy-pages/figma.md`
+- [ ] T002 [P] 核对已确认的最终 Figma 设计入口和关键节点记录，路径：`specs/008-privacy-policy-pages/figma.md`
 - [ ] T003 [P] 在 `specs/008-privacy-policy-pages/quickstart.md` 记录本功能不修改 Android App、后端 HTTP API、OpenAPI 和 DDD 目录的实现验证口径
 
 ---
@@ -133,7 +133,7 @@
 - [ ] T039 [P] 在 `specs/008-privacy-policy-pages/privacy-copy-review.md` 记录 `zh-Hant` 香港语境、`zh-Hans` 自然简体和 `en` 克制产品英语的最终审校结论
 - [ ] T040 [P] 使用本地浏览器保存桌面隐私页截图到 `specs/008-privacy-policy-pages/visual-review/desktop-privacy-1440.png`
 - [ ] T041 [P] 使用本地浏览器保存手机隐私页截图到 `specs/008-privacy-policy-pages/visual-review/mobile-privacy-390.png`
-- [ ] T042 更新 `specs/008-privacy-policy-pages/figma.md`，记录真实 Figma 节点链接或 fallback 插件导入状态、关键节点和版本说明
+- [ ] T042 对照 `specs/008-privacy-policy-pages/figma.md` 的最终 Figma 设计入口检查实现；如后续取得精确 frame selection link，再补录真实子节点链接
 - [ ] T043 运行 `cd frontend && npm run test -- i18n-completeness.test.tsx content-contract.test.ts seo-routing.test.tsx privacy-policy-page.test.tsx`，并把结果记录到 `specs/008-privacy-policy-pages/quickstart.md`
 - [ ] T044 运行 `cd frontend && npm run build`，确认 `frontend/dist/zh-hant/privacy/index.html`、`frontend/dist/zh-hans/privacy/index.html`、`frontend/dist/en/privacy/index.html` 和 `frontend/dist/sitemap.xml` 存在
 - [ ] T045 运行 `cd frontend && npm run test:e2e -- privacy-policy-pages.spec.ts homepage-sections.spec.ts`，并把双端验证结果记录到 `specs/008-privacy-policy-pages/quickstart.md`

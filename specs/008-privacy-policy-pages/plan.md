@@ -48,7 +48,7 @@
 
 **UI 可视化产物**：已沉淀 Superpowers 设计记录 [2026-06-30-privacy-policy-pages-design.md](../../docs/superpowers/specs/2026-06-30-privacy-policy-pages-design.md)。本计划新增 [figma.md](./figma.md) 与 `figma-plugin/` 作为 Figma 设计源 fallback。
 
-**Figma 设计引用**：目标文件沿用 [BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)。计划页面为 `Privacy Policy Pages - 008`，关键节点为 `Desktop 1440 / Privacy Policy Page`、`Mobile 390 / Privacy Policy Page`、`Footer Privacy Link States`、`SEO Hreflang Notes`、`Spec Notes`。当前计划阶段不伪造真实 node ID；后续认证或手工导入完成后回填。
+**Figma 设计引用**：目标文件沿用 [BusIsComing Website Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-2)。用户已手工导入 fallback 设计并调整为最终设计稿；计划页面为 `Privacy Policy Pages - 008`，关键节点为 `Desktop 1440 / Privacy Policy Page`、`Mobile 390 / Privacy Policy Page`、`Footer Privacy Link States`、`SEO Hreflang Notes`、`Spec Notes`。当前可追溯设计入口为 `node-id=38-2`；不伪造子节点 ID，如后续需要精确 frame 级链接再由 Figma selection link 补录。
 
 **双端适配范围**：桌面以 1440px 宽为主要视觉基准，手机以 390px 宽为主要视觉基准。验证首屏标题、范围说明、摘要卡、正文五章、footer 入口、隐藏语言切换和返回首页链接在两端均可读可用。
 
