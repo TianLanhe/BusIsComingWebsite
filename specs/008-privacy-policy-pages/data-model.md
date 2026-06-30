@@ -31,7 +31,7 @@
 | `lastUpdated` | date string | 是 | 政策更新日期，格式 `YYYY-MM-DD` |
 | `summaryCards` | SummaryCard[] | 是 | 固定 4 项 |
 | `sections` | PolicySection[] | 是 | 固定 5 章 |
-| `contactEmail` | string | 是 | `busiscomingapp@gmail.com` |
+| `contactEmail` | string | 是 | `hezhenyu966@gmail.com` |
 | `showLanguageSwitcher` | boolean | 是 | 固定为 `false` |
 | `returnHomeHref` | string | 是 | 当前语言首页路径 |
 

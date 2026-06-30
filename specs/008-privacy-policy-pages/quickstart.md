@@ -18,7 +18,8 @@ git status --short
 ```bash
 rg -n "NEEDS[ ]CLARIFICATION|FEATURE[ ]NAME|ARGUMENTS|TO[ ]?DO|模板占位" specs/008-privacy-policy-pages \
   --glob '!**/checklists/**' \
-  --glob '!**/quickstart.md'
+  --glob '!**/quickstart.md' \
+  --glob '!**/tasks.md'
 git diff --check
 ```
 

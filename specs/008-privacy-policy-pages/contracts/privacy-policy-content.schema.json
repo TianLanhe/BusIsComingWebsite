@@ -18,7 +18,7 @@
           "properties": {
             "version": { "type": "string", "minLength": 1 },
             "lastUpdated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
-            "contactEmail": { "const": "busiscomingapp@gmail.com" },
+            "contactEmail": { "const": "hezhenyu966@gmail.com" },
             "appliesTo": {
               "type": "array",
               "minItems": 2,
