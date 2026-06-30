@@ -99,17 +99,23 @@ npm run openapi:routes:lint
 
 ## Figma 验证
 
-当前 Figma MCP 需要重新认证。认证恢复前：
+打开目标 Figma 文件 `BusIsComing Website - Homepage v1 Spec`，进入页面 `Homepage UI Polish - 007`，确认以下节点存在并可作为实现参考：
 
-1. 打开目标 Figma 文件：`BusIsComing Website - Homepage v1 Spec`。
-2. 使用 `specs/007-homepage-ui-polish/figma-plugin/manifest.json` 导入本地插件。
-3. 运行插件，生成 `Homepage UI Polish - 007` 页面。
-4. 把插件输出的节点报告回填到 `specs/007-homepage-ui-polish/figma.md`。
+| 节点名称 | Node ID |
+|----------|---------|
+| `Desktop 1440 / Hero Medium Screenshot Deck` | `51:86` |
+| `Desktop 1440 / Screenshot Lightbox` | `51:113` |
+| `Mobile 390 / Compact Feature Grid` | `51:125` |
+| `Mobile 390 / Compact Route Result Card` | `51:151` |
+| `Interaction States / Split Gesture Zones` | `51:183` |
+| `Spec Notes` | `51:194` |
+
+如果页面或节点缺失，应直接在目标 Figma 文件中恢复或重建设计节点，并把新的节点报告同步回填到 `specs/007-homepage-ui-polish/figma.md`、内容元数据和契约。
 
 预期：
 
 - Figma 页面包含桌面 hero、大图模式、手机功能卡、手机路线卡、分区手势和说明节点。
-- 回填真实 node ID，不能伪造。
+- `figma.md`、内容元数据和契约中的 Node ID 与 Figma 页面一致，不能伪造或引用失效节点。
 
 ## 提交要求
 

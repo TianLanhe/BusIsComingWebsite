@@ -135,12 +135,12 @@
 - `fileUrl`：目标 Figma 文件 URL。
 - `pageName`：`Homepage UI Polish - 007`。
 - `nodeNames`：关键节点名称列表。
-- `nodeIds`：认证恢复后回填的真实节点 ID。
+- `nodeIds`：已回填的真实节点 ID，必须与 `nodeNames` 一一对应。
 - `fallbackPrototype`：HTML 原型路径。
-- `pluginPath`：本地 Figma 插件路径。
+- `designSourceStatus`：`imported`，表示 Figma 节点已导入并沉淀，仓库不再保留一次性本地导入工具。
 
 **验证规则**：
 
-- 当前阶段不得伪造 `nodeIds`。
-- 后续 Figma 认证恢复后必须回填真实节点。
-- 实现阶段必须能从 `figma.md` 找到目标文件、节点计划和 fallback 原型。
+- `nodeIds` 必须来自真实 Figma 节点报告，不得伪造或留空。
+- `nodeIdsResolved` 必须为 `true`；如果后续 Figma 节点被复制、删除或重建，必须同步更新 `figma.md`、内容元数据和契约。
+- 实现阶段必须能从 `figma.md` 找到目标文件、节点 ID、交互状态和 fallback 原型。

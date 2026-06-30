@@ -10,20 +10,20 @@
 ## 1. Figma 设计源验证
 
 1. 打开 Figma 桌面或浏览器版目标文件。
-2. 从插件开发入口导入 `specs/005-homepage-experience-polish/figma-plugin/manifest.json`。
-3. 运行插件，确认生成页面 `Homepage Experience Polish - 005`。
-4. 检查至少包含以下节点：
+2. 进入页面 `Homepage Experience Polish - 005`。
+3. 检查至少包含以下节点：
    - `Desktop 1440 / Stair Card Deck`
    - `Mobile 390 / Stair Card Deck`
    - `Carousel States / Scene Dots and Deck Click`
    - `Brand Contact States`
    - `Spec Notes`
-5. 检查 `specs/005-homepage-experience-polish/figma.md` 中已回填的节点 ID：
+4. 检查 `specs/005-homepage-experience-polish/figma.md` 中已回填的节点 ID：
    - `Desktop 1440 / Stair Card Deck`: `29:3`
    - `Mobile 390 / Stair Card Deck`: `29:44`
    - `Carousel States / Scene Dots and Deck Click`: `29:83`
    - `Brand Contact States`: `29:101`
    - `Spec Notes`: `29:108`
+5. 如果节点缺失，应直接在 Figma 文件中恢复或重建设计节点，并同步更新 `figma.md`、内容元数据和契约。
 
 期望结果：设计节点清楚表达 3 秒按场景轮播、左右滑动只切换场景、点点可切场景、同场景多图点击牌堆切主图、无底部缩略图堆叠、真实 logo 和联系入口状态。
 

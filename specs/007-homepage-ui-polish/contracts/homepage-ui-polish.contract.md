@@ -88,7 +88,18 @@
 - 目标文件：`https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec`
 - 页面：`Homepage UI Polish - 007`
 - 必须覆盖桌面 hero、大图模式、手机功能区、手机路线卡、分区手势和说明节点。
-- 当前阶段未回填 node ID；后续认证恢复后必须更新 `figma.md`，不得伪造节点。
+- 已回填的节点 ID 必须保持可追溯：
+
+| 节点名称 | Node ID |
+|----------|---------|
+| `Desktop 1440 / Hero Medium Screenshot Deck` | `51:86` |
+| `Desktop 1440 / Screenshot Lightbox` | `51:113` |
+| `Mobile 390 / Compact Feature Grid` | `51:125` |
+| `Mobile 390 / Compact Route Result Card` | `51:151` |
+| `Interaction States / Split Gesture Zones` | `51:183` |
+| `Spec Notes` | `51:194` |
+
+- 如果后续 Figma 节点被复制、删除、重建或重命名，必须同步更新 `figma.md`、本契约和内容元数据，不得继续引用失效节点。
 
 ## API 不变量
 

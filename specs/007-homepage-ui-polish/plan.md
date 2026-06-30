@@ -10,7 +10,7 @@
 
 本功能在现有首页体验精修基础上继续优化首屏和手机端体验：桌面 hero 右侧截图组采用中等放大，主图和后排堆叠图同等放大，点击主图进入可缩放的大图模式；截图区域和文字区域拆分手势目标，截图区只切同功能截图，文字区才切换整个功能；手机端功能介绍改为 2 列紧凑卡片，桌面端功能介绍保持现状；手机端路线结果卡片压缩为路线号/候车状态、站点路径或缺失提示、车费/耗时/步行标签值三层结构；费用相关文案改为“车费一眼看清”并覆盖三语。
 
-技术路线保持前后端分离但本轮只修改前端：首页 React 组件、CSS Modules、内容模型、三语文案、单元测试和 Playwright 视觉/交互验证。后端 Go 服务、下载 API、路线查询 API 与 OpenAPI 契约均不变。计划阶段生成 UI 状态契约、数据模型、quickstart、Figma 引用和本地 Figma 插件 fallback；由于当前 Figma MCP 返回重新认证要求，本阶段不伪造节点 ID，后续认证恢复后必须运行插件或通过 MCP 创建节点并回填。
+技术路线保持前后端分离但本轮只修改前端：首页 React 组件、CSS Modules、内容模型、三语文案、单元测试和 Playwright 视觉/交互验证。后端 Go 服务、下载 API、路线查询 API 与 OpenAPI 契约均不变。计划阶段生成 UI 状态契约、数据模型、quickstart 和 Figma 引用；`2026-06-30` 已按用户提供的 Figma 节点报告回填真实 Node ID，仓库不再保留一次性本地导入工具。
 
 ## 技术背景
 
@@ -32,7 +32,7 @@
 
 **约束**：三语 i18n；`zh-Hant` 香港实用书面语；`en` 自然克制产品表达；现代、简洁、优雅；手机和桌面同等可用；桌面功能介绍布局不变；手机功能介绍 2 列紧凑；路线卡项目名称和值必须有层级差异；大图模式只切同功能截图；生产页面不显示放大提示器；不扩大 Citybus / 城巴试查范围；不改服务端 API。
 
-**规模/范围**：1 个 hero 截图展示/大图交互调整；1 个手机功能介绍布局调整；1 个手机路线结果卡布局调整；1 组费用相关三语文案更新；1 份 Figma fallback 插件；1 组 UI 契约与验证文档。服务端代码、OpenAPI、下载能力和路线查询能力不在本轮范围。
+**规模/范围**：1 个 hero 截图展示/大图交互调整；1 个手机功能介绍布局调整；1 个手机路线结果卡布局调整；1 组费用相关三语文案更新；1 份 Figma 节点引用；1 组 UI 契约与验证文档。服务端代码、OpenAPI、下载能力和路线查询能力不在本轮范围。
 
 **i18n 范围**：新增或修改的用户可见文字必须覆盖 `zh-Hant`、`zh-Hans`、`en`，包括费用标题/说明、大图对话框标题、关闭/缩放/上一张/下一张控件、路线卡项目标签、站点资料缺失提示、图片 alt 和 aria 文案。`zh-Hant` 按香港交通产品语境独立审校，`en` 避免中文句式直译，`zh-Hans` 使用自然简体中文。
 
@@ -46,9 +46,9 @@
 
 **代码注释与可读性**：实现阶段需要用中文注释解释非显而易见的手势区域分流、大图缩放/平移阈值、焦点限制、减少动态效果和截图状态保留规则。普通样式、简单文案映射和直接布局调整不加噪音注释。
 
-**UI 可视化产物**：已沉淀 Superpowers 设计记录 [2026-06-27-homepage-ui-polish-followup-design.md](../../docs/superpowers/specs/2026-06-27-homepage-ui-polish-followup-design.md) 和稳定 HTML 原型 [2026-06-27-homepage-ui-polish-followup.html](../../docs/superpowers/prototypes/2026-06-27-homepage-ui-polish-followup.html)。本计划新增 `figma.md` 与 `figma-plugin/` 作为 Figma 设计源 fallback。
+**UI 可视化产物**：已沉淀 Superpowers 设计记录 [2026-06-27-homepage-ui-polish-followup-design.md](../../docs/superpowers/specs/2026-06-27-homepage-ui-polish-followup-design.md) 和稳定 HTML 原型 [2026-06-27-homepage-ui-polish-followup.html](../../docs/superpowers/prototypes/2026-06-27-homepage-ui-polish-followup.html)。`figma.md` 记录目标 Figma 文件、页面和真实节点 ID。
 
-**Figma 设计引用**：目标文件沿用 [BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)。计划页面为 `Homepage UI Polish - 007`，关键节点为 `Desktop 1440 / Hero Medium Screenshot Deck`、`Desktop 1440 / Screenshot Lightbox`、`Mobile 390 / Compact Feature Grid`、`Mobile 390 / Compact Route Result Card`、`Interaction States / Split Gesture Zones`、`Spec Notes`。当前 MCP 需要重新认证，不能回填真实 node ID；后续认证恢复后必须运行插件或 MCP 写入并更新 `figma.md`。
+**Figma 设计引用**：目标文件沿用 [BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)。页面为 `Homepage UI Polish - 007`，关键节点已回填为 `Desktop 1440 / Hero Medium Screenshot Deck`（`51:86`）、`Desktop 1440 / Screenshot Lightbox`（`51:113`）、`Mobile 390 / Compact Feature Grid`（`51:125`）、`Mobile 390 / Compact Route Result Card`（`51:151`）、`Interaction States / Split Gesture Zones`（`51:183`）、`Spec Notes`（`51:194`）。
 
 **双端适配范围**：桌面以 1440px 宽为主要视觉基准，验证 hero 截图组放大、文字可读性、大图入口和无放大提示器；手机以 390px 宽为主要视觉基准，验证 2 列功能卡、路线卡标签值布局、长文案不溢出和触控可用。
 
@@ -64,9 +64,9 @@
 | OpenAPI 驱动的服务端接口文档：服务端 HTTP API 已有 OpenAPI 3.1 YAML、中文 API UI、共享沉淀路径和验证方式 | 通过 | 本轮无 HTTP API 变更；既有下载和路线 OpenAPI 保持权威，quickstart 记录未漂移检查。 |
 | 三语国际化：所有用户可见文字覆盖 `zh-Hant`、`zh-Hans`、`en`，且 `zh-Hant` 与 `en` 已按自然语气审校、未机械直译 | 通过 | research、contracts、quickstart 要求费用文案、大图控件和路线标签三语覆盖并审校。 |
 | 试用查询与可靠降级：外部服务、缓存、超时和失败状态已设计 | 通过 | 不改变在线查询外部服务；仅调整已有结果展示，缺失站点以受控提示降级。 |
-| 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 已有 Superpowers 原型和本地 Figma 插件 fallback。 |
+| 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 已有 Superpowers 原型和 Figma 节点引用。 |
 | 电脑与手机双端一致可用：布局、交互和内容展示同时覆盖手机与电脑 | 通过 | 桌面 1440px 与手机 390px 均进入 quickstart 和 contracts。 |
-| Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | 已记录目标 Figma 文件；MCP 需重新认证，计划阶段提供本地插件并要求后续回填真实节点。 |
+| Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | 已记录目标 Figma 文件、页面和 6 个真实节点 ID。 |
 | 服务端 DDD 架构：新增或重构的服务端代码按 DDD 层级、模块边界和依赖方向组织 | 通过 | 本轮不涉及服务端代码，DDD 为 N/A。 |
 | 服务端稳健性与可观测性：panic/recover、协程安全和脱敏日志策略已定义 | 通过 | 本轮不涉及服务端入口或并发任务，沿用既有策略。 |
 | 中文注释与代码可读性：复杂逻辑、领域规则和边界处理已有中文注释策略 | 通过 | 计划列出手势分流、大图缩放、焦点管理等复杂逻辑需中文注释。 |
@@ -84,11 +84,6 @@ specs/007-homepage-ui-polish/
 ├── data-model.md
 ├── quickstart.md
 ├── figma.md
-├── figma-plugin/
-│   ├── README.md
-│   ├── code.js
-│   ├── manifest.json
-│   └── ui.html
 ├── contracts/
 │   ├── homepage-ui-polish-content.schema.json
 │   └── homepage-ui-polish.contract.md
@@ -152,20 +147,19 @@ shared/
 
 | 复杂点 | 为什么必要 | 被拒绝的更简单方案 |
 |--------|------------|--------------------|
-| Figma MCP 当前需要重新认证，计划阶段采用本地 Figma 插件 fallback | 宪法要求前端 UI spec 提供 Figma 设计源；不能伪造 node ID，插件能让后续认证恢复后可复现生成节点 | 只记录 HTML 原型或伪造 Figma 节点 ID。前者不足以满足 Figma 门禁，后者不可追溯。 |
+| 计划阶段采用一次性本地导入工具，并已回填真实节点 ID | 宪法要求前端 UI spec 提供 Figma 设计源；计划阶段不能伪造 node ID，`2026-06-30` 已按真实节点报告完成回填并删除临时工具 | 只记录 HTML 原型或伪造 Figma 节点 ID。前者不足以满足 Figma 门禁，后者不可追溯。 |
 | 不引入第三方图片缩放库，使用本地 React 状态实现大图缩放 | 交互范围有限，引入新依赖会增加体积和维护面；现有前端已可用 Pointer/Wheel/Keyboard 实现 | 直接安装 pan/zoom 依赖。对本轮需求来说成本和风险偏高。 |
 
 ## 第 0 阶段输出
 
-- [research.md](./research.md)：大图交互、手势分区、手机 2 列功能卡、路线卡标签值布局、费用文案和 Figma fallback 决策。
+- [research.md](./research.md)：大图交互、手势分区、手机 2 列功能卡、路线卡标签值布局、费用文案和 Figma 节点沉淀决策。
 
 ## 第 1 阶段输出
 
 - [data-model.md](./data-model.md)：功能展示截图组、手势区域、大图查看会话、手机功能卡、路线结果卡、费用文案项和 Figma 设计引用。
 - [contracts/homepage-ui-polish.contract.md](./contracts/homepage-ui-polish.contract.md)：UI 状态、手势、响应式、三语、Figma 和非 API 不变量。
 - [contracts/homepage-ui-polish-content.schema.json](./contracts/homepage-ui-polish-content.schema.json)：可校验的首页 UI polish 配置契约。
-- [figma.md](./figma.md)：目标 Figma 文件、计划节点、MCP 认证限制、本地插件和回填要求。
-- [figma-plugin/](./figma-plugin/)：用于生成 `Homepage UI Polish - 007` 设计节点的本地 Figma 插件。
+- [figma.md](./figma.md)：目标 Figma 文件、页面、真实节点 ID、交互状态和版本说明。
 - [quickstart.md](./quickstart.md)：实现完成后的验证步骤。
 - [AGENTS.md](../../AGENTS.md)：Spec Kit 当前 plan 指向本文件。
 
@@ -179,9 +173,9 @@ shared/
 | OpenAPI 驱动的服务端接口文档 | 通过 | 无 API 变更；quickstart 记录可选未漂移检查。 |
 | 三语国际化 | 通过 | contracts 和 quickstart 要求新增文案覆盖三语，并检查 `zh-Hant`/`en` 非机械直译。 |
 | 试用查询与可靠降级 | 通过 | 不改变在线查询外部服务；路线卡缺失站点采用前端受控降级提示。 |
-| 现代界面与可视化评审 | 通过 | Superpowers 原型、Figma 插件和 visual-review 截图要求已沉淀。 |
+| 现代界面与可视化评审 | 通过 | Superpowers 原型、Figma 节点引用和 visual-review 截图要求已沉淀。 |
 | 电脑与手机双端一致可用 | 通过 | figma.md、UI contract 和 quickstart 覆盖 1440px 与 390px。 |
-| Figma 驱动的前端规格 | 通过 | 目标 Figma 文件和本地插件已提供；MCP 认证限制已记录，后续需回填节点。 |
+| Figma 驱动的前端规格 | 通过 | 目标 Figma 文件、页面和 6 个真实节点 ID 已回填。 |
 | 服务端 DDD 架构 | 通过 | 本轮不涉及服务端代码，DDD 为 N/A。 |
 | 服务端稳健性与可观测性 | 通过 | 本轮不涉及服务端入口或并发任务，沿用既有策略。 |
 | 中文注释与代码可读性 | 通过 | 手势分流、大图缩放和平移、焦点管理已列入注释策略。 |

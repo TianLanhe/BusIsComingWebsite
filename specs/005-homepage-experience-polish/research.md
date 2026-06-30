@@ -61,15 +61,15 @@
 - 更口语化香港表达：亲近但可能降低 App 主页的可信和克制感。
 - 更政府公文式表达：稳妥但不像现代产品页面。
 
-## Decision: 本阶段生成 Figma 本地插件，不伪造 Figma 节点 ID
+## Decision: 本阶段沉淀真实 Figma 节点，不伪造 Figma 节点 ID
 
-**Rationale**：当前会话没有暴露可调用的 `use_figma` MCP 工具，不能真实写入 Figma 文件。项目已有 `specs/004-online-bus-query/figma-plugin/` 的 fallback 做法。本功能同样生成 `figma-plugin/` 和 `figma.md`，让后续任务可以导入插件生成桌面、手机、状态和说明节点。计划记录目标文件和节点名称，但不伪造未创建的 node ID。
+**Rationale**：计划阶段没有暴露可调用的 `use_figma` MCP 工具，不能伪造未创建的 node ID。本功能先用一次性本地导入方式生成桌面、手机、状态和说明节点，再把真实 node ID 回填到 `figma.md`。节点已沉淀后，仓库只保留 Figma 文件、页面和节点索引，不继续保留临时生成工具。
 
 **Alternatives considered**：
 
 - 只写文字说明：违反 constitution 的 Figma 驱动要求。
 - 假写节点 ID：不可验证，会误导后续实现。
-- 阻塞等待 Figma MCP：当前任务可以通过可复现插件继续推进，阻塞没有收益。
+- 阻塞等待 Figma MCP：当前任务可以通过先导入真实节点继续推进，阻塞没有收益。
 
 ## Decision: 契约以 UI 不变量 + 内容 schema 为主，不新增 OpenAPI
 

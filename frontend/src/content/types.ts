@@ -138,7 +138,6 @@ export interface HomepageExperiencePolishContract {
   };
   figmaReference: {
     fileUrl: string;
-    pluginPath: "specs/005-homepage-experience-polish/figma-plugin/manifest.json";
     pageName: "Homepage Experience Polish - 005";
     nodeNames: string[];
   };
@@ -198,6 +197,7 @@ export interface HomepageUiPolishContract {
     fileUrl: string;
     pageName: "Homepage UI Polish - 007";
     nodeNames: string[];
+    nodeIds: Record<string, string>;
     nodeIdsResolved: boolean;
   };
 }

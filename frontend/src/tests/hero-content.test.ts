@@ -23,6 +23,9 @@ describe("hero content", () => {
     expect(homepageContent.homepageUiPolish.figmaReference.fileUrl).toContain("figma.com");
     expect(homepageContent.homepageUiPolish.figmaReference.pageName).toBe("Homepage UI Polish - 007");
     expect(homepageContent.homepageUiPolish.figmaReference.nodeNames).toContain("Desktop 1440 / Screenshot Lightbox");
+    expect(homepageContent.homepageUiPolish.figmaReference.nodeIdsResolved).toBe(true);
+    expect(homepageContent.homepageUiPolish.figmaReference.nodeIds["Desktop 1440 / Screenshot Lightbox"]).toBe("51:113");
+    expect(homepageContent.homepageUiPolish.figmaReference.nodeIds["Mobile 390 / Compact Route Result Card"]).toBe("51:151");
   });
 
   it("uses route-comparison hero and carousel copy without old multi-leg wording", () => {
