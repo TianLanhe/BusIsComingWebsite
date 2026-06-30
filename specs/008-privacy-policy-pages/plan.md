@@ -66,7 +66,7 @@
 | 试用查询与可靠降级：外部服务、缓存、超时和失败状态已设计 | 通过 | 隐私页不实时调用外部服务；外部服务不可用不影响页面完整展示。 |
 | 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 已完成 Superpowers mock 方案比较，选择“摘要卡 + 正文分节”。 |
 | 电脑与手机双端一致可用：布局、交互和内容展示同时覆盖手机与电脑 | 通过 | 计划和 quickstart 覆盖桌面 1440px 与手机 390px。 |
-| Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | figma.md 记录目标文件、计划节点和 fallback 插件；真实 node ID 待回填。 |
+| Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | figma.md 记录目标文件、计划节点、fallback 插件和已补录的真实 frame 链接。 |
 | 服务端 DDD 架构：新增或重构的服务端代码按 DDD 层级、模块边界和依赖方向组织 | 通过 | 本轮不涉及服务端代码，DDD 为 N/A。 |
 | 服务端稳健性与可观测性：panic/recover、协程安全和脱敏日志策略已定义 | 通过 | 本轮不涉及服务端入口或并发任务，沿用既有策略。 |
 | 中文注释与代码可读性：复杂逻辑、领域规则和边界处理已有中文注释策略 | 通过 | 计划限定仅在 SEO 页面组、路径推导和构建生成边界处补充中文注释。 |
@@ -145,7 +145,7 @@ shared/
 | 违规或复杂点 | 为什么必要 | 被拒绝的更简单方案 |
 |--------------|------------|--------------------|
 | SEO 从单一语言首页模型升级为页面类型 + 语言页面组 | 隐私页必须拥有自身 canonical/hreflang，不能 canonical 到首页，也不能与首页 hreflang 混组 | 只把 privacy 当首页子路由复用现有 `canonicalUrlForLocale`。这会导致隐私页 canonical/hreflang 错误。 |
-| Figma 节点先采用本地插件 fallback，真实 node ID 待回填 | 宪法要求前端 UI spec 有 Figma 设计源；当前会话未直接写入目标 Figma 文件，不能伪造节点 ID | 只保留文字说明或伪造 Figma node ID。前者不足以满足门禁，后者不可追溯。 |
+| Figma 节点先采用本地插件 fallback，后续补录真实 frame 链接 | 宪法要求前端 UI spec 有 Figma 设计源；前期用本地插件导入并经用户调整为最终稿，连接恢复后已补录真实 frame 链接 | 只保留文字说明或伪造 Figma node ID。前者不足以满足门禁，后者不可追溯。 |
 
 ## 第 0 阶段输出
 
@@ -156,7 +156,7 @@ shared/
 - [data-model.md](./data-model.md)：隐私政策页面、摘要卡、政策章节、SEO 页面组、footer 隐私入口、Figma 设计引用。
 - [contracts/privacy-policy-pages.contract.md](./contracts/privacy-policy-pages.contract.md)：页面、内容、SEO、footer、语言、范围和非 API 不变量。
 - [contracts/privacy-policy-content.schema.json](./contracts/privacy-policy-content.schema.json)：三语隐私政策内容与 SEO 页面组配置的可校验 schema。
-- [figma.md](./figma.md)：目标 Figma 文件、计划节点、本地插件 fallback 和回填要求。
+- [figma.md](./figma.md)：目标 Figma 文件、关键真实 frame 链接、本地插件 fallback 和实现引用要求。
 - [figma-plugin/](./figma-plugin/)：用于生成 `Privacy Policy Pages - 008` 设计节点的本地 Figma 插件。
 - [quickstart.md](./quickstart.md)：实现完成后的验证步骤与部署后 GSC 操作。
 - [AGENTS.md](../../AGENTS.md)：Spec Kit 当前 plan 指向本文件。
@@ -173,7 +173,7 @@ shared/
 | 试用查询与可靠降级 | 通过 | 隐私页不实时依赖外部服务；查询日志仅作为说明事实。 |
 | 现代界面与可视化评审 | 通过 | 已有 Superpowers 设计记录、figma.md 和本地插件 fallback。 |
 | 电脑与手机双端一致可用 | 通过 | quickstart 要求桌面 1440px 和手机 390px 验证。 |
-| Figma 驱动的前端规格 | 通过 | figma.md 和 figma-plugin 已作为计划阶段设计源，真实 node ID 待认证恢复后回填。 |
+| Figma 驱动的前端规格 | 通过 | figma.md 和 figma-plugin 已作为计划阶段设计源，认证恢复后已补录真实 frame 链接。 |
 | 服务端 DDD 架构 | 通过 | 本轮不涉及服务端代码，DDD 为 N/A。 |
 | 服务端稳健性与可观测性 | 通过 | 本轮不涉及服务端入口或并发任务，沿用既有策略。 |
 | 中文注释与代码可读性 | 通过 | 计划限定 SEO 页面组和路径推导等复杂边界需中文注释。 |

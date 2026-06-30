@@ -139,8 +139,9 @@
 - [ ] T045 运行 `cd frontend && npm run test:e2e -- privacy-policy-pages.spec.ts homepage-sections.spec.ts`，并把双端验证结果记录到 `specs/008-privacy-policy-pages/quickstart.md`
 - [ ] T046 检查 `frontend/src/content/privacyPolicyContent.ts` 和 `frontend/src/content/homepageContent.ts`，确认网站未暗示提供完整路线规划、地铁、铁路、渡轮或其他非香港巴士交通查询
 - [ ] T047 检查 `frontend/src/content/privacyPolicyContent.ts`，确认没有写入 Android 备份、设备迁移、微信、Alipay、AlipayHK package 检查或跳转
-- [ ] T048 运行 `rg -n "NEEDS[ ]CLARIFICATION|FEATURE[ ]NAME|ARGUMENTS|TO[ ]?DO|模板占位" specs/008-privacy-policy-pages --glob '!**/checklists/**' --glob '!**/quickstart.md' --glob '!**/tasks.md'` 和 `git diff --check`
-- [ ] T049 在 `specs/008-privacy-policy-pages/quickstart.md` 记录实现完成后的提交前检查结果，确认 `git status --short` 只包含 008 隐私政策页面相关文件
+- [ ] T048 检查 `frontend/src/content/pageRouting.ts`、`frontend/src/content/seo.ts`、`frontend/src/components/seo/SeoHead.tsx` 和 `frontend/scripts/generate-locale-pages.mjs`，确认非显而易见的路径推导、SEO 页面组和静态生成边界已有必要中文注释，且没有重复代码字面含义的噪音注释
+- [ ] T049 运行 `rg -n "NEEDS[ ]CLARIFICATION|FEATURE[ ]NAME|ARGUMENTS|TO[ ]?DO|模板占位" specs/008-privacy-policy-pages --glob '!**/checklists/**' --glob '!**/quickstart.md' --glob '!**/tasks.md'` 和 `git diff --check`
+- [ ] T050 在 `specs/008-privacy-policy-pages/quickstart.md` 记录实现完成后的提交前检查结果，确认 `git status --short` 只包含 008 隐私政策页面相关文件
 
 ---
 
