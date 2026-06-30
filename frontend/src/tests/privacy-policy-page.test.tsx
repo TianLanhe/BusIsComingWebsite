@@ -35,6 +35,8 @@ describe("privacy policy page", () => {
     expect(screen.getByText(/GPS coordinates/)).toBeInTheDocument();
     expect(screen.getByText(/Notification monitoring and speech reminders/)).toBeInTheDocument();
     expect(screen.getByText(/short-term service logs/)).toBeInTheDocument();
+    expect(screen.getByText(/clear app data/)).toBeInTheDocument();
+    expect(screen.getByText(/Android system backup/)).toBeInTheDocument();
   });
 
   it("keeps the body to four summary cards and five policy sections", () => {

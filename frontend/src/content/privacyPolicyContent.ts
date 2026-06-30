@@ -179,7 +179,7 @@ export const privacyPolicyContent: PrivacyPolicyContent = {
         },
         {
           "zh-Hant":
-            "當你使用当前位置或地址解析功能時，GPS 坐標或地址查詢可能會發送給 Google Geocoding API，用於把位置轉換為可用的地點或站點參考。",
+            "當你使用目前位置或地址解析功能時，GPS 坐標或地址查詢可能會發送給 Google Geocoding API，用於把位置轉換為可用的地點或站點參考。",
           "zh-Hans":
             "当你使用当前位置或地址解析功能时，GPS 坐标或地址查询可能会发送给 Google Geocoding API，用于把位置转换为可用的地点或站点参考。",
           en: "When you use current location or address lookup, GPS coordinates or address queries may be sent to Google Geocoding API to convert the location into a usable place or stop reference.",
@@ -208,6 +208,20 @@ export const privacyPolicyContent: PrivacyPolicyContent = {
           "zh-Hans": "你可以通过以下方式管理与 BusIsComing 相关的资料或偏好。",
           en: "You can manage information or preferences related to BusIsComing in the following ways.",
         },
+        {
+          "zh-Hant":
+            "App 內已保存的收藏路線、常用起點、目的地、通知監測設定和語音提醒設定以裝置本機保存為主，會保留至你在 App 內刪除、停止相關功能、清除 App 資料或卸載 App。",
+          "zh-Hans":
+            "App 内已保存的收藏路线、常用起点、目的地、通知监测设置和语音提醒设置以设备本机保存为主，会保留至你在 App 内删除、停止相关功能、清除 App 数据或卸载 App。",
+          en: "Saved routes, frequent origins, destinations, notification monitoring settings, and speech reminder settings in the app are primarily stored on your device. They remain there until you delete them in the app, stop the related feature, clear app data, or uninstall the app.",
+        },
+        {
+          "zh-Hant":
+            "如你啟用了 Android 系統備份或裝置轉移，App 本機資料可能會按你的系統設定由 Android 處理。BusIsComing 不建立伺服器端帳戶資料庫保存這些 App 內容。",
+          "zh-Hans":
+            "如你启用了 Android 系统备份或设备转移，App 本机数据可能会按你的系统设置由 Android 处理。BusIsComing 不建立服务器端账号资料库保存这些 App 内容。",
+          en: "If Android system backup or device transfer is enabled, local app data may be handled according to your Android system settings. BusIsComing does not create a server-side account database to keep this app content.",
+        },
       ],
       bullets: [
         {
@@ -231,7 +245,7 @@ export const privacyPolicyContent: PrivacyPolicyContent = {
           en: "For privacy questions, contact the developer at hezhenyu966@gmail.com.",
         },
       ],
-      requiredFacts: ["user-controls", "contact-email"],
+      requiredFacts: ["user-controls", "app-local-retention", "android-system-backup", "contact-email"],
     },
   ],
 };

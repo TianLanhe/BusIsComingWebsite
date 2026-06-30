@@ -169,6 +169,8 @@
               "notification-monitoring",
               "speech-reminders",
               "user-controls",
+              "app-local-retention",
+              "android-system-backup",
               "contact-email"
             ]
           },

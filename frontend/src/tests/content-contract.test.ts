@@ -158,6 +158,13 @@ describe("content contracts", () => {
     expect(JSON.stringify(privacyPolicyContent)).toContain("Google Geocoding API");
     expect(JSON.stringify(privacyPolicyContent)).toContain("GPS");
     expect(JSON.stringify(privacyPolicyContent)).toContain("short-term service logs");
+    expect(JSON.stringify(privacyPolicyContent)).toContain("clear app data");
+    expect(JSON.stringify(privacyPolicyContent)).toContain("Android system backup");
+    expect(JSON.stringify(privacyPolicyContent)).not.toContain("7 days");
+    expect(JSON.stringify(privacyPolicyContent)).not.toContain("7天");
+    expect(privacyPolicyContent.sections.find((section) => section.id === "your-choices")?.requiredFacts).toEqual(
+      expect.arrayContaining(["app-local-retention", "android-system-backup"]),
+    );
   });
 
   it("does not leak old fare implementation notes into user-facing content", () => {

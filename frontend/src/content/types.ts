@@ -277,6 +277,8 @@ export type PrivacyRequiredFact =
   | "notification-monitoring"
   | "speech-reminders"
   | "user-controls"
+  | "app-local-retention"
+  | "android-system-backup"
   | "contact-email";
 
 export interface PolicySection {
