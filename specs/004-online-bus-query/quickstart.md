@@ -78,6 +78,9 @@ curl -sS http://127.0.0.1:8080/api/routes/query_etas \
 预期结果：
 
 - 一次请求返回所有 token 的首程候车状态。
+- 后端 ETA 匹配需与 Android App 对齐：优先匹配 `route + stop + direction + boardingSeq`；
+  若 DATA.GOV.HK 返回同路线、同站、同方向但 `seq` 与 P2P 上车站序不一致，回退到
+  `route + stop + direction` 并按 `eta_seq` 和 ETA 时间选择首班。
 - 单条 ETA 不可用以 `status: unavailable` 表达，不要求前端清空路线结果。
 
 ## 前端单元测试

@@ -147,7 +147,7 @@ paths:
       tags: [routes]
       operationId: queryRouteEtas
       summary: 批量查询首程 ETA
-      description: 对路线摘要返回的 ETA token 一次性批量查询首程候车状态。单条 ETA 失败不得清空路线摘要。
+      description: 对路线摘要返回的 ETA token 一次性批量查询首程候车状态。后端会优先使用 route、stop、direction 和 boardingSeq 匹配 DATA.GOV.HK ETA；当同一路线、同站、同方向没有相同 seq 的可解析 ETA 时，按 Android App 行为回退到 route、stop、direction，并按 eta_seq 和 ETA 时间选择首班。单条 ETA 失败不得清空路线摘要。
       requestBody:
         required: true
         content:

@@ -79,6 +79,10 @@ BUS_HTTP_HOST=127.0.0.1 PORT=8080 go run ./cmd/server
 - 进程内 `TTLCache` 最多保留 1024 个 key；写入前清理过期条目，达到上限时淘汰一个较早过期或较少命中的条目。
 - 进程内 `RateLimiter` 最多追踪 1024 个 key；每次检查前清理窗口外记录，达到上限时淘汰一个最久未命中的 key。
 - `POST /api/routes/query_etas` 会先按 `etaToken` 去重，再查询 DATA.GOV.HK ETA；同一请求中的重复 token 只触发一次外部查询。
+- ETA 记录匹配与 Android App 保持一致：优先使用 `route + stop + direction + boardingSeq`
+  匹配 DATA.GOV.HK 记录；若同一路线、同站、同方向没有相同 `seq` 的可解析 ETA，则回退到
+  `route + stop + direction` 记录，并按 `eta_seq` 和 ETA 时间选择首班，避免 Citybus P2P
+  站序与公开 ETA `seq` 偶发不一致时把可用候车状态降级为 `unavailable`。
 - 批量 ETA 外部查询最多同时执行 6 个；响应数组顺序仍与请求 token 顺序一致，重复 token 会在对应位置返回同一份 ETA 状态。
 - 单个 ETA token 校验失败、外部查询失败或适配器异常时，该 token 降级为 `unavailable`，不使整批请求失败。
 
