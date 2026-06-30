@@ -58,6 +58,21 @@
   text-decoration: none;
 }
 
+.contact .privacyLink {
+  width: fit-content;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.86);
+  font: var(--text-caption);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.contact a:hover,
+.contact a:focus-visible {
+  color: var(--surface);
+  outline: none;
+}
+
 @media (max-width: 720px) {
   .inner {
     display: grid;

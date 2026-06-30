@@ -4,11 +4,14 @@ import downloadManifestSchema from "../../../shared/contracts/download-manifest.
 import homepageContentSchema from "../../../shared/contracts/homepage-content.schema.json";
 import homepageContentV2Schema from "../../../specs/003-homepage-ui-optimization/contracts/homepage-content-v2.schema.json";
 import homepageExperiencePolishSchema from "../../../specs/005-homepage-experience-polish/contracts/homepage-experience-content.schema.json";
+import privacyPolicyContentSchema from "../../../specs/008-privacy-policy-pages/contracts/privacy-policy-content.schema.json";
 import homepageUiPolishSchema from "../../../specs/007-homepage-ui-polish/contracts/homepage-ui-polish-content.schema.json";
 import { downloadManifest } from "../content/downloadManifest";
 import { homepageContent } from "../content/homepageContent";
 import { onlineQueryDemo } from "../content/onlineQueryDemo";
+import { privacyPolicyContent } from "../content/privacyPolicyContent";
 import { faq, scopeExclusions } from "../content/sectionsContent";
+import { seoPageGroups } from "../content/seo";
 
 describe("content contracts", () => {
   const ajv = new Ajv2020({ strict: false });
@@ -112,6 +115,47 @@ describe("content contracts", () => {
     expect(homepageContent.homepageUiPolish.routeResultCard.metricLayout).toBe("inline-label-value");
     expect(homepageContent.homepageUiPolish.routeResultCard.missingStopFallback.en).toBe("Stop details unavailable");
     expect(homepageContent.homepageUiPolish.figmaReference.pageName).toBe("Homepage UI Polish - 007");
+  });
+
+  it("validates privacy policy content and SEO groups against the feature contract", () => {
+    const validate = ajv.compile(privacyPolicyContentSchema);
+    const footerPrivacyLinks = {
+      "zh-Hant": {
+        label: homepageContent.footerPrivacyLink.label["zh-Hant"],
+        href: homepageContent.footerPrivacyLink.href["zh-Hant"],
+      },
+      "zh-Hans": {
+        label: homepageContent.footerPrivacyLink.label["zh-Hans"],
+        href: homepageContent.footerPrivacyLink.href["zh-Hans"],
+      },
+      en: {
+        label: homepageContent.footerPrivacyLink.label.en,
+        href: homepageContent.footerPrivacyLink.href.en,
+      },
+    };
+
+    expect(
+      validate({
+        privacyPolicy: privacyPolicyContent,
+        seoPageGroups,
+        footerPrivacyLinks,
+      }),
+      JSON.stringify(validate.errors, null, 2),
+    ).toBe(true);
+    expect(privacyPolicyContent.metadata.contactEmail).toBe("hezhenyu966@gmail.com");
+    expect(privacyPolicyContent.summaryCards).toHaveLength(4);
+    expect(privacyPolicyContent.sections.map((section) => section.id)).toEqual([
+      "scope",
+      "what-we-do-not-collect",
+      "functional-processing",
+      "third-party-services",
+      "your-choices",
+    ]);
+    expect(JSON.stringify(privacyPolicyContent)).toContain("Citybus");
+    expect(JSON.stringify(privacyPolicyContent)).toContain("DATA.GOV.HK");
+    expect(JSON.stringify(privacyPolicyContent)).toContain("Google Geocoding API");
+    expect(JSON.stringify(privacyPolicyContent)).toContain("GPS");
+    expect(JSON.stringify(privacyPolicyContent)).toContain("short-term service logs");
   });
 
   it("does not leak old fare implementation notes into user-facing content", () => {

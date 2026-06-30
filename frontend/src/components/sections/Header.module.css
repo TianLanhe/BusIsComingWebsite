@@ -13,6 +13,10 @@
   backdrop-filter: blur(18px);
 }
 
+.headerCompact {
+  grid-template-columns: auto 1fr;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -53,6 +57,10 @@
     grid-template-columns: minmax(42px, 1fr) auto auto;
     min-height: 66px;
     gap: var(--space-3);
+  }
+
+  .headerCompact {
+    grid-template-columns: auto 1fr;
   }
 
   .nav {

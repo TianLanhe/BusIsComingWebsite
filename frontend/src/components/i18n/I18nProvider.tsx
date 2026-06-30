@@ -40,6 +40,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       setLocaleState(nextLocale);
       writeStoredLocale(nextLocale);
       if (typeof window !== "undefined") {
+        // localizedPathForLocale 会保留当前页面类型，避免从 privacy 语言切换回首页路径。
         const nextPath = localizedPathForLocale(nextLocale);
         if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== nextPath) {
           window.history.pushState({}, "", nextPath);

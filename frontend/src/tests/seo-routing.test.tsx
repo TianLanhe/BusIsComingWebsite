@@ -3,7 +3,15 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { I18nProvider, useI18n } from "../components/i18n/I18nProvider";
 import { LanguageSwitcher } from "../components/i18n/LanguageSwitcher";
 import { SeoHead } from "../components/seo/SeoHead";
-import { canonicalUrlForLocale, localizedPathForLocale, seoLocales, seoPages } from "../content/seo";
+import {
+  alternateLinksForPage,
+  canonicalUrlForLocale,
+  canonicalUrlForPage,
+  localizedPathForLocale,
+  seoLocales,
+  seoPageGroups,
+  seoPages,
+} from "../content/seo";
 import sitemap from "../../public/sitemap.xml?raw";
 
 function LocaleProbe() {
@@ -75,6 +83,34 @@ describe("localized SEO routing", () => {
     expect(localizedPathForLocale("zh-Hans", { pathname: "/zh-hant/", search: "?source=test", hash: "#faq" })).toBe(
       "/zh-hans/?source=test#faq",
     );
+    expect(localizedPathForLocale("en", { pathname: "/zh-hant/privacy/", search: "", hash: "" })).toBe("/en/privacy/");
+  });
+
+  it("keeps privacy SEO separate from homepage SEO", async () => {
+    window.history.replaceState({}, "", "/zh-hant/privacy/");
+
+    render(
+      <I18nProvider>
+        <SeoHead />
+        <LocaleProbe />
+      </I18nProvider>,
+    );
+
+    await waitFor(() => expect(document.documentElement.lang).toBe("zh-Hant"));
+    expect(screen.getByLabelText("locale")).toHaveTextContent("zh-Hant");
+    expect(document.title).toBe(seoPageGroups.privacy.locales["zh-Hant"].title);
+    expect(document.querySelector('meta[name="description"]')).toHaveAttribute(
+      "content",
+      seoPageGroups.privacy.locales["zh-Hant"].description,
+    );
+    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute("href", canonicalUrlForPage("zh-Hant", "privacy"));
+
+    const alternates = Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="alternate"][hreflang]')).map((link) => [
+      link.hreflang,
+      link.href,
+    ]);
+    expect(alternates).toEqual(alternateLinksForPage("privacy").map((link) => [link.hreflang, link.href]));
+    expect(alternates.map(([, href]) => href).every((href) => href.includes("/privacy/"))).toBe(true);
   });
 
   it("publishes all locale URLs with reciprocal hreflang in sitemap", () => {
@@ -83,7 +119,11 @@ describe("localized SEO routing", () => {
     for (const locale of seoLocales) {
       expect(sitemap).toContain(`<loc>${canonicalUrlForLocale(locale)}</loc>`);
       expect(sitemap).toContain(`hreflang="${locale}" href="${canonicalUrlForLocale(locale)}"`);
+      expect(sitemap).toContain(`<loc>${canonicalUrlForPage(locale, "privacy")}</loc>`);
+      expect(sitemap).toContain(`hreflang="${locale}" href="${canonicalUrlForPage(locale, "privacy")}"`);
     }
-    expect(sitemap.match(/hreflang="x-default"/g)).toHaveLength(3);
+    expect(sitemap).toContain('hreflang="x-default" href="https://www.busiscoming.com/zh-hant/"');
+    expect(sitemap).toContain('hreflang="x-default" href="https://www.busiscoming.com/zh-hant/privacy/"');
+    expect(sitemap.match(/hreflang="x-default"/g)).toHaveLength(6);
   });
 });

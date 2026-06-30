@@ -3,6 +3,7 @@ import { downloadManifest } from "../content/downloadManifest";
 import { homepageContent } from "../content/homepageContent";
 import { locales } from "../content/locales";
 import { onlineQueryDemo } from "../content/onlineQueryDemo";
+import { privacyPolicyContent } from "../content/privacyPolicyContent";
 import { uiCopy } from "../content/uiCopy";
 
 function assertLocalizedStrings(value: unknown, path = "root") {
@@ -31,6 +32,7 @@ describe("i18n completeness", () => {
     assertLocalizedStrings(homepageContent, "homepageContent");
     assertLocalizedStrings(downloadManifest, "downloadManifest");
     assertLocalizedStrings(onlineQueryDemo, "onlineQueryDemo");
+    assertLocalizedStrings(privacyPolicyContent, "privacyPolicyContent");
     assertLocalizedStrings(uiCopy, "uiCopy");
   });
 
@@ -41,6 +43,8 @@ describe("i18n completeness", () => {
       homepageContent.featureShowcase[0].description,
       homepageContent.downloadSection.description,
       onlineQueryDemo.scopeNotice,
+      privacyPolicyContent.hero.title,
+      privacyPolicyContent.sections[2].title,
     ];
 
     for (const sample of samples) {
@@ -52,6 +56,8 @@ describe("i18n completeness", () => {
     expect(homepageContent.featureShowcase[0].description["zh-Hant"]).toContain("城巴");
     expect(homepageContent.featureShowcase[2].title["zh-Hant"]).toContain("抵站時間");
     expect(homepageContent.onlineQueryDemo.scopeNotice["zh-Hant"]).toContain("港鐵");
+    expect(privacyPolicyContent.hero.title["zh-Hant"]).toContain("私隱政策");
+    expect(privacyPolicyContent.sections[2].title["zh-Hant"]).toContain("資料");
   });
 
   it("keeps homepage UI polish copy complete and naturally localized", () => {

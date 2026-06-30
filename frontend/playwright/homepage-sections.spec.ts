@@ -30,6 +30,11 @@ test("downstream sections appear in the confirmed order with required scope info
     "href",
     "mailto:hezhenyu966@gmail.com",
   );
+  await expect(contact.getByRole("link", { name: /私隱政策|隐私政策|Privacy Policy/ })).toHaveAttribute(
+    "href",
+    /\/(zh-hant|zh-hans|en)\/privacy\//,
+  );
+  await expect(page.locator("header").getByRole("link", { name: /私隱政策|隐私政策|Privacy Policy/ })).toHaveCount(0);
   await expect(page.getByTestId("feature-card")).toHaveCount(6);
   const firstFeature = await page.getByTestId("feature-card").nth(0).boundingBox();
   const secondFeature = await page.getByTestId("feature-card").nth(1).boundingBox();

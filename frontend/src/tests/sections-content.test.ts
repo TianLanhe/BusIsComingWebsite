@@ -32,6 +32,15 @@ describe("downstream sections content", () => {
     expect(homepageContent.navigation.items.find((item) => item.id === "contact")?.label["zh-Hans"]).toBe("联系我们");
     expect(homepageContent.navigation.items.find((item) => item.id === "contact")?.label.en).toBe("Contact Us");
     expect(homepageContent.contact[0].href).toBe("mailto:hezhenyu966@gmail.com");
+    expect(homepageContent.footerPrivacyLink.label["zh-Hant"]).toBe("私隱政策");
+    expect(homepageContent.footerPrivacyLink.label["zh-Hans"]).toBe("隐私政策");
+    expect(homepageContent.footerPrivacyLink.label.en).toBe("Privacy Policy");
+    expect(homepageContent.footerPrivacyLink.href).toEqual({
+      "zh-Hant": "/zh-hant/privacy/",
+      "zh-Hans": "/zh-hans/privacy/",
+      en: "/en/privacy/",
+    });
+    expect(homepageContent.navigation.items.some((item) => /privacy|私隱|隐私/i.test(JSON.stringify(item)))).toBe(false);
   });
 
   it("keeps Android download available without adding out-of-scope transport claims", () => {

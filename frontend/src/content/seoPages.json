@@ -1,36 +1,90 @@
 {
   "siteUrl": "https://www.busiscoming.com",
   "defaultLocale": "zh-Hant",
-  "locales": {
-    "zh-Hant": {
-      "path": "/zh-hant/",
-      "htmlLang": "zh-Hant",
-      "title": "香港城巴查詢 App | BusIsComing 巴士路線、車費與 ETA",
-      "description": "BusIsComing 是面向香港城巴查詢的 Android App，支援常用路線、Citybus 路線比較、車費、步行距離與抵站時間查看。",
-      "ogTitle": "BusIsComing | 香港城巴查詢 Android App",
-      "ogDescription": "保存常用起點和目的地，快速比較 Citybus 路線、車費、步行距離與首程 ETA，並可在線試用和下載 Android APK。",
-      "twitterTitle": "BusIsComing | 香港城巴查詢 Android App",
-      "twitterDescription": "BusIsComing 官網提供香港城巴查詢功能介紹、在線試用與 Android APK 下載。"
+  "pages": {
+    "home": {
+      "pageId": "home",
+      "defaultLocale": "zh-Hant",
+      "xDefault": "https://www.busiscoming.com/zh-hant/",
+      "changefreq": "weekly",
+      "priority": 1,
+      "locales": {
+        "zh-Hant": {
+          "path": "/zh-hant/",
+          "htmlLang": "zh-Hant",
+          "canonical": "https://www.busiscoming.com/zh-hant/",
+          "title": "香港城巴查詢 App | BusIsComing 巴士路線、車費與 ETA",
+          "description": "BusIsComing 是面向香港城巴查詢的 Android App，支援常用路線、Citybus 路線比較、車費、步行距離與抵站時間查看。",
+          "ogTitle": "BusIsComing | 香港城巴查詢 Android App",
+          "ogDescription": "保存常用起點和目的地，快速比較 Citybus 路線、車費、步行距離與首程 ETA，並可在線試用和下載 Android APK。",
+          "twitterTitle": "BusIsComing | 香港城巴查詢 Android App",
+          "twitterDescription": "BusIsComing 官網提供香港城巴查詢功能介紹、在線試用與 Android APK 下載。"
+        },
+        "zh-Hans": {
+          "path": "/zh-hans/",
+          "htmlLang": "zh-Hans",
+          "canonical": "https://www.busiscoming.com/zh-hans/",
+          "title": "香港城巴查询 App | BusIsComing 巴士路线、车费与 ETA",
+          "description": "BusIsComing 是面向香港城巴查询的 Android App，支持常用路线、Citybus 路线比较、车费、步行距离与到站时间查看。",
+          "ogTitle": "BusIsComing | 香港城巴查询 Android App",
+          "ogDescription": "保存常用起点和终点，快速比较 Citybus 路线、车费、步行距离与首程 ETA，并可在线试用和下载 Android APK。",
+          "twitterTitle": "BusIsComing | 香港城巴查询 Android App",
+          "twitterDescription": "BusIsComing 官网提供香港城巴查询功能介绍、在线试用与 Android APK 下载。"
+        },
+        "en": {
+          "path": "/en/",
+          "htmlLang": "en",
+          "canonical": "https://www.busiscoming.com/en/",
+          "title": "BusIsComing Citybus Lookup App | Routes, Fare and ETA",
+          "description": "BusIsComing is an Android app for Hong Kong Citybus lookup, with saved routes, Citybus route comparison, fare, walking distance, and ETA details.",
+          "ogTitle": "BusIsComing | Hong Kong Citybus Lookup Android App",
+          "ogDescription": "Save frequent origins and destinations, compare Citybus routes, fare, walking distance, and first-leg ETA, then try the website demo or download the Android APK.",
+          "twitterTitle": "BusIsComing | Hong Kong Citybus Lookup Android App",
+          "twitterDescription": "BusIsComing introduces Hong Kong Citybus lookup, an online trial, and Android APK download."
+        }
+      }
     },
-    "zh-Hans": {
-      "path": "/zh-hans/",
-      "htmlLang": "zh-Hans",
-      "title": "香港城巴查询 App | BusIsComing 巴士路线、车费与 ETA",
-      "description": "BusIsComing 是面向香港城巴查询的 Android App，支持常用路线、Citybus 路线比较、车费、步行距离与到站时间查看。",
-      "ogTitle": "BusIsComing | 香港城巴查询 Android App",
-      "ogDescription": "保存常用起点和终点，快速比较 Citybus 路线、车费、步行距离与首程 ETA，并可在线试用和下载 Android APK。",
-      "twitterTitle": "BusIsComing | 香港城巴查询 Android App",
-      "twitterDescription": "BusIsComing 官网提供香港城巴查询功能介绍、在线试用与 Android APK 下载。"
-    },
-    "en": {
-      "path": "/en/",
-      "htmlLang": "en",
-      "title": "BusIsComing Citybus Lookup App | Routes, Fare and ETA",
-      "description": "BusIsComing is an Android app for Hong Kong Citybus lookup, with saved routes, Citybus route comparison, fare, walking distance, and ETA details.",
-      "ogTitle": "BusIsComing | Hong Kong Citybus Lookup Android App",
-      "ogDescription": "Save frequent origins and destinations, compare Citybus routes, fare, walking distance, and first-leg ETA, then try the website demo or download the Android APK.",
-      "twitterTitle": "BusIsComing | Hong Kong Citybus Lookup Android App",
-      "twitterDescription": "BusIsComing introduces Hong Kong Citybus lookup, an online trial, and Android APK download."
+    "privacy": {
+      "pageId": "privacy",
+      "defaultLocale": "zh-Hant",
+      "xDefault": "https://www.busiscoming.com/zh-hant/privacy/",
+      "changefreq": "yearly",
+      "priority": 0.4,
+      "locales": {
+        "zh-Hant": {
+          "path": "/zh-hant/privacy/",
+          "htmlLang": "zh-Hant",
+          "canonical": "https://www.busiscoming.com/zh-hant/privacy/",
+          "title": "BusIsComing 私隱政策 | Android App 與官方網站",
+          "description": "BusIsComing 私隱政策說明 Android App 和官方網站如何處理城巴查詢、定位、通知監測、語音提醒和網站試查所需資料。",
+          "ogTitle": "BusIsComing 私隱政策",
+          "ogDescription": "了解 BusIsComing Android App 與官方網站的資料處理範圍、外部服務、用戶選擇和聯絡方式。",
+          "twitterTitle": "BusIsComing 私隱政策",
+          "twitterDescription": "BusIsComing 私隱政策涵蓋 App 和官方網站，說明城巴查詢與提醒功能所需資料。"
+        },
+        "zh-Hans": {
+          "path": "/zh-hans/privacy/",
+          "htmlLang": "zh-Hans",
+          "canonical": "https://www.busiscoming.com/zh-hans/privacy/",
+          "title": "BusIsComing 隐私政策 | Android App 与官方网站",
+          "description": "BusIsComing 隐私政策说明 Android App 和官方网站如何处理城巴查询、定位、通知监测、语音提醒和网站试查所需资料。",
+          "ogTitle": "BusIsComing 隐私政策",
+          "ogDescription": "了解 BusIsComing Android App 与官方网站的资料处理范围、外部服务、用户选择和联系方式。",
+          "twitterTitle": "BusIsComing 隐私政策",
+          "twitterDescription": "BusIsComing 隐私政策涵盖 App 和官方网站，说明城巴查询与提醒功能所需资料。"
+        },
+        "en": {
+          "path": "/en/privacy/",
+          "htmlLang": "en",
+          "canonical": "https://www.busiscoming.com/en/privacy/",
+          "title": "BusIsComing Privacy Policy | Android App and Website",
+          "description": "The BusIsComing Privacy Policy explains how the Android app and website handle information needed for Citybus lookup, location, ETA monitoring, speech reminders, and the website trial.",
+          "ogTitle": "BusIsComing Privacy Policy",
+          "ogDescription": "Learn how the BusIsComing Android app and website handle feature-required information, external services, user choices, and contact.",
+          "twitterTitle": "BusIsComing Privacy Policy",
+          "twitterDescription": "BusIsComing Privacy Policy for the Android app and official website."
+        }
+      }
     }
   }
 }

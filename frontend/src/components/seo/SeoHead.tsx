@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { alternateLinksForLocale, canonicalUrlForLocale, seoPages } from "../../content/seo";
-import type { Locale } from "../../content/types";
+import { alternateLinksForPage, canonicalUrlForPage, seoPageMetadataFor, seoPageIdFromPathname } from "../../content/seo";
+import type { Locale, SeoPageId } from "../../content/types";
 import { useI18n } from "../i18n/I18nProvider";
 
 function upsertMeta(selector: string, createAttributes: Record<string, string>, content: string) {
@@ -15,20 +15,20 @@ function upsertMeta(selector: string, createAttributes: Record<string, string>, 
   element.setAttribute("content", content);
 }
 
-function syncCanonical(locale: Locale) {
+function syncCanonical(locale: Locale, pageId: SeoPageId) {
   let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (!canonical) {
     canonical = document.createElement("link");
     canonical.rel = "canonical";
     document.head.append(canonical);
   }
-  canonical.href = canonicalUrlForLocale(locale);
+  canonical.href = canonicalUrlForPage(locale, pageId);
 }
 
-function syncAlternateLinks() {
+function syncAlternateLinks(pageId: SeoPageId) {
   document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((element) => element.remove());
 
-  for (const alternate of alternateLinksForLocale()) {
+  for (const alternate of alternateLinksForPage(pageId)) {
     const link = document.createElement("link");
     link.rel = "alternate";
     link.hreflang = alternate.hreflang;
@@ -38,18 +38,23 @@ function syncAlternateLinks() {
   }
 }
 
-export function SeoHead() {
+interface SeoHeadProps {
+  pageId?: SeoPageId;
+}
+
+export function SeoHead({ pageId }: SeoHeadProps) {
   const { locale } = useI18n();
 
   useEffect(() => {
-    const page = seoPages[locale];
-    const canonical = canonicalUrlForLocale(locale);
+    const resolvedPageId = pageId ?? seoPageIdFromPathname(window.location.pathname);
+    const page = seoPageMetadataFor(locale, resolvedPageId);
+    const canonical = canonicalUrlForPage(locale, resolvedPageId);
 
     document.title = page.title;
     upsertMeta('meta[name="description"]', { name: "description" }, page.description);
     upsertMeta('meta[name="robots"]', { name: "robots" }, "index, follow");
-    syncCanonical(locale);
-    syncAlternateLinks();
+    syncCanonical(locale, resolvedPageId);
+    syncAlternateLinks(resolvedPageId);
     upsertMeta('meta[property="og:type"]', { property: "og:type" }, "website");
     upsertMeta('meta[property="og:url"]', { property: "og:url" }, canonical);
     upsertMeta('meta[property="og:title"]', { property: "og:title" }, page.ogTitle);
@@ -57,7 +62,7 @@ export function SeoHead() {
     upsertMeta('meta[name="twitter:card"]', { name: "twitter:card" }, "summary");
     upsertMeta('meta[name="twitter:title"]', { name: "twitter:title" }, page.twitterTitle);
     upsertMeta('meta[name="twitter:description"]', { name: "twitter:description" }, page.twitterDescription);
-  }, [locale]);
+  }, [locale, pageId]);
 
   return null;
 }

@@ -5,8 +5,9 @@ import { useI18n } from "../i18n/I18nProvider";
 import styles from "./FooterContact.module.css";
 
 export function FooterContact() {
-  const { text } = useI18n();
+  const { locale, text } = useI18n();
   const entry = homepageContent.contact[0];
+  const privacyLink = homepageContent.footerPrivacyLink;
 
   return (
     <footer id="contact" className={styles.footer}>
@@ -21,6 +22,9 @@ export function FooterContact() {
           <a href={entry.href}>
             <Mail aria-hidden="true" size={18} />
             {homepageContent.homepageExperience.contact.email}
+          </a>
+          <a className={styles.privacyLink} href={privacyLink.href[locale]}>
+            {text(privacyLink.label)}
           </a>
         </div>
       </div>

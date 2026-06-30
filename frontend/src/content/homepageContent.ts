@@ -195,6 +195,18 @@ export const homepageContent: HomePageContent = {
   },
   faq,
   contact,
+  footerPrivacyLink: {
+    label: {
+      "zh-Hant": "私隱政策",
+      "zh-Hans": "隐私政策",
+      en: "Privacy Policy",
+    },
+    href: {
+      "zh-Hant": "/zh-hant/privacy/",
+      "zh-Hans": "/zh-hans/privacy/",
+      en: "/en/privacy/",
+    },
+  },
   scopeExclusions,
   homepageExperience: {
     metadata: {

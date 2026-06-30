@@ -27,6 +27,8 @@ git diff --check
 
 - 不存在未处理的规格占位符。
 - 没有尾随空格或补丁格式问题。
+- 本功能仍只修改网站前端、静态内容、SEO、sitemap、footer 入口和验证记录。
+- Android App、后端 HTTP API、OpenAPI 源文件和服务端 DDD 目录未被本功能改动。
 
 ## 3. 单元与内容契约测试
 
@@ -83,6 +85,7 @@ npm run dev -- --port 5185 --strictPort
 - 不显示语言切换控件。
 - 返回首页链接指向当前语言首页。
 - footer 隐私入口存在且当前语言正确。
+- 隐私政策入口只出现在 footer；主导航和 FAQ 不新增隐私政策入口。
 - 没有横向滚动、文字遮挡或按钮文字溢出。
 
 ## 6. Playwright 回归
@@ -140,3 +143,21 @@ rg -n "hreflang=.*privacy|canonical.*privacy|Privacy|私隱|隐私" dist/zh-hant
 未执行：
 - 如有未执行命令，写明原因。
 ```
+
+## 10. 本次实现验证记录
+
+已验证：
+
+- `npm run test -- i18n-completeness.test.tsx content-contract.test.ts seo-routing.test.tsx privacy-policy-page.test.tsx`：通过，4 个测试文件、20 个测试用例通过。
+- `npm run build`：通过，TypeScript、Vite 构建和静态多页面生成成功。
+- 构建产物已确认存在：`frontend/dist/zh-hant/privacy/index.html`、`frontend/dist/zh-hans/privacy/index.html`、`frontend/dist/en/privacy/index.html`、`frontend/dist/sitemap.xml`。
+- `npm run test:e2e -- privacy-policy-pages.spec.ts homepage-sections.spec.ts`：通过，桌面 1440px 与手机 390px 共 8 个 Playwright 用例通过。
+- sitemap 与静态 HTML 抽查通过：三语隐私页 canonical 指向自身，privacy hreflang 只互指三语 privacy URL，`x-default` 指向 `/zh-hant/privacy/`。
+- 视觉截图已保存到 `specs/008-privacy-policy-pages/visual-review/desktop-privacy-1440.png` 和 `specs/008-privacy-policy-pages/visual-review/mobile-privacy-390.png`；同目录也保留三语桌面/手机截图。
+- 实现范围确认：未修改 Android App、后端 HTTP API、OpenAPI 源文件或服务端 DDD 目录。
+- 依赖范围确认：未修改 `frontend/package.json` 或锁文件，隐私页渲染路径不发起运行时 HTTP 请求。
+- 提交前状态确认：`tasks.md` 已 50/50 完成；`git diff --check` 通过；工作区变更集中在 008 隐私政策页面、前端 footer/SEO/page routing、共享首页内容 schema，以及 `homepage-sections.spec.ts` 运行时生成的 007 首页视觉回归截图。
+
+未执行：
+
+- 部署后 Google Search Console 操作尚未执行；需要线上部署完成后由维护者在 GSC 中重新提交 sitemap 并对三语隐私 URL 执行 URL inspection。

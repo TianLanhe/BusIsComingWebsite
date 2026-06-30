@@ -13,6 +13,7 @@
     "downloadSection",
     "faq",
     "contact",
+    "footerPrivacyLink",
     "scopeExclusions",
     "homepageExperience",
     "homepageUiPolish",
@@ -141,6 +142,7 @@
       "minItems": 1,
       "items": { "$ref": "#/$defs/contactEntry" }
     },
+    "footerPrivacyLink": { "$ref": "#/$defs/footerPrivacyLink" },
     "scopeExclusions": {
       "type": "array",
       "minItems": 2,
@@ -335,6 +337,24 @@
         "description": { "$ref": "#/$defs/localizedString" },
         "href": { "type": "string", "minLength": 1 },
         "priority": { "enum": ["secondary"] }
+      },
+      "additionalProperties": false
+    },
+    "footerPrivacyLink": {
+      "type": "object",
+      "required": ["label", "href"],
+      "properties": {
+        "label": { "$ref": "#/$defs/localizedString" },
+        "href": {
+          "type": "object",
+          "required": ["zh-Hant", "zh-Hans", "en"],
+          "properties": {
+            "zh-Hant": { "const": "/zh-hant/privacy/" },
+            "zh-Hans": { "const": "/zh-hans/privacy/" },
+            "en": { "const": "/en/privacy/" }
+          },
+          "additionalProperties": false
+        }
       },
       "additionalProperties": false
     },

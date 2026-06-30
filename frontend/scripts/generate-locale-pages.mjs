@@ -9,6 +9,7 @@ const seoConfigPath = path.join(frontendRoot, "src", "content", "seoPages.json")
 
 const seoConfig = JSON.parse(await readFile(seoConfigPath, "utf8"));
 const sourceHtml = await readFile(path.join(distRoot, "index.html"), "utf8");
+const homePageGroup = seoConfig.pages.home;
 
 function escapeHtmlAttribute(value) {
   return String(value)
@@ -18,21 +19,12 @@ function escapeHtmlAttribute(value) {
     .replaceAll(">", "&gt;");
 }
 
-function absoluteUrl(pathname) {
-  return new URL(pathname, seoConfig.siteUrl).toString();
-}
-
-function alternateLinksHtml() {
-  const localeEntries = Object.entries(seoConfig.locales);
-  const links = localeEntries.map(
+function alternateLinksHtml(pageGroup) {
+  const links = Object.entries(pageGroup.locales).map(
     ([locale, page]) =>
-      `    <link rel="alternate" hreflang="${escapeHtmlAttribute(locale)}" href="${escapeHtmlAttribute(absoluteUrl(page.path))}" />`,
+      `    <link rel="alternate" hreflang="${escapeHtmlAttribute(locale)}" href="${escapeHtmlAttribute(page.canonical)}" />`,
   );
-  links.push(
-    `    <link rel="alternate" hreflang="x-default" href="${escapeHtmlAttribute(
-      absoluteUrl(seoConfig.locales[seoConfig.defaultLocale].path),
-    )}" />`,
-  );
+  links.push(`    <link rel="alternate" hreflang="x-default" href="${escapeHtmlAttribute(pageGroup.xDefault)}" />`);
   return links.join("\n");
 }
 
@@ -45,8 +37,7 @@ function replaceMeta(html, selector, replacement) {
   return html.replace(pattern, replacement);
 }
 
-function renderLocaleHtml(locale, page) {
-  const canonical = absoluteUrl(page.path);
+function renderPageHtml(pageGroup, page) {
   let html = sourceHtml;
 
   html = html.replace(/<html lang="[^"]*">/, `<html lang="${escapeHtmlAttribute(page.htmlLang)}">`);
@@ -58,12 +49,12 @@ function renderLocaleHtml(locale, page) {
   );
   html = html.replace(
     /    <link rel="canonical" href="[^"]*" \/>(?:\n    <link rel="alternate" hreflang="[^"]*" href="[^"]*" \/>)*\n?/,
-    `    <link rel="canonical" href="${escapeHtmlAttribute(canonical)}" />\n${alternateLinksHtml()}\n`,
+    `    <link rel="canonical" href="${escapeHtmlAttribute(page.canonical)}" />\n${alternateLinksHtml(pageGroup)}\n`,
   );
   html = replaceMeta(
     html,
     'property="og:url"',
-    `    <meta property="og:url" content="${escapeHtmlAttribute(canonical)}" />`,
+    `    <meta property="og:url" content="${escapeHtmlAttribute(page.canonical)}" />`,
   );
   html = replaceMeta(
     html,
@@ -90,18 +81,18 @@ function renderLocaleHtml(locale, page) {
 }
 
 function renderRootRedirectHtml() {
-  const defaultPath = seoConfig.locales[seoConfig.defaultLocale].path;
-  const defaultUrl = absoluteUrl(defaultPath);
+  const defaultPath = homePageGroup.locales[seoConfig.defaultLocale].path;
+  const defaultUrl = homePageGroup.locales[seoConfig.defaultLocale].canonical;
   return `<!doctype html>
-<html lang="${escapeHtmlAttribute(seoConfig.locales[seoConfig.defaultLocale].htmlLang)}">
+<html lang="${escapeHtmlAttribute(homePageGroup.locales[seoConfig.defaultLocale].htmlLang)}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, follow" />
     <meta http-equiv="refresh" content="0; url=${escapeHtmlAttribute(defaultPath)}" />
     <link rel="canonical" href="${escapeHtmlAttribute(defaultUrl)}" />
-${alternateLinksHtml()}
-    <title>${escapeHtmlAttribute(seoConfig.locales[seoConfig.defaultLocale].title)}</title>
+${alternateLinksHtml(homePageGroup)}
+    <title>${escapeHtmlAttribute(homePageGroup.locales[seoConfig.defaultLocale].title)}</title>
     <script>
       window.location.replace(${JSON.stringify(defaultPath)});
     </script>
@@ -113,10 +104,13 @@ ${alternateLinksHtml()}
 `;
 }
 
-for (const [locale, page] of Object.entries(seoConfig.locales)) {
-  const localeDir = path.join(distRoot, page.path);
-  await mkdir(localeDir, { recursive: true });
-  await writeFile(path.join(localeDir, "index.html"), renderLocaleHtml(locale, page), "utf8");
+for (const pageGroup of Object.values(seoConfig.pages)) {
+  for (const page of Object.values(pageGroup.locales)) {
+    // 每个页面组独立生成，避免 privacy 页面误用首页 canonical 或 hreflang。
+    const localeDir = path.join(distRoot, page.path);
+    await mkdir(localeDir, { recursive: true });
+    await writeFile(path.join(localeDir, "index.html"), renderPageHtml(pageGroup, page), "utf8");
+  }
 }
 
 await writeFile(path.join(distRoot, "index.html"), renderRootRedirectHtml(), "utf8");

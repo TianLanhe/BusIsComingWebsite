@@ -1,4 +1,5 @@
 export type Locale = "zh-Hant" | "zh-Hans" | "en";
+export type SeoPageId = "home" | "privacy";
 
 export type LocalizedString = Record<Locale, string>;
 
@@ -235,6 +236,95 @@ export interface ContactEntry {
   priority: "secondary";
 }
 
+export interface FooterPrivacyLink {
+  label: LocalizedString;
+  href: Record<Locale, string>;
+}
+
+export type SummaryCardId =
+  | "no-account-identity"
+  | "no-ads-sale"
+  | "device-first-saved-routes"
+  | "external-services-as-needed";
+
+export interface SummaryCard {
+  id: SummaryCardId;
+  order: number;
+  title: LocalizedString;
+  description: LocalizedString;
+}
+
+export type PolicySectionId =
+  | "scope"
+  | "what-we-do-not-collect"
+  | "functional-processing"
+  | "third-party-services"
+  | "your-choices";
+
+export type PrivacyRequiredFact =
+  | "website"
+  | "android-app"
+  | "no-account"
+  | "no-ad-tracking"
+  | "no-sale"
+  | "route-query-data"
+  | "gps-coordinate"
+  | "google-geocoding-api"
+  | "citybus"
+  | "data-gov-hk"
+  | "short-term-service-logs"
+  | "device-local-saved-routes"
+  | "notification-monitoring"
+  | "speech-reminders"
+  | "user-controls"
+  | "contact-email";
+
+export interface PolicySection {
+  id: PolicySectionId;
+  order: number;
+  title: LocalizedString;
+  paragraphs: LocalizedString[];
+  bullets?: LocalizedString[];
+  requiredFacts: PrivacyRequiredFact[];
+}
+
+export interface PrivacyPolicyContent {
+  metadata: {
+    version: string;
+    lastUpdated: string;
+    contactEmail: "hezhenyu966@gmail.com";
+    appliesTo: Array<"website" | "android-app">;
+  };
+  hero: {
+    eyebrow: LocalizedString;
+    title: LocalizedString;
+    lead: LocalizedString;
+  };
+  summaryCards: SummaryCard[];
+  sections: PolicySection[];
+}
+
+export interface SeoPageLocale {
+  path: string;
+  htmlLang: string;
+  canonical: string;
+  title: string;
+  description: string;
+  ogTitle: string;
+  ogDescription: string;
+  twitterTitle: string;
+  twitterDescription: string;
+}
+
+export interface SeoPageGroup {
+  pageId: SeoPageId;
+  defaultLocale: Locale;
+  xDefault: string;
+  changefreq: "weekly" | "monthly" | "yearly";
+  priority: number;
+  locales: Record<Locale, SeoPageLocale>;
+}
+
 export interface HomePageContent {
   metadata: {
     version: string;
@@ -276,6 +366,7 @@ export interface HomePageContent {
   };
   faq: FAQItem[];
   contact: ContactEntry[];
+  footerPrivacyLink: FooterPrivacyLink;
   scopeExclusions: LocalizedString[];
   homepageExperience: HomepageExperiencePolishContract;
   homepageUiPolish: HomepageUiPolishContract;
