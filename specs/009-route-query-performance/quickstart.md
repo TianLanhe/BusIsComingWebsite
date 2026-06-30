@@ -146,7 +146,9 @@ curl -sS http://127.0.0.1:18081/api/routes/query_etas \
 
 默认 CI 不依赖 live 网络；实现完成后可按需使用真实 Citybus 响应确认 fixture 仍覆盖当前格式。
 
-1. 使用同一组起终点坐标构造 `ppsearch_p3.php` 查询。
+1. 使用以下代表性起终点坐标构造 `ppsearch_p3.php` 查询：
+   - 起点：`slat=22.267079693838`、`slon=114.24208950984`，代表柴湾兴华一带常见上车点。
+   - 终点：`elat=22.28851621`、`elon=114.19628118`，代表北角/柴湾道方向常见下车点。
 2. 分别设置语言参数：
    - `l=0`：繁体中文
    - `l=1`：英文
@@ -159,6 +161,7 @@ curl -sS http://127.0.0.1:18081/api/routes/query_etas \
 
 - 如果 live 响应格式与 fixture 不一致，应先更新 fixture 和解析测试，再实现代码修复。
 - 如果 live 网络失败，不影响默认自动化验证结论。
+- 代表性成功解析至少应包含：`routeNumbers` 非空、`fare.currency=HKD`、`durationMinutes` 为数值、`walkingDistanceMeters` 为数值、`RawInfo`/P2P 资料可用于站点预览。
 
 ## 9. 日志与稳健性验证
 
@@ -207,3 +210,23 @@ git status --short
 
 - 无空白错误。
 - 仅包含本轮实现、测试和 009 文档范围内的改动。
+
+## 12. 实现阶段验证记录（2026-07-01）
+
+- `requirements.md` checklist：16/16 通过。
+- Ignore 检查：`.gitignore` 已覆盖 Node、Go、通用产物，并补充 `.cache/` 以隔离仓库内 Go build cache。
+- 后端单元测试：`env GOCACHE=/Users/jianglijie/Documents/BusIsCommingWebsite/.cache/go-build go test ./...` 通过。
+- 并发与缓存 race 验证：`env GOCACHE=/Users/jianglijie/Documents/BusIsCommingWebsite/.cache/go-build go test -race ./internal/routes/application ./internal/routes/infrastructure/memory ./internal/routes/infrastructure/citybus` 通过。
+- OpenAPI lint：`npm --prefix frontend run openapi:routes:lint` 通过。
+- OpenAPI bundle：`npm --prefix frontend run openapi:routes:bundle` 通过。
+- OpenAPI 源契约漂移检查：`git diff -- shared/contracts/openapi/route-query-api.openapi.yaml` 无输出，源契约未漂移。
+- 前端类型漂移检查：`git diff -- frontend/src/services/routeQueryTypes.ts` 无输出，前端 route query 类型未改动。
+- 三语 fixture：已新增 `zh-hant.html`、`zh-hans.html`、`en.html`，并由 `TestParseRouteResponseParsesThreeLanguageFixtures` 覆盖价格、路线号、耗时、步行距离和 P2P 资料。
+- 稳定站点资料请求减少：`TestStopClientCachesSuccessfulShortNameForOneDay` 覆盖同一 `stopID + language` 第二次请求外部计数不增加；`TestSearchRoutesCachesStopMapSuccessAcrossQueries` 覆盖重复路线查询第二次 `showstops2` 请求不增加，代表性重复查询中稳定站点资料外部请求由 1 次降为 0 次。
+- 三模式并行性能：`TestSearchRoutesRunsModesConcurrently` 模拟 `T/F/W` 不同延迟，验证最大并发大于 1 且总耗时低于串行相加。
+- 日志与稳健性：`TestSearchRoutesRecoversModePanicAndLogsObservations` 覆盖单模式 panic recover、模式失败观测和脱敏字段检查；`TestSearchRoutesCachesStopMapSuccessAcrossQueries` 覆盖缓存命中观测。
+- DDD 依赖方向：检查 `backend/internal/routes/domain` 未依赖 Gin、HTTP client、文件系统、数据库或前端契约；本轮新增缓存和 Citybus/DATA.GOV.HK 外部适配均位于 infrastructure，HTTP envelope 未改。
+- 中文注释质量：缓存成功/失败不缓存、站名短名化、三语解析、并行模式和 recover 均已补充聚焦中文注释，未为简单赋值添加噪音注释。
+- 范围排除：本轮未修改前端 UI、Figma、用户可见固定文案、完整路线规划或非香港巴士查询范围。
+- Citybus live 复现：未执行；默认门禁由离线三语 fixture 和 Go 自动化测试覆盖。live 步骤已沉淀在第 8 节，后续仅作为人工确认真实 Citybus 响应仍可解析的补充材料。
+- 提交前状态：`git diff --check` 通过；`git status --short --ignored=matching` 仅显示本轮实现/测试/009 文档改动、三语 fixture 新文件和已忽略的本地缓存/构建目录。

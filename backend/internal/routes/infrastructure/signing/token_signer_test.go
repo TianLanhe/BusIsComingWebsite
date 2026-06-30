@@ -1,6 +1,9 @@
 package signing_test
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -72,7 +75,6 @@ func TestTokenSignerRejectsExpiredEtaToken(t *testing.T) {
 		RouteNumber:  "606",
 		StopID:       "001336",
 		Direction:    "O",
-		ServiceType:  "1",
 		Language:     domain.LanguageZhHans,
 		Company:      "CTB",
 		BoardingSeq:  10,
@@ -87,4 +89,53 @@ func TestTokenSignerRejectsExpiredEtaToken(t *testing.T) {
 	if _, err := signer.VerifyEta(token); err == nil {
 		t.Fatal("expected expired eta token to be rejected")
 	}
+}
+
+func TestTokenSignerSignsEtaWithoutServiceType(t *testing.T) {
+	now := time.Date(2026, 6, 16, 12, 0, 0, 0, time.UTC)
+	signer := signing.NewTokenSigner([]byte("test-secret"), func() time.Time { return now })
+	token, _, err := signer.SignEta(domain.EtaTokenPayload{
+		Subject:      domain.TokenSubjectEta,
+		RouteID:      "route-1",
+		RouteNumber:  "606",
+		StopID:       "001336",
+		Direction:    "O",
+		Language:     domain.LanguageZhHans,
+		Company:      "CTB",
+		BoardingSeq:  10,
+		AlightingSeq: 20,
+		RawInfo:      "1|*|CTB||606-1||10||20||O",
+	})
+	if err != nil {
+		t.Fatalf("sign eta token: %v", err)
+	}
+
+	body := decodeTokenBody(t, token)
+	if _, ok := body["serviceType"]; ok {
+		t.Fatalf("expected eta token payload without serviceType, got %#v", body)
+	}
+	verified, err := signer.VerifyEta(token)
+	if err != nil {
+		t.Fatalf("verify eta token: %v", err)
+	}
+	if verified.RouteNumber != "606" || verified.StopID != "001336" || verified.BoardingSeq != 10 {
+		t.Fatalf("unexpected verified payload: %#v", verified)
+	}
+}
+
+func decodeTokenBody(t *testing.T, token string) map[string]any {
+	t.Helper()
+	parts := strings.Split(token, ".")
+	if len(parts) != 2 {
+		t.Fatalf("invalid token format: %s", token)
+	}
+	body, err := base64.RawURLEncoding.DecodeString(parts[0])
+	if err != nil {
+		t.Fatalf("decode token body: %v", err)
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(body, &payload); err != nil {
+		t.Fatalf("unmarshal token body: %v", err)
+	}
+	return payload
 }

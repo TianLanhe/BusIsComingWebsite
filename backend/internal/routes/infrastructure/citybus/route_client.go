@@ -14,21 +14,33 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"busiscoming-website/backend/internal/routes/domain"
 )
 
 type RouteClient struct {
-	BaseURL    string
-	StopMapURL string
-	HTTPClient *http.Client
-	StopNames  StopNameResolver
-	Now        func() time.Time
+	BaseURL      string
+	StopMapURL   string
+	HTTPClient   *http.Client
+	StopNames    StopNameResolver
+	StopMapCache StopMapCache
+	Logger       Logger
+	Now          func() time.Time
 }
 
 type StopNameResolver interface {
 	ResolveStopName(ctx context.Context, stopID string, language domain.Language) (string, error)
+}
+
+type StopMapCache interface {
+	Get(string) ([]domain.P2PStop, bool)
+	Set(string, []domain.P2PStop, time.Duration)
+}
+
+type Logger interface {
+	Info(domain.QueryLogEvent)
 }
 
 func NewRouteClient() *RouteClient {
@@ -45,25 +57,69 @@ func (c *RouteClient) SearchRoutes(ctx context.Context, origin domain.PlaceToken
 	if client == nil {
 		client = http.DefaultClient
 	}
+	// Citybus mobile 既有 T/F/W 三种搜索模式互不依赖，固定并行能降低等待；结果仍按固定模式顺序合并，避免完成顺序造成排序抖动。
+	modes := []string{"T", "F", "W"}
+	results := make([]routeModeResult, len(modes))
+	var wg sync.WaitGroup
+	for index, mode := range modes {
+		index, mode := index, mode
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			results[index] = c.searchMode(ctx, client, origin, destination, language, mode)
+		}()
+	}
+	wg.Wait()
+
 	var allRoutes []domain.RouteOption
-	for _, mode := range []string{"T", "F", "W"} {
-		body, err := c.fetchRouteHTML(ctx, client, origin, destination, language, mode)
-		if err != nil {
+	for _, result := range results {
+		if result.err != nil || len(result.routes) == 0 {
 			continue
 		}
-		routes, err := ParseRouteResponse(body, language)
-		if err != nil {
-			continue
-		}
-		for index := range routes {
-			c.fillStopPreview(ctx, client, &routes[index], language)
-		}
-		allRoutes = append(allRoutes, routes...)
+		allRoutes = append(allRoutes, result.routes...)
 	}
 	if len(allRoutes) == 0 {
 		return nil, errors.New("citybus route query returned no parseable results")
 	}
 	return dedupeRoutes(allRoutes), nil
+}
+
+type routeModeResult struct {
+	routes []domain.RouteOption
+	err    error
+}
+
+func (c *RouteClient) searchMode(ctx context.Context, client *http.Client, origin domain.PlaceTokenPayload, destination domain.PlaceTokenPayload, language domain.Language, mode string) (result routeModeResult) {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start)
+		if recovered := recover(); recovered != nil {
+			result.err = fmt.Errorf("citybus route mode panic: %v", recovered)
+			c.logModeEvent("panic_recovery", mode, language, 0, duration, "panic")
+			return
+		}
+		if result.err != nil {
+			c.logModeEvent("mode_failed", mode, language, len(result.routes), duration, safeErrorReason(result.err))
+			return
+		}
+		c.logModeEvent("result", mode, language, len(result.routes), duration, "")
+	}()
+
+	body, err := c.fetchRouteHTML(ctx, client, origin, destination, language, mode)
+	if err != nil {
+		result.err = err
+		return result
+	}
+	routes, err := ParseRouteResponse(body, language)
+	if err != nil {
+		result.err = err
+		return result
+	}
+	for index := range routes {
+		c.fillStopPreview(ctx, client, &routes[index], language)
+	}
+	result.routes = routes
+	return result
 }
 
 func (c *RouteClient) fetchRouteHTML(ctx context.Context, client *http.Client, origin, destination domain.PlaceTokenPayload, language domain.Language, mode string) (string, error) {
@@ -112,7 +168,8 @@ func ParseRouteResponse(response string, language domain.Language) ([]domain.Rou
 	routes := make([]domain.RouteOption, 0, len(tableMatches))
 	for _, tableMatch := range tableMatches {
 		table := tableMatch[0]
-		if !strings.Contains(table, "預計") && !strings.Contains(strings.ToLower(table), "min") {
+		// Citybus 三语响应会把预计时间写在 aria-label 或 table 文本里；先用宽松关键词筛候选，再由字段解析决定是否保留。
+		if !containsRouteTimingCue(table) {
 			continue
 		}
 		route, ok := parseRouteTable(table, language)
@@ -161,7 +218,6 @@ func parseRouteTable(table string, language domain.Language) (domain.RouteOption
 			RouteID:      route.RouteID,
 			RouteNumber:  firstLeg.Route,
 			Direction:    firstLeg.Bound,
-			ServiceType:  "1",
 			Language:     language,
 			Company:      firstLeg.Company,
 			RouteVariant: firstLeg.RouteVariant,
@@ -256,28 +312,7 @@ func (c *RouteClient) fillStopPreview(ctx context.Context, client *http.Client, 
 	if len(route.Legs) == 0 || route.RawInfo == "" {
 		return
 	}
-	endpoint, err := url.Parse(firstNonEmpty(c.StopMapURL, "https://mobile.citybus.com.hk/nwp3/showstops2.php"))
-	if err != nil {
-		return
-	}
-	values := endpoint.Query()
-	values.Set("r", route.RawInfo)
-	values.Set("l", LanguageParam(language))
-	endpoint.RawQuery = values.Encode()
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
-	if err != nil {
-		return
-	}
-	response, err := client.Do(request)
-	if err != nil {
-		return
-	}
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return
-	}
-	stops := ParseStopMapResponse(string(body), route.Legs)
+	stops := c.fetchStopMap(ctx, client, route.RawInfo, route.Legs, language)
 	if len(stops) == 0 {
 		return
 	}
@@ -296,16 +331,70 @@ func (c *RouteClient) fillStopPreview(ctx context.Context, client *http.Client, 
 	}
 }
 
+func (c *RouteClient) fetchStopMap(ctx context.Context, client *http.Client, rawInfo string, legs []domain.P2PLeg, language domain.Language) []domain.P2PStop {
+	cacheKey := stopMapCacheKey(rawInfo, language)
+	if c.StopMapCache != nil {
+		if cached, ok := c.StopMapCache.Get(cacheKey); ok {
+			c.logCacheEvent("stopMapResolve", "cache_hit", language, true, len(cached), "")
+			return cloneStops(cached)
+		}
+		c.logCacheEvent("stopMapResolve", "cache_miss", language, false, 0, "")
+	}
+
+	// showstops2 站点地图用于路线卡预览和首程 ETA stop id，属于稳定资料；只在成功解析出非空站点后写入 1 天缓存。
+	endpoint, err := url.Parse(firstNonEmpty(c.StopMapURL, "https://mobile.citybus.com.hk/nwp3/showstops2.php"))
+	if err != nil {
+		c.logCacheEvent("stopMapResolve", "error", language, false, 0, "invalid_stop_map_url")
+		return nil
+	}
+	values := endpoint.Query()
+	values.Set("r", rawInfo)
+	values.Set("l", LanguageParam(language))
+	endpoint.RawQuery = values.Encode()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
+	if err != nil {
+		c.logCacheEvent("stopMapResolve", "error", language, false, 0, "create_request_failed")
+		return nil
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		c.logCacheEvent("stopMapResolve", "external_degraded", language, false, 0, "request_failed")
+		return nil
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		c.logCacheEvent("stopMapResolve", "external_degraded", language, false, 0, "read_failed")
+		return nil
+	}
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		c.logCacheEvent("stopMapResolve", "external_degraded", language, false, 0, "http_status")
+		return nil
+	}
+	stops := ParseStopMapResponse(string(body), legs)
+	if len(stops) == 0 {
+		c.logCacheEvent("stopMapResolve", "external_degraded", language, false, 0, "empty_stop_map")
+		return nil
+	}
+	if c.StopMapCache != nil {
+		c.StopMapCache.Set(cacheKey, cloneStops(stops), 24*time.Hour)
+	}
+	c.logCacheEvent("stopMapResolve", "external_request", language, false, len(stops), "")
+	return stops
+}
+
 func (c *RouteClient) resolveStopName(ctx context.Context, stop *domain.P2PStop, language domain.Language) string {
 	if stop == nil {
 		return ""
 	}
 	if c.StopNames != nil && stop.StopID != "" {
 		if name, err := c.StopNames.ResolveStopName(ctx, stop.StopID, language); err == nil && name != "" {
-			return name
+			if normalized := NormalizeStopDisplayName(name); normalized != "" {
+				return normalized
+			}
 		}
 	}
-	return stop.DisplayName
+	return NormalizeStopDisplayName(stop.DisplayName)
 }
 
 func findStop(stops []domain.P2PStop, legIndex int, routeVariant string, seq int) *domain.P2PStop {
@@ -382,6 +471,16 @@ func parseSegments(text string) ([]string, float64) {
 	return segments, math.Round(total*10) / 10
 }
 
+func containsRouteTimingCue(table string) bool {
+	normalized := strings.ToLower(table)
+	return strings.Contains(normalized, "預計") ||
+		strings.Contains(normalized, "预计") ||
+		strings.Contains(normalized, "estimated") ||
+		strings.Contains(normalized, "分鐘") ||
+		strings.Contains(normalized, "分钟") ||
+		strings.Contains(normalized, " min")
+}
+
 func firstInt(pattern *regexp.Regexp, text string) int {
 	match := pattern.FindStringSubmatch(text)
 	if match == nil {
@@ -422,7 +521,7 @@ func parseFunctionArgs(argumentList string) []string {
 	}
 	for index := range args {
 		args[index] = strings.Trim(args[index], "' ")
-		args[index] = strings.TrimSpace(removeStopSequencePrefix(args[index]))
+		args[index] = strings.TrimSpace(args[index])
 	}
 	return args
 }
@@ -432,7 +531,14 @@ func removeStopSequencePrefix(value string) string {
 }
 
 func stationDisplayName(rawName string) string {
-	return strings.TrimSpace(strings.Split(removeStopSequencePrefix(rawName), ",")[0])
+	return NormalizeStopDisplayName(rawName)
+}
+
+func NormalizeStopDisplayName(rawName string) string {
+	// 站名来源可能是 DATA.GOV.HK 或 Citybus showstops2；统一在后端短名化，避免前端路线卡因来源不同出现长短不一致。
+	withoutSequence := strings.TrimSpace(removeStopSequencePrefix(rawName))
+	parts := strings.SplitN(withoutSequence, ",", 2)
+	return strings.TrimSpace(parts[0])
 }
 
 func buildRouteID(segments []string, duration int, walking int, rawInfo string) string {
@@ -464,13 +570,65 @@ func (c *RouteClient) now() time.Time {
 	return time.Now()
 }
 
+func stopMapCacheKey(rawInfo string, language domain.Language) string {
+	hash := sha1.Sum([]byte(rawInfo))
+	return fmt.Sprintf("showstops2:%s:%s", language, hex.EncodeToString(hash[:]))
+}
+
+func safeErrorReason(err error) string {
+	if err == nil {
+		return ""
+	}
+	return "route_mode_failed"
+}
+
+func cloneStops(stops []domain.P2PStop) []domain.P2PStop {
+	return append([]domain.P2PStop(nil), stops...)
+}
+
+func (c *RouteClient) logModeEvent(stage string, mode string, language domain.Language, count int, duration time.Duration, reason string) {
+	if c.Logger == nil {
+		return
+	}
+	fields := map[string]any{"mode": mode}
+	if reason != "" {
+		fields["reason"] = reason
+	}
+	c.Logger.Info(domain.QueryLogEvent{
+		OperationID: "citybusRouteMode",
+		Stage:       stage,
+		Language:    language,
+		DurationMs:  duration.Milliseconds(),
+		ResultCount: &count,
+		Fields:      fields,
+	})
+}
+
+func (c *RouteClient) logCacheEvent(operationID string, stage string, language domain.Language, cacheHit bool, count int, reason string) {
+	if c.Logger == nil {
+		return
+	}
+	fields := map[string]any{}
+	if reason != "" {
+		fields["reason"] = reason
+	}
+	c.Logger.Info(domain.QueryLogEvent{
+		OperationID: operationID,
+		Stage:       stage,
+		Language:    language,
+		ResultCount: &count,
+		CacheHit:    &cacheHit,
+		Fields:      fields,
+	})
+}
+
 var (
 	routeListPattern    = regexp.MustCompile(`(?is)<[^>]+id=["']routelist2["'][^>]*>(.*)</[^>]+>`)
 	tablePattern        = regexp.MustCompile(`(?is)<table\b[^>]*>.*?</table>|<table\b[^>]*/>`)
 	tagPattern          = regexp.MustCompile(`(?is)<[^>]+>`)
-	routePricePattern   = regexp.MustCompile(`(?:^|\s+至\s+)([^\s]+)\s+(?:港元\s*([0-9]+(?:\.[0-9]+)?)|(免費)|HK\$?\s*([0-9]+(?:\.[0-9]+)?))`)
-	durationPattern     = regexp.MustCompile(`(?:預計|Estimated[^\d]*)\s*([0-9]+)\s*(?:分鐘|min)`)
-	walkingPattern      = regexp.MustCompile(`(?:步行距離\s*\(約\)|Walking[^\d]*)\s*([0-9,]+)\s*(?:米|m)`)
+	routePricePattern   = regexp.MustCompile(`(?i)(?:^|\s+(?:至|to)\s+)([^\s]+)\s+(?:(?:港元|hong kong dollar)\s*([0-9]+(?:\.[0-9]+)?)|(免費|free)|HK\$?\s*([0-9]+(?:\.[0-9]+)?))`)
+	durationPattern     = regexp.MustCompile(`(?i)(?:預計|预计|estimated[^\d]*)\s*([0-9]+)\s*(?:分鐘|分钟|min)`)
+	walkingPattern      = regexp.MustCompile(`(?i)(?:步行距離|步行距离|walking[^\d]*)\s*(?:\(約\)|\(约\))?\s*([0-9,]+)\s*(?:米|m)`)
 	showRoutePattern    = regexp.MustCompile(`showroutep2p\('([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'`)
 	addStopPattern      = regexp.MustCompile(`(?s)addstoponmap\((.*?)\)`)
 	stopSequencePattern = regexp.MustCompile(`^\d+\s*-\s*`)

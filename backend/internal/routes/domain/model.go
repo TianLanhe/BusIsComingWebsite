@@ -164,7 +164,6 @@ type EtaTokenPayload struct {
 	RouteNumber  string       `json:"routeNumber"`
 	StopID       string       `json:"stopId"`
 	Direction    string       `json:"direction,omitempty"`
-	ServiceType  string       `json:"serviceType,omitempty"`
 	Language     Language     `json:"language"`
 	Company      string       `json:"company,omitempty"`
 	RouteVariant string       `json:"routeVariant,omitempty"`

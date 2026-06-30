@@ -22,6 +22,26 @@ func TestParseEtaResponseReturnsWaitingStatus(t *testing.T) {
 	}
 }
 
+func TestParseEtaResponseMatchesWithoutServiceType(t *testing.T) {
+	now := time.Date(2026, 6, 16, 12, 0, 0, 0, time.FixedZone("HKT", 8*3600))
+	response := `{"data":[{"route":"606","stop":"001336","dir":"O","seq":10,"eta_seq":1,"eta":"2026-06-16T12:09:00+08:00","dest_tc":"漁灣邨","rmk_tc":""}]}`
+	payload := domain.EtaTokenPayload{
+		RouteNumber: "606",
+		StopID:      "001336",
+		Direction:   "O",
+		BoardingSeq: 10,
+		Company:     "CTB",
+	}
+
+	status := datagovhk.ParseEtaResponse("token", response, payload, now)
+	if status.Status != domain.EtaWaiting {
+		t.Fatalf("expected waiting without service type, got %#v", status)
+	}
+	if status.WaitMinutes == nil || *status.WaitMinutes != 9 {
+		t.Fatalf("expected 9 minutes, got %#v", status.WaitMinutes)
+	}
+}
+
 func TestParseEtaResponseReturnsUnavailableWhenNoMatch(t *testing.T) {
 	now := time.Date(2026, 6, 16, 12, 0, 0, 0, time.FixedZone("HKT", 8*3600))
 	payload := domain.EtaTokenPayload{RouteNumber: "606", StopID: "001336", Direction: "O", BoardingSeq: 10}

@@ -33,8 +33,16 @@ func main() {
 	routeLimiter := memory.NewRateLimiter(120, time.Minute, now)
 	placeCache := memory.NewTTLCache[[]domain.Place](now)
 	routeCache := memory.NewTTLCache[[]domain.RouteOption](now)
+	stopNameCache := memory.NewTTLCache[string](now)
+	stopMapCache := memory.NewTTLCache[[]domain.P2PStop](now)
+	stopClient := datagovhk.NewStopClient()
+	stopClient.Cache = stopNameCache
+	stopClient.NormalizeName = citybus.NormalizeStopDisplayName
+	stopClient.Logger = routeLogger
 	citybusRouteClient := citybus.NewRouteClient()
-	citybusRouteClient.StopNames = datagovhk.NewStopClient()
+	citybusRouteClient.StopNames = stopClient
+	citybusRouteClient.StopMapCache = stopMapCache
+	citybusRouteClient.Logger = routeLogger
 	routeService := routeapp.NewService(routeapp.Dependencies{
 		Clock:        now,
 		PlaceService: citybus.NewPlaceClient(),

@@ -2,6 +2,7 @@ package http_test
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -53,6 +54,52 @@ func TestHandlerQueryRoutesReturnsEnvelope(t *testing.T) {
 	}
 }
 
+func TestHandlerQueryRoutesResponseContractDoesNotDrift(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	routehttp.RegisterRoutes(router, routehttp.NewHandler(fakeRouteService{}))
+
+	body := `{"requestId":"req-routes-contract","language":"zh-Hans","originPlaceToken":"origin","destinationPlaceToken":"destination"}`
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodPost, "/api/routes/query_routes", strings.NewReader(body))
+	request.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(recorder, request)
+
+	var envelope map[string]any
+	if err := json.Unmarshal(recorder.Body.Bytes(), &envelope); err != nil {
+		t.Fatalf("decode response envelope: %v body=%s", err, recorder.Body.String())
+	}
+	assertExactKeys(t, envelope, []string{"requestId", "data", "error"})
+	data, ok := envelope["data"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected data object, got %#v", envelope["data"])
+	}
+	assertExactKeys(t, data, []string{"queriedAt", "resultLimit", "routes"})
+	routes, ok := data["routes"].([]any)
+	if !ok || len(routes) != 1 {
+		t.Fatalf("expected one route, got %#v", data["routes"])
+	}
+	route, ok := routes[0].(map[string]any)
+	if !ok {
+		t.Fatalf("expected route object, got %#v", routes[0])
+	}
+	assertExactKeys(t, route, []string{
+		"routeId",
+		"operator",
+		"routeNumbers",
+		"routeLabel",
+		"boardingStop",
+		"alightingStop",
+		"fare",
+		"durationMinutes",
+		"walkingDistanceMeters",
+		"sortIndex",
+	})
+	assertExactKeys(t, route["boardingStop"].(map[string]any), []string{"name", "stopId"})
+	assertExactKeys(t, route["alightingStop"].(map[string]any), []string{"name", "stopId"})
+	assertExactKeys(t, route["fare"].(map[string]any), []string{"currency", "amount"})
+}
+
 type fakeRouteService struct{}
 
 func (fakeRouteService) QueryPlaces(context.Context, routeapp.QueryPlacesRequest) (routeapp.QueryPlacesResult, *domain.QueryError) {
@@ -89,4 +136,16 @@ func (fakeRouteService) QueryRoutes(context.Context, routeapp.QueryRoutesRequest
 
 func (fakeRouteService) QueryEtas(context.Context, routeapp.QueryEtasRequest) (routeapp.QueryEtasResult, *domain.QueryError) {
 	return routeapp.QueryEtasResult{QueriedAt: time.Date(2026, 6, 16, 12, 0, 0, 0, time.UTC)}, nil
+}
+
+func assertExactKeys(t *testing.T, object map[string]any, expected []string) {
+	t.Helper()
+	if len(object) != len(expected) {
+		t.Fatalf("expected keys %v, got %#v", expected, object)
+	}
+	for _, key := range expected {
+		if _, ok := object[key]; !ok {
+			t.Fatalf("expected key %q in %#v", key, object)
+		}
+	}
 }

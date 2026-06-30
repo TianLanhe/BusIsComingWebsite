@@ -27,10 +27,10 @@
 
 **目的**：准备 fixture、测试辅助和契约守护入口，确保后续任务可以直接按文件落地。
 
-- [ ] T001 创建 Citybus 三语 fixture 说明文件 `backend/internal/routes/infrastructure/citybus/testdata/route-query/README.md`，记录第三方原文保留、live 响应来源和不得改写 fixture 语义的规则
-- [ ] T002 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 009 专用 fake HTTP client、请求计数和可控时钟测试辅助，供三语解析、站点地图缓存和三模式并行测试复用
-- [ ] T003 [P] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client_test.go` 增加 fake DATA.GOV.HK stop 响应、请求计数和可控时钟测试辅助，供站名缓存测试复用
-- [ ] T004 [P] 在 `specs/009-route-query-performance/quickstart.md` 增加实现阶段验证记录占位，覆盖 Go、race、OpenAPI、fixture、日志、DDD 和注释检查结果
+- [X] T001 创建 Citybus 三语 fixture 说明文件 `backend/internal/routes/infrastructure/citybus/testdata/route-query/README.md`，记录第三方原文保留、live 响应来源和不得改写 fixture 语义的规则
+- [X] T002 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 009 专用 fake HTTP client、请求计数和可控时钟测试辅助，供三语解析、站点地图缓存和三模式并行测试复用
+- [X] T003 [P] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client_test.go` 增加 fake DATA.GOV.HK stop 响应、请求计数和可控时钟测试辅助，供站名缓存测试复用
+- [X] T004 [P] 在 `specs/009-route-query-performance/quickstart.md` 增加实现阶段验证记录占位，覆盖 Go、race、OpenAPI、fixture、日志、DDD 和注释检查结果
 
 ---
 
@@ -40,12 +40,12 @@
 
 **关键要求**：不新增 HTTP API，不修改前端字段；共享规则必须服务 `StopClient` 和 `showstops2` 两种站名来源。
 
-- [ ] T005 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 `StopSummary.Name` 短名化测试，覆盖序号前缀、繁体逗号补充、简体逗号补充、英文逗号补充和短名化后为空的情况
-- [ ] T006 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 实现共享站名短名化 helper，并让 `stationDisplayName` 复用该 helper
-- [ ] T007 [P] 在 `backend/internal/routes/interfaces/http/handler_query_routes_test.go` 增加公开响应契约守护测试，确认 `query_routes` 响应字段和错误 envelope 不因内部优化新增或删除字段
-- [ ] T008 [P] 在 `backend/internal/routes/infrastructure/signing/token_signer_test.go` 增加 ETA token payload JSON 反序列化 helper，用于后续断言 `serviceType` 不再写入
-- [ ] T009 在 `backend/internal/routes/domain/model.go` 检查 `domain` 包不依赖 Gin、HTTP client、文件系统、数据库或前端契约，并将检查口径记录到 `specs/009-route-query-performance/quickstart.md`
-- [ ] T010 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 为短名化、语言隔离和外部资料 fallback 添加必要中文注释，避免重复简单赋值含义
+- [X] T005 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 `StopSummary.Name` 短名化测试，覆盖序号前缀、繁体逗号补充、简体逗号补充、英文逗号补充和短名化后为空的情况
+- [X] T006 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 实现共享站名短名化 helper，并让 `stationDisplayName` 复用该 helper
+- [X] T007 [P] 在 `backend/internal/routes/interfaces/http/handler_query_routes_test.go` 增加公开响应契约守护测试，确认 `query_routes` 响应字段和错误 envelope 不因内部优化新增或删除字段
+- [X] T008 [P] 在 `backend/internal/routes/infrastructure/signing/token_signer_test.go` 增加 ETA token payload JSON 反序列化 helper，用于后续断言 `serviceType` 不再写入
+- [X] T009 在 `backend/internal/routes/domain/model.go` 检查 `domain` 包不依赖 Gin、HTTP client、文件系统、数据库或前端契约，并将检查口径记录到 `specs/009-route-query-performance/quickstart.md`
+- [X] T010 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 为短名化、语言隔离和外部资料 fallback 添加必要中文注释，避免重复简单赋值含义
 
 **检查点**：短名化 helper、公开契约守护和测试辅助完成，可以开始用户故事实现。
 
@@ -59,18 +59,18 @@
 
 ### 用户故事 1 的测试或验证
 
-- [ ] T011 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client_test.go` 增加 `StopClient` 成功站名 1 天缓存测试，断言第二次同 `stopID + language` 不增加外部请求计数
-- [ ] T012 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client_test.go` 增加失败不缓存测试，覆盖 HTTP 非 2xx、空结果、JSON 无法解析和缺少可用语言字段
-- [ ] T013 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client_test.go` 增加语言隔离和过期重试测试，覆盖同 stop id 的 `zh-Hant`、`zh-Hans`、`en` 不串用
-- [ ] T014 [US1] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 `resolveStopName` 测试，覆盖 `StopClient` 返回 `樂軒臺, 柴灣道` 时写入 `樂軒臺`，以及 `StopClient` 失败时 fallback 到已短名化 `showstops2 displayName`
+- [X] T011 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client_test.go` 增加 `StopClient` 成功站名 1 天缓存测试，断言第二次同 `stopID + language` 不增加外部请求计数
+- [X] T012 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client_test.go` 增加失败不缓存测试，覆盖 HTTP 非 2xx、空结果、JSON 无法解析和缺少可用语言字段
+- [X] T013 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client_test.go` 增加语言隔离和过期重试测试，覆盖同 stop id 的 `zh-Hant`、`zh-Hans`、`en` 不串用
+- [X] T014 [US1] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 `resolveStopName` 测试，覆盖 `StopClient` 返回 `樂軒臺, 柴灣道` 时写入 `樂軒臺`，以及 `StopClient` 失败时 fallback 到已短名化 `showstops2 displayName`
 
 ### 用户故事 1 的实现
 
-- [ ] T015 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client.go` 定义站名缓存接口并实现只缓存成功短名的 1 天 TTL 逻辑
-- [ ] T016 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client.go` 确保失败、空结果、不可解析 JSON 和短名化后为空均不写入缓存
-- [ ] T017 [US1] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 更新 `resolveStopName`，确保 `StopClient` 结果和 `showstops2 displayName` fallback 写入 `StopSummary.Name` 前都统一短名化
-- [ ] T018 [US1] 在 `backend/cmd/server/main.go` 为 DATA.GOV.HK 站名 resolver 注入 `memory.NewTTLCache[string]` 或等价 1 天成功结果缓存
-- [ ] T019 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client.go` 和 `backend/internal/routes/infrastructure/citybus/route_client.go` 补充中文注释，解释成功缓存、失败不缓存、语言隔离和 fallback 规则
+- [X] T015 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client.go` 定义站名缓存接口并实现只缓存成功短名的 1 天 TTL 逻辑
+- [X] T016 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client.go` 确保失败、空结果、不可解析 JSON 和短名化后为空均不写入缓存
+- [X] T017 [US1] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 更新 `resolveStopName`，确保 `StopClient` 结果和 `showstops2 displayName` fallback 写入 `StopSummary.Name` 前都统一短名化
+- [X] T018 [US1] 在 `backend/cmd/server/main.go` 为 DATA.GOV.HK 站名 resolver 注入 `memory.NewTTLCache[string]` 或等价 1 天成功结果缓存
+- [X] T019 [US1] 在 `backend/internal/routes/infrastructure/datagovhk/stop_client.go` 和 `backend/internal/routes/infrastructure/citybus/route_client.go` 补充中文注释，解释成功缓存、失败不缓存、语言隔离和 fallback 规则
 
 **检查点**：US1 可以独立验证，站名来源稳定、短名一致、失败可重试。
 
@@ -84,22 +84,22 @@
 
 ### 用户故事 2 的测试或验证
 
-- [ ] T020 [P] [US2] 添加繁体 Citybus 路线摘要 fixture `backend/internal/routes/infrastructure/citybus/testdata/route-query/zh-hant.html`，保留第三方原文语义
-- [ ] T021 [P] [US2] 添加简体 Citybus 路线摘要 fixture `backend/internal/routes/infrastructure/citybus/testdata/route-query/zh-hans.html`，覆盖“预计”“分钟”“步行距离”等字段
-- [ ] T022 [P] [US2] 添加英文 Citybus 路线摘要 fixture `backend/internal/routes/infrastructure/citybus/testdata/route-query/en.html`，覆盖 “Hong Kong Dollar”“To”“Estimated”“Min”“Walking distance”
-- [ ] T023 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加三语 fixture 解析测试，断言路线号链、HKD 价格、耗时分钟数、步行距离米数、P2P rawInfo 和至少一条站点预览可用
-- [ ] T024 [P] [US2] 在 `backend/internal/routes/infrastructure/signing/token_signer_test.go` 增加 ETA token payload 测试，断言新签发 token 不包含 `serviceType` 且仍能通过 `VerifyEta`
-- [ ] T025 [P] [US2] 在 `backend/internal/routes/infrastructure/datagovhk/eta_client_test.go` 增加 ETA 匹配回归测试，确认清理 `ServiceType` 后仍按 `route + stop + direction + boardingSeq` 与 fallback 规则匹配
+- [X] T020 [P] [US2] 添加繁体 Citybus 路线摘要 fixture `backend/internal/routes/infrastructure/citybus/testdata/route-query/zh-hant.html`，保留第三方原文语义
+- [X] T021 [P] [US2] 添加简体 Citybus 路线摘要 fixture `backend/internal/routes/infrastructure/citybus/testdata/route-query/zh-hans.html`，覆盖“预计”“分钟”“步行距离”等字段
+- [X] T022 [P] [US2] 添加英文 Citybus 路线摘要 fixture `backend/internal/routes/infrastructure/citybus/testdata/route-query/en.html`，覆盖 “Hong Kong Dollar”“To”“Estimated”“Min”“Walking distance”
+- [X] T023 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加三语 fixture 解析测试，断言路线号链、HKD 价格、耗时分钟数、步行距离米数、P2P rawInfo 和至少一条站点预览可用
+- [X] T024 [P] [US2] 在 `backend/internal/routes/infrastructure/signing/token_signer_test.go` 增加 ETA token payload 测试，断言新签发 token 不包含 `serviceType` 且仍能通过 `VerifyEta`
+- [X] T025 [P] [US2] 在 `backend/internal/routes/infrastructure/datagovhk/eta_client_test.go` 增加 ETA 匹配回归测试，确认清理 `ServiceType` 后仍按 `route + stop + direction + boardingSeq` 与 fallback 规则匹配
 
 ### 用户故事 2 的实现
 
-- [ ] T026 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 更新 `ParseRouteResponse` 候选 table 过滤规则，支持繁体“預計”、简体“预计”和英文 `estimated/min`，不得只依赖单一语言关键词
-- [ ] T027 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 更新路线号链与价格解析，支持繁体/简体 `港元`、连接词 `至`、英文 `Hong Kong Dollar` 和 `To`
-- [ ] T028 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 更新耗时和步行距离正则，支持繁体、简体、英文和大小写变化
-- [ ] T029 [US2] 在 `backend/internal/routes/domain/model.go` 移除 `EtaTokenPayload.ServiceType` 字段，并确认领域模型仍只表达当前 ETA 查询实际需要字段
-- [ ] T030 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 移除 `ServiceType: "1"` 固定赋值，并保持 `Company`、`StopID`、`RouteNumber`、`Direction`、`BoardingSeq` 等字段完整
-- [ ] T031 [US2] 在 `backend/internal/routes/infrastructure/signing/token_signer_test.go` 更新旧测试数据，确保不再构造或断言 `ServiceType`
-- [ ] T032 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 补充中文注释，说明三语 Citybus 文本解析边界和 fixture 保留第三方原文语义的原因
+- [X] T026 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 更新 `ParseRouteResponse` 候选 table 过滤规则，支持繁体“預計”、简体“预计”和英文 `estimated/min`，不得只依赖单一语言关键词
+- [X] T027 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 更新路线号链与价格解析，支持繁体/简体 `港元`、连接词 `至`、英文 `Hong Kong Dollar` 和 `To`
+- [X] T028 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 更新耗时和步行距离正则，支持繁体、简体、英文和大小写变化
+- [X] T029 [US2] 在 `backend/internal/routes/domain/model.go` 移除 `EtaTokenPayload.ServiceType` 字段，并确认领域模型仍只表达当前 ETA 查询实际需要字段
+- [X] T030 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 移除 `ServiceType: "1"` 固定赋值，并保持 `Company`、`StopID`、`RouteNumber`、`Direction`、`BoardingSeq` 等字段完整
+- [X] T031 [US2] 在 `backend/internal/routes/infrastructure/signing/token_signer_test.go` 更新旧测试数据，确保不再构造或断言 `ServiceType`
+- [X] T032 [US2] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 补充中文注释，说明三语 Citybus 文本解析边界和 fixture 保留第三方原文语义的原因
 
 **检查点**：US2 可以独立验证，三语路线摘要可解析，ETA token payload 清理不影响公开接口。
 
@@ -113,18 +113,18 @@
 
 ### 用户故事 3 的测试或验证
 
-- [ ] T033 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 `showstops2` 成功站点地图 1 天缓存测试，断言同 `rawInfo + language` 第二次不增加外部请求计数
-- [ ] T034 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 `showstops2` 失败不缓存、空结果不缓存和过期重试测试
-- [ ] T035 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加站点地图缓存语言隔离测试，确认 `zh-Hant`、`zh-Hans`、`en` 不串用 `P2PStop.DisplayName`
-- [ ] T036 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加首程 ETA stop id 补齐回归测试，确认缓存命中时仍写入 `EtaPayload.StopID`
+- [X] T033 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 `showstops2` 成功站点地图 1 天缓存测试，断言同 `rawInfo + language` 第二次不增加外部请求计数
+- [X] T034 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加 `showstops2` 失败不缓存、空结果不缓存和过期重试测试
+- [X] T035 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加站点地图缓存语言隔离测试，确认 `zh-Hant`、`zh-Hans`、`en` 不串用 `P2PStop.DisplayName`
+- [X] T036 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加首程 ETA stop id 补齐回归测试，确认缓存命中时仍写入 `EtaPayload.StopID`
 
 ### 用户故事 3 的实现
 
-- [ ] T037 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 为 `RouteClient` 增加站点地图缓存接口字段，key 使用 `rawInfo + language` 并只保存解析后的 `[]domain.P2PStop`
-- [ ] T038 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 抽取 `fetchStopMap` 或等价函数，使 `fillStopPreview` 先查缓存、miss 时请求 `showstops2`、成功非空后写入 1 天缓存
-- [ ] T039 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 确保 `showstops2` HTTP 失败、读取失败、解析为空和上下文取消不会写入站点地图缓存
-- [ ] T040 [US3] 在 `backend/cmd/server/main.go` 为 `RouteClient` 注入 `memory.NewTTLCache[[]domain.P2PStop]` 或等价 1 天成功结果缓存
-- [ ] T041 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 补充中文注释，解释 `showstops2` 缓存 key、失败不缓存、语言隔离和与 ETA stop id 的关系
+- [X] T037 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 为 `RouteClient` 增加站点地图缓存接口字段，key 使用 `rawInfo + language` 并只保存解析后的 `[]domain.P2PStop`
+- [X] T038 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 抽取 `fetchStopMap` 或等价函数，使 `fillStopPreview` 先查缓存、miss 时请求 `showstops2`、成功非空后写入 1 天缓存
+- [X] T039 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 确保 `showstops2` HTTP 失败、读取失败、解析为空和上下文取消不会写入站点地图缓存
+- [X] T040 [US3] 在 `backend/cmd/server/main.go` 为 `RouteClient` 注入 `memory.NewTTLCache[[]domain.P2PStop]` 或等价 1 天成功结果缓存
+- [X] T041 [US3] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 补充中文注释，解释 `showstops2` 缓存 key、失败不缓存、语言隔离和与 ETA stop id 的关系
 
 **检查点**：US3 可以独立验证，路线站点地图稳定复用且不缓存失败。
 
@@ -138,18 +138,18 @@
 
 ### 用户故事 4 的测试或验证
 
-- [ ] T042 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加三模式不同延迟成功测试，断言总耗时接近最慢成功模式而不是三模式耗时相加
-- [ ] T043 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加部分模式 HTTP 失败或解析失败测试，断言成功模式结果不会被失败模式清空
-- [ ] T044 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加模式 goroutine panic recover 测试，断言单个模式 panic 后查询仍返回其它成功模式结果
-- [ ] T045 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加确定性合并和 `dedupeRoutes` 回归测试，确认结果不随模式完成顺序变化
+- [X] T042 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加三模式不同延迟成功测试，断言总耗时接近最慢成功模式而不是三模式耗时相加
+- [X] T043 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加部分模式 HTTP 失败或解析失败测试，断言成功模式结果不会被失败模式清空
+- [X] T044 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加模式 goroutine panic recover 测试，断言单个模式 panic 后查询仍返回其它成功模式结果
+- [X] T045 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 增加确定性合并和 `dedupeRoutes` 回归测试，确认结果不随模式完成顺序变化
 
 ### 用户故事 4 的实现
 
-- [ ] T046 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 重构 `SearchRoutes`，为固定 `T/F/W` 三模式创建受控 goroutine 并尊重 request context
-- [ ] T047 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 为每个模式 worker 增加 `defer recover`，将 panic 转为该模式失败并避免影响 HTTP 进程
-- [ ] T048 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 实现固定模式顺序合并，之后复用 `dedupeRoutes` 和 `domain.SortRouteOptions`
-- [ ] T049 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 保持全部模式失败或无可解析路线时返回既有 `citybus route query returned no parseable results` 降级错误
-- [ ] T050 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 补充中文注释，说明固定并发范围、部分失败降级、排序稳定和 recover 策略
+- [X] T046 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 重构 `SearchRoutes`，为固定 `T/F/W` 三模式创建受控 goroutine 并尊重 request context
+- [X] T047 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 为每个模式 worker 增加 `defer recover`，将 panic 转为该模式失败并避免影响 HTTP 进程
+- [X] T048 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 实现固定模式顺序合并，之后复用 `dedupeRoutes` 和 `domain.SortRouteOptions`
+- [X] T049 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 保持全部模式失败或无可解析路线时返回既有 `citybus route query returned no parseable results` 降级错误
+- [X] T050 [US4] 在 `backend/internal/routes/infrastructure/citybus/route_client.go` 补充中文注释，说明固定并发范围、部分失败降级、排序稳定和 recover 策略
 
 **检查点**：US4 可以独立验证，三模式并行提升等待时间且不破坏排序和降级。
 
@@ -159,16 +159,16 @@
 
 **目的**：完成 OpenAPI 未漂移、日志/DDD/注释、范围排除、race 和 quickstart 验证记录。
 
-- [ ] T051 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 补充缓存命中、模式失败和 panic recover 的脱敏日志或可测试观测断言，确保不记录 token、完整外部 URL、第三方原始响应或 HTML
-- [ ] T052 在 `specs/009-route-query-performance/quickstart.md` 记录 `cd backend && go test ./...` 的实现验证结果
-- [ ] T053 在 `specs/009-route-query-performance/quickstart.md` 记录 `cd backend && go test -race ./internal/routes/application ./internal/routes/infrastructure/memory ./internal/routes/infrastructure/citybus` 的实现验证结果
-- [ ] T054 在 `specs/009-route-query-performance/quickstart.md` 记录 `npm --prefix frontend run openapi:routes:lint` 和 `npm --prefix frontend run openapi:routes:bundle` 的实现验证结果
-- [ ] T055 在 `specs/009-route-query-performance/quickstart.md` 记录 `git diff -- shared/contracts/openapi/route-query-api.openapi.yaml` 未漂移检查结果
-- [ ] T056 [P] 在 `specs/009-route-query-performance/quickstart.md` 记录按需 Citybus live 复现是否执行；若未执行，说明默认门禁由离线 fixture 覆盖
-- [ ] T057 在 `backend/internal/routes/domain/model.go`、`backend/internal/routes/application/service.go`、`backend/internal/routes/infrastructure/citybus/route_client.go`、`backend/internal/routes/infrastructure/datagovhk/stop_client.go` 检查 DDD 依赖方向和中文注释质量，确认没有以 panic 表达业务错误
-- [ ] T058 在 `shared/contracts/openapi/route-query-api.openapi.yaml`、`frontend/src/services/routeQueryTypes.ts` 和 `backend/internal/routes/interfaces/http/handler_query_routes_test.go` 检查公开 HTTP 契约、前端类型和响应 envelope 未新增字段
-- [ ] T059 在 `specs/009-route-query-performance/quickstart.md` 记录本轮不修改前端 UI、Figma、用户可见固定文案、完整路线规划或非香港巴士查询范围的最终检查结果
-- [ ] T060 运行 `git diff --check` 并把提交前状态检查结果记录到 `specs/009-route-query-performance/quickstart.md`
+- [X] T051 在 `backend/internal/routes/infrastructure/citybus/route_client_test.go` 补充缓存命中、模式失败和 panic recover 的脱敏日志或可测试观测断言，确保不记录 token、完整外部 URL、第三方原始响应或 HTML
+- [X] T052 在 `specs/009-route-query-performance/quickstart.md` 记录 `cd backend && go test ./...` 的实现验证结果
+- [X] T053 在 `specs/009-route-query-performance/quickstart.md` 记录 `cd backend && go test -race ./internal/routes/application ./internal/routes/infrastructure/memory ./internal/routes/infrastructure/citybus` 的实现验证结果
+- [X] T054 在 `specs/009-route-query-performance/quickstart.md` 记录 `npm --prefix frontend run openapi:routes:lint` 和 `npm --prefix frontend run openapi:routes:bundle` 的实现验证结果
+- [X] T055 在 `specs/009-route-query-performance/quickstart.md` 记录 `git diff -- shared/contracts/openapi/route-query-api.openapi.yaml` 未漂移检查结果
+- [X] T056 [P] 在 `specs/009-route-query-performance/quickstart.md` 记录按需 Citybus live 复现是否执行；若未执行，说明默认门禁由离线 fixture 覆盖
+- [X] T057 在 `backend/internal/routes/domain/model.go`、`backend/internal/routes/application/service.go`、`backend/internal/routes/infrastructure/citybus/route_client.go`、`backend/internal/routes/infrastructure/datagovhk/stop_client.go` 检查 DDD 依赖方向和中文注释质量，确认没有以 panic 表达业务错误
+- [X] T058 在 `shared/contracts/openapi/route-query-api.openapi.yaml`、`frontend/src/services/routeQueryTypes.ts` 和 `backend/internal/routes/interfaces/http/handler_query_routes_test.go` 检查公开 HTTP 契约、前端类型和响应 envelope 未新增字段
+- [X] T059 在 `specs/009-route-query-performance/quickstart.md` 记录本轮不修改前端 UI、Figma、用户可见固定文案、完整路线规划或非香港巴士查询范围的最终检查结果
+- [X] T060 运行 `git diff --check` 并把提交前状态检查结果记录到 `specs/009-route-query-performance/quickstart.md`
 
 ---
 
