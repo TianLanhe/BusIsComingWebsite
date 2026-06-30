@@ -20,7 +20,7 @@ describe("DownloadSegmentedButton", () => {
   });
 
   it("renders the hero primary action as a direct Android APK download", () => {
-    renderWithI18n(<HeroIntro />);
+    renderWithI18n(<HeroIntro />, { locale: "en" });
 
     const heroDownload = screen.getByRole("link", { name: /Download Android APK/ });
     expect(heroDownload).toHaveAttribute("href", "/api/downloads/android/latest");
@@ -31,7 +31,7 @@ describe("DownloadSegmentedButton", () => {
   });
 
   it("renders a simple Android download entry instead of a platform segmented control", () => {
-    renderWithI18n(<DownloadSegmentedButton />);
+    renderWithI18n(<DownloadSegmentedButton />, { locale: "en" });
 
     expect(screen.getByTestId("download-segmented-button")).toHaveAttribute("data-state", "android-ready");
     expect(screen.getByRole("button", { name: /Download Android APK/ })).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("DownloadSegmentedButton", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    renderWithI18n(<DownloadSegmentedButton />);
+    renderWithI18n(<DownloadSegmentedButton />, { locale: "en" });
 
     fireEvent.click(screen.getByRole("button", { name: /Download Android APK/ }));
 
@@ -62,7 +62,7 @@ describe("DownloadSegmentedButton", () => {
   it("shows a failure state when Android download fails", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 500 })));
 
-    renderWithI18n(<DownloadSegmentedButton />);
+    renderWithI18n(<DownloadSegmentedButton />, { locale: "en" });
 
     fireEvent.click(screen.getByRole("button", { name: /Download Android APK/ }));
 
@@ -74,7 +74,7 @@ describe("DownloadSegmentedButton", () => {
   it("keeps the iPhone status informational and never triggers a download", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
-    renderWithI18n(<DownloadSegmentedButton />);
+    renderWithI18n(<DownloadSegmentedButton />, { locale: "en" });
 
     expect(screen.getByText("iPhone is not supported yet.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /iPhone/ })).not.toBeInTheDocument();

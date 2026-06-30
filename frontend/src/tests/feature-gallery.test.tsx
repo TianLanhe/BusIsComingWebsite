@@ -14,7 +14,7 @@ function dragEvent(type: "pointerdown" | "pointerup", clientX: number) {
 
 describe("feature screenshot gallery", () => {
   it("shows the default deck image first and lets the user click a same-scene card into the main image", () => {
-    renderWithI18n(<AppPreviewCarousel />);
+    renderWithI18n(<AppPreviewCarousel />, { locale: "en" });
 
     expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
     expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-visual-mode", "stair-card-deck");
@@ -29,7 +29,7 @@ describe("feature screenshot gallery", () => {
   });
 
   it("uses screenshot drag for same-feature images and copy drag for feature scenes", () => {
-    renderWithI18n(<AppPreviewCarousel />);
+    renderWithI18n(<AppPreviewCarousel />, { locale: "en" });
 
     fireEvent.click(screen.getByRole("button", { name: "Show same-scene screenshot 2" }));
     expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-all-routes-sheet");
@@ -50,7 +50,7 @@ describe("feature screenshot gallery", () => {
   });
 
   it("opens a minimal image overlay with gesture zoom, same-feature swipe, and close control", () => {
-    renderWithI18n(<AppPreviewCarousel />);
+    renderWithI18n(<AppPreviewCarousel />, { locale: "en" });
 
     fireEvent.click(screen.getByTestId("screenshot-deck-main"));
     const dialog = screen.getByRole("dialog", { name: "View app screenshot" });
@@ -82,7 +82,7 @@ describe("feature screenshot gallery", () => {
   });
 
   it("does not show same-feature lightbox switching controls for a single-image feature", () => {
-    renderWithI18n(<AppPreviewCarousel initialFeatureId="route-comparison" />);
+    renderWithI18n(<AppPreviewCarousel initialFeatureId="route-comparison" />, { locale: "en" });
 
     fireEvent.click(screen.getByTestId("screenshot-deck-main"));
     const dialog = screen.getByRole("dialog", { name: "View app screenshot" });
@@ -93,7 +93,7 @@ describe("feature screenshot gallery", () => {
   });
 
   it("hides back deck cards and stack controls when the active feature has a single screenshot", () => {
-    renderWithI18n(<AppPreviewCarousel initialFeatureId="route-comparison" />);
+    renderWithI18n(<AppPreviewCarousel initialFeatureId="route-comparison" />, { locale: "en" });
 
     expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
     expect(screen.queryByTestId("screenshot-deck-card")).not.toBeInTheDocument();
@@ -101,7 +101,7 @@ describe("feature screenshot gallery", () => {
   });
 
   it("keeps the user-confirmed image mapping for detail and monitor scenes", () => {
-    renderWithI18n(<AppPreviewCarousel initialFeatureId="eta-details" />);
+    renderWithI18n(<AppPreviewCarousel initialFeatureId="eta-details" />, { locale: "en" });
 
     expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "route-detail-expanded");
     expect(screen.getAllByTestId("screenshot-deck-card")).toHaveLength(1);
@@ -109,7 +109,7 @@ describe("feature screenshot gallery", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show same-scene screenshot 2" }));
     expect(screen.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "eta-arrivals-sheet");
 
-    renderWithI18n(<AppPreviewCarousel initialFeatureId="predeparture-monitor" />);
+    renderWithI18n(<AppPreviewCarousel initialFeatureId="predeparture-monitor" />, { locale: "en" });
     const rails = screen.getAllByTestId("screenshot-rail");
     expect(rails[1]).toHaveAttribute("data-active-image-id", "lockscreen-monitor");
   });

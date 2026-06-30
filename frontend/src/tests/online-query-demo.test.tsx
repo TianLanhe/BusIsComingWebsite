@@ -16,7 +16,7 @@ describe("OnlineQueryDemoSection", () => {
 
   it("requires candidate selection and does not submit free-text route queries", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonEnvelope({ places: [], expiresAt: "2026-06-16T12:00:00Z" }));
-    renderWithI18n(<OnlineQueryDemoSection />);
+    renderWithI18n(<OnlineQueryDemoSection />, { locale: "en" });
 
     fireEvent.change(screen.getByLabelText("Origin"), { target: { value: "origin free text" } });
     fireEvent.change(screen.getByLabelText("Destination"), { target: { value: "destination free text" } });
@@ -79,7 +79,7 @@ describe("OnlineQueryDemoSection", () => {
       });
     });
 
-    renderWithI18n(<OnlineQueryDemoSection />);
+    renderWithI18n(<OnlineQueryDemoSection />, { locale: "en" });
 
     await choosePlace("Origin", "origin", "Origin Place");
     await choosePlace("Destination", "destination", "Destination Place");
@@ -116,7 +116,7 @@ describe("OnlineQueryDemoSection", () => {
         expiresAt: "2026-06-16T12:15:00Z",
       }),
     );
-    renderWithI18n(<OnlineQueryDemoSection />);
+    renderWithI18n(<OnlineQueryDemoSection />, { locale: "en" });
 
     await choosePlace("Origin", "same", "Same Place");
     await choosePlace("Destination", "same", "Same Place");
@@ -160,7 +160,7 @@ describe("OnlineQueryDemoSection", () => {
       return jsonEnvelope<QueryEtasData>({ queriedAt: "2026-06-16T12:00:01Z", etas: [] });
     });
 
-    renderWithI18n(<OnlineQueryDemoSection />);
+    renderWithI18n(<OnlineQueryDemoSection />, { locale: "en" });
 
     await choosePlace("Origin", "origin", "Origin Place");
     await choosePlace("Destination", "d1", "Destination One");
@@ -211,7 +211,7 @@ describe("OnlineQueryDemoSection", () => {
       return jsonEnvelope<QueryEtasData>({ queriedAt: "2026-06-16T12:00:01Z", etas: [] });
     });
 
-    renderWithI18n(<OnlineQueryDemoSection />);
+    renderWithI18n(<OnlineQueryDemoSection />, { locale: "en" });
 
     await choosePlace("Origin", "origin", "Origin Place");
     await choosePlace("Destination", "destination", "Destination Place");
