@@ -87,7 +87,7 @@
 - **UI 可视化**：已通过 Superpowers visual companion 与稳定 HTML 原型产出视觉方案。设计记录为 `docs/superpowers/specs/2026-06-27-homepage-ui-polish-followup-design.md`，可打开原型为 `docs/superpowers/prototypes/2026-06-27-homepage-ui-polish-followup.html`。
 - **Figma 设计**：目标文件沿用 `BusIsComing Website - Homepage v1 Spec`，URL：`https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec`。页面为 `Homepage UI Polish - 007`。关键节点已回填：`Desktop 1440 / Hero Medium Screenshot Deck`（`51:86`）、`Desktop 1440 / Screenshot Lightbox`（`51:113`）、`Mobile 390 / Compact Feature Grid`（`51:125`）、`Mobile 390 / Compact Route Result Card`（`51:151`）、`Interaction States / Split Gesture Zones`（`51:183`）、`Spec Notes`（`51:194`）。
 - **双端适配**：桌面主要验证 1440px，手机主要验证 390px。桌面侧重 hero 截图组中等放大、大图入口和文字可读性；手机侧重功能介绍 2 列紧凑卡、路线结果卡片压缩和标签值层级。
-- **外部集成与降级**：不新增实时外部服务。在线试查仍沿用现有后端和降级策略；本功能只调整已有结果的前端展示。Figma 节点是当前设计源；HTML 原型和本地插件保留为追溯与重建 fallback。
+- **外部集成与降级**：不新增实时外部服务。在线试查仍沿用现有后端和降级策略；本功能只调整已有结果的前端展示。Figma 节点是当前设计源；HTML 原型保留为早期讨论与视觉推导记录。
 - **验证与提交**：本 `speckit-specify` 完成后创建规格质量清单，检查无模板占位和无未决澄清，并提交 spec 产物。后续实现需运行三语检查、单元测试、浏览器桌面/手机视觉验证和大图交互验证。
 
 ## 需求（必填）

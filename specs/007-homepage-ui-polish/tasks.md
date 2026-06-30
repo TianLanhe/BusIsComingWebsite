@@ -110,7 +110,7 @@
 
 **Purpose**: 完成整体视觉记录、Figma 沉淀、构建和回归验证。
 
-- [X] T036 更新 `specs/007-homepage-ui-polish/figma.md`，回填最终 Figma 文件/链接、关键节点、交互状态和版本说明；计划阶段如 MCP 未授权则先记录本地插件产物，后续以真实节点报告收口
+- [X] T036 更新 `specs/007-homepage-ui-polish/figma.md`，回填最终 Figma 文件/链接、关键节点、交互状态和版本说明；计划阶段如 Figma 写入不可用则先记录临时导入产物，后续以真实节点报告收口
   - `2026-06-30` 补充：已按用户提供的 Figma 节点报告回填 6 个真实 Node ID，并同步规格、计划、契约、quickstart 和内容元数据。
 - [X] T037 按 `specs/007-homepage-ui-polish/quickstart.md` 截取并保存桌面 hero、手机功能区、手机路线结果卡、lightbox 到 `specs/007-homepage-ui-polish/visual-review/`
 - [X] T038 运行 `cd frontend && npm run test -- --run src/tests/hero-carousel.test.tsx src/tests/feature-gallery.test.tsx src/tests/online-query-demo.test.tsx src/tests/sections-content.test.ts src/tests/hero-content.test.ts src/tests/i18n-completeness.test.tsx`

@@ -66,8 +66,8 @@
 
 **Alternatives considered**：完全不记录坐标或实现应用内日志轮转。前者降低观测能力；后者超出当前部署约束并增加配置面。
 
-## Decision: Figma 通过本地开发插件补齐
+## Decision: Figma 节点已导入并沉淀
 
-**Rationale**：Figma MCP 当前无法写入目标文件，但仓库宪法要求前端 plan 前必须有 Figma 节点。用户选择本地 Figma 插件方案后，已生成 `Online Query v2` 页面和桌面/移动节点，满足可追溯视觉门禁。
+**Rationale**：Figma 写入工具当时无法写入目标文件，但仓库宪法要求前端 plan 前必须有 Figma 节点。用户选择一次性本地导入方案后，已生成 `Online Query v2` 页面和桌面/移动节点，满足可追溯视觉门禁。节点沉淀后，仓库只保留 Figma 文件、页面和节点索引。
 
 **Alternatives considered**：只生成 PNG/SVG 或文字说明。PNG/SVG 编辑性弱，文字说明不能满足 Figma 驱动规格要求。

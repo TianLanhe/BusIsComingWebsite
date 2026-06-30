@@ -4,7 +4,7 @@
 
 - Figma 文件：[BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)
 - 新增页面：`Online Query v2`（node `22:2`）
-- 生成方式：Figma MCP 暂不可写入时，使用本地开发插件 `specs/004-online-bus-query/figma-plugin/` 手动导入并运行。
+- 生成方式：计划阶段曾使用一次性本地导入工具生成节点；节点 ID 已回填，临时工具文件已删除。
 
 ## 关键节点
 
@@ -33,17 +33,9 @@
 - 不提供排序、详情展开、多班 ETA 或独立刷新。
 - 动态地点和站名只展示当前语言一种。
 
-## 本地插件复现
+## 设计源状态
 
-插件目录：`specs/004-online-bus-query/figma-plugin/`
-
-运行方式：
-
-1. 打开目标 Figma 文件。
-2. Figma 桌面端选择 `Plugins` -> `Development` -> `Import plugin from manifest...`。
-3. 选择 `specs/004-online-bus-query/figma-plugin/manifest.json`。
-4. 运行 `BusIsComming Online Query v2 Builder`。
-5. 插件会重建同名 3 个节点，并在弹窗输出桌面和移动节点 URL。
+Figma 页面和关键节点已沉淀在目标文件中，仓库不再保留一次性本地导入工具。后续如果需要调整在线试查设计，应直接在 Figma 文件中迭代，并同步更新本文件的节点 ID、状态覆盖和验证截图要求。
 
 ## 后续实现验证
 

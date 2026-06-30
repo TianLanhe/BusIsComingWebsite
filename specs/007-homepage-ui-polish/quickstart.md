@@ -110,7 +110,7 @@ npm run openapi:routes:lint
 | `Interaction States / Split Gesture Zones` | `51:183` |
 | `Spec Notes` | `51:194` |
 
-如果页面或节点缺失，再使用 `specs/007-homepage-ui-polish/figma-plugin/manifest.json` 导入本地插件重建，并把新节点报告同步回填到 `specs/007-homepage-ui-polish/figma.md`、内容元数据和契约。
+如果页面或节点缺失，应直接在目标 Figma 文件中恢复或重建设计节点，并把新的节点报告同步回填到 `specs/007-homepage-ui-polish/figma.md`、内容元数据和契约。
 
 预期：
 

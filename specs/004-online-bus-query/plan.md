@@ -46,7 +46,7 @@
 
 **代码注释与可读性**：实现阶段必须用中文注释解释 Citybus `l` 语言映射、`showstops2` 与 DATA.GOV.HK stop API 的站名补齐边界、P2P rawInfo/HTML 解析、token 签名与过期、ETA 去重、旧响应丢弃、语言切换失败保留旧结果和日志脱敏策略。简单赋值、自解释条件和普通数据搬运不加噪音注释。
 
-**UI 可视化产物**：Figma 页面 `Online Query v2` 已创建；本地开发插件产物保存在 `specs/004-online-bus-query/figma-plugin/`，用于复现或更新 Figma 节点。实现阶段保存桌面、手机、地点下拉、loading、结果卡、ETA 更新、空态和失败态截图到 `specs/004-online-bus-query/visual-review/`。
+**UI 可视化产物**：Figma 页面 `Online Query v2` 已创建；节点 ID 已沉淀在 `figma.md`。实现阶段保存桌面、手机、地点下拉、loading、结果卡、ETA 更新、空态和失败态截图到 `specs/004-online-bus-query/visual-review/`。
 
 **Figma 设计引用**：[BusIsComing Website - Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)。页面：`Online Query v2`（node `22:2`）。关键节点：[`Online Query v2 / Desktop 1440`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=22-7)（node `22:7`）、[`Online Query v2 / Mobile 390`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=22-104)（node `22:104`）、`Online Query v2 / Spec Notes`（node `22:166`）。设计覆盖地点下拉、loading、结果卡、ETA 更新、空态、查询失败和语言切换失败保留旧结果。
 
@@ -84,11 +84,6 @@ specs/004-online-bus-query/
 ├── data-model.md
 ├── quickstart.md
 ├── figma.md
-├── figma-plugin/
-│   ├── README.md
-│   ├── code.js
-│   ├── manifest.json
-│   └── ui.html
 ├── contracts/
 │   ├── route-query-api.openapi.yaml
 │   ├── route-query-api.bundle.yaml
@@ -155,7 +150,7 @@ shared/
 - [contracts/route-query-api.openapi.yaml](./contracts/route-query-api.openapi.yaml)：在线查询三接口 OpenAPI 3.1 契约。
 - [contracts/route-query-api.bundle.yaml](./contracts/route-query-api.bundle.yaml)：Redocly bundle 验证产物。
 - [contracts/route-query-ui-state.md](./contracts/route-query-ui-state.md)：前端状态机、旧结果保留、语言切换和双端 UI 不变量。
-- [figma.md](./figma.md)：Figma 文件、节点、状态覆盖和本地插件复现方式。
+- [figma.md](./figma.md)：Figma 文件、节点和状态覆盖。
 - [quickstart.md](./quickstart.md)：实现完成后的端到端验证步骤。
 
 ## 第 1 阶段后宪法复查
@@ -170,7 +165,7 @@ shared/
 | 试用查询与可靠降级 | 通过 | research、data-model 和 quickstart 覆盖缓存、限流、超时、0 结果、ETA 失败保留路线和语言切换失败保留旧结果。 |
 | 现代界面与可视化评审 | 通过 | Figma 页面和桌面/移动节点已记录；实现阶段保存 visual-review 截图。 |
 | 电脑与手机双端一致可用 | 通过 | `figma.md` 与 quickstart 覆盖桌面 1440px 和手机 390px。 |
-| Figma 驱动的前端规格 | 通过 | `figma.md` 记录 Figma 文件、节点、状态和本地插件复现路径。 |
+| Figma 驱动的前端规格 | 通过 | `figma.md` 记录 Figma 文件、节点和状态覆盖。 |
 | 服务端 DDD 架构 | 通过 | `data-model.md` 和 plan 记录 `routes` bounded context、层级职责和依赖方向。 |
 | 服务端稳健性与可观测性 | 通过 | quickstart 要求验证 recovery、日志字段、token 脱敏和外部错误映射；如使用并发 ETA 查询，tasks 阶段必须纳入 recover 包装任务。 |
 | 中文注释与代码可读性 | 通过 | plan 和 quickstart 明确复杂解析、token、降级、旧响应和日志脱敏需中文注释。 |

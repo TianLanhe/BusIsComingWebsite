@@ -475,10 +475,9 @@
         },
         "figmaReference": {
           "type": "object",
-          "required": ["fileUrl", "pluginPath", "pageName", "nodeNames"],
+          "required": ["fileUrl", "pageName", "nodeNames"],
           "properties": {
             "fileUrl": { "type": "string", "format": "uri" },
-            "pluginPath": { "const": "specs/005-homepage-experience-polish/figma-plugin/manifest.json" },
             "pageName": { "const": "Homepage Experience Polish - 005" },
             "nodeNames": {
               "type": "array",

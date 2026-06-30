@@ -33,4 +33,4 @@
 
 - Validation iteration 1 passed for requirements completeness and ambiguity.
 - API paths and operationIds are included because the user explicitly confirmed them as public contract requirements and the project constitution requires OpenAPI-first API traceability.
-- The required Figma `Online Query v2` desktop and mobile nodes have been created through the local Figma development plugin because MCP write access is unavailable. The spec records node URLs and the feature is ready for `/speckit-plan`.
+- The required Figma `Online Query v2` desktop and mobile nodes have been created and recorded. The spec records node URLs and the feature is ready for `/speckit-plan`.

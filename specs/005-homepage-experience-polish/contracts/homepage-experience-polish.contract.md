@@ -80,14 +80,14 @@
 ## Figma 设计
 
 - 目标文件：`https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU`
-- 本阶段生成本地插件 `specs/005-homepage-experience-polish/figma-plugin/`。
-- 插件必须生成或更新以下设计节点：
-  - `Homepage Experience Polish - 005 / Desktop 1440 / Stair Card Deck`
-  - `Homepage Experience Polish - 005 / Mobile 390 / Stair Card Deck`
-  - `Homepage Experience Polish - 005 / Carousel States / Scene Dots and Deck Click`
-  - `Homepage Experience Polish - 005 / Brand Contact States`
-  - `Homepage Experience Polish - 005 / Spec Notes`
-- 插件运行后必须把实际 node ID 回填到 `figma.md` 或后续 tasks。
+- 页面：`Homepage Experience Polish - 005`
+- 设计节点已沉淀，必须保持以下节点 ID 可追溯：
+  - `Desktop 1440 / Stair Card Deck`：`29:3`
+  - `Mobile 390 / Stair Card Deck`：`29:44`
+  - `Carousel States / Scene Dots and Deck Click`：`29:83`
+  - `Brand Contact States`：`29:101`
+  - `Spec Notes`：`29:108`
+- 后续如节点被复制、删除、重建或重命名，必须同步更新 `figma.md`、内容元数据和契约。
 
 ## 视觉验收
 

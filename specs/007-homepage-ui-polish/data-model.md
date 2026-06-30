@@ -137,7 +137,7 @@
 - `nodeNames`：关键节点名称列表。
 - `nodeIds`：已回填的真实节点 ID，必须与 `nodeNames` 一一对应。
 - `fallbackPrototype`：HTML 原型路径。
-- `pluginPath`：本地 Figma 插件路径。
+- `designSourceStatus`：`imported`，表示 Figma 节点已导入并沉淀，仓库不再保留一次性本地导入工具。
 
 **验证规则**：
 

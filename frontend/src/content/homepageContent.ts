@@ -239,7 +239,6 @@ export const homepageContent: HomePageContent = {
     },
     figmaReference: {
       fileUrl: sourceReferences.figmaExperiencePolish,
-      pluginPath: "specs/005-homepage-experience-polish/figma-plugin/manifest.json",
       pageName: "Homepage Experience Polish - 005",
       nodeNames: [
         "Desktop 1440 / Stair Card Deck: 29:3",

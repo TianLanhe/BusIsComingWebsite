@@ -68,11 +68,11 @@
 - 保留“多程总车费一眼看清”：过窄且用户要求改成“车费一眼看清”。
 - 描述“不是币种显示”：属于内部问题说明，不适合作为用户可见文案。
 
-## 决策 7：Figma 采用本地插件 fallback
+## 决策 7：Figma 节点先导入后沉淀
 
-**Decision**：目标 Figma 文件沿用现有 `BusIsComing Website - Homepage v1 Spec`。计划阶段因 Figma MCP 返回重新认证要求，生成本地 Figma 插件作为可复现设计源，并在 `figma.md` 记录计划节点和回填要求。`2026-06-30` 用户提供真实节点报告后，已将 `Homepage UI Polish - 007` 页面下的 6 个关键 Node ID 回填到 `figma.md` 和相关契约。
+**Decision**：目标 Figma 文件沿用现有 `BusIsComing Website - Homepage v1 Spec`。计划阶段因 Figma 写入工具不可用，使用一次性本地导入工具生成设计节点，并在 `figma.md` 记录计划节点和回填要求。`2026-06-30` 用户提供真实节点报告后，已将 `Homepage UI Polish - 007` 页面下的 6 个关键 Node ID 回填到 `figma.md` 和相关契约，并删除临时导入工具。
 
-**Rationale**：宪法要求涉及 UI 的 spec/plan 有 Figma 设计引用；计划阶段不能直接写入 Figma 时，不能伪造节点 ID。本地插件能在认证恢复或人工打开 Figma 后生成一致节点；真实节点回填后，插件保留为节点缺失或重建时的 fallback。
+**Rationale**：宪法要求涉及 UI 的 spec/plan 有 Figma 设计引用；计划阶段不能直接写入 Figma 时，不能伪造节点 ID。真实节点回填后，仓库只需要保留节点索引和设计说明，避免后续 agent 误用过期的一次性生成代码。
 
 **Alternatives considered**：
 

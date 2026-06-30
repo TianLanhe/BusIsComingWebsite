@@ -12,7 +12,7 @@
 
 **目的**：整理当前设计证据、视觉验收目录和 feature 入口，确保实现者不会凭口头描述实现。
 
-- [X] T001 将 `specs/005-homepage-experience-polish/figma-plugin/README.md` 中已有的 Figma node ID 回填到 `specs/005-homepage-experience-polish/figma.md`
+- [X] T001 将一次性本地导入报告中的 Figma node ID 回填到 `specs/005-homepage-experience-polish/figma.md`
 - [X] T002 创建视觉验收目录说明 `specs/005-homepage-experience-polish/visual-review/README.md`，列出 4 张必交截图、检查项和命名规则
 - [X] T003 更新 `specs/005-homepage-experience-polish/quickstart.md`，加入当前 Figma node ID、visual-review 目录和本轮验证命令清单
 - [X] T004 [P] 确认 `AGENTS.md` 当前 plan 指向 `specs/005-homepage-experience-polish/plan.md`
