@@ -133,7 +133,7 @@
 - [ ] T039 [P] 在 `specs/008-privacy-policy-pages/privacy-copy-review.md` 记录 `zh-Hant` 香港语境、`zh-Hans` 自然简体和 `en` 克制产品英语的最终审校结论
 - [ ] T040 [P] 使用本地浏览器保存桌面隐私页截图到 `specs/008-privacy-policy-pages/visual-review/desktop-privacy-1440.png`
 - [ ] T041 [P] 使用本地浏览器保存手机隐私页截图到 `specs/008-privacy-policy-pages/visual-review/mobile-privacy-390.png`
-- [ ] T042 对照 `specs/008-privacy-policy-pages/figma.md` 的最终 Figma 设计入口检查实现；如后续取得精确 frame selection link，再补录真实子节点链接
+- [ ] T042 对照 `specs/008-privacy-policy-pages/figma.md` 中已补录的真实 Figma frame 链接检查实现视觉、交互状态和响应式布局
 - [ ] T043 运行 `cd frontend && npm run test -- i18n-completeness.test.tsx content-contract.test.ts seo-routing.test.tsx privacy-policy-page.test.tsx`，并把结果记录到 `specs/008-privacy-policy-pages/quickstart.md`
 - [ ] T044 运行 `cd frontend && npm run build`，确认 `frontend/dist/zh-hant/privacy/index.html`、`frontend/dist/zh-hans/privacy/index.html`、`frontend/dist/en/privacy/index.html` 和 `frontend/dist/sitemap.xml` 存在
 - [ ] T045 运行 `cd frontend && npm run test:e2e -- privacy-policy-pages.spec.ts homepage-sections.spec.ts`，并把双端验证结果记录到 `specs/008-privacy-policy-pages/quickstart.md`

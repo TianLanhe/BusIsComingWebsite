@@ -9,17 +9,17 @@
 
 当前计划阶段已完成 Superpowers 可视化方案讨论，并选择“摘要卡 + 正文分节”的结构。用户已在目标 Figma 文件中手动导入本地 fallback 设计，并确认文件已按最终方案调整完成，可作为后续实现阶段的视觉与交互参考。
 
-当前可追溯设计入口为目标文件链接中的 `node-id=38-2`。本次会话未能通过可用工具自动读取子节点，因此本文档只记录已确认的文件级设计入口和关键节点名称，不虚构子节点 ID。若后续需要精确到每个 frame 的 selection link，应由 Figma 中对对应 frame 执行 `Copy link to selection` 后补录。
+当前可追溯设计入口为目标文件链接中的 `node-id=38-2`。Figma 连接恢复后已读取该页面下的关键 frame，并补录真实节点链接。后续实现阶段应以这些节点作为隐私政策页面的视觉和交互参考。
 
 ## 关键节点
 
-| 节点名称 | 用途 | 设计要求 | 链接状态 |
-|----------|------|----------|----------|
-| `Desktop 1440 / Privacy Policy Page` | 桌面隐私页主画板 | 1440px 宽；首屏包含标题、范围说明、4 个摘要卡；正文五章向下展开 | 已包含在最终 Figma 设计入口 `38:2` 下，精确 selection link 待补 |
-| `Mobile 390 / Privacy Policy Page` | 手机隐私页主画板 | 390px 宽；摘要卡单列；正文不横向溢出；footer 入口可见 | 已包含在最终 Figma 设计入口 `38:2` 下，精确 selection link 待补 |
-| `Footer Privacy Link States` | footer 入口状态 | 三语 label、默认/hover/focus 状态；不放主导航 | 已包含在最终 Figma 设计入口 `38:2` 下，精确 selection link 待补 |
-| `SEO Hreflang Notes` | SEO 实现说明 | home 与 privacy 页面组分开；privacy 三语 canonical/hreflang | 已包含在最终 Figma 设计入口 `38:2` 下，精确 selection link 待补 |
-| `Spec Notes` | 规格备注 | 不显示语言切换；Android 不改动；只做网站页面 | 已包含在最终 Figma 设计入口 `38:2` 下，精确 selection link 待补 |
+| 节点名称 | 用途 | 设计要求 | Figma 节点 |
+|----------|------|----------|------------|
+| `Desktop 1440 / Privacy Policy Page` | 桌面隐私页主画板 | 1440px 宽；首屏包含标题、范围说明、4 个摘要卡；正文五章向下展开 | [`38:3`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-3) |
+| `Mobile 390 / Privacy Policy Page` | 手机隐私页主画板 | 390px 宽；摘要卡单列；正文不横向溢出；footer 入口可见 | [`38:21`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-21) |
+| `Footer Privacy Link States` | footer 入口状态 | 三语 label、默认/hover/focus 状态；不放主导航 | [`38:38`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-38) |
+| `SEO Hreflang Notes` | SEO 实现说明 | home 与 privacy 页面组分开；privacy 三语 canonical/hreflang | [`38:40`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-40) |
+| `Spec Notes` | 规格备注 | 不显示语言切换；Android 不改动；只做网站页面 | [`38:42`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-42) |
 
 ## 视觉方向
 
@@ -67,16 +67,13 @@ Status:
 - 该文件版本作为 008 隐私政策页面的最终视觉与交互参考。
 ```
 
-若后续需要精确 frame 级链接，按以下格式补录：
+Figma frame links:
 
-```text
-Figma node links:
-- Desktop 1440 / Privacy Policy Page: <真实节点链接>
-- Mobile 390 / Privacy Policy Page: <真实节点链接>
-- Footer Privacy Link States: <真实节点链接>
-- SEO Hreflang Notes: <真实节点链接>
-- Spec Notes: <真实节点链接>
-```
+- Desktop 1440 / Privacy Policy Page: https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-3
+- Mobile 390 / Privacy Policy Page: https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-21
+- Footer Privacy Link States: https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-38
+- SEO Hreflang Notes: https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-40
+- Spec Notes: https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=38-42
 
 ## 实现引用
 
