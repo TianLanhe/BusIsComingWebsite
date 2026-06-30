@@ -112,6 +112,8 @@ describe("content contracts", () => {
     expect(homepageContent.homepageUiPolish.routeResultCard.metricLayout).toBe("inline-label-value");
     expect(homepageContent.homepageUiPolish.routeResultCard.missingStopFallback.en).toBe("Stop details unavailable");
     expect(homepageContent.homepageUiPolish.figmaReference.pageName).toBe("Homepage UI Polish - 007");
+    expect(homepageContent.homepageUiPolish.figmaReference.nodeIdsResolved).toBe(true);
+    expect(homepageContent.homepageUiPolish.figmaReference.nodeIds["Spec Notes"]).toBe("51:194");
   });
 
   it("does not leak old fare implementation notes into user-facing content", () => {

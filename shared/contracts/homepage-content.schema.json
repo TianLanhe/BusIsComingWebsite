@@ -607,7 +607,7 @@
         },
         "figmaReference": {
           "type": "object",
-          "required": ["fileUrl", "pageName", "nodeNames", "nodeIdsResolved"],
+          "required": ["fileUrl", "pageName", "nodeNames", "nodeIds", "nodeIdsResolved"],
           "properties": {
             "fileUrl": { "type": "string", "format": "uri" },
             "pageName": { "const": "Homepage UI Polish - 007" },
@@ -616,7 +616,27 @@
               "minItems": 6,
               "items": { "type": "string", "minLength": 1 }
             },
-            "nodeIdsResolved": { "type": "boolean" }
+            "nodeIds": {
+              "type": "object",
+              "required": [
+                "Desktop 1440 / Hero Medium Screenshot Deck",
+                "Desktop 1440 / Screenshot Lightbox",
+                "Mobile 390 / Compact Feature Grid",
+                "Mobile 390 / Compact Route Result Card",
+                "Interaction States / Split Gesture Zones",
+                "Spec Notes"
+              ],
+              "properties": {
+                "Desktop 1440 / Hero Medium Screenshot Deck": { "const": "51:86" },
+                "Desktop 1440 / Screenshot Lightbox": { "const": "51:113" },
+                "Mobile 390 / Compact Feature Grid": { "const": "51:125" },
+                "Mobile 390 / Compact Route Result Card": { "const": "51:151" },
+                "Interaction States / Split Gesture Zones": { "const": "51:183" },
+                "Spec Notes": { "const": "51:194" }
+              },
+              "additionalProperties": false
+            },
+            "nodeIdsResolved": { "const": true }
           },
           "additionalProperties": false
         }

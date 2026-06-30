@@ -348,7 +348,15 @@ export const homepageContent: HomePageContent = {
         "Interaction States / Split Gesture Zones",
         "Spec Notes",
       ],
-      nodeIdsResolved: false,
+      nodeIds: {
+        "Desktop 1440 / Hero Medium Screenshot Deck": "51:86",
+        "Desktop 1440 / Screenshot Lightbox": "51:113",
+        "Mobile 390 / Compact Feature Grid": "51:125",
+        "Mobile 390 / Compact Route Result Card": "51:151",
+        "Interaction States / Split Gesture Zones": "51:183",
+        "Spec Notes": "51:194",
+      },
+      nodeIdsResolved: true,
     },
   },
 };

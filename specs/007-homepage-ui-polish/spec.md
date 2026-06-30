@@ -71,7 +71,7 @@
 - 当手机路线结果中的英文标签或较长站点名过长时，卡片不得横向溢出；站点信息可以截断或换行，但车费、耗时和步行标签值必须可辨识。
 - 当用户期待完整出行路线规划、港铁、铁路、渡轮或其他交通工具查询时，本次优化不得扩大网站承诺，页面仍必须保持香港巴士和 Citybus / 城巴试查边界。
 - 当后续阶段涉及服务端 HTTP API 变更时，必须另行维护 OpenAPI 3.1 YAML；本功能本身不触发 API 变更。
-- 当前会话尝试写入 Figma 时遇到 MCP 重新认证要求；后续计划阶段必须在 Figma 连接恢复后创建或回填真实节点，不能伪造节点 ID。
+- Figma 节点已于 `2026-06-30` 按用户提供的节点报告回填；后续如果 Figma 节点被复制、删除或重命名，必须同步更新本规格、`figma.md` 和相关契约，不能继续引用失效节点。
 
 ## 宪法对齐（必填）
 
@@ -85,9 +85,9 @@
 - **代码可读性**：后续实现如涉及手势判定、大图缩放状态、焦点管理、减少动态效果、截图组状态保留或文案审校边界，需要用中文注释解释非显而易见规则；普通样式调整和直接文案映射不添加噪音注释。
 - **三语范围**：新增或修改的用户可见文字包括费用功能标题和说明、截图大图对话框名称、关闭/缩放/切换控件、路线卡片项目标签、站点资料缺失提示、图片 alt 和 aria 文案。必须覆盖 `zh-Hant`、`zh-Hans` 和 `en`；`zh-Hant` 使用香港实用书面语，`en` 使用自然克制的英语产品表达，均不得机械直译或逐句搬运。
 - **UI 可视化**：已通过 Superpowers visual companion 与稳定 HTML 原型产出视觉方案。设计记录为 `docs/superpowers/specs/2026-06-27-homepage-ui-polish-followup-design.md`，可打开原型为 `docs/superpowers/prototypes/2026-06-27-homepage-ui-polish-followup.html`。
-- **Figma 设计**：目标文件沿用 `BusIsComing Website - Homepage v1 Spec`，URL：`https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec`。计划页面为 `Homepage UI Polish - 007`，关键节点必须至少覆盖 `Desktop 1440 / Hero Medium Screenshot Deck`、`Desktop 1440 / Screenshot Lightbox`、`Mobile 390 / Compact Feature Grid`、`Mobile 390 / Compact Route Result Card`、`Interaction States / Split Gesture Zones`、`Spec Notes`。当前 Figma MCP 要求重新认证，不能伪造节点 ID；后续 plan 阶段必须创建或回填真实节点。
+- **Figma 设计**：目标文件沿用 `BusIsComing Website - Homepage v1 Spec`，URL：`https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec`。页面为 `Homepage UI Polish - 007`。关键节点已回填：`Desktop 1440 / Hero Medium Screenshot Deck`（`51:86`）、`Desktop 1440 / Screenshot Lightbox`（`51:113`）、`Mobile 390 / Compact Feature Grid`（`51:125`）、`Mobile 390 / Compact Route Result Card`（`51:151`）、`Interaction States / Split Gesture Zones`（`51:183`）、`Spec Notes`（`51:194`）。
 - **双端适配**：桌面主要验证 1440px，手机主要验证 390px。桌面侧重 hero 截图组中等放大、大图入口和文字可读性；手机侧重功能介绍 2 列紧凑卡、路线结果卡片压缩和标签值层级。
-- **外部集成与降级**：不新增实时外部服务。在线试查仍沿用现有后端和降级策略；本功能只调整已有结果的前端展示。Figma 写入工具不可用时，必须保留 HTML 原型和节点计划作为临时参考，并在工具恢复后补齐 Figma 产物。
+- **外部集成与降级**：不新增实时外部服务。在线试查仍沿用现有后端和降级策略；本功能只调整已有结果的前端展示。Figma 节点是当前设计源；HTML 原型和本地插件保留为追溯与重建 fallback。
 - **验证与提交**：本 `speckit-specify` 完成后创建规格质量清单，检查无模板占位和无未决澄清，并提交 spec 产物。后续实现需运行三语检查、单元测试、浏览器桌面/手机视觉验证和大图交互验证。
 
 ## 需求（必填）
@@ -140,7 +140,7 @@
 - **SC-006**：在 390px 手机视口中，路线结果列表首屏能看到首个完整候选路线卡片和第二个候选路线的主要入口信息。
 - **SC-007**：手机路线结果卡片中，车费、耗时和步行三项 100% 同时显示项目名称和值，且项目名称和值样式可区分。
 - **SC-008**：费用相关标题和说明在三种语言中 100% 覆盖，不出现“多程总车费一眼看清”或用户内部修改要求原句。
-- **SC-009**：本功能的规格、设计记录和后续计划能定位到稳定 HTML 原型和目标 Figma 文件；Figma 认证恢复后，后续阶段能回填真实节点 ID。
+- **SC-009**：本功能的规格、设计记录和后续计划能定位到稳定 HTML 原型、目标 Figma 文件和 6 个真实 Figma 节点 ID。
 - **SC-010**：本功能不产生任何服务端 HTTP API 新增、修改或删除；既有 OpenAPI 契约保持不变。
 
 ## 假设
@@ -151,4 +151,4 @@
 - 用户最终确认大图模式左右滑动只切换同功能截图，不跨功能。
 - 当前 App 截图素材仍使用仓库内已脱敏真实截图；本功能不新增外部图片来源。
 - 本功能只调整现有首页 UI 和内容，不改变后端 API、实时数据来源、路线查询能力或下载能力。
-- Figma 目标文件沿用现有 `BusIsComing Website - Homepage v1 Spec`；由于当前 MCP 需要重新认证，规格先记录目标节点和 HTML 原型，后续 plan 阶段补齐真实 Figma 节点。
+- Figma 目标文件沿用现有 `BusIsComing Website - Homepage v1 Spec`；`Homepage UI Polish - 007` 页面和 6 个关键节点 ID 已于 `2026-06-30` 回填。

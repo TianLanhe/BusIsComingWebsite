@@ -197,6 +197,7 @@ export interface HomepageUiPolishContract {
     fileUrl: string;
     pageName: "Homepage UI Polish - 007";
     nodeNames: string[];
+    nodeIds: Record<string, string>;
     nodeIdsResolved: boolean;
   };
 }
