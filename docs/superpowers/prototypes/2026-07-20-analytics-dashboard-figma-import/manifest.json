@@ -1,0 +1,19 @@
+{
+  "name": "BusIsComing Pulse v1",
+  "version": "2026-07-20",
+  "figmaFileKey": "LAm6RjzFuFHsHFlcipx8pU",
+  "targetPage": "Website Analytics / v1",
+  "baseUrl": "http://127.0.0.1:59337/index.html?screen=",
+  "frames": [
+    { "screen": "overview", "frameName": "01 Pulse / Desktop Overview / 1440", "width": 1440, "height": 1200, "x": 0, "y": 0 },
+    { "screen": "traffic", "frameName": "02 Pulse / Traffic & Trial / 1440", "width": 1440, "height": 1200, "x": 1520, "y": 0 },
+    { "screen": "downloads", "frameName": "03 Pulse / Downloads / 1440", "width": 1440, "height": 1200, "x": 3040, "y": 0 },
+    { "screen": "events", "frameName": "04 Pulse / Event Details / 1440", "width": 1440, "height": 1200, "x": 0, "y": 1280 },
+    { "screen": "visitor", "frameName": "05 Pulse / Anonymous Visitor / 1440", "width": 1440, "height": 1200, "x": 1520, "y": 1280 },
+    { "screen": "performance", "frameName": "06 Pulse / Failures & Performance / 1440", "width": 1440, "height": 1200, "x": 3040, "y": 1280 },
+    { "screen": "system", "frameName": "07 Pulse / System / 1440", "width": 1440, "height": 1200, "x": 0, "y": 2560 },
+    { "screen": "mobile", "frameName": "08 Pulse / Mobile Overview / 390", "width": 390, "height": 1640, "x": 1520, "y": 2560 },
+    { "screen": "states", "frameName": "09 Pulse / Loading Empty Error States / 1440", "width": 1440, "height": 1000, "x": 2000, "y": 2560 },
+    { "screen": "apk", "frameName": "10 Homepage / APK Metadata States / 1200", "width": 1200, "height": 760, "x": 0, "y": 4280 }
+  ]
+}
