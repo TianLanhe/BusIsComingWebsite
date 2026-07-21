@@ -7,7 +7,7 @@ at specs/010-website-analytics/plan.md
 ## 项目约束
 
 - 本项目是 BusIsComming/BusIsComing Android App 的网站主页项目。产品事实优先参考
-  `/Users/jianglijie/AndroidStudioProjects/BusIsComming` 中的 `AGENTS.md`、`README.md`
+  `/Users/hezhenyu/AndroidStudioProjects/BusIsComming` 中的 `AGENTS.md`、`README.md`
   和相关产品文档。
 - 先阅读 `.specify/memory/constitution.md`，并把其中的门禁视为本仓库的最高项目约束。
 - 架构默认采用前后端分离；后续计划和任务必须明确前端、后端和共享契约边界。
