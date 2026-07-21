@@ -1,0 +1,59 @@
+package main
+
+import (
+	"testing"
+	"time"
+
+	analyticsapp "busiscoming-website/backend/internal/analytics/application"
+)
+
+func TestAnalyticsWriteTimeoutConfig(t *testing.T) {
+	tests := []struct {
+		name    string
+		raw     string
+		timeout time.Duration
+		enabled bool
+		reason  analyticsapp.HealthReason
+	}{
+		{"unset", "", 50 * time.Millisecond, true, analyticsapp.ReasonNone},
+		{"minimum", "10", 10 * time.Millisecond, true, analyticsapp.ReasonNone},
+		{"default explicit", "50", 50 * time.Millisecond, true, analyticsapp.ReasonNone},
+		{"maximum", "200", 200 * time.Millisecond, true, analyticsapp.ReasonNone},
+		{"below minimum", "9", 0, false, analyticsapp.ReasonInvalidWriteTimeout},
+		{"above maximum", "201", 0, false, analyticsapp.ReasonInvalidWriteTimeout},
+		{"zero", "0", 0, false, analyticsapp.ReasonInvalidWriteTimeout},
+		{"negative", "-1", 0, false, analyticsapp.ReasonInvalidWriteTimeout},
+		{"decimal", "10.5", 0, false, analyticsapp.ReasonInvalidWriteTimeout},
+		{"text", "slow", 0, false, analyticsapp.ReasonInvalidWriteTimeout},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			config := parseAnalyticsWriteTimeout(test.raw)
+			if config.Timeout != test.timeout || config.Enabled != test.enabled || config.Reason != test.reason {
+				t.Fatalf("unexpected config: %#v", config)
+			}
+		})
+	}
+}
+
+func TestServerAddresses(t *testing.T) {
+	t.Setenv("BUS_HTTP_HOST", "")
+	t.Setenv("PORT", "")
+	t.Setenv("BUS_ANALYTICS_PRIVATE_PORT", "")
+	if got := publicServerAddress(); got != "127.0.0.1:8080" {
+		t.Fatalf("unexpected public default: %q", got)
+	}
+	if got := privateServerAddress(); got != "127.0.0.1:18081" {
+		t.Fatalf("unexpected private default: %q", got)
+	}
+
+	t.Setenv("BUS_HTTP_HOST", "192.168.1.10")
+	t.Setenv("PORT", "9000")
+	t.Setenv("BUS_ANALYTICS_PRIVATE_PORT", "19081")
+	if got := publicServerAddress(); got != "192.168.1.10:9000" {
+		t.Fatalf("unexpected public override: %q", got)
+	}
+	if got := privateServerAddress(); got != "127.0.0.1:19081" {
+		t.Fatalf("private listener must remain loopback: %q", got)
+	}
+}

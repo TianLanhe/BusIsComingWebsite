@@ -2,20 +2,18 @@ package main
 
 import "testing"
 
-func TestServerAddressDefaultsToAllInterfaces(t *testing.T) {
+func TestPublicServerAddressDefaultsToLoopback(t *testing.T) {
 	t.Setenv("BUS_HTTP_HOST", "")
 	t.Setenv("PORT", "")
-
-	if got := serverAddress(); got != "0.0.0.0:8080" {
-		t.Fatalf("expected default all-interface address, got %q", got)
+	if got := publicServerAddress(); got != "127.0.0.1:8080" {
+		t.Fatalf("expected loopback default, got %q", got)
 	}
 }
 
-func TestServerAddressAllowsHostAndPortOverrides(t *testing.T) {
-	t.Setenv("BUS_HTTP_HOST", "192.168.1.10")
+func TestPublicServerAddressAllowsExplicitDeploymentOverride(t *testing.T) {
+	t.Setenv("BUS_HTTP_HOST", "0.0.0.0")
 	t.Setenv("PORT", "9000")
-
-	if got := serverAddress(); got != "192.168.1.10:9000" {
-		t.Fatalf("expected custom address, got %q", got)
+	if got := publicServerAddress(); got != "0.0.0.0:9000" {
+		t.Fatalf("expected explicit deployment address, got %q", got)
 	}
 }

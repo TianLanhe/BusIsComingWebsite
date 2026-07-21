@@ -36,25 +36,25 @@ listener 生命周期。此阶段完成前不开始用户故事实现。
 
 ### 基础测试与契约测试
 
-- [ ] T008 [P] 为四类事件、有限枚举、跨字段约束、UTC 毫秒和下载归因编写先失败的领域测试，路径：`backend/internal/analytics/domain/event_test.go`
-- [ ] T009 [P] 为 `ANALYTICS_WRITE_TIMEOUT_MS` 未配置、10/50/200、非法值 no-op、受控健康原因类别和可替换端口编写先失败测试，路径：`backend/cmd/server/config_test.go`、`backend/internal/analytics/application/record_event_test.go`、`backend/internal/analytics/application/runtime_health_test.go`
-- [ ] T010 [P] 为迁移幂等、目标索引、SQLite runtime 版本、每连接 WAL/`synchronous=NORMAL`/`busy_timeout` 和无汇总表编写先失败的集成测试，路径：`backend/internal/analytics/infrastructure/sqlite/store_test.go`、`backend/internal/analytics/infrastructure/sqlite/migrations_test.go`
-- [ ] T011 [P] 为不读取 ClientIP/实际 URI/query 的结构化请求日志、不回显 panic/request 的 recovery，以及 public/private handler panic 均返回受控 500 编写先失败测试，路径：`backend/internal/platform/httpserver/logger_test.go`、`backend/internal/platform/httpserver/recovery_test.go`、`backend/cmd/server/engine_middleware_test.go`
-- [ ] T012 [P] 为 public 启动致命、private 启动失败非致命、goroutine recover、错误传递和有界 shutdown 编写先失败测试，路径：`backend/internal/platform/httpserver/supervisor_test.go`、`backend/cmd/server/main_test.go`
+- [X] T008 [P] 为四类事件、有限枚举、跨字段约束、UTC 毫秒和下载归因编写先失败的领域测试，路径：`backend/internal/analytics/domain/event_test.go`
+- [X] T009 [P] 为 `ANALYTICS_WRITE_TIMEOUT_MS` 未配置、10/50/200、非法值 no-op、受控健康原因类别和可替换端口编写先失败测试，路径：`backend/cmd/server/config_test.go`、`backend/internal/analytics/application/record_event_test.go`、`backend/internal/analytics/application/runtime_health_test.go`
+- [X] T010 [P] 为迁移幂等、目标索引、SQLite runtime 版本、每连接 WAL/`synchronous=NORMAL`/`busy_timeout` 和无汇总表编写先失败的集成测试，路径：`backend/internal/analytics/infrastructure/sqlite/store_test.go`、`backend/internal/analytics/infrastructure/sqlite/migrations_test.go`
+- [X] T011 [P] 为不读取 ClientIP/实际 URI/query 的结构化请求日志、不回显 panic/request 的 recovery，以及 public/private handler panic 均返回受控 500 编写先失败测试，路径：`backend/internal/platform/httpserver/logger_test.go`、`backend/internal/platform/httpserver/recovery_test.go`、`backend/cmd/server/engine_middleware_test.go`
+- [X] T012 [P] 为 public 启动致命、private 启动失败非致命、goroutine recover、错误传递和有界 shutdown 编写先失败测试，路径：`backend/internal/platform/httpserver/supervisor_test.go`、`backend/cmd/server/main_test.go`
 
 ### 基础实现
 
-- [ ] T013 实现与框架、SQL、文件系统及前端类型无关的 `AnalyticsEvent`、`DownloadAttribution`、值对象、有限枚举和领域错误，路径：`backend/internal/analytics/domain/event.go`、`backend/internal/analytics/domain/value_objects.go`、`backend/internal/analytics/domain/errors.go`
-- [ ] T014 [P] 定义筛选、游标、指标、序列、分布、访客、会话、漏斗和系统状态的领域数据结构，路径：`backend/internal/analytics/domain/query.go`、`backend/internal/analytics/domain/results.go`
-- [ ] T015 定义 `EventWriter`、`AnalyticsQueryStore`、clock、runtime health 和七类查询用例的应用端口与 DTO，路径：`backend/internal/analytics/application/ports.go`、`backend/internal/analytics/application/dto.go`
-- [ ] T016 实现 `RecordEvent` 基础编排、默认 50ms/闭区间 10–200ms 配置值注入、独立 deadline、单次写入、无重试的 no-op writer 和原子 `lastSuccessfulWriteAt`/`droppedSinceStart`，路径：`backend/internal/analytics/application/record_event.go`、`backend/internal/analytics/application/runtime_health.go`
-- [ ] T017 [P] 创建只包含 `analytics_events` 与技术迁移元数据、约束和计划索引的 additive migration，路径：`backend/internal/analytics/infrastructure/sqlite/migrations/001_create_analytics_events.sql`
-- [ ] T018 实现 `database/sql` SQLite 连接、runtime version gate、每连接 PRAGMA、幂等迁移和事件写入适配器，路径：`backend/internal/analytics/infrastructure/sqlite/store.go`、`backend/internal/analytics/infrastructure/sqlite/migrations.go`
-- [ ] T019 [P] 实现仅记录服务端 request ID、method、route template、operationId、bounded context、status、duration 和 body size 的脱敏 logger；机器人只产生相同通用日志且不含 bot 标记或身份线索，路径：`backend/internal/platform/httpserver/logger.go`
-- [ ] T020 [P] 实现不 dump request、不输出 panic 原值/受禁上下文且返回受控 500 的 Gin recovery，路径：`backend/internal/platform/httpserver/recovery.go`
-- [ ] T021 实现双 `http.Server` 的 recover 保护、状态上报、错误传递和有界关闭监督器，路径：`backend/internal/platform/httpserver/supervisor.go`
-- [ ] T022 建立 public/private engine factory 和配置校验；public 接收 `gin.HandlerFunc` analytics 参数并用无副作用 stub 验证 `logger → injected analytics → recovery → handler`，private 验证 `logger → recovery → handler`；同时实现默认 public `127.0.0.1:8080`、固定 private `127.0.0.1:18081` 绑定和非法 analytics 配置 no-op 降级，本任务不实现真实 tracking，路径：`backend/internal/platform/httpserver/engine.go`、`backend/internal/platform/httpserver/engine_test.go`、`backend/cmd/server/config.go`
-- [ ] T023 [P] 实现仅在 private engine 注册的监控静态资源 fallback 与 `Cache-Control: no-store`，路径：`backend/internal/analytics/interfaces/http/static_handler.go`
+- [X] T013 实现与框架、SQL、文件系统及前端类型无关的 `AnalyticsEvent`、`DownloadAttribution`、值对象、有限枚举和领域错误，路径：`backend/internal/analytics/domain/event.go`、`backend/internal/analytics/domain/value_objects.go`、`backend/internal/analytics/domain/errors.go`
+- [X] T014 [P] 定义筛选、游标、指标、序列、分布、访客、会话、漏斗和系统状态的领域数据结构，路径：`backend/internal/analytics/domain/query.go`、`backend/internal/analytics/domain/results.go`
+- [X] T015 定义 `EventWriter`、`AnalyticsQueryStore`、clock、runtime health 和七类查询用例的应用端口与 DTO，路径：`backend/internal/analytics/application/ports.go`、`backend/internal/analytics/application/dto.go`
+- [X] T016 实现 `RecordEvent` 基础编排、默认 50ms/闭区间 10–200ms 配置值注入、独立 deadline、单次写入、无重试的 no-op writer 和原子 `lastSuccessfulWriteAt`/`droppedSinceStart`，路径：`backend/internal/analytics/application/record_event.go`、`backend/internal/analytics/application/runtime_health.go`
+- [X] T017 [P] 创建只包含 `analytics_events` 与技术迁移元数据、约束和计划索引的 additive migration，路径：`backend/internal/analytics/infrastructure/sqlite/migrations/001_create_analytics_events.sql`
+- [X] T018 实现 `database/sql` SQLite 连接、runtime version gate、每连接 PRAGMA、幂等迁移和事件写入适配器，路径：`backend/internal/analytics/infrastructure/sqlite/store.go`、`backend/internal/analytics/infrastructure/sqlite/migrations.go`
+- [X] T019 [P] 实现仅记录服务端 request ID、method、route template、operationId、bounded context、status、duration 和 body size 的脱敏 logger；机器人只产生相同通用日志且不含 bot 标记或身份线索，路径：`backend/internal/platform/httpserver/logger.go`
+- [X] T020 [P] 实现不 dump request、不输出 panic 原值/受禁上下文且返回受控 500 的 Gin recovery，路径：`backend/internal/platform/httpserver/recovery.go`
+- [X] T021 实现双 `http.Server` 的 recover 保护、状态上报、错误传递和有界关闭监督器，路径：`backend/internal/platform/httpserver/supervisor.go`
+- [X] T022 建立 public/private engine factory 和配置校验；public 接收 `gin.HandlerFunc` analytics 参数并用无副作用 stub 验证 `logger → injected analytics → recovery → handler`，private 验证 `logger → recovery → handler`；同时实现默认 public `127.0.0.1:8080`、固定 private `127.0.0.1:18081` 绑定和非法 analytics 配置 no-op 降级，本任务不实现真实 tracking，路径：`backend/internal/platform/httpserver/engine.go`、`backend/internal/platform/httpserver/engine_test.go`、`backend/cmd/server/config.go`
+- [X] T023 [P] 实现仅在 private engine 注册的监控静态资源 fallback 与 `Cache-Control: no-store`，路径：`backend/internal/analytics/interfaces/http/static_handler.go`
 
 **检查点**：analytics 依赖方向为 `interfaces/infrastructure → application → domain`，public 与
 private route tree 物理分离，存储失败不会阻塞公开业务。
