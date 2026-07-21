@@ -7,11 +7,13 @@ import (
 
 var visitorIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]{22}$`)
 
+func IsVisitorID(value string) bool { return visitorIDPattern.MatchString(value) }
+
 type DownloadAttribution struct {
-	Platform    Platform
-	VersionName string
-	VersionCode int64
-	SizeBytes   int64
+	Platform    Platform `json:"platform"`
+	VersionName string   `json:"versionName"`
+	VersionCode int64    `json:"versionCode"`
+	SizeBytes   int64    `json:"sizeBytes"`
 }
 
 type AnalyticsEvent struct {

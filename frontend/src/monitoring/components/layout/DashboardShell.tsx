@@ -17,8 +17,8 @@ const nav: { route: MonitorRoute; label: CopyKey; icon: typeof Activity; group: 
   { route: "system", label: "system", icon: Database, group: "diagnostics" },
 ];
 
-export function DashboardShell({ active = "overview", title = "pageTitle", subtitle = "pageSubtitle", generatedAt, refreshing = false, children }: {
-  active?: MonitorRoute; title?: CopyKey; subtitle?: CopyKey; generatedAt?: string; refreshing?: boolean; children: React.ReactNode;
+export function DashboardShell({ active = "overview", title = "pageTitle", subtitle = "pageSubtitle", titleText, subtitleText, generatedAt, refreshing = false, children }: {
+  active?: MonitorRoute; title?: CopyKey; subtitle?: CopyKey; titleText?: string; subtitleText?: string; generatedAt?: string; refreshing?: boolean; children: React.ReactNode;
 }) {
   const { locale } = useMonitoringI18n();
   const filters = useAnalyticsFilters();
@@ -34,7 +34,7 @@ export function DashboardShell({ active = "overview", title = "pageTitle", subti
     <main className="monitor-main">
       <header className="monitor-topbar">
         <div className="mobile-brand-row"><Brand compact /><button type="button" aria-label={t("mobileMenu")} onClick={() => setMenuOpen(true)}><Menu /></button></div>
-        <div className="title-block"><p>{t("brandEyebrow")}</p><h1>{t(title)}</h1><span>{t(subtitle)}</span></div>
+        <div className="title-block"><p>{t("brandEyebrow")}</p><h1>{titleText ?? t(title)}</h1><span>{subtitleText ?? t(subtitle)}</span></div>
         <div className="topbar-controls">
           <label className="monitor-control"><Clock3 size={15} /><select value={filters.rangeDays} onChange={(event) => filters.setRangeDays(Number(event.target.value))} aria-label="Date range"><option value={7}>{t("range7")}</option><option value={30}>{t("range30")}</option><option value={90}>{t("range90")}</option></select></label>
           <label className="monitor-control"><BarChart3 size={15} /><select value={filters.query.granularity} onChange={(event) => filters.setGranularity(event.target.value as typeof filters.query.granularity)} aria-label="Granularity"><option value="hour">{t("hourly")}</option><option value="day">{t("daily")}</option><option value="week">{t("weekly")}</option><option value="month">{t("monthly")}</option></select></label>

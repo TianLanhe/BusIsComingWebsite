@@ -35,6 +35,34 @@ type OverviewEventStore interface {
 	LoadOverviewEvents(context.Context, time.Time, time.Time) ([]domain.AnalyticsEvent, error)
 }
 
+type EventListRequest struct {
+	Query     domain.AnalyticsQuery
+	VisitorID string
+	Cursor    *domain.EventCursor
+	Limit     int
+}
+
+type StoredEventPage struct {
+	Items      []domain.AnalyticsEvent
+	TotalCount int64
+	HasMore    bool
+}
+
+type DetailsStore interface {
+	OverviewEventStore
+	ListEvents(context.Context, EventListRequest) (StoredEventPage, error)
+	LoadVisitorEvents(context.Context, string) ([]domain.AnalyticsEvent, error)
+	ReadStorageSnapshot(context.Context) (SystemStorageSnapshot, error)
+}
+
+type ListenerStateReader interface {
+	State() string
+}
+
+type ListenerStateFunc func() string
+
+func (function ListenerStateFunc) State() string { return function() }
+
 type RuntimeHealthReader interface {
 	Snapshot() RuntimeHealthSnapshot
 }

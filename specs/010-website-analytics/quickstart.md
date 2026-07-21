@@ -292,6 +292,18 @@ npm --prefix frontend run test:e2e:monitor
   `frontend/playwright-monitor/__screenshots__/overview-mobile.png`（390×844）。两张图均已人工
   查看，并与 Figma 节点 `63:2118` 的侧栏、KPI、趋势、漏斗、分布、响应时间和移动布局核对。
 
+### US3 详细调查实现验证记录（2026-07-22）
+
+- Go 全量与 race 测试通过；覆盖同毫秒 keyset 分页、访客精确匹配、范围前置会话、热力图、
+  下载维度、endpoint 分位值、受控失败分类，以及数据库不可用时 system 仍返回 200 的降级语义。
+- 监控详细 client 与页面共 10 项定向测试、全量 89 项前端单元测试通过；详细工作区只手动刷新，
+  事件列表默认截断匿名 ID，完整值仅通过 visitor header 精确检索并可复制。
+- `npm run build:monitor` 与四项监控 Playwright 回归通过；总览和调查流程均覆盖 1440×1200 与
+  390×844，调查证据为 `frontend/playwright-monitor/__screenshots__/investigation-desktop.png`
+  和 `frontend/playwright-monitor/__screenshots__/investigation-mobile.png`。
+- 两张调查截图均已人工查看，并与 `11 Pulse / Mobile Investigation / 390` 的紧凑筛选、事件卡、
+  访客检索、复制反馈、会话时间线、分页和底部导航结构核对。
+
 ## 9. 隐私政策与三语事实验证
 
 检查公开隐私政策和 noscript/SEO 生成内容，确认三语都明确说明：

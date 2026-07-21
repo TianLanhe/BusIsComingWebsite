@@ -77,6 +77,65 @@ func parseOverviewQuery(values url.Values) (domain.AnalyticsQuery, error) {
 	return query, nil
 }
 
+func parseDetailsQuery(values url.Values, allowPagination bool) (domain.AnalyticsQuery, error) {
+	query, err := parseOverviewQuery(values)
+	if err != nil {
+		return domain.AnalyticsQuery{}, err
+	}
+	query.EventTypes, err = parseValues(values["eventType"], func(value string) (domain.EventType, bool) {
+		parsed := domain.EventType(value)
+		return parsed, domain.IsEventType(parsed)
+	})
+	if err != nil {
+		return domain.AnalyticsQuery{}, err
+	}
+	if allowPagination {
+		query.Compare = false
+		if raw := values.Get("limit"); raw != "" {
+			if len(values["limit"]) != 1 {
+				return domain.AnalyticsQuery{}, fmt.Errorf("invalid limit")
+			}
+			query.Limit, err = strconv.Atoi(raw)
+			if err != nil || query.Limit < 1 || query.Limit > 100 {
+				return domain.AnalyticsQuery{}, fmt.Errorf("invalid limit")
+			}
+		}
+		if len(values["cursor"]) > 1 || len(values.Get("cursor")) > 512 {
+			return domain.AnalyticsQuery{}, fmt.Errorf("invalid cursor")
+		}
+		query.Cursor = values.Get("cursor")
+	}
+	if err := query.Validate(); err != nil {
+		return domain.AnalyticsQuery{}, err
+	}
+	return query, nil
+}
+
+func parseVisitorPagination(values url.Values) (int, string, error) {
+	allowed := map[string]struct{}{"limit": {}, "cursor": {}}
+	for key := range values {
+		if _, ok := allowed[key]; !ok {
+			return 0, "", fmt.Errorf("unsupported query")
+		}
+	}
+	limit := 50
+	var err error
+	if raw := values.Get("limit"); raw != "" {
+		if len(values["limit"]) != 1 {
+			return 0, "", fmt.Errorf("invalid limit")
+		}
+		limit, err = strconv.Atoi(raw)
+		if err != nil || limit < 1 || limit > 100 {
+			return 0, "", fmt.Errorf("invalid limit")
+		}
+	}
+	cursor := values.Get("cursor")
+	if len(values["cursor"]) > 1 || len(cursor) > 512 {
+		return 0, "", fmt.Errorf("invalid cursor")
+	}
+	return limit, cursor, nil
+}
+
 func parseGranularity(raw string, duration time.Duration) (domain.Granularity, error) {
 	if raw == "" {
 		switch {

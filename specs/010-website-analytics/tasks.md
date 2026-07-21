@@ -156,29 +156,29 @@ US4 完成。该故事完成前不得接入或交付真实 Dashboard 数据；�
 
 ### 用户故事 3 的测试与验证
 
-- [ ] T065 [P] [US3] 为事件 keyset 游标、同毫秒稳定顺序、访客精确匹配、范围前置会话和默认 50/最大 100 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
-- [ ] T066 [P] [US3] 为流量热力图、试查漏斗、下载版本/平台/失败分布编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_traffic_downloads_test.go`
-- [ ] T067 [P] [US3] 为事件无重复无遗漏分页、截断 ID 列表、访客摘要/时间线和 30 分钟正边界编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_events_visitor_test.go`
-- [ ] T068 [P] [US3] 为 endpoint 成功率/P50/P95、受控失败分类、DB 状态和 DB 不可用 system=200/其他=503 编写先失败测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system_test.go`
-- [ ] T069 [P] [US3] 按 OpenAPI 为剩余六个只读 operation、visitor header、cursor 400、404、500、503 和 `no-store` 编写先失败契约测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`
-- [ ] T070 [P] [US3] 为事件分页、完整 visitor header、复制反馈和错误 envelope 映射编写先失败前端测试，路径：`frontend/src/monitoring/services/analyticsDetailsClient.test.ts`、`frontend/src/monitoring/pages/EventsPage.test.tsx`
-- [ ] T071 [P] [US3] 为流量、下载、访客、性能、系统页面的数据形态与 fake timer 下不自动刷新编写先失败组件测试，路径：`frontend/src/monitoring/pages/DetailPages.test.tsx`
-- [ ] T072 [US3] 对照 `11 Pulse / Mobile Investigation / 390` 为 1440px 桌面和 390px 手机定义“总览异常 → 事件筛选 → visitor 时间线”两分钟调查流程并先确认 E2E 失败，路径：`frontend/playwright-monitor/investigation.spec.ts`
+- [X] T065 [P] [US3] 为事件 keyset 游标、同毫秒稳定顺序、访客精确匹配、范围前置会话和默认 50/最大 100 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [X] T066 [P] [US3] 为流量热力图、试查漏斗、下载版本/平台/失败分布编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_traffic_downloads_test.go`
+- [X] T067 [P] [US3] 为事件无重复无遗漏分页、截断 ID 列表、访客摘要/时间线和 30 分钟正边界编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_events_visitor_test.go`
+- [X] T068 [P] [US3] 为 endpoint 成功率/P50/P95、受控失败分类、DB 状态和 DB 不可用 system=200/其他=503 编写先失败测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system_test.go`
+- [X] T069 [P] [US3] 按 OpenAPI 为剩余六个只读 operation、visitor header、cursor 400、404、500、503 和 `no-store` 编写先失败契约测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`
+- [X] T070 [P] [US3] 为事件分页、完整 visitor header、复制反馈和错误 envelope 映射编写先失败前端测试，路径：`frontend/src/monitoring/services/analyticsDetailsClient.test.ts`、`frontend/src/monitoring/pages/EventsPage.test.tsx`
+- [X] T071 [P] [US3] 为流量、下载、访客、性能、系统页面的数据形态与 fake timer 下不自动刷新编写先失败组件测试，路径：`frontend/src/monitoring/pages/DetailPages.test.tsx`
+- [X] T072 [US3] 对照 `11 Pulse / Mobile Investigation / 390` 为 1440px 桌面和 390px 手机定义“总览异常 → 事件筛选 → visitor 时间线”两分钟调查流程并先确认 E2E 失败，路径：`frontend/playwright-monitor/investigation.spec.ts`
 
 ### 用户故事 3 的实现
 
-- [ ] T073 [US3] 实现 traffic/downloads/events/visitor/performance/system 查询编排、游标校验和存储错误映射，路径：`backend/internal/analytics/application/query_details.go`
-- [ ] T074 [P] [US3] 实现流量趋势/热力图/分类、试查漏斗和下载趋势/版本/平台/失败即时查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_traffic_downloads.go`
-- [ ] T075 [P] [US3] 实现 `(occurred_at_ms,id)` keyset 分页、visitor 摘要、范围前置事件和会话时间线查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_events_visitor.go`
-- [ ] T076 [P] [US3] 实现 endpoint 性能、nearest-rank P50/P95、失败分类和不泄露 DB 路径的系统健康查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system.go`
-- [ ] T077 [US3] 实现并仅在 private engine 注册 traffic/downloads/events/visitor/performance/system handlers，路径：`backend/internal/analytics/interfaces/http/detail_handlers.go`、`backend/internal/analytics/interfaces/http/private_routes.go`
-- [ ] T078 [P] [US3] 首次实现六个详细工作区的 `zh-Hant`、`zh-Hans`、`en` 文案与格式化类型，以及可访问热力图、时间序列、环形/柱状图、keyset 分页表和会话时间线组件，路径：`frontend/src/monitoring/components/charts/Heatmap.tsx`、`frontend/src/monitoring/components/tables/EventTable.tsx`、`frontend/src/monitoring/components/timeline/VisitorTimeline.tsx`、`frontend/src/monitoring/content/copy.ts`、`frontend/src/monitoring/content/types.ts`
-- [ ] T079 [P] [US3] 实现流量与试查、下载分析页面及筛选回显，路径：`frontend/src/monitoring/pages/TrafficPage.tsx`、`frontend/src/monitoring/pages/DownloadsPage.tsx`
-- [ ] T080 [P] [US3] 实现默认截断 visitor、游标分页且无导出/删除/编辑入口的事件明细页，路径：`frontend/src/monitoring/pages/EventsPage.tsx`
-- [ ] T081 [P] [US3] 实现只用 `X-Analytics-Visitor-ID` 精确查询、复制完整 ID 及按会话分组时间线的访客页，路径：`frontend/src/monitoring/pages/VisitorPage.tsx`
-- [ ] T082 [P] [US3] 实现失败与性能页及 DB/写入丢弃/private listener 系统状态页，路径：`frontend/src/monitoring/pages/PerformancePage.tsx`、`frontend/src/monitoring/pages/SystemPage.tsx`
-- [ ] T083 [US3] 接通六个详细 hash workspace、手动刷新和不自动跳动语义，并完成桌面/手机两分钟调查 E2E，路径：`frontend/src/monitoring/app/MonitoringApp.tsx`、`frontend/playwright-monitor/investigation.spec.ts`
-- [ ] T084 [US3] 对照 `11 Pulse / Mobile Investigation / 390` 在 `<=820px` 实现紧凑筛选、key-value 事件/性能卡片、精确 visitor 搜索与复制反馈、纵向时间线和可达分页，并保存详细页桌面/手机证据，路径：`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/components/tables/ResponsiveEventList.tsx`、`frontend/playwright-monitor/__screenshots__/investigation-desktop.png`、`frontend/playwright-monitor/__screenshots__/investigation-mobile.png`
+- [X] T073 [US3] 实现 traffic/downloads/events/visitor/performance/system 查询编排、游标校验和存储错误映射，路径：`backend/internal/analytics/application/query_details.go`
+- [X] T074 [P] [US3] 实现流量趋势/热力图/分类、试查漏斗和下载趋势/版本/平台/失败即时查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_traffic_downloads.go`
+- [X] T075 [P] [US3] 实现 `(occurred_at_ms,id)` keyset 分页、visitor 摘要、范围前置事件和会话时间线查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_events_visitor.go`
+- [X] T076 [P] [US3] 实现 endpoint 性能、nearest-rank P50/P95、失败分类和不泄露 DB 路径的系统健康查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system.go`
+- [X] T077 [US3] 实现并仅在 private engine 注册 traffic/downloads/events/visitor/performance/system handlers，路径：`backend/internal/analytics/interfaces/http/detail_handlers.go`、`backend/internal/analytics/interfaces/http/private_routes.go`
+- [X] T078 [P] [US3] 首次实现六个详细工作区的 `zh-Hant`、`zh-Hans`、`en` 文案与格式化类型，以及可访问热力图、时间序列、环形/柱状图、keyset 分页表和会话时间线组件，路径：`frontend/src/monitoring/components/charts/Heatmap.tsx`、`frontend/src/monitoring/components/tables/EventTable.tsx`、`frontend/src/monitoring/components/timeline/VisitorTimeline.tsx`、`frontend/src/monitoring/content/copy.ts`、`frontend/src/monitoring/content/types.ts`
+- [X] T079 [P] [US3] 实现流量与试查、下载分析页面及筛选回显，路径：`frontend/src/monitoring/pages/TrafficPage.tsx`、`frontend/src/monitoring/pages/DownloadsPage.tsx`
+- [X] T080 [P] [US3] 实现默认截断 visitor、游标分页且无导出/删除/编辑入口的事件明细页，路径：`frontend/src/monitoring/pages/EventsPage.tsx`
+- [X] T081 [P] [US3] 实现只用 `X-Analytics-Visitor-ID` 精确查询、复制完整 ID 及按会话分组时间线的访客页，路径：`frontend/src/monitoring/pages/VisitorPage.tsx`
+- [X] T082 [P] [US3] 实现失败与性能页及 DB/写入丢弃/private listener 系统状态页，路径：`frontend/src/monitoring/pages/PerformancePage.tsx`、`frontend/src/monitoring/pages/SystemPage.tsx`
+- [X] T083 [US3] 接通六个详细 hash workspace、手动刷新和不自动跳动语义，并完成桌面/手机两分钟调查 E2E，路径：`frontend/src/monitoring/app/MonitoringApp.tsx`、`frontend/playwright-monitor/investigation.spec.ts`
+- [X] T084 [US3] 对照 `11 Pulse / Mobile Investigation / 390` 在 `<=820px` 实现紧凑筛选、key-value 事件/性能卡片、精确 visitor 搜索与复制反馈、纵向时间线和可达分页，并保存详细页桌面/手机证据，路径：`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/components/tables/ResponsiveEventList.tsx`、`frontend/playwright-monitor/__screenshots__/investigation-desktop.png`、`frontend/playwright-monitor/__screenshots__/investigation-mobile.png`
 
 **检查点**：US3 可用 fixture 独立调查；生产数据依赖 US1 采集，页面 shell 依赖 US2，但查询和
 UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与手机实现。

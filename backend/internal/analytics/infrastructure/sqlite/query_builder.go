@@ -44,3 +44,16 @@ func (builder *eventQueryBuilder) selectSQL(order string) (string, []any) {
 	query := "SELECT " + eventColumns + " FROM analytics_events WHERE " + strings.Join(builder.where, " AND ") + " ORDER BY occurred_at_ms " + order + ", id " + order
 	return query, append([]any(nil), builder.args...)
 }
+
+func (builder *eventQueryBuilder) countSQL() (string, []any) {
+	return "SELECT COUNT(*) FROM analytics_events WHERE " + strings.Join(builder.where, " AND "), append([]any(nil), builder.args...)
+}
+
+func (builder *eventQueryBuilder) clone() *eventQueryBuilder {
+	return &eventQueryBuilder{where: append([]string(nil), builder.where...), args: append([]any(nil), builder.args...)}
+}
+
+func (builder *eventQueryBuilder) addEqual(column string, value any) {
+	builder.where = append(builder.where, column+" = ?")
+	builder.args = append(builder.args, value)
+}

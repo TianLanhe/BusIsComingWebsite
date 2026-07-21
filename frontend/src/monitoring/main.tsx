@@ -6,6 +6,7 @@ import { MonitoringI18nProvider } from "./app/MonitoringI18nProvider";
 import "./styles/tokens.css";
 import "./styles/dashboard.css";
 import "./styles/responsive.css";
+import "./styles/mobile-components.css";
 
 const rootElement = document.getElementById("root");
 

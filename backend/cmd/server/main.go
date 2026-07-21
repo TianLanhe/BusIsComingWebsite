@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -82,11 +83,16 @@ func run(ctx context.Context) error {
 	registerRouteQueryRoutes(publicEngine, now)
 
 	privateEngine := platformhttp.NewPrivateEngine(os.Stdout)
+	var privateListenerState atomic.Value
+	privateListenerState.Store(string(platformhttp.ListenerStarting))
 	var overviewQuery analyticshttp.OverviewQuery
 	if analyticsStore != nil {
 		overviewQuery = analyticsapp.NewQueryOverview(analyticsStore, analyticsapp.ClockFunc(now))
 	}
-	analyticshttp.RegisterPrivateRoutes(privateEngine, overviewQuery, getenv("BUS_ANALYTICS_UI_ROOT", "../frontend/dist-monitor"))
+	detailsQuery := analyticsapp.NewQueryDetails(analyticsStore, health, analyticsapp.ClockFunc(now), analyticsapp.ListenerStateFunc(func() string {
+		return privateListenerState.Load().(string)
+	}))
+	analyticshttp.RegisterPrivateRoutes(privateEngine, overviewQuery, detailsQuery, getenv("BUS_ANALYTICS_UI_ROOT", "../frontend/dist-monitor"))
 
 	publicServer := &http.Server{
 		Addr:              publicServerAddress(),
@@ -102,6 +108,9 @@ func run(ctx context.Context) error {
 		{Name: "public", Required: true, Serve: publicServer.ListenAndServe, Shutdown: publicServer.Shutdown},
 		{Name: "private", Required: false, Serve: privateServer.ListenAndServe, Shutdown: privateServer.Shutdown},
 	}, 10*time.Second, func(report platformhttp.ServerReport) {
+		if report.Name == "private" {
+			privateListenerState.Store(string(report.State))
+		}
 		writeControlledEvent(os.Stderr, "listener_"+report.Name, string(report.State))
 	})
 	return supervisor.Run(ctx)
