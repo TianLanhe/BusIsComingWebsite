@@ -380,3 +380,31 @@ git status --short
 
 预期只出现当前 feature 的实现、测试、OpenAPI/生成契约、部署文档和必要共享契约更新；不包含
 真实统计数据库、WAL/SHM、secret、用户 Cookie、浏览器导出数据或无关工作区改动。
+
+## 12. 全套实现验收记录（2026-07-22）
+
+- **OpenAPI 与隔离**：三份 feature 和三份 shared OpenAPI 3.1 均通过 Redocly lint/bundle；三份
+  中文 API HTML 重新生成。public/monitor 分别构建到 `frontend/dist`、`frontend/dist-monitor`，
+  受禁字符串扫描确认公网 bundle 不含监控 API、Dashboard 或私有目录引用。
+- **100 万行性能**：以 `BUS_RUN_MILLION_ROW_TEST=1` 运行显式 fixture，共写入 1,000,000 行、
+  四类事件、多维度和成功/失败数据；`EXPLAIN QUERY PLAN` 命中时间与 visitor 索引。近 30 天
+  总览 112.21ms，多维事件页 28.34ms，单 visitor 时间线 0.66ms，均低于 1 秒；只有
+  `analytics_events` 明细表和迁移元数据表，没有汇总、会话或访客表，因此无需增加索引。
+- **后端与双 listener**：`go test ./...`、`go test -race ./...` 全部通过；Linux amd64
+  `CGO_ENABLED=0` 产物经 `file` 确认为静态 ELF。真实 TCP 集成覆盖公网无监控资源、私网七 API、
+  私有启动失败非致命、私有 handler panic 返回 500 且公开 `/healthz` 继续可用。
+- **隐私与范围**：唯一 sentinel 在脱敏日志、事件对象、公开/私有响应、SQLite、WAL/SHM 中零
+  命中；bot 在 Cookie 处理前排除且只留下通用请求日志。领域枚举仍只有 page view、地点试查、
+  路线试查、下载请求四类；ETA、隐私页和静态页不打点，也没有账号、指纹、广告、安装完成、
+  导出/编辑/删除、清理、备份、完整路线规划或非香港巴士能力。
+- **前端与视觉**：全量 Vitest 106 项、public Playwright 28 项、monitor Playwright 16 项通过；
+  七工作区三语与五类状态的 52 张截图、总览/调查/APK 双端截图均保留。最终视觉审查沿用真实
+  Figma 锚点 `63:2118`、`67:672`、13 张 manifest 画板和 tokens，没有虚构子节点。
+- **部署**：发布 shell 全套测试通过，覆盖双 bundle checksum、CGo-free 构建、analytics 0750
+  目录、env 只补缺不覆盖、精确 systemd `ReadWritePaths`、SQLite/WAL/SHM 跨发布保留、loopback、
+  Caddy/UFW 无私有入口/日志，以及私有健康失败只产生 degraded warning。SSH 隧道和“单份数据、
+  不备份、可丢失”运维语义已写入 `docs/deployment.md`。
+- **架构与稳健性**：analytics domain/application 无 Gin、SQLite 或其他 bounded context 反向依赖；
+  public 维持 `logger → analytics → recovery → handler`，private 维持
+  `logger → recovery → handler`。生产代码无业务 `panic`；Supervisor、ETA、Citybus 自建 goroutine
+  路径均有 recover，错误日志只包含受控类别。

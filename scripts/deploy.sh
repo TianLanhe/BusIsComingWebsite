@@ -454,18 +454,23 @@ create_release_archive() {
   [[ -n "${BUILD_ROOT:-}" && -d "${BUILD_ROOT}" ]] ||
     die "Build root is not available"
   [[ -d "${REPO_ROOT}/frontend/dist" ]] ||
-    die "Frontend build output is missing"
+    die "Public frontend build output is missing"
+  [[ -d "${REPO_ROOT}/frontend/dist-monitor" ]] ||
+    die "Private monitor build output is missing"
   [[ -f "${BUILD_ROOT}/busiscoming-server" ]] ||
     die "Backend build output is missing"
   validate_version "${VERSION}" || die "Invalid version: ${VERSION}"
   validate_frontend_dist_entries "${REPO_ROOT}/frontend/dist"
+  validate_frontend_dist_entries "${REPO_ROOT}/frontend/dist-monitor"
 
   stage="${BUILD_ROOT}/release"
   manifest="${stage}/release-manifest.txt"
   rm -rf "${stage}"
   mkdir -p "${stage}/frontend" "${stage}/backend"
   cp -R "${REPO_ROOT}/frontend/dist" "${stage}/frontend/dist"
+  cp -R "${REPO_ROOT}/frontend/dist-monitor" "${stage}/frontend/dist-monitor"
   validate_frontend_dist_entries "${stage}/frontend/dist"
+  validate_frontend_dist_entries "${stage}/frontend/dist-monitor"
   cp "${BUILD_ROOT}/busiscoming-server" "${stage}/backend/busiscoming-server"
   chmod 0755 "${stage}/backend/busiscoming-server"
 
@@ -493,7 +498,7 @@ create_release_archive() {
 
   (
     cd "${stage}"
-    find frontend/dist -type f -print |
+    find frontend/dist frontend/dist-monitor -type f -print |
       LC_ALL=C sort |
       while IFS= read -r frontend_file; do
         shasum -a 256 "${frontend_file}"

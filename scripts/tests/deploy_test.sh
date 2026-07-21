@@ -86,6 +86,10 @@ assert_not_contains() {
   esac
 }
 
+file_mode() {
+  stat -f '%Lp' "$1" 2>/dev/null || stat -c '%a' "$1"
+}
+
 write_fake_git() {
   local bin_dir="$1"
 
@@ -228,6 +232,9 @@ case "${url}" in
   http://127.0.0.1:8080/healthz)
     [ "${FAKE_LOCAL_HEALTH:-ok}" = "ok" ]
     ;;
+  http://127.0.0.1:18081/api/analytics/system)
+    [ "${FAKE_ANALYTICS_HEALTH:-ok}" = "ok" ]
+    ;;
   "https://${FAKE_DOMAIN:-www.busiscoming.com}/zh-hant/")
     [ "${FAKE_MAIN_HEALTH:-ok}" = "ok" ]
     ;;
@@ -319,11 +326,14 @@ write_release_fixture() {
   local stage="${directory}/stage-${version}"
   local backend_sha
   local frontend_sha
+  local monitor_sha
 
   rm -rf "${stage}"
-  mkdir -p "${stage}/frontend/dist" "${stage}/backend"
+  mkdir -p "${stage}/frontend/dist" "${stage}/frontend/dist-monitor" "${stage}/backend"
   printf '<!doctype html><title>%s</title>\n' "${version}" \
     > "${stage}/frontend/dist/index.html"
+  printf '<!doctype html><title>monitor %s</title>\n' "${version}" \
+    > "${stage}/frontend/dist-monitor/index.html"
   printf 'fake backend %s\n' "${version}" \
     > "${stage}/backend/busiscoming-server"
   chmod +x "${stage}/backend/busiscoming-server"
@@ -332,6 +342,9 @@ write_release_fixture() {
   )"
   frontend_sha="$(
     shasum -a 256 "${stage}/frontend/dist/index.html" | awk '{print $1}'
+  )"
+  monitor_sha="$(
+    shasum -a 256 "${stage}/frontend/dist-monitor/index.html" | awk '{print $1}'
   )"
   cat > "${stage}/release-manifest.txt" <<EOF
 version=${version}
@@ -342,6 +355,7 @@ built_at=2026-06-23T00:00:00Z
 target=linux/amd64
 backend_sha256=${backend_sha}
 ${frontend_sha}  frontend/dist/index.html
+${monitor_sha}  frontend/dist-monitor/index.html
 EOF
   (
     cd "${stage}"
@@ -399,6 +413,9 @@ case "${url}" in
       fi
     fi
     [ "${FAKE_DEPLOY_LOCAL:-ok}" = "ok" ]
+    ;;
+  http://127.0.0.1:18081/api/analytics/system)
+    [ "${FAKE_ANALYTICS_HEALTH:-ok}" = "ok" ]
     ;;
   "https://${FAKE_DOMAIN:-www.busiscoming.com}/zh-hant/")
     case "${FAKE_DEPLOY_MAIN:-ok}" in
@@ -1186,6 +1203,7 @@ test_release_archive_creation() {
   local backend_sha
   local asset_sha
   local frontend_sha
+  local monitor_sha
   local frontend_lines
   local archive_sha
   local checksum_contents
@@ -1198,10 +1216,16 @@ test_release_archive_creation() {
   local actual_checksum
 
   temp="$(mktemp -d)"
-  mkdir -p "${temp}/repo/frontend/dist/assets/nested" "${temp}/build"
+  mkdir -p \
+    "${temp}/repo/frontend/dist/assets/nested" \
+    "${temp}/repo/frontend/dist-monitor/assets" \
+    "${temp}/build"
   printf '<!doctype html>\n' > "${temp}/repo/frontend/dist/index.html"
   printf 'asset-data\n' > "${temp}/repo/frontend/dist/assets/app.js"
   printf 'nested-data\n' > "${temp}/repo/frontend/dist/assets/nested/chunk.css"
+  printf '<!doctype html><title>private monitor</title>\n' \
+    > "${temp}/repo/frontend/dist-monitor/index.html"
+  printf 'monitor-data\n' > "${temp}/repo/frontend/dist-monitor/assets/monitor.js"
   if command -v xattr >/dev/null 2>&1; then
     xattr -w com.apple.metadata:kMDItemFinderComment \
       "deployment archive fixture" \
@@ -1229,6 +1253,7 @@ test_release_archive_creation() {
 
   listing="$(tar -tzf "${archive}")"
   assert_contains "${listing}" "./frontend/dist/index.html" || return 1
+  assert_contains "${listing}" "./frontend/dist-monitor/index.html" || return 1
   assert_contains "${listing}" "./backend/busiscoming-server" || return 1
   assert_contains "${listing}" "./release-manifest.txt" || return 1
   if grep -E '(^|/)\._' >/dev/null <<< "${listing}"; then
@@ -1248,15 +1273,18 @@ test_release_archive_creation() {
   backend_sha="$(shasum -a 256 "${temp}/build/release/backend/busiscoming-server" | awk '{print $1}')"
   asset_sha="$(shasum -a 256 "${temp}/build/release/frontend/dist/assets/app.js" | awk '{print $1}')"
   frontend_sha="$(shasum -a 256 "${temp}/build/release/frontend/dist/index.html" | awk '{print $1}')"
+  monitor_sha="$(shasum -a 256 "${temp}/build/release/frontend/dist-monitor/index.html" | awk '{print $1}')"
   assert_contains "$(cat "${manifest}")" "backend_sha256=${backend_sha}" || return 1
-  frontend_lines="$(tail -3 "${manifest}")"
+  frontend_lines="$(cat "${manifest}")"
   assert_contains "${frontend_lines}" \
     "${asset_sha}  frontend/dist/assets/app.js" || return 1
   assert_contains "${frontend_lines}" \
     "${frontend_sha}  frontend/dist/index.html" || return 1
+  assert_contains "$(cat "${manifest}")" \
+    "${monitor_sha}  frontend/dist-monitor/index.html" || return 1
   expected_frontend_files="$(
     cd "${temp}/repo"
-    find frontend/dist -type f -print | LC_ALL=C sort
+    find frontend/dist frontend/dist-monitor -type f -print | LC_ALL=C sort
   )"
   manifest_frontend_files="$(
     awk 'NR > 7 { sub(/^[0-9a-f]+  /, ""); print }' "${manifest}"
@@ -1284,9 +1312,10 @@ test_release_archive_rejects_frontend_symlink() {
   local version="20260622-120000-a07eaf4"
 
   temp="$(mktemp -d)"
-  mkdir -p "${temp}/repo/frontend/dist" "${temp}/build"
+  mkdir -p "${temp}/repo/frontend/dist" "${temp}/repo/frontend/dist-monitor" "${temp}/build"
   printf 'external-data\n' > "${temp}/external.txt"
   printf '<!doctype html>\n' > "${temp}/repo/frontend/dist/index.html"
+  printf '<!doctype html>\n' > "${temp}/repo/frontend/dist-monitor/index.html"
   ln -s "${temp}/external.txt" "${temp}/repo/frontend/dist/external.txt"
   printf '#!/bin/sh\nexit 0\n' > "${temp}/build/busiscoming-server"
   chmod +x "${temp}/build/busiscoming-server"
@@ -1308,6 +1337,31 @@ test_release_archive_rejects_frontend_symlink() {
   fi
   assert_contains "${output}" "Frontend build output contains unsupported entry" || return 1
   [ ! -e "${temp}/build/release-${version}.tar.gz" ] || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_rejects_private_monitor_checksum_mismatch() {
+  local temp
+  local output
+  local release
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  release="${temp}/stage-v1"
+  printf 'tampered monitor\n' > "${release}/frontend/dist-monitor/index.html"
+
+  if output="$(
+    BUS_DEPLOY_TEST_MODE=1 bash -c '
+      source "$1"
+      TEST_MODE=1
+      verify_release_manifest "$2"
+    ' _ "${REMOTE_SCRIPT}" "${release}" 2>&1
+  )"; then
+    printf '  expected monitor checksum mismatch to fail verification\n'
+    return 1
+  fi
+  assert_contains "${output}" "checksum mismatch" || return 1
 
   rm -rf "${temp}"
 }
@@ -2198,6 +2252,18 @@ test_remote_renders_systemd_caddy_and_environment() {
     "BUS_DOWNLOAD_ROOT=${temp}/opt/busiscoming/shared/downloads/android" \
     "${env_file}" >/dev/null
   grep -F "ROUTE_QUERY_TOKEN_SECRET=test-only-secret" "${env_file}" >/dev/null
+  grep -F \
+    "BUS_ANALYTICS_DB_PATH=${temp}/opt/busiscoming/shared/analytics/analytics.sqlite" \
+    "${env_file}" >/dev/null
+  grep -F \
+    "BUS_ANALYTICS_UI_ROOT=${temp}/opt/busiscoming/current/frontend/dist-monitor" \
+    "${env_file}" >/dev/null
+  grep -F "BUS_ANALYTICS_PRIVATE_PORT=18081" "${env_file}" >/dev/null
+  grep -F "BUS_ANALYTICS_VISITOR_SECRET=test-only-analytics-secret-0123456789" "${env_file}" >/dev/null
+  grep -F "ANALYTICS_WRITE_TIMEOUT_MS=50" "${env_file}" >/dev/null
+
+  [ -d "${temp}/opt/busiscoming/shared/analytics" ] || return 1
+  assert_equals "$(file_mode "${temp}/opt/busiscoming/shared/analytics")" "750" || return 1
 
   grep -F "User=busiscoming" "${service_file}" >/dev/null
   grep -F \
@@ -2205,6 +2271,8 @@ test_remote_renders_systemd_caddy_and_environment() {
     "${service_file}" >/dev/null
   grep -F "NoNewPrivileges=true" "${service_file}" >/dev/null
   grep -F "ProtectSystem=strict" "${service_file}" >/dev/null
+  assert_equals "$(grep '^ReadWritePaths=' "${service_file}")" \
+    "ReadWritePaths=${temp}/opt/busiscoming/shared/analytics" || return 1
 
   grep -F "reverse_proxy 127.0.0.1:8080" "${caddy_file}" >/dev/null
   grep -F \
@@ -2217,6 +2285,13 @@ test_remote_renders_systemd_caddy_and_environment() {
     "${caddy_file}" >/dev/null
   grep -F "file_server" "${caddy_file}" >/dev/null
   assert_not_contains "$(cat "${caddy_file}")" "try_files {path} /index.html" || return 1
+  assert_not_contains "$(cat "${caddy_file}")" "18081" || return 1
+  assert_not_contains "$(cat "${caddy_file}")" "dist-monitor" || return 1
+  assert_not_contains "$(cat "${caddy_file}")" "/api/analytics" || return 1
+  if grep -E '^[[:space:]]*log([[:space:]]|$)' "${caddy_file}" >/dev/null; then
+    printf '  expected Caddy not to enable access logs\n'
+    return 1
+  fi
 
   original_env="$(cat "${env_file}")"
   BUS_DEPLOY_TEST_MODE=1 \
@@ -2226,6 +2301,83 @@ test_remote_renders_systemd_caddy_and_environment() {
       --domain www.busiscoming.com \
       --bare-domain busiscoming.com
   assert_equals "$(cat "${env_file}")" "${original_env}" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_environment_fills_missing_analytics_values_without_overwriting_existing_values() {
+  local temp
+  local root
+  local env_file
+
+  temp="$(mktemp -d)"
+  root="${temp}/opt/busiscoming"
+  env_file="${root}/shared/env/backend.env"
+  mkdir -p "${root}/shared/env"
+  cat > "${env_file}" <<EOF
+BUS_HTTP_HOST=127.0.0.9
+PORT=9090
+ROUTE_QUERY_TOKEN_SECRET=existing-route-secret
+BUS_ANALYTICS_PRIVATE_PORT=19081
+CUSTOM_VALUE=keep-me
+EOF
+
+  BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}" \
+    "${REMOTE_SCRIPT}" render-config \
+      --root "${root}" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com
+
+  assert_equals "$(grep -c '^BUS_HTTP_HOST=127.0.0.9$' "${env_file}")" "1" || return 1
+  assert_equals "$(grep -c '^PORT=9090$' "${env_file}")" "1" || return 1
+  assert_equals "$(grep -c '^ROUTE_QUERY_TOKEN_SECRET=existing-route-secret$' "${env_file}")" "1" || return 1
+  assert_equals "$(grep -c '^BUS_ANALYTICS_PRIVATE_PORT=19081$' "${env_file}")" "1" || return 1
+  assert_equals "$(grep -c '^CUSTOM_VALUE=keep-me$' "${env_file}")" "1" || return 1
+  assert_equals "$(grep -c '^BUS_ANALYTICS_DB_PATH=' "${env_file}")" "1" || return 1
+  assert_equals "$(grep -c '^BUS_ANALYTICS_UI_ROOT=' "${env_file}")" "1" || return 1
+  assert_equals "$(grep -c '^BUS_ANALYTICS_VISITOR_SECRET=' "${env_file}")" "1" || return 1
+  assert_equals "$(grep -c '^ANALYTICS_WRITE_TIMEOUT_MS=' "${env_file}")" "1" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_deploy_keeps_public_release_healthy_when_private_analytics_is_degraded() {
+  local temp
+  local log
+
+  temp="$(mktemp -d)"
+  write_release_fixture "${temp}" "v1"
+  write_apk_fixture "${temp}/apk"
+  write_fake_deployment_commands "${temp}/bin"
+  mkdir -p "${temp}/root/shared/analytics"
+  printf 'sqlite-data\n' > "${temp}/root/shared/analytics/analytics.sqlite"
+  printf 'wal-data\n' > "${temp}/root/shared/analytics/analytics.sqlite-wal"
+  printf 'shm-data\n' > "${temp}/root/shared/analytics/analytics.sqlite-shm"
+  : > "${temp}/deploy.log"
+
+  PATH="${temp}/bin:/usr/bin:/bin" \
+    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+    FAKE_ANALYTICS_HEALTH=failed \
+    FAKE_DOMAIN="www.busiscoming.com" \
+    FAKE_BARE_DOMAIN="busiscoming.com" \
+    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+    BUS_DEPLOY_TEST_MODE=1 \
+    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+    "${REMOTE_SCRIPT}" deploy \
+      --root "${temp}/root" \
+      --domain www.busiscoming.com \
+      --bare-domain busiscoming.com \
+      --keep 3 \
+      --version v1 \
+      --archive "${temp}/release-v1.tar.gz" \
+      --archive-sha "${temp}/release-v1.tar.gz.sha256" \
+      --apk-dir "${temp}/apk" || return 1
+
+  [ -L "${temp}/root/current" ] || return 1
+  log="$(cat "${temp}/deploy.log")"
+  assert_contains "${log}" "http://127.0.0.1:8080/healthz" || return 1
+  assert_contains "${log}" "http://127.0.0.1:18081/api/analytics/system" || return 1
 
   rm -rf "${temp}"
 }
@@ -2370,6 +2522,10 @@ test_remote_deploy_installs_first_release_and_apk() {
   write_release_fixture "${temp}" "v1"
   write_apk_fixture "${temp}/apk"
   write_fake_deployment_commands "${temp}/bin"
+  mkdir -p "${temp}/root/shared/analytics"
+  printf 'sqlite-data\n' > "${temp}/root/shared/analytics/analytics.sqlite"
+  printf 'wal-data\n' > "${temp}/root/shared/analytics/analytics.sqlite-wal"
+  printf 'shm-data\n' > "${temp}/root/shared/analytics/analytics.sqlite-shm"
   : > "${temp}/deploy.log"
 
   PATH="${temp}/bin:/usr/bin:/bin" \
@@ -2395,6 +2551,9 @@ test_remote_deploy_installs_first_release_and_apk() {
   [ -x "${temp}/root/releases/v1/backend/busiscoming-server" ] || return 1
   [ -f "${temp}/root/shared/downloads/android/BusIsComing.apk" ] || return 1
   [ -f "${temp}/root/shared/downloads/android/current.json" ] || return 1
+  assert_equals "$(cat "${temp}/root/shared/analytics/analytics.sqlite")" "sqlite-data" || return 1
+  assert_equals "$(cat "${temp}/root/shared/analytics/analytics.sqlite-wal")" "wal-data" || return 1
+  assert_equals "$(cat "${temp}/root/shared/analytics/analytics.sqlite-shm")" "shm-data" || return 1
   [ ! -e "${temp}/root/previous" ] || return 1
   log="$(cat "${temp}/deploy.log")"
   assert_contains "${log}" "systemctl|restart busiscoming-backend" || return 1
@@ -2767,6 +2926,10 @@ test_remote_cleanup_protects_current_previous_and_newest_releases() {
   touch -t 202606220005 "${temp}/root/releases/v5"
   ln -s "${temp}/root/releases/v1" "${temp}/root/current"
   ln -s "${temp}/root/releases/v2" "${temp}/root/previous"
+  mkdir -p "${temp}/root/shared/analytics"
+  printf 'persistent\n' > "${temp}/root/shared/analytics/analytics.sqlite"
+  printf 'persistent-wal\n' > "${temp}/root/shared/analytics/analytics.sqlite-wal"
+  printf 'persistent-shm\n' > "${temp}/root/shared/analytics/analytics.sqlite-shm"
 
   BUS_DEPLOY_TEST_MODE=1 \
     bash -c '
@@ -2783,6 +2946,9 @@ test_remote_cleanup_protects_current_previous_and_newest_releases() {
       return 1
     }
   done
+  assert_equals "$(cat "${temp}/root/shared/analytics/analytics.sqlite")" "persistent" || return 1
+  assert_equals "$(cat "${temp}/root/shared/analytics/analytics.sqlite-wal")" "persistent-wal" || return 1
+  assert_equals "$(cat "${temp}/root/shared/analytics/analytics.sqlite-shm")" "persistent-shm" || return 1
 
   rm -rf "${temp}"
 }
@@ -2874,6 +3040,7 @@ run_test "APK artifacts are isolated and checksummed" test_apk_artifact_preparat
 run_test "APK artifacts validate staged copies" test_apk_artifacts_validate_staged_copies
 run_test "release archive contains verified build artifacts" test_release_archive_creation
 run_test "release archive rejects frontend symlinks" test_release_archive_rejects_frontend_symlink
+run_test "remote rejects a private monitor checksum mismatch" test_remote_rejects_private_monitor_checksum_mismatch
 run_test "frontend validation fails closed when find fails" test_frontend_validation_fails_when_find_fails
 run_test "remote roots reject unsafe absolute paths" test_remote_root_validation
 run_test "remote rejects a symlinked deployment root" test_remote_rejects_symlinked_root
@@ -2899,10 +3066,12 @@ run_test "remote status skips public checks without configuration" test_remote_s
 run_test "remote status fails required service and health checks" test_remote_status_fails_required_checks
 run_test "remote production status runs checks and fails closed" test_remote_production_status_runs_checks_and_fails_closed
 run_test "remote renders systemd Caddy and backend environment" test_remote_renders_systemd_caddy_and_environment
+run_test "remote fills missing analytics env values without overwriting existing values" test_remote_environment_fills_missing_analytics_values_without_overwriting_existing_values
 run_test "remote render-config is test-only and validates domains" test_remote_render_config_is_test_only_and_validates_domains
 run_test "remote restores Caddy config after reload failure" test_remote_caddy_config_restores_previous_file_on_reload_failure
 run_test "remote port and UFW guards are non-destructive" test_remote_port_and_ufw_guards_are_non_destructive
 run_test "remote deploy installs first release and APK" test_remote_deploy_installs_first_release_and_apk
+run_test "remote deploy treats private analytics health as degraded" test_remote_deploy_keeps_public_release_healthy_when_private_analytics_is_degraded
 run_test "remote deploy accepts main HTTPS 301" test_remote_deploy_accepts_main_https_redirect
 run_test "remote deploy waits for local health" test_remote_deploy_waits_for_local_health
 run_test "remote deploy restores code on health failure" test_remote_deploy_restores_code_on_health_failure

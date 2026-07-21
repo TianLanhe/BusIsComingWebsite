@@ -251,21 +251,21 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 
 **目的**：完成契约、性能、部署、隐私、架构、范围和全链路验证，使所有故事可共同发布。
 
-- [ ] T109 [P] 运行三份 feature/三份 shared OpenAPI lint 与 bundle，生成项目可控内容为中文的 API UI，并确认私有 HTML 不进入 `frontend/dist`，路径：`shared/contracts/openapi/download-api.bundle.yaml`、`shared/contracts/openapi/route-query-api.bundle.yaml`、`shared/contracts/openapi/analytics-monitoring-api.bundle.yaml`、`shared/contracts/openapi/docs/`
-- [ ] T110 [P] 编写显式 1,000,000 行、四类事件、多维度、成功/失败性能 fixture 与 `EXPLAIN QUERY PLAN` 断言，路径：`backend/internal/analytics/infrastructure/sqlite/performance_test.go`
-- [ ] T111 根据 T110 证据调整必要索引并保证近 30 天常用查询和单 visitor 时间线各小于 1 秒，且不增加汇总/会话/访客表，路径：`backend/internal/analytics/infrastructure/sqlite/migrations/001_create_analytics_events.sql`、`backend/internal/analytics/infrastructure/sqlite/query_builder.go`
-- [ ] T112 [P] 先扩展发布 shell 测试，覆盖双 bundle checksum、shared analytics 权限、env 补缺不覆盖、精确 `ReadWritePaths`、loopback、Caddy 无私有路由/日志和统计失败 degraded，路径：`scripts/tests/deploy_test.sh`
-- [ ] T113 更新本地发布打包流程以构建并校验 `frontend/dist`、`frontend/dist-monitor` 和 CGo-free 静态后端，路径：`scripts/deploy.sh`
-- [ ] T114 更新远端发布以创建 `/opt/busiscoming/shared/analytics`、注入独立 secret/DB/UI/port、保护 SQLite/WAL/SHM 跨 release/rollback/cleanup 并保持私有失败非致命，路径：`scripts/deploy-remote.sh`
-- [ ] T115 记录 SSH 隧道、固定 loopback、systemd 权限、Caddy/UFW 隔离、无备份/恢复点和数据可丢失运维语义，路径：`docs/deployment.md`
-- [ ] T116 [P] 增加 public 8080 不存在监控 HTML/API、private 18081 包含七 API、private 启动失败不退出 public，以及 private handler panic 返回受控 500 且 public 仍存活的进程级集成测试，路径：`backend/cmd/server/private_listener_integration_test.go`
-- [ ] T117 运行后端全量、race、CGo-free Linux amd64 静态构建和 SQLite runtime/migration 测试并记录预期，路径：`specs/010-website-analytics/quickstart.md`
-- [ ] T118 [P] 运行前端全量 Vitest、public/monitor build、public/monitor Playwright 并断言 `dist` 与 `dist-monitor` 物理隔离，路径：`frontend/package.json`、`frontend/playwright.config.ts`、`frontend/playwright.monitor.config.ts`
-- [ ] T119 运行受禁字段 sentinel 扫描日志、SQLite、WAL/SHM 和私有响应，确认 IP、完整标识原文和查询内容零命中，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`、`specs/010-website-analytics/quickstart.md`
-- [ ] T120 审计 DDD 依赖方向、无业务 `panic`、T022 public factory 的 `logger → injected analytics stub → recovery → handler`、T037 真实 tracking 注入后的同序链路、private `logger → recovery → handler`、双引擎 handler panic、自建 goroutine recover、脱敏日志，以及机器人只有不带 bot/身份线索的通用请求日志，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
-- [ ] T121 验证仅有四类事件且 ETA/隐私页/静态页不打点，并确认无账号、指纹、广告、安装完成、导出、删除、编辑、自动清理、备份、完整路线规划或非香港巴士能力，路径：`backend/internal/analytics/domain/event_test.go`、`frontend/src/monitoring/pages/EventsPage.test.tsx`、`specs/010-website-analytics/spec.md`
-- [ ] T122 对照 Figma `BusIsComing Pulse v1.1 · 2026-07-22`、两批真实导入锚点 `63:2118`/`67:672`、13 张 manifest 画板和真实桌面/手机截图完成最终视觉评审，路径：`specs/010-website-analytics/figma.md`、`docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json`、`frontend/playwright-monitor/__screenshots__/`
-- [ ] T123 执行 OpenAPI、Go/race、隐私、100 万行、双 listener、前端、三语、Figma、部署和公网隔离全套验收，并在文档中记录实际命令与结果，路径：`specs/010-website-analytics/quickstart.md`
+- [X] T109 [P] 运行三份 feature/三份 shared OpenAPI lint 与 bundle，生成项目可控内容为中文的 API UI，并确认私有 HTML 不进入 `frontend/dist`，路径：`shared/contracts/openapi/download-api.bundle.yaml`、`shared/contracts/openapi/route-query-api.bundle.yaml`、`shared/contracts/openapi/analytics-monitoring-api.bundle.yaml`、`shared/contracts/openapi/docs/`
+- [X] T110 [P] 编写显式 1,000,000 行、四类事件、多维度、成功/失败性能 fixture 与 `EXPLAIN QUERY PLAN` 断言，路径：`backend/internal/analytics/infrastructure/sqlite/performance_test.go`
+- [X] T111 根据 T110 证据调整必要索引并保证近 30 天常用查询和单 visitor 时间线各小于 1 秒，且不增加汇总/会话/访客表，路径：`backend/internal/analytics/infrastructure/sqlite/migrations/001_create_analytics_events.sql`、`backend/internal/analytics/infrastructure/sqlite/query_builder.go`
+- [X] T112 [P] 先扩展发布 shell 测试，覆盖双 bundle checksum、shared analytics 权限、env 补缺不覆盖、精确 `ReadWritePaths`、loopback、Caddy 无私有路由/日志和统计失败 degraded，路径：`scripts/tests/deploy_test.sh`
+- [X] T113 更新本地发布打包流程以构建并校验 `frontend/dist`、`frontend/dist-monitor` 和 CGo-free 静态后端，路径：`scripts/deploy.sh`
+- [X] T114 更新远端发布以创建 `/opt/busiscoming/shared/analytics`、注入独立 secret/DB/UI/port、保护 SQLite/WAL/SHM 跨 release/rollback/cleanup 并保持私有失败非致命，路径：`scripts/deploy-remote.sh`
+- [X] T115 记录 SSH 隧道、固定 loopback、systemd 权限、Caddy/UFW 隔离、无备份/恢复点和数据可丢失运维语义，路径：`docs/deployment.md`
+- [X] T116 [P] 增加 public 8080 不存在监控 HTML/API、private 18081 包含七 API、private 启动失败不退出 public，以及 private handler panic 返回受控 500 且 public 仍存活的进程级集成测试，路径：`backend/cmd/server/private_listener_integration_test.go`
+- [X] T117 运行后端全量、race、CGo-free Linux amd64 静态构建和 SQLite runtime/migration 测试并记录预期，路径：`specs/010-website-analytics/quickstart.md`
+- [X] T118 [P] 运行前端全量 Vitest、public/monitor build、public/monitor Playwright 并断言 `dist` 与 `dist-monitor` 物理隔离，路径：`frontend/package.json`、`frontend/playwright.config.ts`、`frontend/playwright.monitor.config.ts`
+- [X] T119 运行受禁字段 sentinel 扫描日志、SQLite、WAL/SHM 和私有响应，确认 IP、完整标识原文和查询内容零命中，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`、`specs/010-website-analytics/quickstart.md`
+- [X] T120 审计 DDD 依赖方向、无业务 `panic`、T022 public factory 的 `logger → injected analytics stub → recovery → handler`、T037 真实 tracking 注入后的同序链路、private `logger → recovery → handler`、双引擎 handler panic、自建 goroutine recover、脱敏日志，以及机器人只有不带 bot/身份线索的通用请求日志，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
+- [X] T121 验证仅有四类事件且 ETA/隐私页/静态页不打点，并确认无账号、指纹、广告、安装完成、导出、删除、编辑、自动清理、备份、完整路线规划或非香港巴士能力，路径：`backend/internal/analytics/domain/event_test.go`、`frontend/src/monitoring/pages/EventsPage.test.tsx`、`specs/010-website-analytics/spec.md`
+- [X] T122 对照 Figma `BusIsComing Pulse v1.1 · 2026-07-22`、两批真实导入锚点 `63:2118`/`67:672`、13 张 manifest 画板和真实桌面/手机截图完成最终视觉评审，路径：`specs/010-website-analytics/figma.md`、`docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json`、`frontend/playwright-monitor/__screenshots__/`
+- [X] T123 执行 OpenAPI、Go/race、隐私、100 万行、双 listener、前端、三语、Figma、部署和公网隔离全套验收，并在文档中记录实际命令与结果，路径：`specs/010-website-analytics/quickstart.md`
 
 ---
 
