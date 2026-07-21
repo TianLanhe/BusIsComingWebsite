@@ -17,7 +17,7 @@ export function GlobalFilters() {
       <FilterGroup label={t("outcome")} values={["success", "failure"]} selected={filters.query.outcome} labels={{ success: t("success"), failure: t("failure") }} toggle={(value) => filters.toggleOutcome(value as Outcome)} />
       <FilterGroup label={t("platform")} values={["android", "ios"]} selected={filters.query.platform} toggle={(value) => filters.togglePlatform(value as Platform)} />
       <label className="compare-switch"><input type="checkbox" checked={filters.query.compare} onChange={(event) => filters.setCompare(event.target.checked)} />{t("compare")}</label>
-      <span className="filter-privacy"><Filter size={13} />Visitor ID 不会进入 query 或 body</span>
+      <span className="filter-privacy"><Filter size={13} />{t("visitorTransport")}</span>
     </div>
   </details>;
 }

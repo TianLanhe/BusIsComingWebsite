@@ -13,7 +13,25 @@ test.beforeEach(async ({ page }) => {
 
 test("investigates an overview anomaly through event and visitor timeline", async ({ page }, testInfo) => {
   await page.goto("/#overview");
-  await page.getByRole("link", { name: "事件明细" }).click();
+  if (testInfo.project.name.includes("mobile")) {
+    await expect(page.locator(".traffic-chart")).toBeVisible();
+    const layout = await page.evaluate(() => {
+      const nav = document.querySelector<HTMLElement>(".mobile-bottom-nav");
+      if (!nav) return null;
+      return {
+        viewportWidth: window.innerWidth,
+        documentWidth: document.documentElement.scrollWidth,
+        navWidth: nav.getBoundingClientRect().width,
+      };
+    });
+    expect(layout).not.toBeNull();
+    expect(layout?.documentWidth).toBe(layout?.viewportWidth);
+    expect(layout?.navWidth).toBeLessThanOrEqual((layout?.viewportWidth ?? 0) - 24);
+  }
+  const eventLink = testInfo.project.name.includes("desktop")
+    ? page.getByTestId("desktop-sidebar").getByRole("link", { name: "事件明细" })
+    : page.getByTestId("mobile-bottom-nav").getByRole("link", { name: "事件明细" });
+  await eventLink.click();
   await expect(page.getByRole("heading", { name: "事件明细" })).toBeVisible();
   const visibleEvent = testInfo.project.name.includes("desktop")
     ? page.locator(".event-table-wrap")

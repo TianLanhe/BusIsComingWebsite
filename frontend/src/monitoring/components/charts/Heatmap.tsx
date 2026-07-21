@@ -5,13 +5,13 @@ const weekdays: Record<string, string[]> = { "zh-Hans": ["一", "二", "三", "�
 export function Heatmap({ cells, locale, label }: { cells: HeatmapCell[]; locale: string; label: string }) {
   const max = Math.max(1, ...cells.map((cell) => cell.eventCount));
   const byKey = new Map(cells.map((cell) => [`${cell.weekday}-${cell.hour}`, cell]));
-  return <div className="heatmap-frame" role="img" aria-label={label}>
-    <div className="heatmap-hours"><span />{Array.from({ length: 12 }, (_, index) => <span key={index}>{String(index * 2).padStart(2, "0")}</span>)}</div>
-    {(weekdays[locale] ?? weekdays["zh-Hant"]).map((weekday, row) => <div className="heatmap-row" key={`${weekday}-${row}`}><span>{weekday}</span>{Array.from({ length: 12 }, (_, column) => {
+  return <div className="heatmap-frame" role="grid" aria-label={label}>
+    <div className="heatmap-hours" role="row"><span />{Array.from({ length: 12 }, (_, index) => <span role="columnheader" key={index}>{String(index * 2).padStart(2, "0")}</span>)}</div>
+    {(weekdays[locale] ?? weekdays["zh-Hant"]).map((weekday, row) => <div className="heatmap-row" role="row" key={`${weekday}-${row}`}><span role="rowheader">{weekday}</span>{Array.from({ length: 12 }, (_, column) => {
       const first = byKey.get(`${row + 1}-${column * 2}`)?.eventCount ?? 0;
       const second = byKey.get(`${row + 1}-${column * 2 + 1}`)?.eventCount ?? 0;
       const count = first + second;
-      return <i key={column} style={{ "--heat": Math.max(.06, count / (max * 2)) } as React.CSSProperties} title={`${weekday} ${column * 2}:00 · ${count}`}><span className="sr-only">{weekday} {column * 2}:00 {count}</span></i>;
+      return <i role="gridcell" aria-label={`${weekday} ${column * 2}:00 · ${count}`} key={column} style={{ "--heat": Math.max(.06, count / (max * 2)) } as React.CSSProperties} title={`${weekday} ${column * 2}:00 · ${count}`}><span className="sr-only">{weekday} {column * 2}:00 {count}</span></i>;
     })}</div>)}
   </div>;
 }

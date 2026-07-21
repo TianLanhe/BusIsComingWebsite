@@ -1,0 +1,21 @@
+.accessible-chart-frame { margin: 0; }
+.accessible-chart-frame > figcaption { margin-top: 5px; color: var(--pulse-muted); font-size: 8px; line-height: 14px; }
+
+:where(.monitor-shell button, .monitor-shell a, .monitor-shell select, .monitor-shell summary, .monitor-shell input):focus-visible {
+  outline: 3px solid rgba(39, 153, 168, .42);
+  outline-offset: 3px;
+}
+
+@media (max-width: 820px) {
+  :where(.monitor-shell button, .monitor-shell a, .monitor-shell select, .monitor-shell summary) { min-height: 44px; }
+  .filter-group button { min-width: 44px; min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

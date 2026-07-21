@@ -317,6 +317,21 @@ npm --prefix frontend run test:e2e:monitor
   `10 Homepage / APK Metadata States / 1200`、`12 Homepage / Mobile APK Metadata States / 390`
   的成功状态、动态版本/大小和下载可达性核对。
 
+### US5 三语、无障碍与视觉回归记录（2026-07-22）
+
+- 三语 key、浏览器默认语言、香港繁中 fallback、持久化切换、图表文字摘要和无障碍规则共
+  24 项定向 Vitest 通过；监控端 TypeScript 检查与生产构建通过。
+- Playwright 在 1440×1200 与 390×844 遍历七个工作区和 `zh-Hant`、`zh-Hans`、`en`，并在
+  1440×1000 与 390×1640 验证 loading、无数据、无筛选结果、普通失败和数据库不可用，共
+  12 项定向浏览器用例通过；包含总览与调查流程的全量监控套件 16 项通过。
+- 生成 42 张工作区/语言/视口截图和 10 张状态截图到
+  `frontend/playwright-monitor/__screenshots__/`；人工抽查普通失败双端、繁中流量手机和英文
+  系统桌面，确认筛选上下文、移动触摸目标、焦点、非颜色编码和图表文字数据均可用。
+- 全量回归曾捕获屏幕阅读器数据表固有宽度撑开移动文档的问题；新增文档宽度/底栏宽度断言后，
+  将隐藏约束移至普通容器，390px 下无横向溢出且底部导航可真实点击。
+- 文案审校见 `zh-hant-en-copy-review.md`，Figma 13 张画板、tokens、真实锚点及实施差异见
+  `figma.md`；未推测或虚构锚点下尚未机器读取的子节点 ID。
+
 ## 9. 隐私政策与三语事实验证
 
 检查公开隐私政策和 noscript/SEO 生成内容，确认三语都明确说明：

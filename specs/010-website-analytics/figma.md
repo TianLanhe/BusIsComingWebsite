@@ -67,3 +67,21 @@ Figma MCP 仍受 Starter 套餐调用额度限制，无法读取两个锚点下�
 - v1.1 补充截图：[移动详细调查](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-investigation.png) · [移动 APK](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-apk.png) · [普通查询失败](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/query-failure.png)。
 - 用户于 2026-07-21 确认 01–10 已导入 Figma，并提供锚点 `63:2118`；于 2026-07-22 确认 11–13 已补充导入，并提供锚点 `67:672`。
 - 由于 Figma Starter MCP 额度限制，两个锚点下的子画板结构尚未机器复核；后续若额度恢复，可在 implement 阶段补充只读截图与精确子画板链接，不改变本规格行为定义或当前导入完成状态。
+
+## 实施视觉对照（2026-07-22）
+
+实施继续只引用用户提供的真实锚点 `63:2118`、`67:672`，没有为未机器读取的子画板补写节点 ID。
+Playwright 固定 mock 已生成七个工作区 × 三语 × 桌面/手机共 42 张视口截图，以及五类状态 ×
+桌面/手机共 10 张状态截图，均位于 `frontend/playwright-monitor/__screenshots__/`。
+
+| 对照范围 | 实施证据 | 对照结果与有意差异 |
+|----------|----------|--------------------|
+| 01–07 桌面工作区 | `workspace-*-*-desktop.png`（1440×1200） | 保留 240px 深色侧栏、顶栏筛选、卡片层级与品牌色；实际接口为空数组时显示“—”和空图，不复制设计示例数值。 |
+| 08 移动总览 | `workspace-overview-*-mobile.png`（390×844） | 保留两列 KPI、纵向卡片和底部导航；长页面通过滚动访问，视口证据不把 1640px 原型强行缩入 844px。 |
+| 09 与 13 状态 | `state-*-desktop.png`（1440×1000）、`state-*-mobile.png`（390×1640） | loading/no data/no results/普通失败/DB unavailable 分离；实施把保留筛选直接展开在失败状态上方，较原型更便于验证当前上下文。 |
+| 10 与 12 APK 状态 | `frontend/playwright/__screenshots__/apk-metadata-*.png` | 运行时版本和大小来自 metadata API；失败不回退设计示例值，下载入口保持可达。 |
+| 11 移动调查 | `investigation-mobile.png`（390×844）及 `workspace-events/visitor-*-mobile.png` | 保留事件卡、精确 ID、复制反馈与会话时间线；调查步骤分为事件页和访客页，避免在一个超长页面重复信息。 |
+
+人工抽查了普通查询失败桌面/手机、繁中流量手机、英文系统桌面、总览和调查证据。颜色、间距、
+圆角、阴影与 `tokens.json` 一致；实施额外加入可访问数据表、非颜色唯一编码、44px 手机触摸目标、
+清晰焦点和 reduced-motion，这些属于可访问性增强，不改变 Figma 的信息架构。

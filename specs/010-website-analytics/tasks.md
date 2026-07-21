@@ -228,19 +228,19 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 
 ### 用户故事 5 的测试与验证
 
-- [ ] T099 [P] [US5] 为 Dashboard 导航、指标、筛选、图例、tooltip、表格、状态和错误的三语 key 完整性及隐私事实一致性编写先失败测试，路径：`frontend/src/monitoring/content/copy.test.ts`
-- [ ] T100 [P] [US5] 为焦点顺序、44px 触摸目标、非颜色唯一信息、图表文字摘要、`aria-live` 复制反馈和 reduced-motion 编写先失败测试，路径：`frontend/src/monitoring/components/accessibility.test.tsx`
-- [ ] T101 [P] [US5] 为七个 workspace 在 1440×1200 与 390×844 的三语导航、筛选和主要操作编写跨工作区先失败 E2E，路径：`frontend/playwright-monitor/responsive-locales.spec.ts`
-- [ ] T102 [US5] 对照 `13 Pulse / Query Failure State / 1440` 为 loading、no_data、no_results、保留筛选且手动重试的普通失败和 DB unavailable 的 390×1640/1440×1000 视觉基准编写先失败测试，路径：`frontend/playwright-monitor/states.spec.ts`
+- [X] T099 [P] [US5] 为 Dashboard 导航、指标、筛选、图例、tooltip、表格、状态和错误的三语 key 完整性及隐私事实一致性编写先失败测试，路径：`frontend/src/monitoring/content/copy.test.ts`
+- [X] T100 [P] [US5] 为焦点顺序、44px 触摸目标、非颜色唯一信息、图表文字摘要、`aria-live` 复制反馈和 reduced-motion 编写先失败测试，路径：`frontend/src/monitoring/components/accessibility.test.tsx`
+- [X] T101 [P] [US5] 为七个 workspace 在 1440×1200 与 390×844 的三语导航、筛选和主要操作编写跨工作区先失败 E2E，路径：`frontend/playwright-monitor/responsive-locales.spec.ts`
+- [X] T102 [US5] 对照 `13 Pulse / Query Failure State / 1440` 为 loading、no_data、no_results、保留筛选且手动重试的普通失败和 DB unavailable 的 390×1640/1440×1000 视觉基准编写先失败测试，路径：`frontend/playwright-monitor/states.spec.ts`
 
 ### 用户故事 5 的回归与收口
 
-- [ ] T103 [US5] 运行七个工作区三语 key/格式化类型完整性和隐私事实一致性回归，禁止在本任务首次建立 provider 或批量补齐所属故事文案，路径：`frontend/src/monitoring/content/copy.test.ts`、`frontend/src/monitoring/content/types.ts`
-- [ ] T104 [US5] 验证浏览器默认语言、繁中 fallback、持久化切换以及切换后 hash/筛选/调查上下文保持，不重复实现语言基础设施，路径：`frontend/src/monitoring/app/MonitoringI18nProvider.test.tsx`、`frontend/playwright-monitor/responsive-locales.spec.ts`
-- [ ] T105 [US5] 为图表/表格补充文字摘要、键盘焦点、ARIA、44px 触摸目标、非颜色编码和 reduced-motion，路径：`frontend/src/monitoring/components/charts/AccessibleChartFrame.tsx`、`frontend/src/monitoring/styles/accessibility.css`
-- [ ] T106 [US5] 完成香港繁中、自然克制英文和三语隐私/指标口径独立审校并记录非机械直译结论，路径：`specs/010-website-analytics/zh-hant-en-copy-review.md`
-- [ ] T107 [US5] 生成七个 workspace 与五类状态的桌面/手机三语截图证据，路径：`frontend/playwright-monitor/__screenshots__/`、`frontend/playwright-monitor/responsive-locales.spec.ts`、`frontend/playwright-monitor/states.spec.ts`
-- [ ] T108 [US5] 对照 Figma 01–10 锚点 `63:2118`、11–13 补充导入锚点 `67:672`、`BusIsComing Pulse v1.1` 的 13 张 manifest 画板和 tokens，记录已实现 viewport/交互/状态差异；不得为锚点下未机器读取的子画板虚构节点 ID，路径：`specs/010-website-analytics/figma.md`
+- [X] T103 [US5] 运行七个工作区三语 key/格式化类型完整性和隐私事实一致性回归，禁止在本任务首次建立 provider 或批量补齐所属故事文案，路径：`frontend/src/monitoring/content/copy.test.ts`、`frontend/src/monitoring/content/types.ts`
+- [X] T104 [US5] 验证浏览器默认语言、繁中 fallback、持久化切换以及切换后 hash/筛选/调查上下文保持，不重复实现语言基础设施，路径：`frontend/src/monitoring/app/MonitoringI18nProvider.test.tsx`、`frontend/playwright-monitor/responsive-locales.spec.ts`
+- [X] T105 [US5] 为图表/表格补充文字摘要、键盘焦点、ARIA、44px 触摸目标、非颜色编码和 reduced-motion，路径：`frontend/src/monitoring/components/charts/AccessibleChartFrame.tsx`、`frontend/src/monitoring/styles/accessibility.css`
+- [X] T106 [US5] 完成香港繁中、自然克制英文和三语隐私/指标口径独立审校并记录非机械直译结论，路径：`specs/010-website-analytics/zh-hant-en-copy-review.md`
+- [X] T107 [US5] 生成七个 workspace 与五类状态的桌面/手机三语截图证据，路径：`frontend/playwright-monitor/__screenshots__/`、`frontend/playwright-monitor/responsive-locales.spec.ts`、`frontend/playwright-monitor/states.spec.ts`
+- [X] T108 [US5] 对照 Figma 01–10 锚点 `63:2118`、11–13 补充导入锚点 `67:672`、`BusIsComing Pulse v1.1` 的 13 张 manifest 画板和 tokens，记录已实现 viewport/交互/状态差异；不得为锚点下未机器读取的子画板虚构节点 ID，路径：`specs/010-website-analytics/figma.md`
 
 **检查点**：US5 只做跨工作区最终回归，不承担首次移动端实现；七个 workspace 与全部状态在
 电脑、手机和三语下可独立使用，UI 评审有真实截图与 Figma 追溯证据。

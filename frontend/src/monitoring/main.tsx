@@ -7,6 +7,7 @@ import "./styles/tokens.css";
 import "./styles/dashboard.css";
 import "./styles/responsive.css";
 import "./styles/mobile-components.css";
+import "./styles/accessibility.css";
 
 const rootElement = document.getElementById("root");
 
