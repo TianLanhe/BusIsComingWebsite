@@ -65,8 +65,9 @@ go test -race ./internal/analytics/... ./internal/platform/httpserver/... ./cmd/
 预期覆盖：
 
 - visitor Cookie 首签、复用、篡改、过期、随机性、常量时间验证及全部属性。
-- Google/Bing/social preview/headless/crawler 等已知机器人得到 0 个 Cookie、0 条事件；真实
-  desktop/mobile/tablet UA 反例不会误杀。
+- Google/Bing/social preview/headless/crawler 等已知机器人得到 0 个 Cookie、0 条事件、0 条
+  bot 标记或专门机器人明细日志；真实 desktop/mobile/tablet UA 反例不会误杀。机器人仍产生
+  一条与普通请求相同的通用脱敏请求日志，且其中没有 bot 标记、UA、IP、Cookie 或身份线索。
 - metadata 成功与失败都可记录 `page_view`；缺少合法主页上下文、隐私页或直接 API 调用不记 PV。
 - 地点和路线的非法 JSON、限流、token 错误、外部失败、panic 和成功各记录一次正确事件；ETA
   始终为 0 条。
@@ -76,6 +77,9 @@ go test -race ./internal/analytics/... ./internal/platform/httpserver/... ./cmd/
 - 30 分钟（正好 30 分钟仍同会话）边界、两个有序漏斗、上一等长周期、P50/P95、无数据/
   无筛选结果和 opaque cursor 均与人工 fixture 结果一致。
 - 同毫秒多事件的 keyset 分页无重复、无遗漏；完整 visitor ID 只从私有 header 精确匹配。
+- public engine 的 handler panic 经 logger → analytics → recovery 形成受控 500 和 failure 事件；
+  private engine 的 handler panic 经 logger → recovery 形成受控 500。两者日志均只含白名单字段，
+  private panic 不影响 public server。
 - analytics domain 不依赖 Gin、SQL、文件系统或前端类型；存储适配器通过应用端口接入。
 
 ## 4. 隐私 sentinel 验证
@@ -89,6 +93,8 @@ go test -race ./internal/analytics/... ./internal/platform/httpserver/... ./cmd/
 - 事件表只出现 `data-model.md` 定义的字段；Cookie 签名和 secret 均不存在。
 - 自有 request logger 只记录服务端 request ID、method、route template、operationId、bounded
   context、status、duration 和 body size；不调用或输出 ClientIP，不记录实际 URI/query。
+- 机器人通用请求日志与普通请求使用相同 schema，不包含 bot 标记；bot 判断后没有追加事件或
+  专门日志。
 - recovery 不 dump request，不输出 panic 原值、Cookie、私有路径或 stack 中的受禁上下文。
 - 既有路线日志不再输出起终点名称、坐标、用户 query 或客户端 requestId。
 
@@ -194,6 +200,8 @@ npm --prefix frontend run build
   指向稳定 URL。
 - Dashboard 七个工作区、筛选序列化、上一周期、keyset 分页、visitor header、错误映射和
   四类页面状态的 Vitest 通过。
+- 总览、详细调查和 APK metadata 各自的组件/E2E 测试同时覆盖桌面与 390px 手机；最终全量
+  responsive suite 只做跨工作区回归，不承担首次移动布局实现。
 - 总览每次成功加载 60 秒后刷新且不重叠；详细页 fake timer 前后不自动请求。
 - `zh-Hant`、`zh-Hans`、`en` 文案 key 完整；繁中按香港产品语境、英文自然克制，隐私事实在
   三语中一致。

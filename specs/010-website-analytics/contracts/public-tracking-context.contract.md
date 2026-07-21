@@ -9,7 +9,10 @@
 - Cookie 属性：`HttpOnly; Secure; SameSite=Lax; Path=/`，不设置 `Domain`，有效期一年。
 - visitor ID 不得出现在 path、query、request body 或前端 JavaScript 可读状态中。
 - 普通非机器人请求缺失、过期或签名无效时，任一打点入口均可通过 `Set-Cookie` 签发/轮换。
-- 已知机器人不签发 Cookie、不保存事件，也不写逐条机器人明细日志。
+- 已知机器人不签发 Cookie、不保存事件，也不写 bot 标记或专门机器人明细日志。位于 bot 判断
+  之前的通用脱敏 request logger 仍可写一条与普通请求相同的日志，但只能包含服务端 request ID、
+  method、route template、operationId、bounded context、status、duration 和 body size，不得包含
+  bot 标记、IP、User-Agent、Cookie 或其他身份线索。
 
 ## 可选粗粒度 header
 
@@ -51,12 +54,15 @@ analytics tracking middleware 在请求进入时创建只允许以下字段的�
 
 ## middleware 顺序与故障语义
 
-公开 engine 的顺序必须保证 analytics 在自有 recovery 外层，因此 handler panic 被 recovery
-转为受控 500 后，统计仍可按 `failure/internal` 记录：
+公开 engine 的顺序必须保证通用脱敏日志先于 bot 判断、analytics 在自有 recovery 外层，因此
+handler panic 被 recovery 转为受控 500 后，统计仍可按 `failure/internal` 记录：
 
 ```text
 redacted request logger -> exact analytics tracking -> custom recovery -> business handler
 ```
+
+已知机器人会经过第一层通用脱敏 request logger，但在 analytics tracking 内先被排除；排除后不得
+验证/签发 Cookie、创建事件或追加任何机器人专用日志。
 
 事件写入使用独立短 deadline。写入失败或超时只增加 `droppedSinceStart` 并写脱敏错误类别；
 不得改动已经形成的状态码、响应头、JSON 或 APK bytes。

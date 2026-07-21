@@ -80,11 +80,15 @@ IP、指纹或完整 UA 违反隐私边界；把 visitor ID 加到每个请求 D
 
 **Decision**：HTTP 适配层仅在内存中用本地、可审查的已知机器人 UA signature 集合判断
 Google、Bing、社交预览、headless/crawler 等流量；先过滤，再验证/签发访客 Cookie。命中后
-仍执行公开业务，但不签 Cookie、不创建事件，也不写逐条机器人日志。完整 UA 永不进入领域
-对象、SQLite、日志或错误上下文。
+仍执行公开业务，但不签 Cookie、不创建事件，也不写 bot 标记或专门机器人明细日志。宪章要求的
+通用脱敏 request logger 在 bot 判断前执行，所以仍可为该请求写一条与普通请求相同的日志；日志
+只含服务端 request ID、method、route template、operationId、bounded context、status、duration
+和 body size，不含 bot 标记、完整 UA、IP、Cookie 或其他身份线索。完整 UA 永不进入领域对象、
+SQLite、日志或错误上下文。
 
-**Rationale**：顺序可以保证“连明细也完全不记录”，本地规则便于测试真实浏览器反例和审查
-变更。机器人识别只用于排除已知流量，不升级为浏览器指纹。
+**Rationale**：顺序可以保证统计明细和专门机器人明细均为 0，同时保留宪章要求的统一 HTTP
+请求可观测性。本地规则便于测试真实浏览器反例和审查变更；机器人识别只用于排除已知流量，
+不升级为浏览器指纹。
 
 **Alternatives considered**：第三方 bot 服务会发送额外网络标识并扩大故障面；事后删除机器人
 事件违反“不记录”；按 IP 过滤违反用户明确要求。
@@ -199,10 +203,12 @@ manifest 会展示错误版本；失败禁用下载会让辅助信息成为单�
 
 ## 决策 14：重做请求日志与 recovery，清理既有地点日志
 
-**Decision**：两个 Gin engine 都替换 `gin.Logger()` 与 `gin.Recovery()`。自有请求日志只记录
+**Decision**：两个 Gin engine 都替换 `gin.Logger()` 与 `gin.Recovery()`，并显式安装同一套自有
+logger/recovery：public 为 logger → analytics → recovery → handler，private 为 logger → recovery
+→ handler；两个 engine 都用 handler panic 集成测试证明受控 500 和脱敏日志。自有请求日志只记录
 服务端生成 request ID、method、Gin route template、operationId、bounded context、status、
 duration 和 body size；404 使用固定 `unmatched`，不记录实际 URI/query。recovery 不 dump
-请求、不记录 panic 原值，只记录受控 panic 类型和脱敏 stack/hash并返回 500。同步删除现有
+请求、不记录 panic 原值，只记录受控 panic 类型和脱敏 stack/hash 并返回 500。同步删除现有
 `QueryLogEvent` 中的起终点名称/坐标输出，不把客户端 requestId 当作可信日志关联 ID。
 
 **Rationale**：Gin 默认日志包含客户端 IP；默认 recovery 可能输出请求信息。仓库当前路线日志
