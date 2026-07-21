@@ -19,13 +19,13 @@ manifest、截图和后续可用的机器读取结果交叉核对，不推测未
 
 **目的**：锁定依赖、双前端构建入口、测试入口和共享契约，使后续实现有稳定边界。
 
-- [ ] T001 在 `backend/go.mod` 和 `backend/go.sum` 锁定经 runtime gate 验证、包含 SQLite WAL-reset 修复且支持 CGo-free 构建的 `modernc.org/sqlite` 版本
-- [ ] T002 [P] 在 `frontend/package.json` 和 `frontend/package-lock.json` 锁定与 React 18 兼容的 Recharts 3.x 及其必要 peer dependency，且不引入 React Router、TanStack Query 或 ORM
-- [ ] T003 [P] 建立私有 Dashboard 的独立 Vite 入口与 `dist-monitor` 构建配置，路径：`frontend/monitor/index.html`、`frontend/vite.monitor.config.ts`
-- [ ] T004 [P] 增加监控前端的 Vitest/Playwright/build 脚本与私有开发代理配置，路径：`frontend/package.json`、`frontend/playwright.monitor.config.ts`、`frontend/vitest.config.ts`
-- [ ] T005 将 download、route-query、analytics-monitoring 三份 feature OpenAPI 单向同步到 shared，兼容镜像只从 download shared 源生成或复制且不成为权威源，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/openapi/route-query-api.openapi.yaml`、`shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
-- [ ] T006 以 feature route 契约为源同步有限 source header、`Set-Cookie` 和打点副作用到 shared，并用 schema diff 保证三个业务 body 不变，路径：`specs/010-website-analytics/contracts/route-query-api.openapi.yaml`、`shared/contracts/openapi/route-query-api.openapi.yaml`
-- [ ] T007 扩展 Redocly 命令，使三份 feature 与三份 shared 契约均可 lint/bundle，中文 API UI 不进入公网构建，路径：`frontend/package.json`、`frontend/redocly.yaml`
+- [X] T001 在 `backend/go.mod` 和 `backend/go.sum` 锁定经 runtime gate 验证、包含 SQLite WAL-reset 修复且支持 CGo-free 构建的 `modernc.org/sqlite` 版本
+- [X] T002 [P] 在 `frontend/package.json` 和 `frontend/package-lock.json` 锁定与 React 18 兼容的 Recharts 3.x 及其必要 peer dependency，且不引入 React Router、TanStack Query 或 ORM
+- [X] T003 [P] 建立私有 Dashboard 的独立 Vite 入口与 `dist-monitor` 构建配置，路径：`frontend/monitor/index.html`、`frontend/vite.monitor.config.ts`
+- [X] T004 [P] 增加监控前端的 Vitest/Playwright/build 脚本与私有开发代理配置，路径：`frontend/package.json`、`frontend/playwright.monitor.config.ts`、`frontend/vitest.config.ts`
+- [X] T005 将 download、route-query、analytics-monitoring 三份 feature OpenAPI 单向同步到 shared，兼容镜像只从 download shared 源生成或复制且不成为权威源，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/openapi/route-query-api.openapi.yaml`、`shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
+- [X] T006 以 feature route 契约为源同步有限 source header、`Set-Cookie` 和打点副作用到 shared，并用 schema diff 保证三个业务 body 不变，路径：`specs/010-website-analytics/contracts/route-query-api.openapi.yaml`、`shared/contracts/openapi/route-query-api.openapi.yaml`
+- [X] T007 扩展 Redocly 命令，使三份 feature 与三份 shared 契约均可 lint/bundle，中文 API UI 不进入公网构建，路径：`frontend/package.json`、`frontend/redocly.yaml`
 
 ---
 

@@ -1,88 +1,181 @@
 openapi: 3.1.0
 info:
-  title: BusIsComing Android Download API
-  version: 2026-06-16
+  title: BusIsComing Android 安装包 API
+  version: 2026-07-21
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
   description: |
-    Stable backend contract for downloading the current Android APK.
-    Feature contract source: specs/002-android-apk-download/contracts/download-api.openapi.yaml.
-    Shared contract targets: shared/contracts/openapi/download-api.openapi.yaml and shared/contracts/download-api.openapi.yaml.
+    网站主页读取当前 Android APK 元数据和下载当前 APK 的公开契约。
+    元数据失败不得禁用稳定下载入口；任何响应都不得暴露内部路径或构建来源。
 servers:
   - url: /
-    description: Same-origin website backend.
+    description: 网站同源公开后端
+tags:
+  - name: Android 安装包
+    description: 当前 Android APK 元数据与下载
 x-contract-locations:
-  feature: specs/002-android-apk-download/contracts/download-api.openapi.yaml
+  feature: specs/010-website-analytics/contracts/download-api.openapi.yaml
   sharedPrimary: shared/contracts/openapi/download-api.openapi.yaml
   sharedCompatibility: shared/contracts/download-api.openapi.yaml
 paths:
-  /api/downloads/android/latest:
+  /api/downloads/android/latest/metadata:
     get:
-      summary: Download the current BusIsComing Android APK
+      tags:
+        - Android 安装包
+      operationId: getLatestAndroidApkMetadata
+      summary: 查询当前 Android APK 元数据
       description: |
-        Public unauthenticated endpoint with no request parameters.
-        The endpoint always represents the single current Android APK.
-        The server must return a JSON error instead of a partial APK when the current APK is missing, unreadable, or fails metadata validation.
-      operationId: downloadLatestAndroidApk
+        返回主页展示当前 APK 版本和大小所需的白名单字段，不读取或返回 APK bytes。
+        请求不包含 visitor ID path、query 或 body；普通非机器人浏览器的匿名标识由
+        HttpOnly Cookie 自动携带或由服务端签发。
+
+        当 `X-BusIsComing-Home-Locale` 是合法主页枚举时，本次到达请求会产生一条
+        `page_view` 明细；元数据读取失败仍记录该主页访问。统计写入失败不改变本接口响应。
       security: []
-      parameters: []
+      parameters:
+        - $ref: "#/components/parameters/HomeLocaleHeader"
+        - $ref: "#/components/parameters/TrafficSourceHeader"
       x-authentication:
         required: false
-        reason: Public APK download endpoint; no cookie, API key, bearer token, or session is required.
+        reason: 公开主页元数据接口不需要账号、API key 或 bearer token
       x-cache-policy:
         responseHeader: Cache-Control
         value: no-store
-        reason: The stable latest endpoint must not serve stale APK bytes or stale error responses after the current APK is replaced.
-      x-degradation-behavior:
-        missingApk:
-          status: 404
-          code: APK_MISSING
-          userState: temporarily-unavailable
-        unreadableApk:
-          status: 500
-          code: APK_UNREADABLE
-          userState: temporarily-unavailable
-        checksumMismatch:
-          status: 409
-          code: APK_CHECKSUM_MISMATCH
-          userState: temporarily-unavailable
-        internalError:
-          status: 500
-          code: DOWNLOAD_INTERNAL_ERROR
-          userState: temporarily-unavailable
+        reason: 当前版本和不可用状态都不能被长期缓存
+      x-anonymous-analytics:
+        eventType: page_view
+        visitorTransport: __Host-bic-visitor HttpOnly Cookie
+        botBehavior: 已知机器人不签发 Cookie，也不保存统计明细
+        forbiddenStorage:
+          - IP
+          - 完整 User-Agent
+          - 完整 Referrer
+          - 完整 Cookie
+          - 请求 URL 或 query
       responses:
         "200":
-          description: Current Android APK file
+          description: 当前 Android APK 元数据可用
           headers:
             Cache-Control:
-              description: Prevent stale current APK downloads after replacement.
+              $ref: "#/components/headers/NoStore"
+            Set-Cookie:
+              $ref: "#/components/headers/AnonymousVisitorCookie"
+          content:
+            application/json:
               schema:
-                type: string
-                example: no-store
+                $ref: "#/components/schemas/LatestApkMetadata"
+              examples:
+                available:
+                  summary: 当前 APK 可用
+                  value:
+                    platform: android
+                    status: available
+                    versionName: "1.0"
+                    versionCode: 1
+                    fileName: BusIsComing.apk
+                    sizeBytes: 5563930
+                    lastUpdated: "2026-07-07"
+                    downloadUrl: /api/downloads/android/latest
+        "404":
+          description: 当前 APK 元数据不存在
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+            Set-Cookie:
+              $ref: "#/components/headers/AnonymousVisitorCookie"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetadataError"
+              examples:
+                missing:
+                  summary: 当前元数据不存在
+                  value:
+                    code: APK_METADATA_MISSING
+                    message: 当前 Android APK 版本信息暂时不可用。
+        "500":
+          description: 当前 APK 元数据无法读取或校验
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+            Set-Cookie:
+              $ref: "#/components/headers/AnonymousVisitorCookie"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetadataError"
+              examples:
+                invalid:
+                  summary: 元数据格式无效
+                  value:
+                    code: APK_METADATA_INVALID
+                    message: 当前 Android APK 版本信息暂时不可用。
+                internal:
+                  summary: 服务端内部错误
+                  value:
+                    code: DOWNLOAD_INTERNAL_ERROR
+                    message: 当前 Android APK 版本信息暂时不可用。
+  /api/downloads/android/latest:
+    get:
+      tags:
+        - Android 安装包
+      operationId: downloadLatestAndroidApk
+      summary: 下载当前 BusIsComing Android APK
+      description: |
+        无业务请求参数的公开稳定下载地址。成功时返回当前唯一 Android APK；缺失、不可读或
+        完整性不匹配时返回 JSON 错误，绝不返回部分 APK。
+
+        visitor ID 只由 HttpOnly Cookie 自动携带，不进入 path、query 或 body。普通非机器人
+        请求产生 `download_request` 明细；成功归因使用本次实际响应的版本和大小，失败时版本
+        可以为空。该指标只表示下载请求/成功响应，不表示安装完成。
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/TrafficSourceHeader"
+      x-authentication:
+        required: false
+        reason: 公开 APK 下载接口不要求登录
+      x-cache-policy:
+        responseHeader: Cache-Control
+        value: no-store
+        reason: 稳定 latest 地址不能返回替换前的 APK 或陈旧错误
+      x-anonymous-analytics:
+        eventType: download_request
+        visitorTransport: __Host-bic-visitor HttpOnly Cookie
+        platform: android
+        successAttribution: 使用本次实际响应的 versionName、versionCode 和 sizeBytes
+        installationClaim: false
+      responses:
+        "200":
+          description: 当前 Android APK 文件
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+            Set-Cookie:
+              $ref: "#/components/headers/AnonymousVisitorCookie"
             Content-Disposition:
-              description: Attachment filename for the APK.
+              description: APK 附件文件名
               schema:
                 type: string
                 example: attachment; filename="BusIsComing.apk"
             Content-Length:
-              description: APK size in bytes.
+              description: 实际响应 APK 的字节大小
               schema:
                 type: integer
-                example: 5009547
+                minimum: 1
+                example: 5563930
             X-APK-SHA256:
-              description: SHA-256 hash of the returned APK.
+              description: 实际响应 APK 的 SHA-256
               schema:
                 type: string
                 pattern: "^[a-f0-9]{64}$"
-                example: 93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470
             X-APK-Version-Name:
-              description: Android versionName of the current APK.
+              description: 实际响应 APK 的 Android versionName
               schema:
                 type: string
                 example: "1.0"
             X-APK-Version-Code:
-              description: Android versionCode of the current APK.
+              description: 实际响应 APK 的 Android versionCode
               schema:
                 type: string
                 example: "1"
@@ -92,78 +185,185 @@ paths:
                 type: string
                 format: binary
         "404":
-          description: Current APK is missing.
+          description: 当前 APK 不存在
           headers:
             Cache-Control:
-              description: Prevent stale unavailable states.
-              schema:
-                type: string
-                example: no-store
+              $ref: "#/components/headers/NoStore"
+            Set-Cookie:
+              $ref: "#/components/headers/AnonymousVisitorCookie"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DownloadError"
               examples:
                 missing:
-                  summary: Current APK is not present in managed storage.
+                  summary: 当前 APK 不存在
                   value:
                     code: APK_MISSING
-                    message: Current Android APK is not available.
-                    expectedSha256: "93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470"
+                    message: 当前 Android APK 暂时不可用。
+                    expectedSha256: null
                     actualSha256: null
-                    expectedSizeBytes: 5009547
+                    expectedSizeBytes: 5563930
                     actualSizeBytes: null
         "409":
-          description: Current APK exists but does not match expected metadata.
+          description: 当前 APK 与记录的大小或校验值不一致
           headers:
             Cache-Control:
-              description: Prevent stale checksum failure states.
-              schema:
-                type: string
-                example: no-store
+              $ref: "#/components/headers/NoStore"
+            Set-Cookie:
+              $ref: "#/components/headers/AnonymousVisitorCookie"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DownloadError"
               examples:
-                checksumMismatch:
-                  summary: Current APK hash or size differs from current.json.
+                mismatch:
+                  summary: APK 完整性不匹配
                   value:
                     code: APK_CHECKSUM_MISMATCH
-                    message: Current Android APK does not match recorded metadata.
-                    expectedSha256: "93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470"
-                    actualSha256: "0000000000000000000000000000000000000000000000000000000000000000"
-                    expectedSizeBytes: 5009547
-                    actualSizeBytes: 5009540
+                    message: 当前 Android APK 与记录的元数据不一致。
+                    expectedSha256: null
+                    actualSha256: null
+                    expectedSizeBytes: 5563930
+                    actualSizeBytes: 5563900
         "500":
-          description: Current APK cannot be read or served.
+          description: 当前 APK 无法读取或下载服务发生内部错误
           headers:
             Cache-Control:
-              description: Prevent stale internal failure states.
-              schema:
-                type: string
-                example: no-store
+              $ref: "#/components/headers/NoStore"
+            Set-Cookie:
+              $ref: "#/components/headers/AnonymousVisitorCookie"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DownloadError"
               examples:
                 unreadable:
-                  summary: Current APK exists but cannot be read.
+                  summary: APK 无法读取
                   value:
                     code: APK_UNREADABLE
-                    message: Current Android APK cannot be read.
-                    expectedSha256: "93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470"
+                    message: 当前 Android APK 无法读取。
+                    expectedSha256: null
                     actualSha256: null
-                    expectedSizeBytes: 5009547
+                    expectedSizeBytes: 5563930
                     actualSizeBytes: null
-                internalError:
-                  summary: Unexpected download service failure.
+                internal:
+                  summary: 下载服务内部错误
                   value:
                     code: DOWNLOAD_INTERNAL_ERROR
-                    message: Android APK download service failed.
+                    message: Android APK 下载服务暂时不可用。
 components:
+  parameters:
+    HomeLocaleHeader:
+      name: X-BusIsComing-Home-Locale
+      in: header
+      required: false
+      description: |
+        主页前端在精确的 `/zh-hant/`、`/zh-hans/`、`/en/` document 中发送的有限枚举。
+        该 header 只用于确认主页访问和语言分类，不是 APK 业务字段；缺失或非法值不产生
+        `page_view`，但不影响元数据业务响应。
+      schema:
+        type: string
+        enum:
+          - zh-Hant
+          - zh-Hans
+          - en
+      example: zh-Hant
+    TrafficSourceHeader:
+      name: X-BusIsComing-Traffic-Source
+      in: header
+      required: false
+      description: |
+        前端在浏览器内从 `document.referrer` 瞬时归类后的粗粒度来源。不得发送原始 URL；
+        缺失或非法值由服务端安全归为 `unknown` 或通过同会话主页事件派生。
+      schema:
+        type: string
+        enum:
+          - direct
+          - search
+          - referral
+          - internal
+          - unknown
+      example: search
+  headers:
+    NoStore:
+      description: 禁止缓存当前版本、APK bytes 或错误状态
+      schema:
+        type: string
+        const: no-store
+        example: no-store
+    AnonymousVisitorCookie:
+      description: |
+        普通非机器人请求可能签发或轮换 `__Host-bic-visitor`。属性固定为 HttpOnly、Secure、
+        SameSite=Lax、Path=/、host-only、一年有效期；已知机器人不会收到该 header。
+      schema:
+        type: string
   schemas:
+    LatestApkMetadata:
+      type: object
+      required:
+        - platform
+        - status
+        - versionName
+        - versionCode
+        - fileName
+        - sizeBytes
+        - lastUpdated
+        - downloadUrl
+      properties:
+        platform:
+          type: string
+          const: android
+          description: 当前正式安装包平台
+        status:
+          type: string
+          const: available
+          description: 当前 APK 元数据可用
+        versionName:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: Android versionName
+        versionCode:
+          type: integer
+          minimum: 1
+          description: Android versionCode
+        fileName:
+          type: string
+          minLength: 1
+          pattern: "^[^/\\\\]+$"
+          description: 只含 basename 的 APK 文件名
+        sizeBytes:
+          type: integer
+          minimum: 1
+          description: APK 字节大小；前端按当前语言格式化
+        lastUpdated:
+          type: string
+          format: date
+          description: 当前 manifest 的更新时间
+        downloadUrl:
+          type: string
+          const: /api/downloads/android/latest
+          description: 不随版本变化的稳定下载地址
+      additionalProperties: false
+    MetadataError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - APK_METADATA_MISSING
+            - APK_METADATA_UNREADABLE
+            - APK_METADATA_INVALID
+            - DOWNLOAD_INTERNAL_ERROR
+        message:
+          type: string
+          minLength: 1
+          description: 可安全返回浏览器的简体中文调试说明；前端使用自有三语文案
+      additionalProperties: false
     DownloadError:
       type: object
       required:
@@ -180,6 +380,7 @@ components:
         message:
           type: string
           minLength: 1
+          description: 可安全返回浏览器的调试说明；前端不得直接作为用户文案
         expectedSha256:
           type:
             - string
@@ -194,8 +395,10 @@ components:
           type:
             - integer
             - "null"
+          minimum: 1
         actualSizeBytes:
           type:
             - integer
             - "null"
+          minimum: 0
       additionalProperties: false

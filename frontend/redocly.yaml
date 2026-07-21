@@ -4,6 +4,10 @@ extends:
 apis:
   android-download:
     root: ../shared/contracts/openapi/download-api.openapi.yaml
+  route-query:
+    root: ../shared/contracts/openapi/route-query-api.openapi.yaml
+  analytics-monitoring:
+    root: ../shared/contracts/openapi/analytics-monitoring-api.openapi.yaml
 
 rules:
   no-unused-components: warn
