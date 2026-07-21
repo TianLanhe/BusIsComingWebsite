@@ -1,10 +1,10 @@
-# Figma 设计追溯：BusIsComing Pulse v1
+# Figma 设计追溯：BusIsComing Pulse v1.1
 
-**设计版本**：`Pulse v1 · 2026-07-20`
+**设计版本**：`Pulse v1.1 · 2026-07-22`
 
-**确认日期**：2026-07-21
+**确认日期**：2026-07-22
 
-**状态**：用户已通过 HTML 导入插件导入现有权威文件
+**状态**：01–10 已由用户导入现有权威文件；11–13 已完成导入源和截图验证，待用户补充导入
 
 ## 权威文件与导入锚点
 
@@ -14,7 +14,7 @@
 - File key：`LAm6RjzFuFHsHFlcipx8pU`
 - 导入方式：本地高保真 HTML → `html.to.design` 类插件 → 现有 Figma 文件
 
-Figma MCP 在导入完成后仍受 Starter 套餐调用额度限制，无法读取 `63:2118` 下的子节点。用户已明确完成导入，本 feature 以用户确认、根节点链接、导入 manifest 和导入前逐屏截图验证作为设计验收证据。本文不推测或虚构任何子节点 ID。
+Figma MCP 在导入完成后仍受 Starter 套餐调用额度限制，无法读取 `63:2118` 下的子节点。用户已明确完成 01–10 导入；v1.1 的 11–13 只记录已验证的 HTML、manifest 和导入前截图，在用户实际补充导入并提供链接前不声明新增 Figma 节点。本文不推测或虚构任何子节点 ID。
 
 ## 关键画板映射
 
@@ -32,6 +32,9 @@ Figma MCP 在导入完成后仍受 Starter 套餐调用额度限制，无法读�
 | 08 | `Pulse / Mobile Overview` | 390×1640 | 移动指标、紧凑趋势、漏斗、健康状态、下载摘要、底部导航 |
 | 09 | `Pulse / Loading Empty Error States` | 1440×1000 | Loading、无数据、无筛选结果、数据库不可用 |
 | 10 | `Homepage / APK Metadata States` | 1200×760 | 元数据成功、元数据不可用、下载入口始终可用 |
+| 11 | `Pulse / Mobile Investigation` | 390×1640 | 紧凑筛选、key-value 事件、精确 visitor 搜索、复制反馈、纵向时间线、分页 |
+| 12 | `Homepage / Mobile APK Metadata States` | 390×1200 | ready/unavailable、本地化版本与大小、稳定下载入口 |
+| 13 | `Pulse / Query Failure State` | 1440×1000 | 普通可重试失败、筛选保留、手动重试、DB 不可用语义对照 |
 
 ## 交互与状态说明
 
@@ -41,7 +44,8 @@ Figma MCP 在导入完成后仍受 Starter 套餐调用额度限制，无法读�
 - **图表**：折线、分布和漏斗支持悬停查看当前时间点或阶段明细；无数据时不渲染误导性零值走势。
 - **事件明细**：分页浏览，不提供导出、删除、编辑或全量历史下载；Visitor ID 默认截断。
 - **访客详情**：允许完整 ID 精确搜索与复制，展示首次/最后出现、事件/会话计数和有序时间线。
-- **移动端**：把高密度侧栏和多列表格收敛为关键指标、纵向卡片与底部导航；详细表格进入独立工作区。
+- **移动端**：把高密度侧栏和多列表格收敛为关键指标、纵向卡片与底部导航；详细调查使用紧凑筛选、key-value 事件卡、精确 visitor 操作、纵向时间线和可达分页，不缩放桌面表格。
+- **普通查询失败**：保留当前筛选和调查上下文，只允许维护者手动重试；与监控数据库不可用的状态、说明和健康信息清晰分开。
 - **数据库不可用**：监控页显示明确错误与业务不受影响说明；不可把监控失败渲染成公开业务失败。
 - **APK 元数据不可用**：显示版本与大小暂时不可用，无手动重试或硬编码回退，下载按钮保持可用。
 
@@ -55,7 +59,8 @@ Figma MCP 在导入完成后仍受 Starter 套餐调用额度限制，无法读�
 ## 验证记录
 
 - 导入源 HTML、JavaScript、manifest 和 token JSON 已通过语法检查。
-- 10 张画板均以 manifest 指定尺寸完成无头浏览器渲染。
-- 桌面总览、流量与试查、下载、事件明细、匿名访客、失败与性能、系统状态、移动总览、全局状态和 APK 状态均完成逐屏视觉检查。
-- 用户于 2026-07-21 确认已导入 Figma，并提供节点 `63:2118`。
+- 13 张画板均以 manifest 指定尺寸完成无头浏览器渲染；11–13 的页面尺寸分别精确为 390×1640、390×1200、1440×1000，且无横向溢出。
+- 桌面总览、流量与试查、下载、事件明细、匿名访客、失败与性能、系统状态、移动总览、全局状态、APK 状态及三张 v1.1 补充画板均完成逐屏视觉检查。
+- v1.1 补充截图：[移动详细调查](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-investigation.png) · [移动 APK](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-apk.png) · [普通查询失败](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/query-failure.png)。
+- 用户于 2026-07-21 确认 01–10 已导入 Figma，并提供节点 `63:2118`；11–13 仍按 README 等待补充导入。
 - 由于 Figma Starter MCP 额度限制，导入后的 Figma 子节点结构尚未机器复核；后续若额度恢复，可在 plan 或 implement 阶段补充只读截图与子节点链接，不改变本规格行为定义。

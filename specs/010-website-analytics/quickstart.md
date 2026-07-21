@@ -2,6 +2,7 @@
 
 本文用于实现完成后的可复现验收，不包含完整实现代码。接口字段以
 [公开下载契约](./contracts/download-api.openapi.yaml)、
+[路线查询契约](./contracts/route-query-api.openapi.yaml)、
 [私有监控契约](./contracts/analytics-monitoring-api.openapi.yaml) 和
 [数据模型](./data-model.md) 为准。
 
@@ -28,6 +29,7 @@ npm --prefix frontend ci
 cd frontend
 ./node_modules/.bin/redocly lint \
   ../specs/010-website-analytics/contracts/download-api.openapi.yaml \
+  ../specs/010-website-analytics/contracts/route-query-api.openapi.yaml \
   ../specs/010-website-analytics/contracts/analytics-monitoring-api.openapi.yaml
 ```
 
@@ -45,7 +47,7 @@ npm --prefix frontend run openapi:docs
 
 预期结果：
 
-- 两份 feature OpenAPI 无 error/warning，并可 bundle。
+- 三份 feature OpenAPI 无 error/warning，并可 bundle。
 - `shared/contracts/openapi/download-api.openapi.yaml` 包含 metadata 与现有下载 operation。
 - `shared/contracts/openapi/analytics-monitoring-api.openapi.yaml` 只声明
   `http://127.0.0.1:18081` 和七个只读 operation。
@@ -77,10 +79,22 @@ go test -race ./internal/analytics/... ./internal/platform/httpserver/... ./cmd/
 - 30 分钟（正好 30 分钟仍同会话）边界、两个有序漏斗、上一等长周期、P50/P95、无数据/
   无筛选结果和 opaque cursor 均与人工 fixture 结果一致。
 - 同毫秒多事件的 keyset 分页无重复、无遗漏；完整 visitor ID 只从私有 header 精确匹配。
-- public engine 的 handler panic 经 logger → analytics → recovery 形成受控 500 和 failure 事件；
-  private engine 的 handler panic 经 logger → recovery 形成受控 500。两者日志均只含白名单字段，
-  private panic 不影响 public server。
+- 基础 public engine factory 用无副作用 `gin.HandlerFunc` stub 验证 logger → injected analytics →
+  recovery → handler；private factory 验证 logger → recovery → handler。US1 只注入真实 tracking，
+  不重建 engine 或重复替换 logger/recovery；真实 handler panic 形成受控 500 和 failure 事件。
+- `ANALYTICS_WRITE_TIMEOUT_MS` 未配置时为 50ms；10、50、200 均合法；9、201、0、负数和非整数
+  均使 analytics 以 `invalid_write_timeout` 受控原因降级为 no-op，public server 仍存活。
+- 阻塞 writer 获得的独立 context deadline 不超过已校验值或 200ms；只调用一次，只增加一次
+  `droppedSinceStart`，公开 status、headers、JSON/APK bytes 与 no-op analytics 基线一致。
 - analytics domain 不依赖 Gin、SQL、文件系统或前端类型；存储适配器通过应用端口接入。
+
+定向执行 deadline 与 engine 装配测试：
+
+```bash
+go -C backend test ./cmd/server -run 'TestAnalyticsWriteTimeoutConfig|TestEngineMiddlewareOrder' -count=1
+go -C backend test ./internal/analytics/application -run 'TestRecordEventDeadline|TestRecordEventDropsOnce' -count=1
+go -C backend test ./internal/analytics/interfaces/http -run 'TestAnalyticsFailOpen' -count=1
+```
 
 ## 4. 隐私 sentinel 验证
 
@@ -150,6 +164,7 @@ export BUS_ANALYTICS_DB_PATH="${ANALYTICS_TEST_DIR}/analytics.sqlite"
 export BUS_ANALYTICS_UI_ROOT="$(pwd)/frontend/dist-monitor"
 export BUS_ANALYTICS_PRIVATE_PORT=18081
 export BUS_ANALYTICS_VISITOR_SECRET="$(openssl rand -hex 32)"
+export ANALYTICS_WRITE_TIMEOUT_MS=50
 go -C backend run ./cmd/server
 ```
 
@@ -231,6 +246,9 @@ npm --prefix frontend run test:e2e:monitor
 - [Figma 权威文件与节点 63:2118](./figma.md)
 - `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json`
 - `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/tokens.json`
+- `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-investigation.png`（390×1640）
+- `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-apk.png`（390×1200）
+- `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/query-failure.png`（1440×1000）
 
 不得把原型中的 PV、UV、版本、大小或错误数写入生产代码，也不得虚构 Figma 子节点。
 

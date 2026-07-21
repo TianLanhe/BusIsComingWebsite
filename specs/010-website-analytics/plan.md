@@ -15,9 +15,10 @@ SQLite 明细；全部 UV、上一周期、30 分钟会话、双漏斗和分位�
 
 同一个 Go 进程提供两个完全分离的 Gin engine：公开 API 保持 `127.0.0.1:8080`，监控静态页面
 与只读 API 固定绑定 `127.0.0.1:18081`，仅通过 SSH 隧道访问。前端在同一 React/Vite 工程中
-输出公网 `dist/` 与私有 `dist-monitor/` 两套物理产物；Dashboard 依照 Figma `Pulse v1` 实现
+输出公网 `dist/` 与私有 `dist-monitor/` 两套物理产物；Dashboard 依照 Figma `Pulse v1.1` 实现
 七个工作区、丰富指标卡/折线/分布/漏斗/表格、三语和桌面/手机状态。公开元数据与私有监控 API
-以 feature OpenAPI 3.1 为设计权威，实现阶段同步到 shared 契约并生成中文 API UI。
+连同被扩展的地点/路线查询，以三份 feature OpenAPI 3.1 为设计权威，实现阶段单向同步到 shared
+契约并生成中文 API UI。
 
 ## 技术背景
 
@@ -43,8 +44,9 @@ CGO-free `modernc.org/sqlite`（实现时锁定已验证稳定版本）、与 Re
 **项目类型**：前后端分离 Web 应用
 
 **性能目标**：日均不超过 1,000 条、长期不超过 1,000,000 条明细时，近 30 天常用 Dashboard
-查询和单 visitor 时间线服务端结果均小于 1 秒；事件写入有独立短 deadline，统计故障对公开
-业务新增失败为 0；总览成功载入后每 60 秒刷新，详细页不自动刷新
+查询和单 visitor 时间线服务端结果均小于 1 秒；事件写入由 `ANALYTICS_WRITE_TIMEOUT_MS` 提供
+独立 deadline，默认 `50ms`、合法闭区间 `10–200ms`，每个事件只尝试一次；统计故障对公开业务
+新增失败为 0；总览成功载入后每 60 秒刷新，详细页不自动刷新
 
 **约束**：不记录 IP、完整 Cookie/UA/Referrer、请求 URL/query/body、地点、坐标、token 或
 第三方原始响应；不做指纹识别或广告追踪；匿名统计始终启用且不提供 DNT/GPC 退出控制；只
@@ -53,7 +55,7 @@ CGO-free `modernc.org/sqlite`（实现时锁定已验证稳定版本）、与 Re
 走 Caddy；统计数据可丢失且不备份；服务端不以 panic 表达业务失败
 
 **规模/范围**：4 类事件、1 张事实表、1 个新公开 metadata operation、7 个私有只读
-operation、7 个 Dashboard 工作区、10 张 Figma 参考画板、3 种语言、桌面和移动两类布局；当前
+operation、7 个 Dashboard 工作区、13 张 Figma 参考画板、3 种语言、桌面和移动两类布局；当前
 下载平台仅 Android，枚举预留 iOS；不新增完整出行规划、非香港巴士查询、账号、自然人画像、
 安装完成追踪、导出/删除/编辑统计数据
 
@@ -66,6 +68,8 @@ operation、7 个 Dashboard 工作区、10 张 Figma 参考画板、3 种语言�
 
 - [download-api.openapi.yaml](./contracts/download-api.openapi.yaml)：公开 metadata + 既有稳定
   下载的完整 feature 契约；响应使用白名单 DTO 与既有下载错误语义。
+- [route-query-api.openapi.yaml](./contracts/route-query-api.openapi.yaml)：地点、路线和 ETA 的完整
+  业务契约；只为地点/路线增加 source header、Cookie 响应与 fail-open 打点说明，业务 body 不变。
 - [analytics-monitoring-api.openapi.yaml](./contracts/analytics-monitoring-api.openapi.yaml)：固定
   loopback 的七个私有只读 operation、统一筛选、游标、响应 envelope 和错误码。
 - [public-tracking-context.contract.md](./contracts/public-tracking-context.contract.md)：四个精确
@@ -74,14 +78,12 @@ operation、7 个 Dashboard 工作区、10 张 Figma 参考画板、3 种语言�
   文件/JSON error；私有 monitor 使用 `{requestId,data,error}`。visitor ID 只由公开 HttpOnly
   Cookie 自动携带；私有精确检索只使用 `X-Analytics-Visitor-ID` header，不进入 URL/query/body。
 
-**OpenAPI 接口文档**：feature 权威源为上述两份 YAML。实现阶段把公开契约同步到
-`shared/contracts/openapi/download-api.openapi.yaml` 和兼容镜像
-`shared/contracts/download-api.openapi.yaml`，把私有契约同步到
-`shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`，并在现有
-`shared/contracts/openapi/route-query-api.openapi.yaml` 补充 source header、`Set-Cookie` 与打点
-副作用而不修改业务 body。Redocly lint/bundle 后生成
-`shared/contracts/openapi/docs/download-api.html` 与 `analytics-monitoring-api.html`；所有项目可控
-内容使用中文，私有 HTML 仅用于本地预览且不打包进公网产物。
+**OpenAPI 接口文档**：上述 download、route-query、analytics-monitoring 三份 feature YAML 是
+设计阶段唯一权威源。实现阶段按 `specs feature → shared/contracts/openapi` 单向同步；公开下载
+兼容镜像只从 shared download 源生成或复制，不成为第二权威源。route 同步必须保持三个业务
+request/response body 兼容，只增加已确认的有限 header、`Set-Cookie` 与打点副作用。三份 feature
+和三份 shared 契约均须通过 Redocly lint/bundle 并生成中文 API UI；私有 HTML 仅用于本地预览，
+不得打包进公网产物。
 
 **服务端 DDD 边界**：新增 `analytics` bounded context。`domain` 定义事件、值对象、允许枚举、
 会话和漏斗规则；`application` 编排 `RecordEvent`、overview/traffic/downloads/events/visitor/
@@ -91,15 +93,19 @@ request-scoped 白名单观察和私有 API。通用请求日志、recovery、se
 `internal/platform/httpserver`。依赖方向为 interfaces/infrastructure → application → domain，
 domain 不依赖 Gin、SQL、文件系统、加密库适配或前端契约。
 
-**服务端稳健性与可观测性**：替换 `gin.Logger()` 和 `gin.Recovery()`。public/private 两个 engine
-都显式安装同一套脱敏 request logger 和 custom recovery；public 顺序固定为 logger → analytics →
-recovery → handler，private 顺序固定为 logger → recovery → handler，并分别通过 handler panic
-集成测试。自有 request logger 只记
+**服务端稳健性与可观测性**：替换 `gin.Logger()` 和 `gin.Recovery()`。基础阶段先建立可测试的
+public/private engine factory；public factory 接收 `gin.HandlerFunc` analytics 注入参数，并用无副
+作用 stub 验证 logger → injected analytics → recovery → handler，private 固定为 logger → recovery
+→ handler。US1 实现真实 tracking/recorder 后只把该 middleware 注入既有 public factory，不重建
+engine 或再次替换 logger/recovery。两个 engine 分别通过 handler panic 集成测试。自有 request logger 只记
 服务端 request ID、method、route template、operationId、bounded context、status、duration 和
 body size，不读 ClientIP 或实际 URI/query；recovery 不 dump request 或 panic 原值，只记受控
 类型和脱敏 stack/hash。清理既有路线日志的起终点名称/坐标和不受控客户端 requestId。统计写入
-短超时、无重试、失败原子计数；DB 初始化失败时使用 no-op writer，私有数据 API 返回 503，
-system API 仍解释状态。public 启动失败为致命，private/analytics 失败只降级；所有项目创建的
+使用 `ANALYTICS_WRITE_TIMEOUT_MS`，默认 `50ms`、只接受闭区间 `10–200ms` 的整数；每条事件使用
+独立 context、只尝试一次，失败或超时把 `droppedSinceStart` 增加一次且无重试。非法配置使
+analytics 以受控 `invalid_write_timeout` 原因降级为 no-op，public 仍启动，private system 解释
+原因类别。DB 初始化失败同样使用 no-op writer，私有数据 API 返回 503，system API 仍解释状态。
+public 启动失败为致命，private/analytics 失败只降级；所有项目创建的
 listener/signal goroutine 统一 recover、传递错误并有界 shutdown。本功能没有统计队列、定时
 聚合、checkpoint、清理或备份 goroutine。通用 request logger 在 bot 判断前执行，因此已知机器人
 仍产生一条与普通请求相同的脱敏请求日志；该日志不含 bot 标记、UA、IP、Cookie 或专门机器人字段，
@@ -112,23 +118,25 @@ bot 判断之后不再写任何额外日志或事件。
 
 **UI 可视化产物**：
 `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/` 中的 HTML、manifest、
-tokens 和 10 张已逐屏渲染画板；逻辑画板映射见 [figma.md](./figma.md)。
+tokens 和 13 张已逐屏渲染画板；逻辑画板映射见 [figma.md](./figma.md)。
 
 **Figma 设计引用**：[BusIsComing Website Homepage v1 Spec，节点 63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118&t=qpAv4G6q8c045NWj-0)，
-设计版本 `BusIsComing Pulse v1 · 2026-07-20`。用户已确认 HTML 导入完成；Figma Starter MCP
-额度无法读取子节点，因此实现以该锚点、manifest、tokens 和已验证画板为依据，不虚构子节点。
+设计版本 `BusIsComing Pulse v1.1 · 2026-07-22`。用户已确认 01–10 导入完成；11–13 是待按 README
+补充导入的移动详细调查、移动 APK 与普通查询失败画板。Figma Starter MCP 额度无法读取子节点，
+因此实现以既有锚点、manifest、tokens 和已验证截图为依据，不虚构新增子节点。
 
 **双端适配范围**：桌面基准 1440×1200（状态画板 1440×1000），使用 240px 侧栏、高密度 KPI、
 双栏图表和语义表格；`<=820px` 转为移动抽屉/底部导航、两列 KPI、纵向卡片、紧凑图表和
 key-value 明细，核心验收为 390×844 交互与 390×1640 full-page 视觉证据。APK metadata 状态
-参考 1200×760 画板。总览、详细调查与 APK 展示各自在所属用户故事中同时实现桌面和手机形态；
-最终双端故事只执行七个工作区和四类状态的跨页面回归、三语与可访问性验收，不承担首次移动适配。
+参考 1200×760 与 390×1200 画板；详细调查参考 390×1640 补充画板；普通查询失败参考
+1440×1000 补充画板。总览、详细调查与 APK 展示各自在所属用户故事中同时实现桌面和手机形态；
+最终双端故事只执行七个工作区和已确认状态的跨页面回归、三语与可访问性验收，不承担首次移动适配。
 
-**用户故事交付顺序**：用户故事 1（匿名隐私采集）是所有真实数据接入和生产发布的硬门禁；
-用户故事 2（运营总览）完成首个可视化闭环，并在同一阶段交付桌面与手机总览；用户故事 3 的每个
-详细工作区和用户故事 4 的 APK 状态也必须在各自阶段完成双端实现；用户故事 5 只做跨工作区三语、
-双端、可访问性和视觉一致性发布回归。fixture 可以用于先写查询测试，但不得把未完成用户故事 1
-的 Dashboard 称为可发布 MVP。
+**用户故事交付顺序**：US1（匿名隐私采集）是所有真实数据接入和生产发布的硬门禁；US2 首次实现 `MonitoringI18nProvider`、浏览器语言、`zh-Hant` fallback、持久化切换以及总览/共享 shell/filter/state
+三语文案，并在同一阶段交付桌面与手机总览；US1 + US2 形成首个已具备三语的可发布 Dashboard
+MVP。US3 首次完成六个详细工作区三语和双端，US4 首次完成 APK ready/unavailable 三语和双端；
+US5 只做跨页面视觉回归、key 完整性、隐私事实、香港繁中/自然英文、语言切换状态保持和可访问性，
+不首次创建 provider、切换器或批量文案。fixture 可以用于先写查询测试，但不得绕过 US1 接入生产数据。
 
 ## 宪法检查
 
@@ -142,7 +150,7 @@ key-value 明细，核心验收为 390×844 交互与 390×1640 full-page 视觉
 | OpenAPI 驱动的服务端接口文档：服务端 HTTP API 已有 OpenAPI 3.1 YAML、中文 API UI、共享沉淀路径和验证方式 | 通过 | `contracts/*.openapi.yaml` 已生成；计划记录 shared 路径、route header 同步、Redocly lint/bundle/docs 和私有 UI 不部署公网。 |
 | 三语国际化：所有用户可见文字覆盖 `zh-Hant`、`zh-Hans`、`en`，且 `zh-Hant` 与 `en` 已按自然语气审校、未机械直译 | 通过 | 技术背景与 quickstart 明确首页、Dashboard、状态、隐私事实及独立语气审校；现有 i18n provider/locale 类型可复用。 |
 | 试用查询与可靠降级：外部服务、缓存、超时和失败状态已设计 | 通过 | 不改变 Citybus/DATA.GOV.HK 业务语义；成功/失败均以脱敏类别记录，统计/metadata/monitor 失败不扩大为试查或下载失败。 |
-| 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 10 张高保真导入画板、manifest 与 tokens 已验证并由用户导入 Figma。 |
+| 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 13 张高保真画板、manifest、tokens 与精确 viewport 截图已验证；01–10 已导入，11–13 待补充导入。 |
 | 电脑与手机双端一致可用：布局、交互和内容展示同时覆盖手机与电脑 | 通过 | 总览、详细调查和 APK 状态均在所属故事内同步实现 1440/390 形态；最终故事只做跨页面回归，不把手机端作为事后补配。 |
 | Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | 权威文件节点 `63:2118`、版本、画板映射、交互与 MCP 限制记录在 `figma.md`。 |
 | 服务端 DDD 架构：新增或重构的服务端代码按 DDD 层级、模块边界和依赖方向组织 | 通过 | 新增 analytics 四层、应用端口与 platform/httpserver；downloads/routes 只在 HTTP adapter/组合根接入。 |
@@ -166,6 +174,7 @@ specs/010-website-analytics/
 │   └── requirements.md
 ├── contracts/
 │   ├── download-api.openapi.yaml
+│   ├── route-query-api.openapi.yaml
 │   ├── analytics-monitoring-api.openapi.yaml
 │   └── public-tracking-context.contract.md
 └── tasks.md                         # 后续 /speckit-tasks 生成
@@ -291,11 +300,11 @@ Caddy 永远只看到 `frontend/dist`。
 |------|------|------------|
 | 产品定位与范围边界 | 通过 | data model 只有官网主页、香港巴士地点/路线试查和 APK 下载事件；Android 主项目事实已复核。 |
 | 范围排除 | 通过 | event enum 无 ETA、非巴士交通、完整规划、账号、指纹、广告或安装完成事件。 |
-| 前后端分离与契约优先 | 通过 | 两份 OpenAPI + 跨切面 contract 固定 DTO、header、错误、筛选、游标和 fail-open；Dashboard 只消费私有 API 聚合。 |
+| 前后端分离与契约优先 | 通过 | 三份 feature OpenAPI + 跨切面 contract 固定 DTO、header、错误、筛选、游标和 fail-open；Dashboard 只消费私有 API 聚合。 |
 | OpenAPI 驱动的服务端接口文档 | 通过 | feature YAML 已通过 Redocly 结构验证；shared 同步、bundle、中文 docs 和私有不部署路径已记录。 |
 | 三语国际化 | 通过 | quickstart 覆盖首页、七工作区、四状态和隐私披露的三语 completeness 与繁中/英文独立审校。 |
 | 试用查询与可靠降级 | 通过 | tracking 位于 HTTP adapter，不改变 Citybus/DATA.GOV.HK use case；DB/metadata/private listener 失败均保持公开响应语义。 |
-| 现代界面与可视化评审 | 通过 | Figma node、10 张画板、manifest、tokens、Recharts/HTML 组件映射和视觉回归门禁齐全。 |
+| 现代界面与可视化评审 | 通过 | Figma 既有 node、13 张画板、manifest、tokens、Recharts/HTML 组件映射和视觉回归门禁齐全。 |
 | 电脑与手机双端一致可用 | 通过 | 1440/390 信息架构、表格移动转译、导航、状态和截图任务分配到各 UI 故事；最终故事只执行全量回归。 |
 | Figma 驱动的前端规格 | 通过 | `figma.md` 可定位文件、节点 63:2118、版本、viewport、状态和导入限制。 |
 | 服务端 DDD 架构 | 通过 | data model、源码结构和端口定义明确 analytics 四层、platform 通用层及依赖方向。 |

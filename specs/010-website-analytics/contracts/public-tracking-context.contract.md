@@ -58,22 +58,37 @@ analytics tracking middleware 在请求进入时创建只允许以下字段的�
 handler panic 被 recovery 转为受控 500 后，统计仍可按 `failure/internal` 记录：
 
 ```text
-redacted request logger -> exact analytics tracking -> custom recovery -> business handler
+public factory: redacted request logger -> injected analytics -> custom recovery -> business handler
+private factory: redacted request logger -> custom recovery -> business handler
 ```
+
+基础阶段的 public factory 接收 `gin.HandlerFunc` 注入参数并使用无副作用 stub 验证顺序，不在该
+阶段实现 visitor、机器人或事件写入。真实 tracking 与 recorder 完成后只替换注入参数，不重建
+engine，也不再次安装 logger/recovery。
 
 已知机器人会经过第一层通用脱敏 request logger，但在 analytics tracking 内先被排除；排除后不得
 验证/签发 Cookie、创建事件或追加任何机器人专用日志。
 
-事件写入使用独立短 deadline。写入失败或超时只增加 `droppedSinceStart` 并写脱敏错误类别；
-不得改动已经形成的状态码、响应头、JSON 或 APK bytes。
+事件写入使用 `ANALYTICS_WRITE_TIMEOUT_MS` 配置的独立 deadline：默认 `50ms`，只接受闭区间
+`10–200ms` 的整数毫秒值。每条允许事件只同步尝试一次；写入失败或超时只把
+`droppedSinceStart` 增加一次并写脱敏错误类别，不重试，不得改动已经形成的状态码、响应头、
+JSON 或 APK bytes。非法配置使 analytics 以不含原始值的 `invalid_write_timeout` 原因降级为
+no-op；public listener 继续启动，private system 状态可暴露受控原因类别。
 
 ## OpenAPI 同步范围
 
-实现阶段必须把本契约同步到：
+设计阶段的 OpenAPI 权威源是：
+
+- `specs/010-website-analytics/contracts/download-api.openapi.yaml`
+- `specs/010-website-analytics/contracts/route-query-api.openapi.yaml`
+- `specs/010-website-analytics/contracts/analytics-monitoring-api.openapi.yaml`
+
+实现阶段必须从上述 feature YAML 单向同步到：
 
 - `shared/contracts/openapi/download-api.openapi.yaml`：metadata/download header、Cookie 与打点说明。
 - `shared/contracts/openapi/route-query-api.openapi.yaml`：地点/路线的可选 source header、响应
   `Set-Cookie` 和匿名统计扩展；三个业务 request body 保持原样。
-- `shared/contracts/download-api.openapi.yaml` 兼容镜像及对应 bundle。
+- `shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`：固定 loopback 的七个私有只读接口。
+- `shared/contracts/download-api.openapi.yaml` 兼容镜像及对应 bundle；兼容镜像不成为第二权威源。
 
 项目可控的标题、说明、参数、响应、错误与示例必须使用中文并通过 Redocly lint/bundle。

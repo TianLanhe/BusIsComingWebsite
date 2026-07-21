@@ -49,10 +49,16 @@ Dashboard 指标、上一周期、漏斗、P50/P95 和分布均在查询时生�
 
 ## 决策 4：统计写入采用短超时同步尝试，失败立即 fail-open
 
-**Decision**：公开请求完成并由 recovery 归一化后，统计 middleware 使用独立短 deadline
-尝试单条写入。成功时更新进程内 `lastSuccessfulWrite`；失败、超时或存储不可用时增加原子
-`droppedSinceStart`，只记录受控错误类别，然后返回原业务结果。不重试、不排队，不因统计
-错误修改状态码、JSON、APK bytes 或响应头。
+**Decision**：配置键为 `ANALYTICS_WRITE_TIMEOUT_MS`，未配置时使用 `50ms`，只接受闭区间
+`10–200ms` 的整数毫秒值。公开请求完成并由 recovery 归一化后，统计 middleware 为每条允许事件
+创建独立 context deadline 并同步尝试一次写入；传入 writer 的 deadline 不得超过已校验值或
+`200ms` 上限。成功时更新进程内 `lastSuccessfulWrite`；失败、超时或存储不可用时把原子
+`droppedSinceStart` 增加一次，只记录受控错误类别，然后返回原业务结果。不重试、不排队，不因
+统计错误修改状态码、JSON、APK bytes 或响应头。
+
+配置为 `9`、`201`、`0`、负数、非整数或其他无法解析值时，analytics 初始化降级为 no-op，
+只记录不含原始配置值的 `invalid_write_timeout` 受控原因；public listener 继续启动，private
+system 状态可解释该原因类别。`10`、`50`、`200` 均为合法边界值。
 
 **Rationale**：日均不超过 1,000 条，单条本地 SQLite 写入足够；短超时同步写能保持事件顺序、
 实现简单且没有内存队列积压。公开 handler 已经完成响应语义，统计失败只能造成可接受的数据
@@ -117,6 +123,11 @@ SQLite、日志或错误上下文。
 固定 method/path；recovery 归一化 panic 后，tracking 读取最终状态、耗时和 request-scoped
 白名单结果。既有 HTTP adapters 只可回填语言、受控失败分类和实际下载版本等允许字段，不能
 回填 body、地点、坐标或 token。ETA 路由不挂统计映射。
+
+基础阶段先建立 public/private engine factory：public factory 接收一个 `gin.HandlerFunc` analytics
+参数并用无副作用 stub 验证最终顺序，private factory 不包含该注入点。US1 实现真实 tracking 和
+带 deadline recorder 后，只把真实 middleware 注入既有 public factory；不重新创建 engine，也不
+重复替换 logger 或 recovery。
 
 **Rationale**：放在 application 成功路径会漏掉非法 JSON、限流、token 错误、外部失败和
 panic。精确路由 middleware 能记录每次到达请求，又不改变 downloads/routes 领域层。
