@@ -1,6 +1,6 @@
 {
-  "name": "BusIsComing Pulse v1",
-  "version": "2026-07-20",
+  "name": "BusIsComing Pulse v1.1",
+  "version": "2026-07-22",
   "figmaFileKey": "LAm6RjzFuFHsHFlcipx8pU",
   "targetPage": "Website Analytics / v1",
   "baseUrl": "http://127.0.0.1:59337/index.html?screen=",
@@ -14,6 +14,9 @@
     { "screen": "system", "frameName": "07 Pulse / System / 1440", "width": 1440, "height": 1200, "x": 0, "y": 2560 },
     { "screen": "mobile", "frameName": "08 Pulse / Mobile Overview / 390", "width": 390, "height": 1640, "x": 1520, "y": 2560 },
     { "screen": "states", "frameName": "09 Pulse / Loading Empty Error States / 1440", "width": 1440, "height": 1000, "x": 2000, "y": 2560 },
-    { "screen": "apk", "frameName": "10 Homepage / APK Metadata States / 1200", "width": 1200, "height": 760, "x": 0, "y": 4280 }
+    { "screen": "apk", "frameName": "10 Homepage / APK Metadata States / 1200", "width": 1200, "height": 760, "x": 0, "y": 4280 },
+    { "screen": "mobile-investigation", "frameName": "11 Pulse / Mobile Investigation / 390", "width": 390, "height": 1640, "x": 1280, "y": 4280 },
+    { "screen": "mobile-apk", "frameName": "12 Homepage / Mobile APK Metadata States / 390", "width": 390, "height": 1200, "x": 1750, "y": 4280 },
+    { "screen": "query-failure", "frameName": "13 Pulse / Query Failure State / 1440", "width": 1440, "height": 1000, "x": 2240, "y": 4280 }
   ]
 }

@@ -268,7 +268,111 @@ function apk() {
   </div>`;
 }
 
-const renderers = { overview, traffic, downloads, events, visitor, performance, system, mobile, states, apk };
+function mobileInvestigation() {
+  const compactEvent = ({ time, type, visitorId, locale, status, duration, failure = false }) => `
+    <article class="card card-pad mobile-event-card">
+      <div class="mobile-event-head"><span class="event-type">${type}</span>${badge(status, failure ? "error" : "success")}</div>
+      <dl class="mobile-event-fields">
+        <dt>时间</dt><dd>${time}</dd>
+        <dt>Visitor ID</dt><dd class="mono">${visitorId}</dd>
+        <dt>语言 · 设备</dt><dd>${locale} · mobile</dd>
+        <dt>耗时</dt><dd>${duration}</dd>
+      </dl>
+    </article>`;
+
+  return `<div class="board mobile mobile-investigation">
+    <header class="mobile-head"><div class="mobile-title-row"><div class="mobile-brand"><span class="mobile-mark">B</span><span>BusIsComing Pulse</span></div>${badge("调查模式", "info")}</div></header>
+    <main class="mobile-content">
+      <section class="mobile-investigation-intro"><div><div class="eyebrow">事件明细 · 手机</div><h1>匿名访问调查</h1></div><span class="investigation-count">17,742<br><small>筛选结果</small></span></section>
+      <section class="mobile-filter-stack" aria-label="事件筛选">
+        <div><span class="filter-chip active">近 30 天</span><span class="filter-chip">事件：全部⌄</span></div>
+        <div><span class="filter-chip">结果：失败⌄</span><span class="filter-chip">语言⌄</span><span class="filter-chip">设备⌄</span></div>
+      </section>
+      <div class="privacy-note"><span class="lock">◇</span><span>只显示允许的匿名字段；不保存 IP、查询词、地点、坐标、Cookie 或完整 User-Agent。</span></div>
+      <section class="mobile-investigation-summary" aria-label="筛选结果摘要"><div><b>17,422</b><span>成功事件</span></div><div><b>320</b><span>失败事件</span></div><div><b>3,216</b><span>独立浏览器</span></div></section>
+      <section class="mobile-event-section" aria-label="匿名事件明细">
+        <div class="mobile-section-head"><div><h2>匿名事件</h2><p>按发生时间倒序</p></div><span>每页 50 条</span></div>
+        <div class="mobile-event-cards">
+          ${compactEvent({time:"2026-07-20 09:15:12",type:"route_query",visitorId:"4e22…19af",locale:"zh-Hans",status:"502 · 失败",duration:"2.10s",failure:true})}
+          ${compactEvent({time:"2026-07-20 09:13:07",type:"place_query",visitorId:"bd70…c412",locale:"zh-Hant",status:"200 · 成功",duration:"355ms"})}
+          ${compactEvent({time:"2026-07-20 09:12:44",type:"page_view",visitorId:"bd70…c412",locale:"zh-Hant",status:"200 · 成功",duration:"31ms"})}
+        </div>
+      </section>
+      <section class="card card-pad mobile-visitor-search" aria-label="匿名访客精确搜索">
+        <div class="card-head"><div><h2 class="card-title">精确查找 Visitor ID</h2><div class="card-note">只有维护者主动输入完整值时才显示完整标识</div></div></div>
+        <div class="visitor-input mono">a83f9273d84c4b2e9d819db05fe092d1</div>
+        <div class="visitor-actions"><button class="control primary" type="button">查找访客</button><button class="control" type="button">复制完整 ID</button></div>
+        <p class="copy-feedback" aria-live="polite">✓ 已复制完整 Visitor ID</p>
+      </section>
+      <section class="card card-pad mobile-timeline" aria-label="会话时间线">
+        <div class="card-head"><div><h2 class="card-title">会话时间线</h2><div class="card-note">30 分钟无活动后切分新会话</div></div><span class="card-meta">会话 #18</span></div>
+        <div class="session-divider">2026-07-20 · 4 个事件 · 持续 51 秒</div>
+        <div class="timeline">${timelineItem("09:16", "访问主页", "zh-Hant · search")}${timelineItem("09:15", "地点查询", "成功 · 381ms")}${timelineItem("09:15", "路线查询", "成功 · 1.42s")}${timelineItem("09:15", "下载请求", "Android · v1.0 (1)")}</div>
+      </section>
+      <nav class="mobile-pagination" aria-label="事件分页"><button class="control" type="button">← 上一页</button><span>1 / 355</span><button class="control primary" type="button">下一页 →</button></nav>
+    </main>
+    <nav class="mobile-secondary-nav"><span>总览</span><span class="active">事件</span><span>访客</span><span>系统</span></nav>
+  </div>`;
+}
+
+function mobileApk() {
+  const downloadCard = metadata => `<div class="download-card"><div class="download-platform"><span class="android-icon">A</span><div><div class="download-title">下载 Android APK</div><div class="download-meta">${metadata}</div></div></div><span class="download-arrow">↓</span></div>`;
+
+  return `<div class="board mobile mobile-apk-board">
+    <header class="mobile-apk-hero"><div class="mobile-brand"><span class="mobile-mark">B</span><span>BusIsComing</span></div><span class="badge info">zh-Hant · 简 · EN</span><div class="eyebrow">Homepage Download Metadata</div><h1>APK 版本与大小</h1><p>元数据失败只降级版本与大小，稳定下载入口始终可以使用。</p></header>
+    <main class="mobile-apk-stack">
+      <article class="mobile-apk-state" data-state="ready">
+        <div class="state-label"><span>01 / Metadata ready</span>${badge("可用", "success")}</div>
+        <div class="mobile-homepage-slice"><div class="eyebrow">下载 App</div><h2>把香港巴士路线带在身边</h2><p>Android 安装包由本站安全提供。</p>${downloadCard("版本 1.0 (1) · 36.8 MB")}<div class="locale-copy-list"><div><span>繁中</span><b>版本 1.0 (1) · 36.8 MB</b></div><div><span>简中</span><b>版本 1.0 (1) · 36.8 MB</b></div><div><span>EN</span><b>Version 1.0 (1) · 36.8 MB</b></div></div><div class="annotation">版本和大小由当前 metadata 按页面语言格式化。</div></div>
+      </article>
+      <article class="mobile-apk-state" data-state="unavailable">
+        <div class="state-label"><span>02 / Metadata unavailable</span>${badge("降级", "warning")}</div>
+        <div class="mobile-homepage-slice"><div class="eyebrow">下载 App</div><h2>把香港巴士路线带在身边</h2><p>Android 安装包由本站安全提供。</p>${downloadCard("版本与大小暂时不可用")}<div class="locale-copy-list compact"><div><span>繁中</span><b>版本及大小暫時未能提供</b></div><div><span>简中</span><b>版本与大小暂时不可用</b></div><div><span>EN</span><b>Version and size unavailable</b></div></div><div class="unavailable-note"><span class="unavailable-mark">!</span><span>无需重新载入版本信息；下载仍可正常开始。</span></div><div class="annotation">不显示旧版本、不自动或手动重试 metadata。</div></div>
+      </article>
+    </main>
+  </div>`;
+}
+
+function queryFailure() {
+  return `<div class="board query-failure-board">
+    <header class="query-failure-header"><div><div class="eyebrow">Pulse UI States · Query Failure</div><h1 class="doc-title">查询失败也要保留调查上下文</h1><p class="doc-subtitle">普通失败允许手动重试；数据库不可用说明监控存储状态。两者不共用错误文案，也不影响公开主页、试查或下载。</p></div><span class="badge info">Desktop · 1440</span></header>
+    <section class="query-failure-layout">
+      <aside class="card card-pad retained-filters" aria-label="已保留筛选条件">
+        <div class="card-head"><div><h2 class="card-title">已保留筛选</h2><div class="card-note">重试不会重置当前调查范围</div></div>${badge("4 项", "neutral")}</div>
+        <div class="key-list"><div class="key-row"><span>时间范围</span><b>近 30 天</b></div><div class="key-row"><span>事件</span><b>路线查询</b></div><div class="key-row"><span>结果</span><b>失败</b></div><div class="key-row"><span>语言</span><b>zh-Hant</b></div></div>
+        <div class="saved-query"><span class="saved-query-dot"></span><div><b>当前查询已保留</b><small>重新载入后继续使用相同筛选</small></div></div>
+      </aside>
+      <div class="query-failure-stack">
+        <article class="query-error-panel" data-state="query-failure">
+          <div class="state-label"><span>01 / Retryable query failure</span>${badge("可重试", "warning")}</div>
+          <div class="query-error-content"><div class="query-error-icon">↻</div><div><h2>暂时无法载入这组监控数据</h2><p>请求可能因短暂网络或服务错误失败。筛选条件仍然保留，请在准备好后手动重试。</p><div class="query-error-actions"><button class="control primary" type="button">重试查询</button><button class="control" type="button">查看系统状态</button></div></div></div>
+          <div class="error-footnote"><span>错误类别：query_unavailable</span><span>不会自动循环重试</span><span>公开业务不受影响</span></div>
+        </article>
+        <article class="query-error-panel database-error-panel" data-state="database-unavailable">
+          <div class="state-label"><span>02 / Database unavailable</span>${badge("监控不可用", "error")}</div>
+          <div class="database-error-content"><div class="query-error-icon">!</div><div><h2>监控数据库当前不可用</h2><p>聚合和明细暂时无法读取；系统状态仍会提供受控原因类别和进程内 dropped count。</p></div><div class="database-health"><span>SQLite</span><b>unavailable</b><small>公开 8080 继续运行</small></div></div>
+        </article>
+      </div>
+    </section>
+    <footer class="query-failure-footer"><span>BusIsComing Pulse v1.1</span><span>失败状态不泄露数据库路径、错误原文或请求内容</span></footer>
+  </div>`;
+}
+
+const renderers = {
+  overview,
+  traffic,
+  downloads,
+  events,
+  visitor,
+  performance,
+  system,
+  mobile,
+  states,
+  apk,
+  "mobile-investigation": mobileInvestigation,
+  "mobile-apk": mobileApk,
+  "query-failure": queryFailure,
+};
 const renderer = renderers[screen] || overview;
 document.getElementById("app").innerHTML = renderer();
 document.title = `BusIsComing Pulse · ${screen}`;

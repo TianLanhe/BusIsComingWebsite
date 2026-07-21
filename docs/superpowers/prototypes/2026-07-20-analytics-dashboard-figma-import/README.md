@@ -5,7 +5,7 @@
 - 文件：`BusIsComing Website - Homepage v1 Spec`
 - File key：`LAm6RjzFuFHsHFlcipx8pU`
 - 建议新页面：`Website Analytics / v1`
-- 设计版本：`Pulse v1 · 2026-07-20`
+- 设计版本：`Pulse v1.1 · 2026-07-22`
 
 ## 启动
 
@@ -16,7 +16,8 @@ python3 -m http.server 59337 --bind 127.0.0.1 \
   --directory docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import
 ```
 
-然后按 `manifest.json` 中的顺序逐个打开 URL，并使用 Figma 导入插件捕获整个页面。
+然后按 `manifest.json` 中的顺序逐个打开 URL，并使用 Figma 导入插件捕获整个页面。原有
+01–10 已完成导入时无需重复导入；本次 v1.1 只需导入 11–13。
 
 ## 导入约定
 
@@ -25,7 +26,7 @@ python3 -m http.server 59337 --bind 127.0.0.1 \
 3. 所有画板导入到同一个 `Website Analytics / v1` 页面。
 4. 推荐按 manifest 的 `x` / `y` 排列，便于后续 specification 引用。
 5. HTML 导入能保留可编辑文本、形状和 SVG，但不会自动创建 Figma Variables、Components、Auto Layout 或原型连接；这些属于 MCP 额度限制下由用户明确接受的降级项。
-6. 导入完成后，请提供 Figma 页面链接和关键节点链接，至少包含：桌面总览、移动端总览、访客详情、状态集合、APK 元数据状态。
+6. 导入完成后，请提供 Figma 页面链接和关键节点链接，至少包含：桌面总览、移动端总览、访客详情、状态集合、APK 元数据状态，以及本次新增的移动详细调查、移动 APK 状态和普通查询失败状态。
 
 ## 画板内容
 
@@ -39,3 +40,17 @@ python3 -m http.server 59337 --bind 127.0.0.1 \
 - 移动端总览：纵向卡片、紧凑折线、关键健康状态。
 - 状态集合：加载、空数据、无筛选结果、数据库不可用。
 - APK 元数据：成功与不可用两种主页展示，下载始终可用。
+- 移动详细调查：紧凑筛选、key-value 事件卡、完整 Visitor ID 精确搜索/复制反馈、纵向会话时间线和分页。
+- 移动 APK 状态：390px 下的 metadata 成功/不可用、本地化版本和大小、始终可用的稳定下载入口。
+- 普通查询失败：保留筛选、手动重试，并与数据库不可用状态清晰区分。
+
+## v1.1 补充导入
+
+只导入以下 URL，导入目标仍是现有 Figma 文件的 `Website Analytics / v1` 页面：
+
+1. `http://127.0.0.1:59337/index.html?screen=mobile-investigation`
+2. `http://127.0.0.1:59337/index.html?screen=mobile-apk`
+3. `http://127.0.0.1:59337/index.html?screen=query-failure`
+
+分别按 manifest 重命名为 11、12、13 号 Frame。导入前截图保存在 `screenshots/`，仅作为
+viewport 与布局证据；运行时示例数值不是产品事实。
