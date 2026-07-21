@@ -3,8 +3,9 @@
 **输入**：`/specs/010-website-analytics/` 下的 `spec.md`、`plan.md`、`research.md`、
 `data-model.md`、`figma.md`、`quickstart.md` 与 `contracts/`
 
-**前置条件**：实施计划、数据模型、公开下载 OpenAPI、私有监控 OpenAPI、公开打点上下文契约和
-Figma `BusIsComing Pulse v1 · 2026-07-20` 节点 `63:2118` 均已确定。
+**前置条件**：实施计划、数据模型、download/route-query/analytics-monitoring 三份 feature
+OpenAPI、公开打点上下文契约和 Figma `BusIsComing Pulse v1.1 · 2026-07-22` 均已确定；01–10
+已有节点 `63:2118`，11–13 使用已验证导入源与截图并等待用户补充导入，不虚构新增节点。
 
 **测试策略**：本规格明确要求自动化测试。每个用户故事先编写并确认相关测试失败，再实现最小
 代码使其通过；最终再执行 race、隐私 sentinel、100 万行性能、OpenAPI、Playwright、部署隔离和
@@ -21,9 +22,9 @@ Figma `BusIsComing Pulse v1 · 2026-07-20` 节点 `63:2118` 均已确定。
 - [ ] T002 [P] 在 `frontend/package.json` 和 `frontend/package-lock.json` 锁定与 React 18 兼容的 Recharts 3.x 及其必要 peer dependency，且不引入 React Router、TanStack Query 或 ORM
 - [ ] T003 [P] 建立私有 Dashboard 的独立 Vite 入口与 `dist-monitor` 构建配置，路径：`frontend/monitor/index.html`、`frontend/vite.monitor.config.ts`
 - [ ] T004 [P] 增加监控前端的 Vitest/Playwright/build 脚本与私有开发代理配置，路径：`frontend/package.json`、`frontend/playwright.monitor.config.ts`、`frontend/vitest.config.ts`
-- [ ] T005 将两份 feature OpenAPI 同步到长期契约并保持公开兼容镜像，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`、`shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`
-- [ ] T006 按公开打点上下文契约补充路线接口的有限来源 header、`Set-Cookie` 与打点副作用且保持三个业务 body 不变，路径：`shared/contracts/openapi/route-query-api.openapi.yaml`
-- [ ] T007 扩展 Redocly lint、bundle 和中文 API UI 命令并确保私有文档不进入公网构建，路径：`frontend/package.json`、`frontend/redocly.yaml`
+- [ ] T005 将 download、route-query、analytics-monitoring 三份 feature OpenAPI 单向同步到 shared，兼容镜像只从 download shared 源生成或复制且不成为权威源，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/openapi/route-query-api.openapi.yaml`、`shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`
+- [ ] T006 以 feature route 契约为源同步有限 source header、`Set-Cookie` 和打点副作用到 shared，并用 schema diff 保证三个业务 body 不变，路径：`specs/010-website-analytics/contracts/route-query-api.openapi.yaml`、`shared/contracts/openapi/route-query-api.openapi.yaml`
+- [ ] T007 扩展 Redocly 命令，使三份 feature 与三份 shared 契约均可 lint/bundle，中文 API UI 不进入公网构建，路径：`frontend/package.json`、`frontend/redocly.yaml`
 
 ---
 
@@ -35,7 +36,7 @@ listener 生命周期。此阶段完成前不开始用户故事实现。
 ### 基础测试与契约测试
 
 - [ ] T008 [P] 为四类事件、有限枚举、跨字段约束、UTC 毫秒和下载归因编写先失败的领域测试，路径：`backend/internal/analytics/domain/event_test.go`
-- [ ] T009 [P] 为可替换 `EventWriter`/`AnalyticsQueryStore` 端口、进程内 health 计数和 no-op 降级编写先失败的应用层测试，路径：`backend/internal/analytics/application/record_event_test.go`、`backend/internal/analytics/application/runtime_health_test.go`
+- [ ] T009 [P] 为 `ANALYTICS_WRITE_TIMEOUT_MS` 未配置、10/50/200、非法值 no-op、受控健康原因类别和可替换端口编写先失败测试，路径：`backend/cmd/server/config_test.go`、`backend/internal/analytics/application/record_event_test.go`、`backend/internal/analytics/application/runtime_health_test.go`
 - [ ] T010 [P] 为迁移幂等、目标索引、SQLite runtime 版本、每连接 WAL/`synchronous=NORMAL`/`busy_timeout` 和无汇总表编写先失败的集成测试，路径：`backend/internal/analytics/infrastructure/sqlite/store_test.go`、`backend/internal/analytics/infrastructure/sqlite/migrations_test.go`
 - [ ] T011 [P] 为不读取 ClientIP/实际 URI/query 的结构化请求日志、不回显 panic/request 的 recovery，以及 public/private handler panic 均返回受控 500 编写先失败测试，路径：`backend/internal/platform/httpserver/logger_test.go`、`backend/internal/platform/httpserver/recovery_test.go`、`backend/cmd/server/engine_middleware_test.go`
 - [ ] T012 [P] 为 public 启动致命、private 启动失败非致命、goroutine recover、错误传递和有界 shutdown 编写先失败测试，路径：`backend/internal/platform/httpserver/supervisor_test.go`、`backend/cmd/server/main_test.go`
@@ -45,13 +46,13 @@ listener 生命周期。此阶段完成前不开始用户故事实现。
 - [ ] T013 实现与框架、SQL、文件系统及前端类型无关的 `AnalyticsEvent`、`DownloadAttribution`、值对象、有限枚举和领域错误，路径：`backend/internal/analytics/domain/event.go`、`backend/internal/analytics/domain/value_objects.go`、`backend/internal/analytics/domain/errors.go`
 - [ ] T014 [P] 定义筛选、游标、指标、序列、分布、访客、会话、漏斗和系统状态的领域数据结构，路径：`backend/internal/analytics/domain/query.go`、`backend/internal/analytics/domain/results.go`
 - [ ] T015 定义 `EventWriter`、`AnalyticsQueryStore`、clock、runtime health 和七类查询用例的应用端口与 DTO，路径：`backend/internal/analytics/application/ports.go`、`backend/internal/analytics/application/dto.go`
-- [ ] T016 实现 `RecordEvent` 基础编排、独立短 deadline、无重试的 no-op writer 和原子 `lastSuccessfulWriteAt`/`droppedSinceStart`，路径：`backend/internal/analytics/application/record_event.go`、`backend/internal/analytics/application/runtime_health.go`
+- [ ] T016 实现 `RecordEvent` 基础编排、默认 50ms/闭区间 10–200ms 配置值注入、独立 deadline、单次写入、无重试的 no-op writer 和原子 `lastSuccessfulWriteAt`/`droppedSinceStart`，路径：`backend/internal/analytics/application/record_event.go`、`backend/internal/analytics/application/runtime_health.go`
 - [ ] T017 [P] 创建只包含 `analytics_events` 与技术迁移元数据、约束和计划索引的 additive migration，路径：`backend/internal/analytics/infrastructure/sqlite/migrations/001_create_analytics_events.sql`
 - [ ] T018 实现 `database/sql` SQLite 连接、runtime version gate、每连接 PRAGMA、幂等迁移和事件写入适配器，路径：`backend/internal/analytics/infrastructure/sqlite/store.go`、`backend/internal/analytics/infrastructure/sqlite/migrations.go`
 - [ ] T019 [P] 实现仅记录服务端 request ID、method、route template、operationId、bounded context、status、duration 和 body size 的脱敏 logger；机器人只产生相同通用日志且不含 bot 标记或身份线索，路径：`backend/internal/platform/httpserver/logger.go`
 - [ ] T020 [P] 实现不 dump request、不输出 panic 原值/受禁上下文且返回受控 500 的 Gin recovery，路径：`backend/internal/platform/httpserver/recovery.go`
 - [ ] T021 实现双 `http.Server` 的 recover 保护、状态上报、错误传递和有界关闭监督器，路径：`backend/internal/platform/httpserver/supervisor.go`
-- [ ] T022 在 composition root 建立独立 public/private Gin engine、配置校验、analytics 初始化失败 no-op 降级、默认 public `127.0.0.1:8080` 和固定 private `127.0.0.1:18081` 绑定，并显式安装 public `logger → analytics → recovery` 与 private `logger → recovery` middleware，路径：`backend/cmd/server/main.go`、`backend/cmd/server/config.go`
+- [ ] T022 建立 public/private engine factory 和配置校验；public 接收 `gin.HandlerFunc` analytics 参数并用无副作用 stub 验证 `logger → injected analytics → recovery → handler`，private 验证 `logger → recovery → handler`；同时实现默认 public `127.0.0.1:8080`、固定 private `127.0.0.1:18081` 绑定和非法 analytics 配置 no-op 降级，本任务不实现真实 tracking，路径：`backend/internal/platform/httpserver/engine.go`、`backend/internal/platform/httpserver/engine_test.go`、`backend/cmd/server/config.go`
 - [ ] T023 [P] 实现仅在 private engine 注册的监控静态资源 fallback 与 `Cache-Control: no-store`，路径：`backend/internal/analytics/interfaces/http/static_handler.go`
 
 **检查点**：analytics 依赖方向为 `interfaces/infrastructure → application → domain`，public 与
@@ -75,7 +76,7 @@ fail-open；再用 sentinel 扫描日志、SQLite/WAL/SHM 和私有响应。
 - [ ] T025 [P] [US1] 为已知机器人、真实 desktop/mobile/tablet 反例、粗设备/来源/locale 枚举、非法输入 fallback，以及机器人只有通用脱敏请求日志且无 bot 标记/专门日志编写先失败测试，路径：`backend/internal/analytics/infrastructure/classification/classifier_test.go`、`backend/internal/platform/httpserver/logger_test.go`
 - [ ] T026 [P] [US1] 为 request logger 先执行、bot-before-cookie、合法主页 header、Cookie 轮换、request-scoped 白名单和 analytics/recovery 顺序编写先失败测试，路径：`backend/internal/analytics/interfaces/http/tracking_middleware_test.go`
 - [ ] T027 [P] [US1] 为 metadata 成功/失败、地点与路线非法 JSON/限流/token/上游失败/panic/成功、下载成功/失败各一次以及 ETA 零事件编写先失败集成测试，路径：`backend/internal/analytics/interfaces/http/public_tracking_integration_test.go`
-- [ ] T028 [P] [US1] 为 SQLite 不可写、锁超时和 writer deadline 下公开 status/header/JSON/APK bytes 等价且丢弃计数增加编写先失败测试，路径：`backend/internal/analytics/interfaces/http/fail_open_test.go`
+- [ ] T028 [P] [US1] 为 SQLite 不可写、锁超时和阻塞 writer 编写先失败测试，验证 context deadline 不超过配置值与 200ms 上限、writer 只调用一次、丢弃计数恰好增加一次，且公开 status/header/JSON/APK bytes 与 no-op 基线等价，路径：`backend/internal/analytics/interfaces/http/fail_open_test.go`
 - [ ] T029 [P] [US1] 把 IP、完整 UA/Referrer/Cookie、URI/query/body、地点、坐标、token、客户端 requestId、panic 和上游响应 sentinel 注入请求并编写零命中测试，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
 - [ ] T030 [P] [US1] 为浏览器端只输出 `direct/search/referral/internal/unknown` 且不发送原始 Referrer 编写先失败测试，路径：`frontend/src/services/analyticsSource.test.ts`
 - [ ] T031 [P] [US1] 为三语隐私事实、始终启用、无 DNT/GPC 退出、1 年 Cookie、长期明细和不记录 IP 编写先失败内容测试，路径：`frontend/src/tests/privacy-policy-analytics.test.tsx`
@@ -85,15 +86,15 @@ fail-open；再用 sentinel 扫描日志、SQLite/WAL/SHM 和私有响应。
 - [ ] T032 [US1] 实现 128-bit base64url visitor ID、版本化 HMAC-SHA256 签名、常量时间校验、过期与轮换，路径：`backend/internal/analytics/infrastructure/signing/visitor_cookie.go`
 - [ ] T033 [P] [US1] 实现只作瞬时判定且不持久化原始输入的 bot、device、source 和 locale 分类器，路径：`backend/internal/analytics/infrastructure/classification/classifier.go`
 - [ ] T034 [P] [US1] 实现仅允许 locale、failureCategory 和 download attribution 回填的 request-scoped 观察对象，路径：`backend/internal/analytics/interfaces/http/observation.go`
-- [ ] T035 [US1] 实现精确路由映射、bot-before-cookie、`__Host-bic-visitor` 签发及 analytics 外包 recovery 的 tracking middleware；bot 排除后不追加事件或专门日志，路径：`backend/internal/analytics/interfaces/http/tracking_middleware.go`
-- [ ] T036 [US1] 把短超时 fail-open recorder、内存健康状态与脱敏写入错误类别接入 middleware，路径：`backend/internal/analytics/interfaces/http/event_recorder.go`、`backend/internal/analytics/application/record_event.go`
-- [ ] T037 [US1] 用自有 logger → analytics → custom recovery 的顺序替换公开 engine 的 `gin.Logger`/`gin.Recovery`，并保证机器人只经过最外层通用脱敏 logger，路径：`backend/cmd/server/main.go`
+- [ ] T035 [US1] 实现精确路由映射、bot-before-cookie、`__Host-bic-visitor` 签发及 recovery 外层的真实 tracking middleware；bot 排除后不追加事件或专门日志，路径：`backend/internal/analytics/interfaces/http/tracking_middleware.go`
+- [ ] T036 [US1] 把已校验 `ANALYTICS_WRITE_TIMEOUT_MS`、单次 fail-open recorder、内存健康状态与脱敏写入错误类别接入真实 middleware，路径：`backend/internal/analytics/interfaces/http/event_recorder.go`、`backend/internal/analytics/application/record_event.go`
+- [ ] T037 [US1] 只把 T035/T036 的真实 middleware 注入 T022 已存在的 public factory，并保证机器人只经过最外层通用脱敏 logger；不重建 engine、不再次替换 logger/recovery，路径：`backend/cmd/server/main.go`
 - [ ] T038 [US1] 在地点/路线 HTTP adapter 只回填受控 locale/failureCategory 并清除起终点、坐标、query、token 和客户端 requestId 日志，路径：`backend/internal/routes/interfaces/http/handler.go`、`backend/internal/routes/infrastructure/logging/logger.go`
 - [ ] T039 [US1] 在下载 HTTP adapter 提供平台与本次实际响应元数据的白名单回填钩子，失败时不借用配置版本，路径：`backend/internal/downloads/interfaces/http/handler.go`
 - [ ] T040 [P] [US1] 实现浏览器本地粗粒度来源分类，并在主页 metadata、地点和路线请求中只发送有限 header，路径：`frontend/src/services/analyticsSource.ts`、`frontend/src/services/routeQueryClient.ts`
 - [ ] T041 [P] [US1] 更新三语隐私政策，准确披露匿名标识、UV 含义、始终启用、长期保留、无备份及受禁字段，路径：`frontend/src/content/privacyPolicyContent.ts`
 - [ ] T042 [US1] 让 locale/noscript/SEO 生成内容与更新后的三语隐私事实一致，路径：`frontend/scripts/generate-locale-pages.mjs`、`frontend/src/content/seoPages.json`
-- [ ] T043 [US1] 运行 synthetic 路由、bot、通用日志边界、fail-open 和隐私 sentinel 独立验收并记录命令与零命中预期，路径：`specs/010-website-analytics/quickstart.md`
+- [ ] T043 [US1] 运行 synthetic 路由、bot、通用日志边界、fail-open、隐私 sentinel 及 deadline 配置矩阵（unset/10/50/200 合法，9/201/0/负数/非整数 no-op）独立验收并记录命令与零命中预期，路径：`specs/010-website-analytics/quickstart.md`
 
 **检查点**：US1 可通过 synthetic metadata route 独立验证；与真实 metadata 的 page-view 集成在
 US4 完成。该故事完成前不得接入或交付真实 Dashboard 数据；统计故障、机器人请求和 ETA 均不
@@ -130,11 +131,11 @@ US4 完成。该故事完成前不得接入或交付真实 Dashboard 数据；�
 - [ ] T055 [US2] 实现 OpenAPI 约束的筛选解析、错误映射和 `GET /api/analytics/overview` handler，路径：`backend/internal/analytics/interfaces/http/query_parser.go`、`backend/internal/analytics/interfaces/http/overview_handler.go`
 - [ ] T056 [US2] 只在 private engine 注册总览 API 和监控 SPA，路径：`backend/internal/analytics/interfaces/http/private_routes.go`、`backend/cmd/server/main.go`
 - [ ] T057 [P] [US2] 实现监控 OpenAPI 对应 TypeScript DTO、统一 client、筛选与日期范围序列化，路径：`frontend/src/monitoring/services/analyticsTypes.ts`、`frontend/src/monitoring/services/analyticsClient.ts`
-- [ ] T058 [P] [US2] 实现无 React Router 依赖的 hash 导航、近 30 天默认范围、粒度/比较/多维筛选状态，并建立导航/总览的三语 copy 入口，路径：`frontend/src/monitoring/app/hashRoute.ts`、`frontend/src/monitoring/app/FilterProvider.tsx`、`frontend/src/monitoring/content/copy.ts`
+- [ ] T058 [P] [US2] 实现无 React Router 依赖的 hash 导航、近 30 天默认范围、粒度/比较/多维筛选状态，并首次建立 `MonitoringI18nProvider`、浏览器语言选择、繁中 fallback、持久化语言选择、语言切换器以及总览和共享 shell/filter/state 三语 copy，路径：`frontend/src/monitoring/app/hashRoute.ts`、`frontend/src/monitoring/app/FilterProvider.tsx`、`frontend/src/monitoring/app/MonitoringI18nProvider.tsx`、`frontend/src/monitoring/components/layout/MonitoringLanguageSwitcher.tsx`、`frontend/src/monitoring/content/copy.ts`
 - [ ] T059 [P] [US2] 按 Figma tokens 建立监控色彩、字体、间距、卡片、焦点和桌面/手机网格样式，路径：`frontend/src/monitoring/styles/tokens.css`、`frontend/src/monitoring/styles/dashboard.css`
-- [ ] T060 [P] [US2] 实现桌面 Dashboard shell、侧栏、顶栏、全局筛选和更新时间组件，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`、`frontend/src/monitoring/components/filters/GlobalFilters.tsx`
+- [ ] T060 [P] [US2] 实现桌面 Dashboard shell、侧栏、顶栏、语言切换器、全局筛选和更新时间组件，并保持切换语言时当前 hash 与筛选不变，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`、`frontend/src/monitoring/components/layout/MonitoringLanguageSwitcher.tsx`、`frontend/src/monitoring/components/filters/GlobalFilters.tsx`
 - [ ] T061 [P] [US2] 实现具备文字摘要的指标卡、PV/UV 折线、事件/平台/版本分布、响应时间和双漏斗组件，路径：`frontend/src/monitoring/components/charts/MetricCard.tsx`、`frontend/src/monitoring/components/charts/TrafficChart.tsx`、`frontend/src/monitoring/components/charts/DistributionChart.tsx`、`frontend/src/monitoring/components/charts/FunnelChart.tsx`
-- [ ] T062 [US2] 实现总览数据装配、五类状态、筛选回显和仅成功加载后 60 秒自动刷新，路径：`frontend/src/monitoring/pages/OverviewPage.tsx`、`frontend/src/monitoring/components/states/QueryState.tsx`
+- [ ] T062 [US2] 实现总览数据装配、五类状态、筛选回显、总览及共享状态三语文案和仅成功加载后 60 秒自动刷新，路径：`frontend/src/monitoring/pages/OverviewPage.tsx`、`frontend/src/monitoring/components/states/QueryState.tsx`、`frontend/src/monitoring/content/copy.ts`
 - [ ] T063 [US2] 接通私有 React 入口，路径：`frontend/src/monitoring/main.tsx`、`frontend/src/monitoring/app/MonitoringApp.tsx`
 - [ ] T064 [US2] 在 `<=820px` 实现移动抽屉/底部导航、两列 KPI、纵向卡片和紧凑筛选，并保存与 Figma 节点 `63:2118` 对照的桌面/手机总览证据，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`、`frontend/src/monitoring/styles/responsive.css`、`frontend/playwright-monitor/__screenshots__/overview-desktop.png`、`frontend/playwright-monitor/__screenshots__/overview-mobile.png`
 
@@ -161,7 +162,7 @@ US4 完成。该故事完成前不得接入或交付真实 Dashboard 数据；�
 - [ ] T069 [P] [US3] 按 OpenAPI 为剩余六个只读 operation、visitor header、cursor 400、404、500、503 和 `no-store` 编写先失败契约测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`
 - [ ] T070 [P] [US3] 为事件分页、完整 visitor header、复制反馈和错误 envelope 映射编写先失败前端测试，路径：`frontend/src/monitoring/services/analyticsDetailsClient.test.ts`、`frontend/src/monitoring/pages/EventsPage.test.tsx`
 - [ ] T071 [P] [US3] 为流量、下载、访客、性能、系统页面的数据形态与 fake timer 下不自动刷新编写先失败组件测试，路径：`frontend/src/monitoring/pages/DetailPages.test.tsx`
-- [ ] T072 [US3] 为 1440px 桌面和 390px 手机定义“总览异常 → 事件筛选 → visitor 时间线”两分钟调查流程并先确认 E2E 失败，路径：`frontend/playwright-monitor/investigation.spec.ts`
+- [ ] T072 [US3] 对照 `11 Pulse / Mobile Investigation / 390` 为 1440px 桌面和 390px 手机定义“总览异常 → 事件筛选 → visitor 时间线”两分钟调查流程并先确认 E2E 失败，路径：`frontend/playwright-monitor/investigation.spec.ts`
 
 ### 用户故事 3 的实现
 
@@ -170,13 +171,13 @@ US4 完成。该故事完成前不得接入或交付真实 Dashboard 数据；�
 - [ ] T075 [P] [US3] 实现 `(occurred_at_ms,id)` keyset 分页、visitor 摘要、范围前置事件和会话时间线查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_events_visitor.go`
 - [ ] T076 [P] [US3] 实现 endpoint 性能、nearest-rank P50/P95、失败分类和不泄露 DB 路径的系统健康查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system.go`
 - [ ] T077 [US3] 实现并仅在 private engine 注册 traffic/downloads/events/visitor/performance/system handlers，路径：`backend/internal/analytics/interfaces/http/detail_handlers.go`、`backend/internal/analytics/interfaces/http/private_routes.go`
-- [ ] T078 [P] [US3] 实现可访问热力图、时间序列、环形/柱状图、keyset 分页表、会话时间线组件及六个详细工作区的三语 copy，路径：`frontend/src/monitoring/components/charts/Heatmap.tsx`、`frontend/src/monitoring/components/tables/EventTable.tsx`、`frontend/src/monitoring/components/timeline/VisitorTimeline.tsx`、`frontend/src/monitoring/content/copy.ts`
+- [ ] T078 [P] [US3] 首次实现六个详细工作区的 `zh-Hant`、`zh-Hans`、`en` 文案与格式化类型，以及可访问热力图、时间序列、环形/柱状图、keyset 分页表和会话时间线组件，路径：`frontend/src/monitoring/components/charts/Heatmap.tsx`、`frontend/src/monitoring/components/tables/EventTable.tsx`、`frontend/src/monitoring/components/timeline/VisitorTimeline.tsx`、`frontend/src/monitoring/content/copy.ts`、`frontend/src/monitoring/content/types.ts`
 - [ ] T079 [P] [US3] 实现流量与试查、下载分析页面及筛选回显，路径：`frontend/src/monitoring/pages/TrafficPage.tsx`、`frontend/src/monitoring/pages/DownloadsPage.tsx`
 - [ ] T080 [P] [US3] 实现默认截断 visitor、游标分页且无导出/删除/编辑入口的事件明细页，路径：`frontend/src/monitoring/pages/EventsPage.tsx`
 - [ ] T081 [P] [US3] 实现只用 `X-Analytics-Visitor-ID` 精确查询、复制完整 ID 及按会话分组时间线的访客页，路径：`frontend/src/monitoring/pages/VisitorPage.tsx`
 - [ ] T082 [P] [US3] 实现失败与性能页及 DB/写入丢弃/private listener 系统状态页，路径：`frontend/src/monitoring/pages/PerformancePage.tsx`、`frontend/src/monitoring/pages/SystemPage.tsx`
 - [ ] T083 [US3] 接通六个详细 hash workspace、手动刷新和不自动跳动语义，并完成桌面/手机两分钟调查 E2E，路径：`frontend/src/monitoring/app/MonitoringApp.tsx`、`frontend/playwright-monitor/investigation.spec.ts`
-- [ ] T084 [US3] 在 `<=820px` 实现紧凑筛选、key-value 事件/性能卡片、纵向时间线和可达分页，并保存详细页桌面/手机证据，路径：`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/components/tables/ResponsiveEventList.tsx`、`frontend/playwright-monitor/__screenshots__/investigation-desktop.png`、`frontend/playwright-monitor/__screenshots__/investigation-mobile.png`
+- [ ] T084 [US3] 对照 `11 Pulse / Mobile Investigation / 390` 在 `<=820px` 实现紧凑筛选、key-value 事件/性能卡片、精确 visitor 搜索与复制反馈、纵向时间线和可达分页，并保存详细页桌面/手机证据，路径：`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/components/tables/ResponsiveEventList.tsx`、`frontend/playwright-monitor/__screenshots__/investigation-desktop.png`、`frontend/playwright-monitor/__screenshots__/investigation-mobile.png`
 
 **检查点**：US3 可用 fixture 独立调查；生产数据依赖 US1 采集，页面 shell 依赖 US2，但查询和
 UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与手机实现。
@@ -197,7 +198,7 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 - [ ] T086 [P] [US4] 为 metadata manifest 读取、basename、版本/大小/日期校验及不读取 APK bytes 的只读仓储方法编写先失败测试，路径：`backend/internal/downloads/infrastructure/filesystem/metadata_repository_test.go`
 - [ ] T087 [P] [US4] 按公开 OpenAPI 为 metadata 200/4xx/5xx、`no-store`、稳定下载 URL 和现有下载语义编写先失败 handler 测试，路径：`backend/internal/downloads/interfaces/http/metadata_handler_test.go`
 - [ ] T088 [P] [US4] 为精确主页单次请求、StrictMode/in-flight 去重、语言切换不重取、Intl 大小，以及失败时无自动/手动重试和无旧值回退编写先失败前端测试，路径：`frontend/src/tests/download-metadata-provider.test.tsx`
-- [ ] T089 [US4] 为三语主页 metadata 成功/失败且下载始终可达定义 1440px 桌面和 390px 手机先失败浏览器测试，路径：`frontend/playwright/apk-metadata.spec.ts`
+- [ ] T089 [US4] 对照 `12 Homepage / Mobile APK Metadata States / 390` 为三语主页 metadata 成功/失败且下载始终可达定义 1440px 桌面和 390px 手机先失败浏览器测试，路径：`frontend/playwright/apk-metadata.spec.ts`
 
 ### 用户故事 4 的实现
 
@@ -208,8 +209,8 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 - [ ] T094 [P] [US4] 实现不缓存陈旧结果、不重试且只发送有限主页 locale/source header 的 metadata client，路径：`frontend/src/services/downloadMetadataClient.ts`
 - [ ] T095 [US4] 实现单 document 共享 in-flight 状态、Intl 格式化和 `ready/unavailable` 的 provider，路径：`frontend/src/components/download/DownloadMetadataProvider.tsx`
 - [ ] T096 [US4] 仅在 `/zh-hant/`、`/zh-hans/`、`/en/` 精确主页挂载 provider，隐私页和未知路径不请求，路径：`frontend/src/app/App.tsx`
-- [ ] T097 [US4] 从静态 manifest 文案移除版本/大小旧值并在 Hero/下载区展示三语当前值或暂不可用，同时保持稳定下载链接，路径：`frontend/src/content/downloadManifest.ts`、`frontend/src/content/homepageContent.ts`、`frontend/src/components/hero/HeroIntro.tsx`、`frontend/src/components/sections/DownloadSection.tsx`
-- [ ] T098 [US4] 完成 metadata 成功/失败的桌面/手机浏览器验收，并保存与 Figma APK 状态画板对照的双端视觉证据，路径：`frontend/playwright/apk-metadata.spec.ts`、`frontend/playwright/__screenshots__/apk-metadata-desktop.png`、`frontend/playwright/__screenshots__/apk-metadata-mobile.png`
+- [ ] T097 [US4] 从静态 manifest 文案移除版本/大小旧值并在 Hero/下载区首次实现三语当前值或暂不可用文案，同时保持稳定下载链接，路径：`frontend/src/content/downloadManifest.ts`、`frontend/src/content/homepageContent.ts`、`frontend/src/components/hero/HeroIntro.tsx`、`frontend/src/components/sections/DownloadSection.tsx`
+- [ ] T098 [US4] 完成 metadata 成功/失败的桌面/手机浏览器验收，并保存与 `10 Homepage / APK Metadata States / 1200`、`12 Homepage / Mobile APK Metadata States / 390` 对照的双端视觉证据，路径：`frontend/playwright/apk-metadata.spec.ts`、`frontend/playwright/__screenshots__/apk-metadata-desktop.png`、`frontend/playwright/__screenshots__/apk-metadata-mobile.png`
 
 **检查点**：US4 在 no-op analytics 下仍能独立提供 metadata 和下载；与 US1 组合后才产生真实
 `page_view` 和完整下载归因，且本故事自身已完成主页相关状态的桌面与手机实现。
@@ -229,16 +230,16 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 - [ ] T099 [P] [US5] 为 Dashboard 导航、指标、筛选、图例、tooltip、表格、状态和错误的三语 key 完整性及隐私事实一致性编写先失败测试，路径：`frontend/src/monitoring/content/copy.test.ts`
 - [ ] T100 [P] [US5] 为焦点顺序、44px 触摸目标、非颜色唯一信息、图表文字摘要、`aria-live` 复制反馈和 reduced-motion 编写先失败测试，路径：`frontend/src/monitoring/components/accessibility.test.tsx`
 - [ ] T101 [P] [US5] 为七个 workspace 在 1440×1200 与 390×844 的三语导航、筛选和主要操作编写跨工作区先失败 E2E，路径：`frontend/playwright-monitor/responsive-locales.spec.ts`
-- [ ] T102 [US5] 为 loading、no_data、no_results、普通失败和 DB unavailable 的 390×1640/1440×1000 视觉基准编写先失败测试，路径：`frontend/playwright-monitor/states.spec.ts`
+- [ ] T102 [US5] 对照 `13 Pulse / Query Failure State / 1440` 为 loading、no_data、no_results、保留筛选且手动重试的普通失败和 DB unavailable 的 390×1640/1440×1000 视觉基准编写先失败测试，路径：`frontend/playwright-monitor/states.spec.ts`
 
-### 用户故事 5 的实现
+### 用户故事 5 的回归与收口
 
-- [ ] T103 [US5] 补齐七个工作区全部 `zh-Hant`、`zh-Hans`、`en` 文案和格式化类型，路径：`frontend/src/monitoring/content/copy.ts`、`frontend/src/monitoring/content/types.ts`
-- [ ] T104 [US5] 实现默认浏览器语言/繁中 fallback、持久化语言选择和监控页语言切换，路径：`frontend/src/monitoring/app/MonitoringI18nProvider.tsx`、`frontend/src/monitoring/components/layout/MonitoringLanguageSwitcher.tsx`
+- [ ] T103 [US5] 运行七个工作区三语 key/格式化类型完整性和隐私事实一致性回归，禁止在本任务首次建立 provider 或批量补齐所属故事文案，路径：`frontend/src/monitoring/content/copy.test.ts`、`frontend/src/monitoring/content/types.ts`
+- [ ] T104 [US5] 验证浏览器默认语言、繁中 fallback、持久化切换以及切换后 hash/筛选/调查上下文保持，不重复实现语言基础设施，路径：`frontend/src/monitoring/app/MonitoringI18nProvider.test.tsx`、`frontend/playwright-monitor/responsive-locales.spec.ts`
 - [ ] T105 [US5] 为图表/表格补充文字摘要、键盘焦点、ARIA、44px 触摸目标、非颜色编码和 reduced-motion，路径：`frontend/src/monitoring/components/charts/AccessibleChartFrame.tsx`、`frontend/src/monitoring/styles/accessibility.css`
 - [ ] T106 [US5] 完成香港繁中、自然克制英文和三语隐私/指标口径独立审校并记录非机械直译结论，路径：`specs/010-website-analytics/zh-hant-en-copy-review.md`
 - [ ] T107 [US5] 生成七个 workspace 与五类状态的桌面/手机三语截图证据，路径：`frontend/playwright-monitor/__screenshots__/`、`frontend/playwright-monitor/responsive-locales.spec.ts`、`frontend/playwright-monitor/states.spec.ts`
-- [ ] T108 [US5] 对照 Figma 节点 `63:2118`、manifest 和 tokens 记录已实现 viewport/交互/状态差异，不虚构不可见子节点，路径：`specs/010-website-analytics/figma.md`
+- [ ] T108 [US5] 对照 Figma 既有节点 `63:2118`、`BusIsComing Pulse v1.1` 的 13 张 manifest 画板和 tokens 记录已实现 viewport/交互/状态差异；11–13 只在用户补充导入后记录真实链接，不虚构不可见子节点，路径：`specs/010-website-analytics/figma.md`
 
 **检查点**：US5 只做跨工作区最终回归，不承担首次移动端实现；七个 workspace 与全部状态在
 电脑、手机和三语下可独立使用，UI 评审有真实截图与 Figma 追溯证据。
@@ -249,7 +250,7 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 
 **目的**：完成契约、性能、部署、隐私、架构、范围和全链路验证，使所有故事可共同发布。
 
-- [ ] T109 [P] 运行两份 feature/三份 shared OpenAPI lint 与 bundle，生成项目可控内容为中文的 API UI，并确认私有 HTML 不进入 `frontend/dist`，路径：`shared/contracts/openapi/download-api.bundle.yaml`、`shared/contracts/openapi/route-query-api.bundle.yaml`、`shared/contracts/openapi/analytics-monitoring-api.bundle.yaml`、`shared/contracts/openapi/docs/`
+- [ ] T109 [P] 运行三份 feature/三份 shared OpenAPI lint 与 bundle，生成项目可控内容为中文的 API UI，并确认私有 HTML 不进入 `frontend/dist`，路径：`shared/contracts/openapi/download-api.bundle.yaml`、`shared/contracts/openapi/route-query-api.bundle.yaml`、`shared/contracts/openapi/analytics-monitoring-api.bundle.yaml`、`shared/contracts/openapi/docs/`
 - [ ] T110 [P] 编写显式 1,000,000 行、四类事件、多维度、成功/失败性能 fixture 与 `EXPLAIN QUERY PLAN` 断言，路径：`backend/internal/analytics/infrastructure/sqlite/performance_test.go`
 - [ ] T111 根据 T110 证据调整必要索引并保证近 30 天常用查询和单 visitor 时间线各小于 1 秒，且不增加汇总/会话/访客表，路径：`backend/internal/analytics/infrastructure/sqlite/migrations/001_create_analytics_events.sql`、`backend/internal/analytics/infrastructure/sqlite/query_builder.go`
 - [ ] T112 [P] 先扩展发布 shell 测试，覆盖双 bundle checksum、shared analytics 权限、env 补缺不覆盖、精确 `ReadWritePaths`、loopback、Caddy 无私有路由/日志和统计失败 degraded，路径：`scripts/tests/deploy_test.sh`
@@ -260,9 +261,9 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 - [ ] T117 运行后端全量、race、CGo-free Linux amd64 静态构建和 SQLite runtime/migration 测试并记录预期，路径：`specs/010-website-analytics/quickstart.md`
 - [ ] T118 [P] 运行前端全量 Vitest、public/monitor build、public/monitor Playwright 并断言 `dist` 与 `dist-monitor` 物理隔离，路径：`frontend/package.json`、`frontend/playwright.config.ts`、`frontend/playwright.monitor.config.ts`
 - [ ] T119 运行受禁字段 sentinel 扫描日志、SQLite、WAL/SHM 和私有响应，确认 IP、完整标识原文和查询内容零命中，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`、`specs/010-website-analytics/quickstart.md`
-- [ ] T120 审计 DDD 依赖方向、无业务 `panic`、public `logger → analytics → recovery → handler`、private `logger → recovery → handler`、双引擎 handler panic 覆盖、自建 goroutine recover、脱敏日志，以及机器人只有不带 bot/身份线索的通用请求日志，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
+- [ ] T120 审计 DDD 依赖方向、无业务 `panic`、T022 public factory 的 `logger → injected analytics stub → recovery → handler`、T037 真实 tracking 注入后的同序链路、private `logger → recovery → handler`、双引擎 handler panic、自建 goroutine recover、脱敏日志，以及机器人只有不带 bot/身份线索的通用请求日志，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
 - [ ] T121 验证仅有四类事件且 ETA/隐私页/静态页不打点，并确认无账号、指纹、广告、安装完成、导出、删除、编辑、自动清理、备份、完整路线规划或非香港巴士能力，路径：`backend/internal/analytics/domain/event_test.go`、`frontend/src/monitoring/pages/EventsPage.test.tsx`、`specs/010-website-analytics/spec.md`
-- [ ] T122 对照 Figma `BusIsComing Pulse v1 · 2026-07-20`、10 张导入画板和真实桌面/手机截图完成最终视觉评审，路径：`specs/010-website-analytics/figma.md`、`docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json`、`frontend/playwright-monitor/__screenshots__/`
+- [ ] T122 对照 Figma `BusIsComing Pulse v1.1 · 2026-07-22`、13 张 manifest 画板和真实桌面/手机截图完成最终视觉评审；01–10 使用既有导入锚点，11–13 使用补充导入后的真实链接或明确待导入状态，路径：`specs/010-website-analytics/figma.md`、`docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json`、`frontend/playwright-monitor/__screenshots__/`
 - [ ] T123 执行 OpenAPI、Go/race、隐私、100 万行、双 listener、前端、三语、Figma、部署和公网隔离全套验收，并在文档中记录实际命令与结果，路径：`specs/010-website-analytics/quickstart.md`
 
 ---
@@ -339,7 +340,7 @@ flowchart LR
 ### US5
 
 - T099、T100、T101 可并行定义三语、可访问性和跨工作区响应式门禁。
-- T103、T104、T105 修改不同文件，可并行后由 T107 统一生成最终视觉证据。
+- T103、T104、T105 分别执行三语事实、语言状态保持和可访问性回归；不得在 US5 首次建立 i18n 基础设施，最后由 T107 统一生成视觉证据。
 
 ## 实施策略
 
@@ -347,7 +348,7 @@ flowchart LR
 
 1. 完成阶段 1 和阶段 2。
 2. 完成 US1，先以隐私 sentinel、机器人排除、fail-open 和真实入口集成形成匿名采集生产硬门禁。
-3. 完成 US2，在 1440px 桌面和 390px 手机上核对指标、漏斗、上一周期、状态、60 秒刷新和 Figma 视觉。
+3. 完成 US2，在 1440px 桌面和 390px 手机上核对三语 provider/切换、指标、漏斗、上一周期、状态、60 秒刷新和 Figma 视觉。
 
 只有 US1 + US2 才构成首个可发布可视化闭环。US2 可提前使用确定性 SQLite fixture 开发和测试，
 但 fixture-only Dashboard 不得被称为可发布 MVP；若同时需要主页版本展示，再纳入 US4。
@@ -356,10 +357,10 @@ flowchart LR
 
 1. 设置 + 基础设施 → DDD、存储和双 listener 基线。
 2. US1 → 形成匿名真实数据闭环，验证隐私、机器人排除与 fail-open。
-3. US2 → 同时交付桌面和手机运营总览，形成首个可发布可视化闭环。
-4. US3 → 同时交付桌面和手机详细调查，从总览深入事件、visitor、失败和系统状态。
-5. US4 → 同时验证桌面和手机主页，展示真实 APK 信息并完成 page-view/下载归因。
-6. US5 → 对七个 workspace 执行三语、双端、可访问性与视觉一致性的最终回归。
+3. US2 → 首次交付三语基础设施及桌面/手机运营总览，形成首个可发布可视化闭环。
+4. US3 → 首次交付六个详细工作区三语及桌面/手机详细调查，从总览深入事件、visitor、失败和系统状态。
+5. US4 → 首次交付 APK 状态三语并验证桌面和手机主页，展示真实 APK 信息及完成 page-view/下载归因。
+6. US5 → 对七个 workspace 执行三语、双端、可访问性与视觉一致性的最终回归，不首次实现三语能力。
 7. 阶段 8 → 契约、性能、部署、公网隔离和全部验收后发布。
 
 ## 备注
