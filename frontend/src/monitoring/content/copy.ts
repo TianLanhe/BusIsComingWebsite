@@ -1,0 +1,60 @@
+import type { MonitoringLocale } from "../app/MonitoringI18nProvider";
+
+const zhHans = {
+  overview: "总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "匿名访客", performance: "失败与性能", system: "系统状态",
+  monitorCenter: "监控中心", diagnostics: "数据与诊断", privateAccess: "仅通过 SSH 隧道访问", liveWriting: "数据正常写入", listener: "监听 127.0.0.1:18081",
+  pageTitle: "监控总览", pageSubtitle: "主页访问、路线试查与安装包下载的统一视图", brandEyebrow: "BusIsComing Pulse",
+  refresh: "刷新数据", range7: "近 7 天", range30: "近 30 天", range90: "近 90 天", hourly: "按小时", daily: "按日", weekly: "按周", monthly: "按月",
+  updated: "数据已更新至", botExcluded: "已排除已知机器人", autoRefresh: "自动刷新 60 秒", filters: "筛选", compare: "对比上一周期", all: "全部",
+  language: "语言", device: "设备", source: "来源", outcome: "结果", platform: "平台", mobile: "手机", desktop: "桌面", direct: "直接访问", search: "搜索", referral: "引荐", success: "成功", failure: "失败",
+  pv: "页面浏览量 PV", uv: "独立浏览器 UV", viewsPerVisitor: "人均访问次数", successfulRouteQueries: "成功路线试查", downloadRequests: "下载请求", requestSuccessRate: "请求成功率",
+  compared: "对比上期", noComparison: "未启用周期对比", trend: "访问趋势", trendNote: "PV 与独立浏览器 UV · 默认近 30 天", hoverDetail: "悬停查看每日明细",
+  trialFunnel: "试查漏斗", trialNote: "同一 30 分钟会话内的成功独立访客", homepage: "访问主页", placeQuery: "地点查询", routeQuery: "路线查询", successfulDownload: "成功下载响应",
+  eventComposition: "事件构成", eventNote: "所有已记录匿名事件", latencyP95: "响应时间 P95", latencyNote: "仅统计到达服务端的请求", requestCount: "请求数", p50: "P50",
+  downloadSummary: "下载漏斗与版本", downloadNote: "仅表示下载响应，不表示安装完成", currentVersion: "当前版本", downloadUV: "下载响应 UV", androidReserved: "平台枚举已预留 iOS；当前正式下载仅 Android。",
+  loadingTitle: "正在载入匿名统计", loadingBody: "正在从本机私有统计存储即时计算总览。", noDataTitle: "所选时间范围暂无统计数据", noDataBody: "调整日期范围后再查看；公开网站功能不受影响。",
+  noResultsTitle: "当前筛选条件没有结果", noResultsBody: "已保留全部筛选条件，可放宽一个或多个维度。", queryFailedTitle: "统计查询暂时失败", queryFailedBody: "筛选条件已保留。可稍后重试，错误详情不会显示在页面中。",
+  storageUnavailableTitle: "统计数据库暂时不可用", storageUnavailableBody: "匿名监控数据当前无法读取，公开网站、路线试查与 APK 下载不受影响。", retry: "重试查询",
+  navSoon: "该工作区将在后续实现阶段接入。", mobileMenu: "打开导航", close: "关闭", chartSummary: "访问趋势数据表摘要",
+} as const;
+
+export type CopyKey = keyof typeof zhHans;
+
+const zhHant: Record<CopyKey, string> = {
+  overview: "總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "匿名訪客", performance: "失敗與效能", system: "系統狀態",
+  monitorCenter: "監控中心", diagnostics: "數據與診斷", privateAccess: "只可經 SSH 隧道存取", liveWriting: "數據正常寫入", listener: "監聽 127.0.0.1:18081",
+  pageTitle: "監控總覽", pageSubtitle: "主頁瀏覽、巴士路線試查及安裝檔下載的統一視圖", brandEyebrow: "BusIsComing Pulse",
+  refresh: "更新數據", range7: "最近 7 日", range30: "最近 30 日", range90: "最近 90 日", hourly: "每小時", daily: "每日", weekly: "每週", monthly: "每月",
+  updated: "數據更新至", botExcluded: "已排除已知機械人", autoRefresh: "每 60 秒自動更新", filters: "篩選", compare: "比較上一周期", all: "全部",
+  language: "語言", device: "裝置", source: "來源", outcome: "結果", platform: "平台", mobile: "手機", desktop: "桌面", direct: "直接瀏覽", search: "搜尋", referral: "轉介", success: "成功", failure: "失敗",
+  pv: "頁面瀏覽量 PV", uv: "獨立瀏覽器 UV", viewsPerVisitor: "人均瀏覽次數", successfulRouteQueries: "成功路線試查", downloadRequests: "下載請求", requestSuccessRate: "請求成功率",
+  compared: "比較上期", noComparison: "未啟用周期比較", trend: "瀏覽趨勢", trendNote: "PV 與獨立瀏覽器 UV · 預設最近 30 日", hoverDetail: "懸停查看每日明細",
+  trialFunnel: "試查漏斗", trialNote: "同一 30 分鐘工作階段內的成功獨立訪客", homepage: "瀏覽主頁", placeQuery: "地點查詢", routeQuery: "路線查詢", successfulDownload: "成功下載回應",
+  eventComposition: "事件構成", eventNote: "所有已記錄匿名事件", latencyP95: "回應時間 P95", latencyNote: "只統計已到達伺服器的請求", requestCount: "請求數", p50: "P50",
+  downloadSummary: "下載漏斗與版本", downloadNote: "只代表下載回應，不代表完成安裝", currentVersion: "現時版本", downloadUV: "下載回應 UV", androidReserved: "平台枚舉已預留 iOS；現時正式下載只提供 Android。",
+  loadingTitle: "正在載入匿名統計", loadingBody: "正在從本機私人統計儲存即時計算總覽。", noDataTitle: "所選時段暫無統計數據", noDataBody: "調整日期範圍後再查看；公開網站功能不受影響。",
+  noResultsTitle: "目前篩選條件沒有結果", noResultsBody: "所有篩選條件已保留，可放寬一個或多個維度。", queryFailedTitle: "統計查詢暫時失敗", queryFailedBody: "篩選條件已保留。可稍後重試，錯誤詳情不會顯示在頁面。",
+  storageUnavailableTitle: "統計資料庫暫時無法使用", storageUnavailableBody: "匿名監控數據目前無法讀取，公開網站、巴士路線試查及 APK 下載不受影響。", retry: "重新查詢",
+  navSoon: "此工作區將於後續實作階段接通。", mobileMenu: "開啟導覽", close: "關閉", chartSummary: "瀏覽趨勢數據表摘要",
+};
+
+const en: Record<CopyKey, string> = {
+  overview: "Overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Anonymous visitor", performance: "Failures & latency", system: "System status",
+  monitorCenter: "Monitor", diagnostics: "Data & diagnostics", privateAccess: "SSH tunnel access only", liveWriting: "Events are being recorded", listener: "Listening on 127.0.0.1:18081",
+  pageTitle: "Monitoring overview", pageSubtitle: "A unified view of homepage traffic, route trials, and package downloads", brandEyebrow: "BusIsComing Pulse",
+  refresh: "Refresh", range7: "Last 7 days", range30: "Last 30 days", range90: "Last 90 days", hourly: "Hourly", daily: "Daily", weekly: "Weekly", monthly: "Monthly",
+  updated: "Updated at", botExcluded: "Known bots excluded", autoRefresh: "Refreshes every 60 seconds", filters: "Filters", compare: "Compare previous period", all: "All",
+  language: "Language", device: "Device", source: "Source", outcome: "Outcome", platform: "Platform", mobile: "Mobile", desktop: "Desktop", direct: "Direct", search: "Search", referral: "Referral", success: "Success", failure: "Failure",
+  pv: "Page views (PV)", uv: "Unique browsers (UV)", viewsPerVisitor: "Views per browser", successfulRouteQueries: "Successful route trials", downloadRequests: "Download requests", requestSuccessRate: "Request success rate",
+  compared: "vs previous period", noComparison: "Period comparison off", trend: "Traffic trend", trendNote: "PV and unique browser UV · last 30 days by default", hoverDetail: "Hover for daily detail",
+  trialFunnel: "Trial funnel", trialNote: "Successful unique browsers in the same 30-minute session", homepage: "Homepage", placeQuery: "Place query", routeQuery: "Route query", successfulDownload: "Successful download response",
+  eventComposition: "Event mix", eventNote: "All recorded anonymous events", latencyP95: "Response time P95", latencyNote: "Requests that reached the server only", requestCount: "Requests", p50: "P50",
+  downloadSummary: "Download funnel & version", downloadNote: "Download responses only; this does not mean installation", currentVersion: "Current version", downloadUV: "Download response UV", androidReserved: "iOS is reserved in the platform model; the current release download is Android only.",
+  loadingTitle: "Loading anonymous analytics", loadingBody: "The overview is being calculated from the private local event store.", noDataTitle: "No analytics in this date range", noDataBody: "Try a different range. Public website features are unaffected.",
+  noResultsTitle: "No results for these filters", noResultsBody: "Your filters are preserved. Widen one or more dimensions to continue.", queryFailedTitle: "Analytics query failed", queryFailedBody: "Your filters are preserved. Try again later; internal error details are never shown here.",
+  storageUnavailableTitle: "Analytics storage is unavailable", storageUnavailableBody: "Monitoring data cannot be read right now. The public site, route trial, and APK download remain available.", retry: "Try again",
+  navSoon: "This workspace will be connected in the next implementation phase.", mobileMenu: "Open navigation", close: "Close", chartSummary: "Traffic trend data summary",
+};
+
+const copies: Record<MonitoringLocale, Record<CopyKey, string>> = { "zh-Hant": zhHant, "zh-Hans": zhHans, en };
+export const monitoringCopy = (locale: MonitoringLocale, key: CopyKey) => copies[locale]?.[key] ?? zhHant[key];

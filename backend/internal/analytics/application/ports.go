@@ -29,6 +29,12 @@ type AnalyticsQueryStore interface {
 	QuerySystem(context.Context) (SystemStorageSnapshot, error)
 }
 
+// OverviewEventStore keeps the application layer independent from SQLite. A future
+// storage adapter only needs to return the same privacy-safe event model.
+type OverviewEventStore interface {
+	LoadOverviewEvents(context.Context, time.Time, time.Time) ([]domain.AnalyticsEvent, error)
+}
+
 type RuntimeHealthReader interface {
 	Snapshot() RuntimeHealthSnapshot
 }

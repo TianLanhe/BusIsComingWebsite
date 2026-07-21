@@ -38,6 +38,46 @@ func (query AnalyticsQuery) Validate() error {
 	if query.Limit != 0 && (query.Limit < 1 || query.Limit > 100) {
 		return invalid("limit", "out_of_range")
 	}
+	for _, value := range query.Locales {
+		if !IsLocale(value) {
+			return invalid("locale", "unsupported")
+		}
+	}
+	for _, value := range query.DeviceTypes {
+		if !IsDeviceType(value) {
+			return invalid("device", "unsupported")
+		}
+	}
+	for _, value := range query.SourceTypes {
+		if !IsSourceType(value) {
+			return invalid("source", "unsupported")
+		}
+	}
+	for _, value := range query.Outcomes {
+		if !IsOutcome(value) {
+			return invalid("outcome", "unsupported")
+		}
+	}
+	for _, value := range query.Platforms {
+		if !IsPlatform(value) {
+			return invalid("platform", "unsupported")
+		}
+	}
+	for _, value := range query.EventTypes {
+		if !IsEventType(value) {
+			return invalid("eventType", "unsupported")
+		}
+	}
+	for _, value := range query.VersionNames {
+		if value == "" || len(value) > 64 {
+			return invalid("versionName", "invalid")
+		}
+	}
+	for _, value := range query.VersionCodes {
+		if value <= 0 {
+			return invalid("versionCode", "invalid")
+		}
+	}
 	return nil
 }
 

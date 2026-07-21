@@ -280,6 +280,18 @@ npm --prefix frontend run test:e2e:monitor
 
 不得把原型中的 PV、UV、版本、大小或错误数写入生产代码，也不得虚构 Figma 子节点。
 
+### US2 总览实现验证记录（2026-07-22）
+
+- Go 领域、应用、SQLite 与私有 HTTP 契约测试全部通过；覆盖 30 分钟会话边界、顺序漏斗、
+  香港时区缺失桶、上一等长周期、nearest-rank P50/P95、筛选作用域及 400/500/503 安全映射。
+- 监控 client 与总览组件 9 项测试通过；五类页面状态可独立注入，自动刷新只在成功请求完成
+  60 秒后安排，未完成请求不会重叠。
+- `npm run build:monitor` 通过，监控入口只生成到 `frontend/dist-monitor/`。
+- 固定 mock 数据的 Playwright 桌面/手机测试通过；证据分别为
+  `frontend/playwright-monitor/__screenshots__/overview-desktop.png`（1440×1200）和
+  `frontend/playwright-monitor/__screenshots__/overview-mobile.png`（390×844）。两张图均已人工
+  查看，并与 Figma 节点 `63:2118` 的侧栏、KPI、趋势、漏斗、分布、响应时间和移动布局核对。
+
 ## 9. 隐私政策与三语事实验证
 
 检查公开隐私政策和 noscript/SEO 生成内容，确认三语都明确说明：

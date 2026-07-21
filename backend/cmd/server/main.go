@@ -82,7 +82,11 @@ func run(ctx context.Context) error {
 	registerRouteQueryRoutes(publicEngine, now)
 
 	privateEngine := platformhttp.NewPrivateEngine(os.Stdout)
-	analyticshttp.RegisterStaticFallback(privateEngine, getenv("BUS_ANALYTICS_UI_ROOT", "../frontend/dist-monitor"))
+	var overviewQuery analyticshttp.OverviewQuery
+	if analyticsStore != nil {
+		overviewQuery = analyticsapp.NewQueryOverview(analyticsStore, analyticsapp.ClockFunc(now))
+	}
+	analyticshttp.RegisterPrivateRoutes(privateEngine, overviewQuery, getenv("BUS_ANALYTICS_UI_ROOT", "../frontend/dist-monitor"))
 
 	publicServer := &http.Server{
 		Addr:              publicServerAddress(),

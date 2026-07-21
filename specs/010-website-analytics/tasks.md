@@ -115,30 +115,30 @@ US4 完成。该故事完成前不得接入或交付真实 Dashboard 数据；�
 
 ### 用户故事 2 的测试与验证
 
-- [ ] T044 [P] [US2] 为正好 30 分钟仍同会话、超过 30 分钟分会话、范围前置事件、两个顺序漏斗、上一等长周期、缺失桶和 nearest-rank P50/P95 编写先失败测试，路径：`backend/internal/analytics/domain/aggregation_test.go`
-- [ ] T045 [P] [US2] 为 PV、UV、人均访问、成功路线试查、下载请求、请求成功率及平台/版本筛选作用域编写先失败应用测试，路径：`backend/internal/analytics/application/query_overview_test.go`
-- [ ] T046 [P] [US2] 为近 30 天总览、香港时区 hour/day/week/month 分桶和 `ready/no_data/no_results` 编写先失败 SQLite fixture 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_overview_test.go`
-- [ ] T047 [P] [US2] 按私有 OpenAPI 为总览筛选校验、统一 envelope、`no-store`、500 和 503 编写先失败 HTTP 契约测试，路径：`backend/internal/analytics/interfaces/http/overview_handler_test.go`
-- [ ] T048 [P] [US2] 为筛选序列化、上一周期响应和错误映射编写先失败前端 client 测试，路径：`frontend/src/monitoring/services/analyticsClient.test.ts`
-- [ ] T049 [P] [US2] 为全套 KPI/图表/漏斗、五类页面状态、更新时间、成功后 60 秒不重叠刷新及 1440/390 核心操作编写先失败组件测试，路径：`frontend/src/monitoring/pages/OverviewPage.test.tsx`
-- [ ] T050 [US2] 以固定 mock 响应定义 1440×1200 与 390×844 总览交互和截图断言，并先确认测试失败，路径：`frontend/playwright-monitor/overview.spec.ts`、`frontend/playwright-monitor/fixtures/analytics.ts`
+- [x] T044 [P] [US2] 为正好 30 分钟仍同会话、超过 30 分钟分会话、范围前置事件、两个顺序漏斗、上一等长周期、缺失桶和 nearest-rank P50/P95 编写先失败测试，路径：`backend/internal/analytics/domain/aggregation_test.go`
+- [x] T045 [P] [US2] 为 PV、UV、人均访问、成功路线试查、下载请求、请求成功率及平台/版本筛选作用域编写先失败应用测试，路径：`backend/internal/analytics/application/query_overview_test.go`
+- [x] T046 [P] [US2] 为近 30 天总览、香港时区 hour/day/week/month 分桶和 `ready/no_data/no_results` 编写先失败 SQLite fixture 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_overview_test.go`
+- [x] T047 [P] [US2] 按私有 OpenAPI 为总览筛选校验、统一 envelope、`no-store`、500 和 503 编写先失败 HTTP 契约测试，路径：`backend/internal/analytics/interfaces/http/overview_handler_test.go`
+- [x] T048 [P] [US2] 为筛选序列化、上一周期响应和错误映射编写先失败前端 client 测试，路径：`frontend/src/monitoring/services/analyticsClient.test.ts`
+- [x] T049 [P] [US2] 为全套 KPI/图表/漏斗、五类页面状态、更新时间、成功后 60 秒不重叠刷新及 1440/390 核心操作编写先失败组件测试，路径：`frontend/src/monitoring/pages/OverviewPage.test.tsx`
+- [x] T050 [US2] 以固定 mock 响应定义 1440×1200 与 390×844 总览交互和截图断言，并先确认测试失败，路径：`frontend/playwright-monitor/overview.spec.ts`、`frontend/playwright-monitor/fixtures/analytics.ts`
 
 ### 用户故事 2 的实现
 
-- [ ] T051 [US2] 实现带中文规则注释的 30 分钟会话、范围边界、有序漏斗、上一周期、缺失桶和 nearest-rank 分位值领域服务，路径：`backend/internal/analytics/domain/aggregation.go`
-- [ ] T052 [US2] 实现总览应用用例并保证平台/版本筛选只影响下载相关指标与漏斗终点，路径：`backend/internal/analytics/application/query_overview.go`
-- [ ] T053 [US2] 实现共享时间范围、香港时区分桶、筛选和 opaque cursor SQL 构建器，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`
-- [ ] T054 [US2] 实现从明细即时计算总览、比较周期、漏斗、分位值和分布的 SQLite 查询适配，路径：`backend/internal/analytics/infrastructure/sqlite/query_overview.go`
-- [ ] T055 [US2] 实现 OpenAPI 约束的筛选解析、错误映射和 `GET /api/analytics/overview` handler，路径：`backend/internal/analytics/interfaces/http/query_parser.go`、`backend/internal/analytics/interfaces/http/overview_handler.go`
-- [ ] T056 [US2] 只在 private engine 注册总览 API 和监控 SPA，路径：`backend/internal/analytics/interfaces/http/private_routes.go`、`backend/cmd/server/main.go`
-- [ ] T057 [P] [US2] 实现监控 OpenAPI 对应 TypeScript DTO、统一 client、筛选与日期范围序列化，路径：`frontend/src/monitoring/services/analyticsTypes.ts`、`frontend/src/monitoring/services/analyticsClient.ts`
-- [ ] T058 [P] [US2] 实现无 React Router 依赖的 hash 导航、近 30 天默认范围、粒度/比较/多维筛选状态，并首次建立 `MonitoringI18nProvider`、浏览器语言选择、繁中 fallback、持久化语言选择、语言切换器以及总览和共享 shell/filter/state 三语 copy，路径：`frontend/src/monitoring/app/hashRoute.ts`、`frontend/src/monitoring/app/FilterProvider.tsx`、`frontend/src/monitoring/app/MonitoringI18nProvider.tsx`、`frontend/src/monitoring/components/layout/MonitoringLanguageSwitcher.tsx`、`frontend/src/monitoring/content/copy.ts`
-- [ ] T059 [P] [US2] 按 Figma tokens 建立监控色彩、字体、间距、卡片、焦点和桌面/手机网格样式，路径：`frontend/src/monitoring/styles/tokens.css`、`frontend/src/monitoring/styles/dashboard.css`
-- [ ] T060 [P] [US2] 实现桌面 Dashboard shell、侧栏、顶栏、语言切换器、全局筛选和更新时间组件，并保持切换语言时当前 hash 与筛选不变，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`、`frontend/src/monitoring/components/layout/MonitoringLanguageSwitcher.tsx`、`frontend/src/monitoring/components/filters/GlobalFilters.tsx`
-- [ ] T061 [P] [US2] 实现具备文字摘要的指标卡、PV/UV 折线、事件/平台/版本分布、响应时间和双漏斗组件，路径：`frontend/src/monitoring/components/charts/MetricCard.tsx`、`frontend/src/monitoring/components/charts/TrafficChart.tsx`、`frontend/src/monitoring/components/charts/DistributionChart.tsx`、`frontend/src/monitoring/components/charts/FunnelChart.tsx`
-- [ ] T062 [US2] 实现总览数据装配、五类状态、筛选回显、总览及共享状态三语文案和仅成功加载后 60 秒自动刷新，路径：`frontend/src/monitoring/pages/OverviewPage.tsx`、`frontend/src/monitoring/components/states/QueryState.tsx`、`frontend/src/monitoring/content/copy.ts`
-- [ ] T063 [US2] 接通私有 React 入口，路径：`frontend/src/monitoring/main.tsx`、`frontend/src/monitoring/app/MonitoringApp.tsx`
-- [ ] T064 [US2] 在 `<=820px` 实现移动抽屉/底部导航、两列 KPI、纵向卡片和紧凑筛选，并保存与 Figma 节点 `63:2118` 对照的桌面/手机总览证据，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`、`frontend/src/monitoring/styles/responsive.css`、`frontend/playwright-monitor/__screenshots__/overview-desktop.png`、`frontend/playwright-monitor/__screenshots__/overview-mobile.png`
+- [x] T051 [US2] 实现带中文规则注释的 30 分钟会话、范围边界、有序漏斗、上一周期、缺失桶和 nearest-rank 分位值领域服务，路径：`backend/internal/analytics/domain/aggregation.go`
+- [x] T052 [US2] 实现总览应用用例并保证平台/版本筛选只影响下载相关指标与漏斗终点，路径：`backend/internal/analytics/application/query_overview.go`
+- [x] T053 [US2] 实现共享时间范围、香港时区分桶、筛选和 opaque cursor SQL 构建器，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`
+- [x] T054 [US2] 实现从明细即时计算总览、比较周期、漏斗、分位值和分布的 SQLite 查询适配，路径：`backend/internal/analytics/infrastructure/sqlite/query_overview.go`
+- [x] T055 [US2] 实现 OpenAPI 约束的筛选解析、错误映射和 `GET /api/analytics/overview` handler，路径：`backend/internal/analytics/interfaces/http/query_parser.go`、`backend/internal/analytics/interfaces/http/overview_handler.go`
+- [x] T056 [US2] 只在 private engine 注册总览 API 和监控 SPA，路径：`backend/internal/analytics/interfaces/http/private_routes.go`、`backend/cmd/server/main.go`
+- [x] T057 [P] [US2] 实现监控 OpenAPI 对应 TypeScript DTO、统一 client、筛选与日期范围序列化，路径：`frontend/src/monitoring/services/analyticsTypes.ts`、`frontend/src/monitoring/services/analyticsClient.ts`
+- [x] T058 [P] [US2] 实现无 React Router 依赖的 hash 导航、近 30 天默认范围、粒度/比较/多维筛选状态，并首次建立 `MonitoringI18nProvider`、浏览器语言选择、繁中 fallback、持久化语言选择、语言切换器以及总览和共享 shell/filter/state 三语 copy，路径：`frontend/src/monitoring/app/hashRoute.ts`、`frontend/src/monitoring/app/FilterProvider.tsx`、`frontend/src/monitoring/app/MonitoringI18nProvider.tsx`、`frontend/src/monitoring/components/layout/MonitoringLanguageSwitcher.tsx`、`frontend/src/monitoring/content/copy.ts`
+- [x] T059 [P] [US2] 按 Figma tokens 建立监控色彩、字体、间距、卡片、焦点和桌面/手机网格样式，路径：`frontend/src/monitoring/styles/tokens.css`、`frontend/src/monitoring/styles/dashboard.css`
+- [x] T060 [P] [US2] 实现桌面 Dashboard shell、侧栏、顶栏、语言切换器、全局筛选和更新时间组件，并保持切换语言时当前 hash 与筛选不变，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`、`frontend/src/monitoring/components/layout/MonitoringLanguageSwitcher.tsx`、`frontend/src/monitoring/components/filters/GlobalFilters.tsx`
+- [x] T061 [P] [US2] 实现具备文字摘要的指标卡、PV/UV 折线、事件/平台/版本分布、响应时间和双漏斗组件，路径：`frontend/src/monitoring/components/charts/MetricCard.tsx`、`frontend/src/monitoring/components/charts/TrafficChart.tsx`、`frontend/src/monitoring/components/charts/DistributionChart.tsx`、`frontend/src/monitoring/components/charts/FunnelChart.tsx`
+- [x] T062 [US2] 实现总览数据装配、五类状态、筛选回显、总览及共享状态三语文案和仅成功加载后 60 秒自动刷新，路径：`frontend/src/monitoring/pages/OverviewPage.tsx`、`frontend/src/monitoring/components/states/QueryState.tsx`、`frontend/src/monitoring/content/copy.ts`
+- [x] T063 [US2] 接通私有 React 入口，路径：`frontend/src/monitoring/main.tsx`、`frontend/src/monitoring/app/MonitoringApp.tsx`
+- [x] T064 [US2] 在 `<=820px` 实现移动抽屉/底部导航、两列 KPI、纵向卡片和紧凑筛选，并保存与 Figma 节点 `63:2118` 对照的桌面/手机总览证据，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`、`frontend/src/monitoring/styles/responsive.css`、`frontend/playwright-monitor/__screenshots__/overview-desktop.png`、`frontend/playwright-monitor/__screenshots__/overview-mobile.png`
 
 **检查点**：US1 隐私硬门禁和 US2 双端总览均完成后，形成第一个可发布可视化闭环；fixture 只用于
 测试，不能绕过 US1 接入生产数据。

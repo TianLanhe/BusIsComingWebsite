@@ -25,9 +25,9 @@ type SeriesPoint struct {
 }
 
 type DistributionItem struct {
-	Key   string  `json:"key"`
-	Count int64   `json:"count"`
-	Rate  float64 `json:"rate"`
+	Key   string   `json:"key"`
+	Count int64    `json:"count"`
+	Ratio *float64 `json:"ratio"`
 }
 
 type FunnelStage struct {
@@ -38,8 +38,39 @@ type FunnelStage struct {
 }
 
 type Funnel struct {
-	Key    string        `json:"key"`
-	Stages []FunnelStage `json:"stages"`
+	Key               string        `json:"key"`
+	SessionGapMinutes int           `json:"sessionGapMinutes"`
+	Stages            []FunnelStage `json:"stages"`
+}
+
+type TimeBucket struct {
+	Start time.Time
+	End   time.Time
+}
+
+type TrafficSeriesPoint struct {
+	BucketStart             time.Time `json:"bucketStart"`
+	BucketEnd               time.Time `json:"bucketEnd"`
+	PV                      int64     `json:"pv"`
+	UV                      int64     `json:"uv"`
+	SuccessfulPlaceVisitors int64     `json:"successfulPlaceVisitors"`
+	SuccessfulRouteVisitors int64     `json:"successfulRouteVisitors"`
+}
+
+type LatencySummary struct {
+	RequestCount int64  `json:"requestCount"`
+	P50MS        *int64 `json:"p50Ms"`
+	P95MS        *int64 `json:"p95Ms"`
+}
+
+type VersionDistribution struct {
+	Platform            Platform `json:"platform"`
+	VersionName         string   `json:"versionName"`
+	VersionCode         int64    `json:"versionCode"`
+	RequestCount        int64    `json:"requestCount"`
+	SuccessfulResponses int64    `json:"successfulResponses"`
+	UV                  int64    `json:"uv"`
+	SizeBytes           int64    `json:"sizeBytes"`
 }
 
 type LatencyPercentile struct {
