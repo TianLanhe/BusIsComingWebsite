@@ -73,29 +73,29 @@ fail-open；再用 sentinel 扫描日志、SQLite/WAL/SHM 和私有响应。
 
 ### 用户故事 1 的测试与验证
 
-- [ ] T024 [P] [US1] 为 Cookie 首签、复用、篡改、过期、随机性、常量时间验证和全部 `__Host-` 属性编写先失败测试，路径：`backend/internal/analytics/infrastructure/signing/visitor_cookie_test.go`
-- [ ] T025 [P] [US1] 为已知机器人、真实 desktop/mobile/tablet 反例、粗设备/来源/locale 枚举、非法输入 fallback，以及机器人只有通用脱敏请求日志且无 bot 标记/专门日志编写先失败测试，路径：`backend/internal/analytics/infrastructure/classification/classifier_test.go`、`backend/internal/platform/httpserver/logger_test.go`
-- [ ] T026 [P] [US1] 为 request logger 先执行、bot-before-cookie、合法主页 header、Cookie 轮换、request-scoped 白名单和 analytics/recovery 顺序编写先失败测试，路径：`backend/internal/analytics/interfaces/http/tracking_middleware_test.go`
-- [ ] T027 [P] [US1] 为 metadata 成功/失败、地点与路线非法 JSON/限流/token/上游失败/panic/成功、下载成功/失败各一次以及 ETA 零事件编写先失败集成测试，路径：`backend/internal/analytics/interfaces/http/public_tracking_integration_test.go`
-- [ ] T028 [P] [US1] 为 SQLite 不可写、锁超时和阻塞 writer 编写先失败测试，验证 context deadline 不超过配置值与 200ms 上限、writer 只调用一次、丢弃计数恰好增加一次，且公开 status/header/JSON/APK bytes 与 no-op 基线等价，路径：`backend/internal/analytics/interfaces/http/fail_open_test.go`
-- [ ] T029 [P] [US1] 把 IP、完整 UA/Referrer/Cookie、URI/query/body、地点、坐标、token、客户端 requestId、panic 和上游响应 sentinel 注入请求并编写零命中测试，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
-- [ ] T030 [P] [US1] 为浏览器端只输出 `direct/search/referral/internal/unknown` 且不发送原始 Referrer 编写先失败测试，路径：`frontend/src/services/analyticsSource.test.ts`
-- [ ] T031 [P] [US1] 为三语隐私事实、始终启用、无 DNT/GPC 退出、1 年 Cookie、长期明细和不记录 IP 编写先失败内容测试，路径：`frontend/src/tests/privacy-policy-analytics.test.tsx`
+- [X] T024 [P] [US1] 为 Cookie 首签、复用、篡改、过期、随机性、常量时间验证和全部 `__Host-` 属性编写先失败测试，路径：`backend/internal/analytics/infrastructure/signing/visitor_cookie_test.go`
+- [X] T025 [P] [US1] 为已知机器人、真实 desktop/mobile/tablet 反例、粗设备/来源/locale 枚举、非法输入 fallback，以及机器人只有通用脱敏请求日志且无 bot 标记/专门日志编写先失败测试，路径：`backend/internal/analytics/infrastructure/classification/classifier_test.go`、`backend/internal/platform/httpserver/logger_test.go`
+- [X] T026 [P] [US1] 为 request logger 先执行、bot-before-cookie、合法主页 header、Cookie 轮换、request-scoped 白名单和 analytics/recovery 顺序编写先失败测试，路径：`backend/internal/analytics/interfaces/http/tracking_middleware_test.go`
+- [X] T027 [P] [US1] 为 metadata 成功/失败、地点与路线非法 JSON/限流/token/上游失败/panic/成功、下载成功/失败各一次以及 ETA 零事件编写先失败集成测试，路径：`backend/internal/analytics/interfaces/http/public_tracking_integration_test.go`
+- [X] T028 [P] [US1] 为 SQLite 不可写、锁超时和阻塞 writer 编写先失败测试，验证 context deadline 不超过配置值与 200ms 上限、writer 只调用一次、丢弃计数恰好增加一次，且公开 status/header/JSON/APK bytes 与 no-op 基线等价，路径：`backend/internal/analytics/interfaces/http/fail_open_test.go`
+- [X] T029 [P] [US1] 把 IP、完整 UA/Referrer/Cookie、URI/query/body、地点、坐标、token、客户端 requestId、panic 和上游响应 sentinel 注入请求并编写零命中测试，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
+- [X] T030 [P] [US1] 为浏览器端只输出 `direct/search/referral/internal/unknown` 且不发送原始 Referrer 编写先失败测试，路径：`frontend/src/services/analyticsSource.test.ts`
+- [X] T031 [P] [US1] 为三语隐私事实、始终启用、无 DNT/GPC 退出、1 年 Cookie、长期明细和不记录 IP 编写先失败内容测试，路径：`frontend/src/tests/privacy-policy-analytics.test.tsx`
 
 ### 用户故事 1 的实现
 
-- [ ] T032 [US1] 实现 128-bit base64url visitor ID、版本化 HMAC-SHA256 签名、常量时间校验、过期与轮换，路径：`backend/internal/analytics/infrastructure/signing/visitor_cookie.go`
-- [ ] T033 [P] [US1] 实现只作瞬时判定且不持久化原始输入的 bot、device、source 和 locale 分类器，路径：`backend/internal/analytics/infrastructure/classification/classifier.go`
-- [ ] T034 [P] [US1] 实现仅允许 locale、failureCategory 和 download attribution 回填的 request-scoped 观察对象，路径：`backend/internal/analytics/interfaces/http/observation.go`
-- [ ] T035 [US1] 实现精确路由映射、bot-before-cookie、`__Host-bic-visitor` 签发及 recovery 外层的真实 tracking middleware；bot 排除后不追加事件或专门日志，路径：`backend/internal/analytics/interfaces/http/tracking_middleware.go`
-- [ ] T036 [US1] 把已校验 `ANALYTICS_WRITE_TIMEOUT_MS`、单次 fail-open recorder、内存健康状态与脱敏写入错误类别接入真实 middleware，路径：`backend/internal/analytics/interfaces/http/event_recorder.go`、`backend/internal/analytics/application/record_event.go`
-- [ ] T037 [US1] 只把 T035/T036 的真实 middleware 注入 T022 已存在的 public factory，并保证机器人只经过最外层通用脱敏 logger；不重建 engine、不再次替换 logger/recovery，路径：`backend/cmd/server/main.go`
-- [ ] T038 [US1] 在地点/路线 HTTP adapter 只回填受控 locale/failureCategory 并清除起终点、坐标、query、token 和客户端 requestId 日志，路径：`backend/internal/routes/interfaces/http/handler.go`、`backend/internal/routes/infrastructure/logging/logger.go`
-- [ ] T039 [US1] 在下载 HTTP adapter 提供平台与本次实际响应元数据的白名单回填钩子，失败时不借用配置版本，路径：`backend/internal/downloads/interfaces/http/handler.go`
-- [ ] T040 [P] [US1] 实现浏览器本地粗粒度来源分类，并在主页 metadata、地点和路线请求中只发送有限 header，路径：`frontend/src/services/analyticsSource.ts`、`frontend/src/services/routeQueryClient.ts`
-- [ ] T041 [P] [US1] 更新三语隐私政策，准确披露匿名标识、UV 含义、始终启用、长期保留、无备份及受禁字段，路径：`frontend/src/content/privacyPolicyContent.ts`
-- [ ] T042 [US1] 让 locale/noscript/SEO 生成内容与更新后的三语隐私事实一致，路径：`frontend/scripts/generate-locale-pages.mjs`、`frontend/src/content/seoPages.json`
-- [ ] T043 [US1] 运行 synthetic 路由、bot、通用日志边界、fail-open、隐私 sentinel 及 deadline 配置矩阵（unset/10/50/200 合法，9/201/0/负数/非整数 no-op）独立验收并记录命令与零命中预期，路径：`specs/010-website-analytics/quickstart.md`
+- [X] T032 [US1] 实现 128-bit base64url visitor ID、版本化 HMAC-SHA256 签名、常量时间校验、过期与轮换，路径：`backend/internal/analytics/infrastructure/signing/visitor_cookie.go`
+- [X] T033 [P] [US1] 实现只作瞬时判定且不持久化原始输入的 bot、device、source 和 locale 分类器，路径：`backend/internal/analytics/infrastructure/classification/classifier.go`
+- [X] T034 [P] [US1] 实现仅允许 locale、failureCategory 和 download attribution 回填的 request-scoped 观察对象，路径：`backend/internal/analytics/interfaces/http/observation.go`
+- [X] T035 [US1] 实现精确路由映射、bot-before-cookie、`__Host-bic-visitor` 签发及 recovery 外层的真实 tracking middleware；bot 排除后不追加事件或专门日志，路径：`backend/internal/analytics/interfaces/http/tracking_middleware.go`
+- [X] T036 [US1] 把已校验 `ANALYTICS_WRITE_TIMEOUT_MS`、单次 fail-open recorder、内存健康状态与脱敏写入错误类别接入真实 middleware，路径：`backend/internal/analytics/interfaces/http/event_recorder.go`、`backend/internal/analytics/application/record_event.go`
+- [X] T037 [US1] 只把 T035/T036 的真实 middleware 注入 T022 已存在的 public factory，并保证机器人只经过最外层通用脱敏 logger；不重建 engine、不再次替换 logger/recovery，路径：`backend/cmd/server/main.go`
+- [X] T038 [US1] 在地点/路线 HTTP adapter 只回填受控 locale/failureCategory 并清除起终点、坐标、query、token 和客户端 requestId 日志，路径：`backend/internal/routes/interfaces/http/handler.go`、`backend/internal/routes/infrastructure/logging/logger.go`
+- [X] T039 [US1] 在下载 HTTP adapter 提供平台与本次实际响应元数据的白名单回填钩子，失败时不借用配置版本，路径：`backend/internal/downloads/interfaces/http/handler.go`
+- [X] T040 [P] [US1] 实现浏览器本地粗粒度来源分类，并在主页 metadata、地点和路线请求中只发送有限 header，路径：`frontend/src/services/analyticsSource.ts`、`frontend/src/services/routeQueryClient.ts`
+- [X] T041 [P] [US1] 更新三语隐私政策，准确披露匿名标识、UV 含义、始终启用、长期保留、无备份及受禁字段，路径：`frontend/src/content/privacyPolicyContent.ts`
+- [X] T042 [US1] 让 locale/noscript/SEO 生成内容与更新后的三语隐私事实一致，路径：`frontend/scripts/generate-locale-pages.mjs`、`frontend/src/content/seoPages.json`
+- [X] T043 [US1] 运行 synthetic 路由、bot、通用日志边界、fail-open、隐私 sentinel 及 deadline 配置矩阵（unset/10/50/200 合法，9/201/0/负数/非整数 no-op）独立验收并记录命令与零命中预期，路径：`specs/010-website-analytics/quickstart.md`
 
 **检查点**：US1 可通过 synthetic metadata route 独立验证；与真实 metadata 的 page-view 集成在
 US4 完成。该故事完成前不得接入或交付真实 Dashboard 数据；统计故障、机器人请求和 ETA 均不

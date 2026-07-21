@@ -2,8 +2,8 @@ import type { PrivacyPolicyContent } from "./types";
 
 export const privacyPolicyContent: PrivacyPolicyContent = {
   metadata: {
-    version: "2026-06-30.privacy-policy-pages",
-    lastUpdated: "2026-06-30",
+    version: "2026-07-22.website-anonymous-analytics",
+    lastUpdated: "2026-07-22",
     contactEmail: "hezhenyu966@gmail.com",
     appliesTo: ["website", "android-app"],
   },
@@ -132,8 +132,33 @@ export const privacyPolicyContent: PrivacyPolicyContent = {
           "zh-Hans": "我们不为广告追踪收集资料，不出售资料，也不把你的查询内容用于建立广告受众。",
           en: "We do not collect data for ad tracking, do not sell data, and do not use your lookup activity to build advertising audiences.",
         },
+        {
+          "zh-Hant":
+            "網站會使用由伺服器簽發的隨機匿名訪客標識計算 PV（瀏覽次數）和 UV（匿名訪客數），並記錄首頁瀏覽、地點試查、路線試查和安裝包下載的時間、結果及粗略裝置、語言和來源類別。標識只保存在 HttpOnly Cookie，有效期為一年；UV 是瀏覽器標識數，不等同自然人數。",
+          "zh-Hans":
+            "网站会使用由服务器签发的随机匿名访客标识计算 PV（浏览次数）和 UV（匿名访客数），并记录首页浏览、地点试查、路线试查和安装包下载的时间、结果及粗略设备、语言和来源类别。标识只保存在 HttpOnly Cookie，有效期为一年；UV 是浏览器标识数，不等同自然人数。",
+          en: "The website uses a random anonymous visitor identifier issued by the server to calculate PV (page views) and UV (anonymous visitors). It records the time and outcome of homepage views, place trials, route trials, and package downloads, together with coarse device, language, and source categories. The identifier is kept only in an HttpOnly cookie for one year; UV counts browser identifiers, not people.",
+        },
+        {
+          "zh-Hant":
+            "這項匿名統計始終啟用，不提供退出控制。我們不記錄 IP、完整 User-Agent、完整 Referrer、Cookie 原文、請求 URL 或 body，也不記錄起點、目的地、座標或查詢內容；已知機械人流量不會形成統計明細。",
+          "zh-Hans":
+            "这项匿名统计始终启用，不提供退出控制。我们不记录 IP、完整 User-Agent、完整 Referrer、Cookie 原文、请求 URL 或 body，也不记录起点、目的地、坐标或查询内容；已知机器人流量不会形成统计明细。",
+          en: "This anonymous analytics is always enabled and does not provide an opt-out. It does not record IP, full User-Agent or Referrer values, raw cookies, request URLs or bodies, or origins, destinations, coordinates, or query content. Known bot traffic creates no analytics detail.",
+        },
+        {
+          "zh-Hant":
+            "匿名統計明細會長期保留，匯總只在私有監控頁即時計算。我們不設統計資料備份或自動刪除流程，因此資料可因儲存故障而遺失。",
+          "zh-Hans":
+            "匿名统计明细会长期保留，汇总只在私有监控页即时计算。我们不设统计数据备份或自动删除流程，因此数据可因存储故障而丢失。",
+          en: "Anonymous analytics details are retained long term, while aggregates are calculated on demand in a private monitoring page. There is no analytics backup or automatic deletion process, so the data may be lost after a storage failure.",
+        },
       ],
-      requiredFacts: ["no-account", "no-ad-tracking", "no-sale"],
+      requiredFacts: [
+        "no-account",
+        "no-ad-tracking",
+        "no-sale",
+      ],
     },
     {
       id: "functional-processing",

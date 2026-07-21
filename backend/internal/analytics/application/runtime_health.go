@@ -16,13 +16,14 @@ const (
 type HealthReason string
 
 const (
-	ReasonNone                HealthReason = ""
-	ReasonInvalidWriteTimeout HealthReason = "invalid_write_timeout"
-	ReasonWriteTimeout        HealthReason = "write_timeout"
-	ReasonWriteFailed         HealthReason = "write_failed"
-	ReasonOpenFailed          HealthReason = "open_failed"
-	ReasonMigrationFailed     HealthReason = "migration_failed"
-	ReasonRuntimeUnsupported  HealthReason = "runtime_unsupported"
+	ReasonNone                 HealthReason = ""
+	ReasonInvalidWriteTimeout  HealthReason = "invalid_write_timeout"
+	ReasonWriteTimeout         HealthReason = "write_timeout"
+	ReasonWriteFailed          HealthReason = "write_failed"
+	ReasonOpenFailed           HealthReason = "open_failed"
+	ReasonMigrationFailed      HealthReason = "migration_failed"
+	ReasonRuntimeUnsupported   HealthReason = "runtime_unsupported"
+	ReasonInvalidVisitorSecret HealthReason = "invalid_visitor_secret"
 )
 
 type healthState struct {

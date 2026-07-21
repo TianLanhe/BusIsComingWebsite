@@ -56,9 +56,9 @@
           "htmlLang": "zh-Hant",
           "canonical": "https://www.busiscoming.com/zh-hant/privacy/",
           "title": "BusIsComing 私隱政策 | Android App 與官方網站",
-          "description": "BusIsComing 私隱政策說明 Android App 和官方網站如何處理城巴查詢、定位、通知監測、語音提醒和網站試查所需資料。",
+          "description": "BusIsComing 私隱政策說明 Android App 功能資料及網站匿名 PV、UV 和試查統計，並列明不記錄 IP 或查詢內容。",
           "ogTitle": "BusIsComing 私隱政策",
-          "ogDescription": "了解 BusIsComing Android App 與官方網站的資料處理範圍、外部服務、用戶選擇和聯絡方式。",
+          "ogDescription": "了解 BusIsComing 的功能資料、匿名網站統計、外部服務、保留方式和私隱邊界。",
           "twitterTitle": "BusIsComing 私隱政策",
           "twitterDescription": "BusIsComing 私隱政策涵蓋 App 和官方網站，說明城巴查詢與提醒功能所需資料。"
         },
@@ -67,9 +67,9 @@
           "htmlLang": "zh-Hans",
           "canonical": "https://www.busiscoming.com/zh-hans/privacy/",
           "title": "BusIsComing 隐私政策 | Android App 与官方网站",
-          "description": "BusIsComing 隐私政策说明 Android App 和官方网站如何处理城巴查询、定位、通知监测、语音提醒和网站试查所需资料。",
+          "description": "BusIsComing 隐私政策说明 Android App 功能数据及网站匿名 PV、UV 和试查统计，并列明不记录 IP 或查询内容。",
           "ogTitle": "BusIsComing 隐私政策",
-          "ogDescription": "了解 BusIsComing Android App 与官方网站的资料处理范围、外部服务、用户选择和联系方式。",
+          "ogDescription": "了解 BusIsComing 的功能数据、匿名网站统计、外部服务、保留方式和隐私边界。",
           "twitterTitle": "BusIsComing 隐私政策",
           "twitterDescription": "BusIsComing 隐私政策涵盖 App 和官方网站，说明城巴查询与提醒功能所需资料。"
         },
@@ -78,9 +78,9 @@
           "htmlLang": "en",
           "canonical": "https://www.busiscoming.com/en/privacy/",
           "title": "BusIsComing Privacy Policy | Android App and Website",
-          "description": "The BusIsComing Privacy Policy explains how the Android app and website handle information needed for Citybus lookup, location, ETA monitoring, speech reminders, and the website trial.",
+          "description": "The BusIsComing Privacy Policy covers Android feature data and anonymous website PV, UV, trial and download analytics, without recording IP or query content.",
           "ogTitle": "BusIsComing Privacy Policy",
-          "ogDescription": "Learn how the BusIsComing Android app and website handle feature-required information, external services, user choices, and contact.",
+          "ogDescription": "Learn about BusIsComing feature data, anonymous website analytics, external services, retention, and privacy boundaries.",
           "twitterTitle": "BusIsComing Privacy Policy",
           "twitterDescription": "BusIsComing Privacy Policy for the Android app and official website."
         }

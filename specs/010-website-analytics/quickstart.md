@@ -112,6 +112,34 @@ go -C backend test ./internal/analytics/interfaces/http -run 'TestAnalyticsFailO
 - recovery 不 dump request，不输出 panic 原值、Cookie、私有路径或 stack 中的受禁上下文。
 - 既有路线日志不再输出起终点名称、坐标、用户 query 或客户端 requestId。
 
+### 4.1 US1 实施验收记录（2026-07-22）
+
+实现阶段使用以下命令复核 synthetic 路由、Cookie、机器人、fail-open、SQLite 锁冲突、隐私
+sentinel 和前端有限来源 header；这些测试不访问 Citybus live，也不写入生产统计库：
+
+```bash
+go -C backend test ./internal/analytics/infrastructure/signing \
+  ./internal/analytics/infrastructure/classification \
+  ./internal/analytics/interfaces/http \
+  ./internal/platform/httpserver ./cmd/server -count=1
+go -C backend test -race ./internal/analytics/... ./internal/platform/httpserver/... ./cmd/server
+npm --prefix frontend test -- --run
+```
+
+验收期望与实现结果：
+
+- `ANALYTICS_WRITE_TIMEOUT_MS` 的 unset/10/50/200 均启用；9/201/0/负数/小数/文本均以
+  `invalid_write_timeout` no-op 降级，公开 engine 仍可响应。
+- metadata 成功/失败、地点与路线的成功及受控失败、下载成功/失败各形成一条事件；ETA 为 0 条。
+- Google/Bing/social preview/headless/CLI 已知机器人不签发 Cookie、不写事件，也不增加 bot
+  专门日志；通用请求日志仍使用与普通请求相同的脱敏 schema。
+- 关闭 SQLite、持有写锁和阻塞 writer 时只尝试一次；`droppedSinceStart` 只增加一次，业务
+  status、JSON/body 和业务 header 与 no-op 基线一致；写锁等待受 200ms 硬上限约束。
+- 注入 IP、UA、Referrer、Cookie、URI/query/body、地点、坐标、token、客户端 requestId 和
+  panic sentinel 后，捕获日志、事件对象、SQLite 主文件、WAL/SHM 与公开响应均为零命中。
+- 浏览器只产生 `direct/search/referral/internal/unknown`，路线请求不发送主页 locale 或原始
+  Referrer；三语隐私正文和 noscript fallback 与长期保留、无备份、无退出控制事实一致。
+
 ## 5. SQLite、迁移和 100 万行性能门禁
 
 先验证 CGo-free 构建与 SQLite runtime：

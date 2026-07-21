@@ -8,6 +8,7 @@ import type {
   QueryRoutesData,
   QueryRoutesRequest,
 } from "./routeQueryTypes";
+import { buildAnalyticsHeaders } from "./analyticsSource";
 
 type RouteQueryPath = "/api/routes/query_places" | "/api/routes/query_routes" | "/api/routes/query_etas";
 
@@ -54,6 +55,7 @@ async function postEnvelope<TRequest extends { requestId: string }, TData>(
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      ...buildAnalyticsHeaders(),
     },
     body: JSON.stringify(request),
     signal,

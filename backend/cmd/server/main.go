@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -11,6 +12,8 @@ import (
 	"time"
 
 	analyticsapp "busiscoming-website/backend/internal/analytics/application"
+	"busiscoming-website/backend/internal/analytics/infrastructure/classification"
+	analyticssigning "busiscoming-website/backend/internal/analytics/infrastructure/signing"
 	analyticsqlite "busiscoming-website/backend/internal/analytics/infrastructure/sqlite"
 	analyticshttp "busiscoming-website/backend/internal/analytics/interfaces/http"
 	downloadapp "busiscoming-website/backend/internal/downloads/application"
@@ -23,7 +26,7 @@ import (
 	"busiscoming-website/backend/internal/routes/infrastructure/datagovhk"
 	routelogging "busiscoming-website/backend/internal/routes/infrastructure/logging"
 	"busiscoming-website/backend/internal/routes/infrastructure/memory"
-	"busiscoming-website/backend/internal/routes/infrastructure/signing"
+	routesigning "busiscoming-website/backend/internal/routes/infrastructure/signing"
 	routehttp "busiscoming-website/backend/internal/routes/interfaces/http"
 	"github.com/gin-gonic/gin"
 )
@@ -56,7 +59,21 @@ func run(ctx context.Context) error {
 		defer analyticsStore.Close()
 	}
 
-	publicEngine := platformhttp.NewPublicEngine(os.Stdout, noOpAnalyticsMiddleware())
+	trackingMiddleware := noOpAnalyticsMiddleware()
+	visitorSecret := []byte(os.Getenv("BUS_ANALYTICS_VISITOR_SECRET"))
+	if analyticsStore != nil && writeConfig.Enabled && len(visitorSecret) >= 32 {
+		recorder := analyticsapp.NewRecordEvent(analyticsStore, writeConfig.Timeout, health)
+		trackingMiddleware = analyticshttp.NewTrackingMiddleware(analyticshttp.TrackingConfig{
+			Signer:     analyticssigning.NewVisitorCookieSigner(visitorSecret, now, rand.Reader),
+			Classifier: classification.NewClassifier(),
+			Recorder:   recorder,
+			Clock:      now,
+		})
+	} else if analyticsStore != nil && writeConfig.Enabled {
+		health.SetDatabaseState(analyticsapp.DatabaseDegraded, analyticsapp.ReasonInvalidVisitorSecret)
+	}
+
+	publicEngine := platformhttp.NewPublicEngine(os.Stdout, trackingMiddleware)
 	publicEngine.GET("/healthz", func(c *gin.Context) {
 		platformhttp.SetRequestMetadata(c, "getPublicHealth", "platform")
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
@@ -114,7 +131,7 @@ func registerRouteQueryRoutes(engine *gin.Engine, now func() time.Time) {
 		PlaceService: citybus.NewPlaceClient(),
 		RouteService: citybusRouteClient,
 		EtaService:   datagovhk.NewEtaClient(),
-		Signer:       signing.NewTokenSigner([]byte(os.Getenv("ROUTE_QUERY_TOKEN_SECRET")), now),
+		Signer:       routesigning.NewTokenSigner([]byte(os.Getenv("ROUTE_QUERY_TOKEN_SECRET")), now),
 		Logger:       routeLogger,
 		PlaceCache:   placeCache,
 		RouteCache:   routeCache,

@@ -31,7 +31,9 @@ func Open(ctx context.Context, path string) (*Store, error) {
 	parameters := url.Values{}
 	parameters.Add("_pragma", "journal_mode(WAL)")
 	parameters.Add("_pragma", "synchronous(NORMAL)")
-	parameters.Add("_pragma", "busy_timeout(5000)")
+	// modernc SQLite 的忙等待不一定会在 Go context 取消时立即中断，因此连接级
+	// timeout 也必须收紧到公开请求允许的 200ms 绝对上限。
+	parameters.Add("_pragma", "busy_timeout(200)")
 	location := url.URL{Scheme: "file", Path: filepath.Clean(path), RawQuery: parameters.Encode()}
 	database, err := sql.Open("sqlite", location.String())
 	if err != nil {
