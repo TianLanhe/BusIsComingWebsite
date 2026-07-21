@@ -3,10 +3,13 @@ package domain
 type ErrorCode string
 
 const (
-	CodeAPKMissing          ErrorCode = "APK_MISSING"
-	CodeAPKUnreadable       ErrorCode = "APK_UNREADABLE"
-	CodeAPKChecksumMismatch ErrorCode = "APK_CHECKSUM_MISMATCH"
-	CodeDownloadInternal    ErrorCode = "DOWNLOAD_INTERNAL_ERROR"
+	CodeAPKMissing            ErrorCode = "APK_MISSING"
+	CodeAPKUnreadable         ErrorCode = "APK_UNREADABLE"
+	CodeAPKChecksumMismatch   ErrorCode = "APK_CHECKSUM_MISMATCH"
+	CodeAPKMetadataMissing    ErrorCode = "APK_METADATA_MISSING"
+	CodeAPKMetadataUnreadable ErrorCode = "APK_METADATA_UNREADABLE"
+	CodeAPKMetadataInvalid    ErrorCode = "APK_METADATA_INVALID"
+	CodeDownloadInternal      ErrorCode = "DOWNLOAD_INTERNAL_ERROR"
 )
 
 type DownloadError struct {

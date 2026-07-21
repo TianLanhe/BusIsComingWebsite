@@ -130,9 +130,9 @@ export const homepageContent: HomePageContent = {
       kind: "anchor",
     },
     apkMeta: {
-      "zh-Hant": "Android APK 1.0 · 約 4.8 MB",
-      "zh-Hans": "Android APK 1.0 · 约 4.8 MB",
-      en: "Android APK 1.0 · About 4.8 MB",
+      "zh-Hant": "Android APK 版本及大小暫時未能提供",
+      "zh-Hans": "Android APK 版本和大小暂时不可用",
+      en: "Android APK version and size are temporarily unavailable",
     },
     iphoneStatus: {
       "zh-Hant": "iPhone 暫未支援",
@@ -162,9 +162,9 @@ export const homepageContent: HomePageContent = {
         en: "Android APK",
       },
       meta: {
-        "zh-Hant": "版本 1.0 · 約 4.8 MB",
-        "zh-Hans": "版本 1.0 · 约 4.8 MB",
-        en: "Version 1.0 · About 4.8 MB",
+        "zh-Hant": "版本及大小暫時未能提供",
+        "zh-Hans": "版本和大小暂时不可用",
+        en: "Version and size are temporarily unavailable",
       },
       primaryAction: {
         label: {

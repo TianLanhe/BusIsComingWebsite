@@ -10,6 +10,7 @@ import (
 	analyticsdomain "busiscoming-website/backend/internal/analytics/domain"
 	analyticshttp "busiscoming-website/backend/internal/analytics/interfaces/http"
 	"busiscoming-website/backend/internal/downloads/domain"
+	platformhttp "busiscoming-website/backend/internal/platform/httpserver"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,14 +24,20 @@ type DownloadUseCase interface {
 }
 
 type Handler struct {
-	usecase DownloadUseCase
+	usecase         DownloadUseCase
+	metadataUsecase MetadataUseCase
 }
 
-func NewHandler(usecase DownloadUseCase) *Handler {
-	return &Handler{usecase: usecase}
+func NewHandler(usecase DownloadUseCase, metadata ...MetadataUseCase) *Handler {
+	handler := &Handler{usecase: usecase}
+	if len(metadata) > 0 {
+		handler.metadataUsecase = metadata[0]
+	}
+	return handler
 }
 
 func (handler *Handler) DownloadLatestAndroidAPK(c *gin.Context) {
+	platformhttp.SetRequestMetadata(c, "downloadLatestAndroidApk", "downloads")
 	result, err := handler.usecase.Execute(c.Request.Context())
 	c.Header("Cache-Control", cacheControl)
 	if err != nil {
@@ -59,7 +66,7 @@ func analyticsDownloadFailure(err error) analyticsdomain.FailureCategory {
 		return analyticsdomain.FailureInternal
 	}
 	switch downloadErr.Code {
-	case domain.CodeAPKMissing:
+	case domain.CodeAPKMissing, domain.CodeAPKMetadataMissing:
 		return analyticsdomain.FailureNotFound
 	case domain.CodeAPKChecksumMismatch:
 		return analyticsdomain.FailureIntegrityMismatch

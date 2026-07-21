@@ -1,13 +1,16 @@
 import { Download, Smartphone } from "lucide-react";
 import { useState } from "react";
 import { downloadManifest } from "../../content/downloadManifest";
+import { homepageContent } from "../../content/homepageContent";
 import type { DownloadPlatform } from "../../content/types";
 import { uiCopy } from "../../content/uiCopy";
 import { useI18n } from "../i18n/I18nProvider";
 import styles from "./DownloadSegmentedButton.module.css";
+import { useDownloadMetadata, versionAPKMetadataText } from "./DownloadMetadataProvider";
 
 export function DownloadSegmentedButton({ compact = false }: { compact?: boolean }) {
-  const { text } = useI18n();
+  const { locale, text } = useI18n();
+  const metadataState = useDownloadMetadata();
   const [downloadState, setDownloadState] = useState<"idle" | "downloading" | "failed">("idle");
   const android = downloadManifest.platforms.android;
   const ios = downloadManifest.platforms.ios;
@@ -27,7 +30,7 @@ export function DownloadSegmentedButton({ compact = false }: { compact?: boolean
       const objectUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = objectUrl;
-      link.download = platform.artifact?.fileName ?? "BusIsComing.apk";
+      link.download = metadataState.status === "ready" ? metadataState.metadata.fileName : "BusIsComing.apk";
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -38,7 +41,11 @@ export function DownloadSegmentedButton({ compact = false }: { compact?: boolean
     }
   }
 
-  const detail = downloadState === "downloading" ? text(uiCopy.downloadStarting) : `${text(android.description)} · ${text(android.artifact!.sizeLabel)}`;
+  const detail = downloadState === "downloading"
+    ? text(uiCopy.downloadStarting)
+    : metadataState.status === "ready"
+      ? versionAPKMetadataText(metadataState.metadata, locale)
+      : text(homepageContent.downloadSection.androidCard.meta);
 
   return (
     <div

@@ -121,7 +121,8 @@ func registerDownloadRoutes(engine *gin.Engine) {
 	repository := filesystem.NewArtifactRepository(downloadRoot)
 	checksum := filesystem.NewChecksumCalculator()
 	usecase := downloadapp.NewDownloadCurrentAPK(repository, checksum)
-	downloadhttp.RegisterRoutes(engine, downloadhttp.NewHandler(usecase))
+	metadataUsecase := downloadapp.NewGetLatestAPKMetadata(repository)
+	downloadhttp.RegisterRoutes(engine, downloadhttp.NewHandler(usecase, metadataUsecase))
 }
 
 func registerRouteQueryRoutes(engine *gin.Engine, now func() time.Time) {

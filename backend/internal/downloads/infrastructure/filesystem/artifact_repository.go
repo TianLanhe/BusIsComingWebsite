@@ -31,6 +31,29 @@ func NewArtifactRepository(root string) *ArtifactRepository {
 	return &ArtifactRepository{root: root}
 }
 
+func (repository *ArtifactRepository) CurrentMetadata(ctx context.Context) (domain.CurrentAPK, error) {
+	select {
+	case <-ctx.Done():
+		return domain.CurrentAPK{}, ctx.Err()
+	default:
+	}
+	raw, err := os.ReadFile(filepath.Join(repository.root, "current.json"))
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return domain.CurrentAPK{}, domain.NewDownloadError(domain.CodeAPKMetadataMissing, "metadata manifest is missing")
+		}
+		return domain.CurrentAPK{}, domain.NewDownloadError(domain.CodeAPKMetadataUnreadable, "metadata manifest cannot be read")
+	}
+	var metadata domain.CurrentAPK
+	if err := json.Unmarshal(raw, &metadata); err != nil {
+		return domain.CurrentAPK{}, domain.NewDownloadError(domain.CodeAPKMetadataInvalid, "metadata manifest is invalid JSON")
+	}
+	if err := metadata.ValidatePublicMetadata(); err != nil {
+		return domain.CurrentAPK{}, domain.NewDownloadError(domain.CodeAPKMetadataInvalid, "metadata manifest is invalid")
+	}
+	return metadata, nil
+}
+
 func (repository *ArtifactRepository) CurrentArtifact(ctx context.Context) (domain.Artifact, error) {
 	select {
 	case <-ctx.Done():

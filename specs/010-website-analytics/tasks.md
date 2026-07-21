@@ -195,23 +195,23 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 
 ### 用户故事 4 的测试与验证
 
-- [ ] T085 [P] [US4] 为白名单 `LatestApkMetadata`、manifest 错误映射和不暴露路径/SHA-256 编写先失败应用测试，路径：`backend/internal/downloads/application/get_latest_apk_metadata_test.go`
-- [ ] T086 [P] [US4] 为 metadata manifest 读取、basename、版本/大小/日期校验及不读取 APK bytes 的只读仓储方法编写先失败测试，路径：`backend/internal/downloads/infrastructure/filesystem/metadata_repository_test.go`
-- [ ] T087 [P] [US4] 按公开 OpenAPI 为 metadata 200/4xx/5xx、`no-store`、稳定下载 URL 和现有下载语义编写先失败 handler 测试，路径：`backend/internal/downloads/interfaces/http/metadata_handler_test.go`
-- [ ] T088 [P] [US4] 为精确主页单次请求、StrictMode/in-flight 去重、语言切换不重取、Intl 大小，以及失败时无自动/手动重试和无旧值回退编写先失败前端测试，路径：`frontend/src/tests/download-metadata-provider.test.tsx`
-- [ ] T089 [US4] 对照 `12 Homepage / Mobile APK Metadata States / 390` 为三语主页 metadata 成功/失败且下载始终可达定义 1440px 桌面和 390px 手机先失败浏览器测试，路径：`frontend/playwright/apk-metadata.spec.ts`
+- [X] T085 [P] [US4] 为白名单 `LatestApkMetadata`、manifest 错误映射和不暴露路径/SHA-256 编写先失败应用测试，路径：`backend/internal/downloads/application/get_latest_apk_metadata_test.go`
+- [X] T086 [P] [US4] 为 metadata manifest 读取、basename、版本/大小/日期校验及不读取 APK bytes 的只读仓储方法编写先失败测试，路径：`backend/internal/downloads/infrastructure/filesystem/metadata_repository_test.go`
+- [X] T087 [P] [US4] 按公开 OpenAPI 为 metadata 200/4xx/5xx、`no-store`、稳定下载 URL 和现有下载语义编写先失败 handler 测试，路径：`backend/internal/downloads/interfaces/http/metadata_handler_test.go`
+- [X] T088 [P] [US4] 为精确主页单次请求、StrictMode/in-flight 去重、语言切换不重取、Intl 大小，以及失败时无自动/手动重试和无旧值回退编写先失败前端测试，路径：`frontend/src/tests/download-metadata-provider.test.tsx`
+- [X] T089 [US4] 对照 `12 Homepage / Mobile APK Metadata States / 390` 为三语主页 metadata 成功/失败且下载始终可达定义 1440px 桌面和 390px 手机先失败浏览器测试，路径：`frontend/playwright/apk-metadata.spec.ts`
 
 ### 用户故事 4 的实现
 
-- [ ] T090 [US4] 定义只读 metadata repository 端口、白名单 DTO、用例和受控错误映射，路径：`backend/internal/downloads/application/ports.go`、`backend/internal/downloads/application/get_latest_apk_metadata.go`
-- [ ] T091 [US4] 实现仅从当前 manifest 读取/校验元数据且不加载 APK bytes 的文件适配器，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository.go`
-- [ ] T092 [US4] 实现并注册 `GET /api/downloads/android/latest/metadata`、中文安全错误和 `Cache-Control: no-store`，路径：`backend/internal/downloads/interfaces/http/metadata_handler.go`、`backend/internal/downloads/interfaces/http/routes.go`
-- [ ] T093 [US4] 将真实 metadata 的合法主页 header 与成功/失败 page-view、真实下载成功版本/代码/大小接入 analytics 观察对象，路径：`backend/internal/downloads/interfaces/http/metadata_handler.go`、`backend/internal/downloads/interfaces/http/handler.go`
-- [ ] T094 [P] [US4] 实现不缓存陈旧结果、不重试且只发送有限主页 locale/source header 的 metadata client，路径：`frontend/src/services/downloadMetadataClient.ts`
-- [ ] T095 [US4] 实现单 document 共享 in-flight 状态、Intl 格式化和 `ready/unavailable` 的 provider，路径：`frontend/src/components/download/DownloadMetadataProvider.tsx`
-- [ ] T096 [US4] 仅在 `/zh-hant/`、`/zh-hans/`、`/en/` 精确主页挂载 provider，隐私页和未知路径不请求，路径：`frontend/src/app/App.tsx`
-- [ ] T097 [US4] 从静态 manifest 文案移除版本/大小旧值并在 Hero/下载区首次实现三语当前值或暂不可用文案，同时保持稳定下载链接，路径：`frontend/src/content/downloadManifest.ts`、`frontend/src/content/homepageContent.ts`、`frontend/src/components/hero/HeroIntro.tsx`、`frontend/src/components/sections/DownloadSection.tsx`
-- [ ] T098 [US4] 完成 metadata 成功/失败的桌面/手机浏览器验收，并保存与 `10 Homepage / APK Metadata States / 1200`、`12 Homepage / Mobile APK Metadata States / 390` 对照的双端视觉证据，路径：`frontend/playwright/apk-metadata.spec.ts`、`frontend/playwright/__screenshots__/apk-metadata-desktop.png`、`frontend/playwright/__screenshots__/apk-metadata-mobile.png`
+- [X] T090 [US4] 定义只读 metadata repository 端口、白名单 DTO、用例和受控错误映射，路径：`backend/internal/downloads/application/ports.go`、`backend/internal/downloads/application/get_latest_apk_metadata.go`
+- [X] T091 [US4] 实现仅从当前 manifest 读取/校验元数据且不加载 APK bytes 的文件适配器，路径：`backend/internal/downloads/infrastructure/filesystem/artifact_repository.go`
+- [X] T092 [US4] 实现并注册 `GET /api/downloads/android/latest/metadata`、中文安全错误和 `Cache-Control: no-store`，路径：`backend/internal/downloads/interfaces/http/metadata_handler.go`、`backend/internal/downloads/interfaces/http/routes.go`
+- [X] T093 [US4] 将真实 metadata 的合法主页 header 与成功/失败 page-view、真实下载成功版本/代码/大小接入 analytics 观察对象，路径：`backend/internal/downloads/interfaces/http/metadata_handler.go`、`backend/internal/downloads/interfaces/http/handler.go`
+- [X] T094 [P] [US4] 实现不缓存陈旧结果、不重试且只发送有限主页 locale/source header 的 metadata client，路径：`frontend/src/services/downloadMetadataClient.ts`
+- [X] T095 [US4] 实现单 document 共享 in-flight 状态、Intl 格式化和 `ready/unavailable` 的 provider，路径：`frontend/src/components/download/DownloadMetadataProvider.tsx`
+- [X] T096 [US4] 仅在 `/zh-hant/`、`/zh-hans/`、`/en/` 精确主页挂载 provider，隐私页和未知路径不请求，路径：`frontend/src/app/App.tsx`
+- [X] T097 [US4] 从静态 manifest 文案移除版本/大小旧值并在 Hero/下载区首次实现三语当前值或暂不可用文案，同时保持稳定下载链接，路径：`frontend/src/content/downloadManifest.ts`、`frontend/src/content/homepageContent.ts`、`frontend/src/components/hero/HeroIntro.tsx`、`frontend/src/components/sections/DownloadSection.tsx`
+- [X] T098 [US4] 完成 metadata 成功/失败的桌面/手机浏览器验收，并保存与 `10 Homepage / APK Metadata States / 1200`、`12 Homepage / Mobile APK Metadata States / 390` 对照的双端视觉证据，路径：`frontend/playwright/apk-metadata.spec.ts`、`frontend/playwright/__screenshots__/apk-metadata-desktop.png`、`frontend/playwright/__screenshots__/apk-metadata-mobile.png`
 
 **检查点**：US4 在 no-op analytics 下仍能独立提供 metadata 和下载；与 US1 组合后才产生真实
 `page_view` 和完整下载归因，且本故事自身已完成主页相关状态的桌面与手机实现。

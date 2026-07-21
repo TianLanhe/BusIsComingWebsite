@@ -304,6 +304,19 @@ npm --prefix frontend run test:e2e:monitor
 - 两张调查截图均已人工查看，并与 `11 Pulse / Mobile Investigation / 390` 的紧凑筛选、事件卡、
   访客检索、复制反馈、会话时间线、分页和底部导航结构核对。
 
+### US4 APK 元数据实现验证记录（2026-07-22）
+
+- 元数据应用层、只读 manifest 仓储和公开 HTTP 契约测试通过；响应仅包含 OpenAPI 白名单字段，
+  校验 basename、版本、大小和日期，且在 APK 文件不存在时仍可只读返回 manifest 元数据。
+- 主页 StrictMode、单 document in-flight、语言切换、精确三语主页和失败降级共 6 项测试通过；
+  元数据失败后不重试、不显示旧版本、不提供重新加载入口，稳定下载链接与按钮保持可用。
+- Go 全量与 race、95 项前端单元测试、public/monitor 双构建及 OpenAPI lint/bundle 通过；公开
+  Playwright 中 metadata 成功/失败与真实 APK 下载均覆盖桌面和手机。
+- 视觉证据为 `frontend/playwright/__screenshots__/apk-metadata-desktop.png` 与
+  `frontend/playwright/__screenshots__/apk-metadata-mobile.png`；两张图均已人工查看，并与
+  `10 Homepage / APK Metadata States / 1200`、`12 Homepage / Mobile APK Metadata States / 390`
+  的成功状态、动态版本/大小和下载可达性核对。
+
 ## 9. 隐私政策与三语事实验证
 
 检查公开隐私政策和 noscript/SEO 生成内容，确认三语都明确说明：

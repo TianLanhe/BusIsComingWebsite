@@ -107,7 +107,12 @@
             "properties": {
               "downloadUrl": { "type": "string", "pattern": "^/api/downloads/android/latest$" },
               "disabledReason": { "type": "null" },
-              "artifact": { "$ref": "#/$defs/artifact" }
+              "artifact": {
+                "anyOf": [
+                  { "$ref": "#/$defs/artifact" },
+                  { "type": "null" }
+                ]
+              }
             }
           }
         },
@@ -128,4 +133,3 @@
     }
   }
 }
-
