@@ -243,7 +243,7 @@ npm --prefix frontend run test:e2e:monitor
 
 视觉基准：
 
-- [Figma 权威文件与节点 63:2118](./figma.md)
+- [Figma 权威文件与两批导入锚点 63:2118、67:672](./figma.md)
 - `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json`
 - `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/tokens.json`
 - `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-investigation.png`（390×1640）

@@ -33,5 +33,5 @@
 
 - Validation iteration 1 passed all checklist items.
 - The constitution-alignment section names required OpenAPI paths, operation IDs, DDD boundaries and Figma artifacts because the project template mandates contract and architecture traceability; user stories, functional behavior and success criteria remain implementation-independent.
-- Figma import was user-confirmed at node `63:2118`. Starter MCP quota prevented a second machine read, so `figma.md` records the approved limitation and does not invent child node IDs.
+- Figma imports were user-confirmed at anchors `63:2118` (01–10) and `67:672` (11–13). Starter MCP quota prevents a machine read of their child frames, so `figma.md` records the approved limitation and does not invent child node IDs.
 - Static metrics and APK values in visual artifacts are explicitly classified as layout examples; runtime package facts must come from current metadata.

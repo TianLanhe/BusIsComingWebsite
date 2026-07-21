@@ -4,17 +4,20 @@
 
 **确认日期**：2026-07-22
 
-**状态**：01–10 已由用户导入现有权威文件；11–13 已完成导入源和截图验证，待用户补充导入
+**状态**：01–10 与 11–13 两批共 13 张画板均已由用户确认导入权威文件
 
 ## 权威文件与导入锚点
 
 - Figma 文件：[BusIsComing Website Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)
-- 用户确认的导入锚点：[节点 63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118&t=qpAv4G6q8c045NWj-0)
+- 01–10 导入锚点：[节点 63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118&t=qpAv4G6q8c045NWj-0)
+- 11–13 补充导入锚点：[节点 67:672](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=67-672&t=pXavKmVnFOvABrsi-0)
 - 目标页面名称：`Website Analytics / v1`
 - File key：`LAm6RjzFuFHsHFlcipx8pU`
 - 导入方式：本地高保真 HTML → `html.to.design` 类插件 → 现有 Figma 文件
 
-Figma MCP 在导入完成后仍受 Starter 套餐调用额度限制，无法读取 `63:2118` 下的子节点。用户已明确完成 01–10 导入；v1.1 的 11–13 只记录已验证的 HTML、manifest 和导入前截图，在用户实际补充导入并提供链接前不声明新增 Figma 节点。本文不推测或虚构任何子节点 ID。
+Figma MCP 仍受 Starter 套餐调用额度限制，无法读取两个锚点下的子画板结构。用户已明确确认
+01–10 与 11–13 均完成导入，并分别提供真实锚点 `63:2118` 与 `67:672`。本文以这两个锚点记录
+导入事实，以已验证的 HTML、manifest 和截图维持逐画板映射，不推测或虚构未机器读取的子节点 ID。
 
 ## 关键画板映射
 
@@ -62,5 +65,5 @@ Figma MCP 在导入完成后仍受 Starter 套餐调用额度限制，无法读�
 - 13 张画板均以 manifest 指定尺寸完成无头浏览器渲染；11–13 的页面尺寸分别精确为 390×1640、390×1200、1440×1000，且无横向溢出。
 - 桌面总览、流量与试查、下载、事件明细、匿名访客、失败与性能、系统状态、移动总览、全局状态、APK 状态及三张 v1.1 补充画板均完成逐屏视觉检查。
 - v1.1 补充截图：[移动详细调查](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-investigation.png) · [移动 APK](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-apk.png) · [普通查询失败](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/query-failure.png)。
-- 用户于 2026-07-21 确认 01–10 已导入 Figma，并提供节点 `63:2118`；11–13 仍按 README 等待补充导入。
-- 由于 Figma Starter MCP 额度限制，导入后的 Figma 子节点结构尚未机器复核；后续若额度恢复，可在 plan 或 implement 阶段补充只读截图与子节点链接，不改变本规格行为定义。
+- 用户于 2026-07-21 确认 01–10 已导入 Figma，并提供锚点 `63:2118`；于 2026-07-22 确认 11–13 已补充导入，并提供锚点 `67:672`。
+- 由于 Figma Starter MCP 额度限制，两个锚点下的子画板结构尚未机器复核；后续若额度恢复，可在 implement 阶段补充只读截图与精确子画板链接，不改变本规格行为定义或当前导入完成状态。

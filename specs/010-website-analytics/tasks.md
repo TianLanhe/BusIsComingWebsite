@@ -5,7 +5,8 @@
 
 **前置条件**：实施计划、数据模型、download/route-query/analytics-monitoring 三份 feature
 OpenAPI、公开打点上下文契约和 Figma `BusIsComing Pulse v1.1 · 2026-07-22` 均已确定；01–10
-已有节点 `63:2118`，11–13 使用已验证导入源与截图并等待用户补充导入，不虚构新增节点。
+已有导入锚点 `63:2118`，11–13 已由用户补充导入并提供真实锚点 `67:672`；子画板节点仍以
+manifest、截图和后续可用的机器读取结果交叉核对，不推测未读取的节点 ID。
 
 **测试策略**：本规格明确要求自动化测试。每个用户故事先编写并确认相关测试失败，再实现最小
 代码使其通过；最终再执行 race、隐私 sentinel、100 万行性能、OpenAPI、Playwright、部署隔离和
@@ -239,7 +240,7 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 - [ ] T105 [US5] 为图表/表格补充文字摘要、键盘焦点、ARIA、44px 触摸目标、非颜色编码和 reduced-motion，路径：`frontend/src/monitoring/components/charts/AccessibleChartFrame.tsx`、`frontend/src/monitoring/styles/accessibility.css`
 - [ ] T106 [US5] 完成香港繁中、自然克制英文和三语隐私/指标口径独立审校并记录非机械直译结论，路径：`specs/010-website-analytics/zh-hant-en-copy-review.md`
 - [ ] T107 [US5] 生成七个 workspace 与五类状态的桌面/手机三语截图证据，路径：`frontend/playwright-monitor/__screenshots__/`、`frontend/playwright-monitor/responsive-locales.spec.ts`、`frontend/playwright-monitor/states.spec.ts`
-- [ ] T108 [US5] 对照 Figma 既有节点 `63:2118`、`BusIsComing Pulse v1.1` 的 13 张 manifest 画板和 tokens 记录已实现 viewport/交互/状态差异；11–13 只在用户补充导入后记录真实链接，不虚构不可见子节点，路径：`specs/010-website-analytics/figma.md`
+- [ ] T108 [US5] 对照 Figma 01–10 锚点 `63:2118`、11–13 补充导入锚点 `67:672`、`BusIsComing Pulse v1.1` 的 13 张 manifest 画板和 tokens，记录已实现 viewport/交互/状态差异；不得为锚点下未机器读取的子画板虚构节点 ID，路径：`specs/010-website-analytics/figma.md`
 
 **检查点**：US5 只做跨工作区最终回归，不承担首次移动端实现；七个 workspace 与全部状态在
 电脑、手机和三语下可独立使用，UI 评审有真实截图与 Figma 追溯证据。
@@ -263,7 +264,7 @@ UI 不依赖公开 handler 内部模型，且本故事自身已完成桌面与�
 - [ ] T119 运行受禁字段 sentinel 扫描日志、SQLite、WAL/SHM 和私有响应，确认 IP、完整标识原文和查询内容零命中，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`、`specs/010-website-analytics/quickstart.md`
 - [ ] T120 审计 DDD 依赖方向、无业务 `panic`、T022 public factory 的 `logger → injected analytics stub → recovery → handler`、T037 真实 tracking 注入后的同序链路、private `logger → recovery → handler`、双引擎 handler panic、自建 goroutine recover、脱敏日志，以及机器人只有不带 bot/身份线索的通用请求日志，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
 - [ ] T121 验证仅有四类事件且 ETA/隐私页/静态页不打点，并确认无账号、指纹、广告、安装完成、导出、删除、编辑、自动清理、备份、完整路线规划或非香港巴士能力，路径：`backend/internal/analytics/domain/event_test.go`、`frontend/src/monitoring/pages/EventsPage.test.tsx`、`specs/010-website-analytics/spec.md`
-- [ ] T122 对照 Figma `BusIsComing Pulse v1.1 · 2026-07-22`、13 张 manifest 画板和真实桌面/手机截图完成最终视觉评审；01–10 使用既有导入锚点，11–13 使用补充导入后的真实链接或明确待导入状态，路径：`specs/010-website-analytics/figma.md`、`docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json`、`frontend/playwright-monitor/__screenshots__/`
+- [ ] T122 对照 Figma `BusIsComing Pulse v1.1 · 2026-07-22`、两批真实导入锚点 `63:2118`/`67:672`、13 张 manifest 画板和真实桌面/手机截图完成最终视觉评审，路径：`specs/010-website-analytics/figma.md`、`docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json`、`frontend/playwright-monitor/__screenshots__/`
 - [ ] T123 执行 OpenAPI、Go/race、隐私、100 万行、双 listener、前端、三语、Figma、部署和公网隔离全套验收，并在文档中记录实际命令与结果，路径：`specs/010-website-analytics/quickstart.md`
 
 ---

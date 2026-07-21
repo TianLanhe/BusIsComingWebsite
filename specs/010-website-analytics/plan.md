@@ -120,10 +120,11 @@ bot 判断之后不再写任何额外日志或事件。
 `docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/` 中的 HTML、manifest、
 tokens 和 13 张已逐屏渲染画板；逻辑画板映射见 [figma.md](./figma.md)。
 
-**Figma 设计引用**：[BusIsComing Website Homepage v1 Spec，节点 63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118&t=qpAv4G6q8c045NWj-0)，
-设计版本 `BusIsComing Pulse v1.1 · 2026-07-22`。用户已确认 01–10 导入完成；11–13 是待按 README
-补充导入的移动详细调查、移动 APK 与普通查询失败画板。Figma Starter MCP 额度无法读取子节点，
-因此实现以既有锚点、manifest、tokens 和已验证截图为依据，不虚构新增子节点。
+**Figma 设计引用**：[BusIsComing Website Homepage v1 Spec，01–10 锚点 63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118&t=qpAv4G6q8c045NWj-0)；
+[11–13 补充导入锚点 67:672](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=67-672&t=pXavKmVnFOvABrsi-0)。
+设计版本 `BusIsComing Pulse v1.1 · 2026-07-22`。用户已确认两批共 13 张画板均已导入。Figma
+Starter MCP 额度无法读取锚点下的子画板结构，因此实现以两个真实锚点、manifest、tokens 和已验证
+截图为依据，不推测未读取的子节点 ID。
 
 **双端适配范围**：桌面基准 1440×1200（状态画板 1440×1000），使用 240px 侧栏、高密度 KPI、
 双栏图表和语义表格；`<=820px` 转为移动抽屉/底部导航、两列 KPI、纵向卡片、紧凑图表和
@@ -150,9 +151,9 @@ US5 只做跨页面视觉回归、key 完整性、隐私事实、香港繁中/�
 | OpenAPI 驱动的服务端接口文档：服务端 HTTP API 已有 OpenAPI 3.1 YAML、中文 API UI、共享沉淀路径和验证方式 | 通过 | `contracts/*.openapi.yaml` 已生成；计划记录 shared 路径、route header 同步、Redocly lint/bundle/docs 和私有 UI 不部署公网。 |
 | 三语国际化：所有用户可见文字覆盖 `zh-Hant`、`zh-Hans`、`en`，且 `zh-Hant` 与 `en` 已按自然语气审校、未机械直译 | 通过 | 技术背景与 quickstart 明确首页、Dashboard、状态、隐私事实及独立语气审校；现有 i18n provider/locale 类型可复用。 |
 | 试用查询与可靠降级：外部服务、缓存、超时和失败状态已设计 | 通过 | 不改变 Citybus/DATA.GOV.HK 业务语义；成功/失败均以脱敏类别记录，统计/metadata/monitor 失败不扩大为试查或下载失败。 |
-| 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 13 张高保真画板、manifest、tokens 与精确 viewport 截图已验证；01–10 已导入，11–13 待补充导入。 |
+| 现代界面与可视化评审：UI 讨论和展示有图片、截图、设计稿或可视化 mock | 通过 | 13 张高保真画板、manifest、tokens 与精确 viewport 截图已验证；01–10 与 11–13 两批画板均已由用户确认导入。 |
 | 电脑与手机双端一致可用：布局、交互和内容展示同时覆盖手机与电脑 | 通过 | 总览、详细调查和 APK 状态均在所属故事内同步实现 1440/390 形态；最终故事只做跨页面回归，不把手机端作为事后补配。 |
-| Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | 权威文件节点 `63:2118`、版本、画板映射、交互与 MCP 限制记录在 `figma.md`。 |
+| Figma 驱动的前端规格：前端/UI 功能已有 Figma 文件或链接作为后续阶段参考 | 通过 | 权威文件锚点 `63:2118`、补充导入锚点 `67:672`、版本、画板映射、交互与 MCP 限制记录在 `figma.md`。 |
 | 服务端 DDD 架构：新增或重构的服务端代码按 DDD 层级、模块边界和依赖方向组织 | 通过 | 新增 analytics 四层、应用端口与 platform/httpserver；downloads/routes 只在 HTTP adapter/组合根接入。 |
 | 服务端稳健性与可观测性：panic/recover、协程安全和脱敏日志策略已定义 | 通过 | public/private engine 均有显式 logger/recovery 顺序和 handler panic 集成测试；机器人只保留无身份字段的通用请求日志。 |
 | 中文注释与代码可读性：复杂逻辑、领域规则和边界处理已有中文注释策略 | 通过 | Cookie、bot、会话/漏斗、分位值、SQLite、降级、listener 与部署隔离均列为必注释点。 |
@@ -306,7 +307,7 @@ Caddy 永远只看到 `frontend/dist`。
 | 试用查询与可靠降级 | 通过 | tracking 位于 HTTP adapter，不改变 Citybus/DATA.GOV.HK use case；DB/metadata/private listener 失败均保持公开响应语义。 |
 | 现代界面与可视化评审 | 通过 | Figma 既有 node、13 张画板、manifest、tokens、Recharts/HTML 组件映射和视觉回归门禁齐全。 |
 | 电脑与手机双端一致可用 | 通过 | 1440/390 信息架构、表格移动转译、导航、状态和截图任务分配到各 UI 故事；最终故事只执行全量回归。 |
-| Figma 驱动的前端规格 | 通过 | `figma.md` 可定位文件、节点 63:2118、版本、viewport、状态和导入限制。 |
+| Figma 驱动的前端规格 | 通过 | `figma.md` 可定位文件、两批真实导入锚点 `63:2118`/`67:672`、版本、viewport、状态和机器读取限制。 |
 | 服务端 DDD 架构 | 通过 | data model、源码结构和端口定义明确 analytics 四层、platform 通用层及依赖方向。 |
 | 服务端稳健性与可观测性 | 通过 | plan/quickstart 覆盖两个 engine 的 recovery/logger 与 panic 集成、server goroutine recover、短超时写、dropped health、机器人通用脱敏日志和敏感字段 0 命中。 |
 | 中文注释与代码可读性 | 通过 | 复杂隐私、统计算法、SQLite、错误映射和降级边界均列出中文注释责任；不要求噪音注释。 |
