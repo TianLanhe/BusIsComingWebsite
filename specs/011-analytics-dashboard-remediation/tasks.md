@@ -2,7 +2,7 @@
 
 **输入**：`/specs/011-analytics-dashboard-remediation/` 下的 `spec.md`、`plan.md`、`research.md`、`data-model.md`、`figma.md`、`quickstart.md` 与 `contracts/`
 
-**前置条件**：Pulse v1.1 完整页面真实锚点 `63:2118`、补充状态真实锚点 `67:672` 和四张 Pulse v1.2 HTML 差异画板已经确定；v1.2 仍需用户通过 import plugin 导入同一 Figma 文件并提供真实锚点，实施不得猜测节点 ID。
+**前置条件**：Pulse v1.1 完整页面真实锚点 `63:2118`、补充状态真实锚点 `67:672` 和四张 Pulse v1.2 HTML 差异画板已经确定；用户已通过 import plugin 导入 v1.2 并提供真实批次锚点 `80:151`，实施不得猜测未机器读取的子画板 ID。
 
 **测试策略**：本规格明确要求自动化测试。每个用户故事先增加并确认相关测试因缺失能力而失败，再实现最小代码使其通过；最终执行 OpenAPI、Go、Vitest、public/monitor build、Playwright、100 万行性能、隐私/DDD/稳健性和 Figma 双端三语门禁。
 
@@ -12,7 +12,7 @@
 
 **目的**：先完成真实设计追溯和契约工具入口，避免实现引用旧 010 路径或虚构 Figma 节点。
 
-- [ ] T001 使用 `docs/superpowers/prototypes/2026-07-23-analytics-dashboard-remediation-figma-import/README.md` 将 14–17 四张差异画板导入既有 Figma 文件，并在 `specs/011-analytics-dashboard-remediation/figma.md` 回填用户提供的真实节点链接、导入日期和“已导入”状态
+- [X] T001 使用 `docs/superpowers/prototypes/2026-07-23-analytics-dashboard-remediation-figma-import/README.md` 将 14–17 四张差异画板导入既有 Figma 文件，并在 `specs/011-analytics-dashboard-remediation/figma.md` 回填用户提供的真实批次锚点 `80:151`、导入日期和“已导入”状态
 - [ ] T002 [P] 将 feature OpenAPI lint/bundle 脚本从 010 切换到 011，并保留 download/route 既有契约校验，路径：`frontend/package.json`
 - [ ] T003 将 `specs/011-analytics-dashboard-remediation/contracts/analytics-monitoring-api.openapi.yaml` 单向同步到 `shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`，不得反向改写 feature 权威源
 - [ ] T004 [P] 为 Dashboard 非 HTTP 行为契约建立可执行追踪矩阵，映射 FR/SC 到 Vitest、Go 和 Playwright 测试路径，路径：`specs/011-analytics-dashboard-remediation/verification-matrix.md`
@@ -202,7 +202,7 @@
 
 ### 阶段依赖
 
-- **阶段 1 设置**：无代码依赖；T001 是 UI 产品代码开始前的设计追溯门禁。
+- **阶段 1 设置**：无代码依赖；T001 设计追溯门禁已由用户完成，T002–T004 可立即开始。
 - **阶段 2 基础设施**：依赖阶段 1 的契约路径稳定，阻塞所有用户故事。
 - **US1（阶段 3）**：依赖阶段 2；完成后所有工作区具有正确时间范围。
 - **US2（阶段 4）**：依赖阶段 2 的类型/token；后端聚合可与 US1 前端日期实现并行，但最终 E2E 依赖 US1 的准确范围。
@@ -264,7 +264,7 @@ flowchart LR
 ## 备注
 
 - `[P]` 不表示可绕过契约、测试或同文件冲突；同一文件任务仍按编号执行。
-- v1.2 Figma 真实节点由用户 import 后提供；任何实施者都不得把逻辑画板名或本地截图路径伪装成节点 ID。
+- v1.2 Figma 真实导入批次锚点为 `80:151`；任何实施者都不得把逻辑画板名、本地截图路径或未机器读取的子画板猜测值伪装成节点 ID。
 - 设计示例数值不得作为 API 缺失或失败的回退值。
 - 不得改变 anonymous visitor Cookie、机器人过滤、只统计主页、长期明细、无备份、无删除、无版本重载、监控私有访问和公开 fail-open 等 010 决策。
 - 每次 Spec Kit skill 完成并验证通过后按仓库宪法自动提交；产品实现提交仍须排除用户 APK/版本文件改动。

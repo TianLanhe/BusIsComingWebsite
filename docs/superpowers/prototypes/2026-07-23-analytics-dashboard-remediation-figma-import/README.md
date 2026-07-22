@@ -3,6 +3,9 @@
 本目录只提供 011 修复的四张差异画板。完整工作区仍以 Figma 中已导入的 Pulse v1.1 节点
 `63:2118` 和 `67:672` 为权威。
 
+**导入状态**：用户已于 2026-07-23 完成导入，真实批次锚点为
+[80:151](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=80-151&t=pXavKmVnFOvABrsi-0)。四张子画板独立 ID 未机器读取时不得猜测。
+
 ## 启动与导入
 
 在仓库根目录执行：

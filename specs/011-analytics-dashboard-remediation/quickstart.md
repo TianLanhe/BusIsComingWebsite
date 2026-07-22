@@ -142,7 +142,7 @@ npm --prefix frontend run test:e2e:monitor
 
 ## 6. Figma v1.2 差异画板
 
-用户尚未导入 v1.2 时，先启动导入包：
+v1.2 已由用户导入，真实批次锚点为 [80:151](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=80-151&t=pXavKmVnFOvABrsi-0)。如需重新导入或核对源画板，可启动导入包：
 
 ```bash
 python3 -m http.server 59337 --bind 127.0.0.1 \
@@ -154,9 +154,9 @@ python3 -m http.server 59337 --bind 127.0.0.1 \
 
 - v1.1 完整页面节点 `63:2118`。
 - v1.1 补充状态节点 `67:672`。
-- v1.2 新增的真实节点。
+- v1.2 真实导入批次锚点 `80:151`。
 
-禁止为尚未导入的画板编造节点 ID。
+禁止为尚未机器读取的四张子画板编造独立节点 ID。
 
 ## 7. 性能与隐私验收
 

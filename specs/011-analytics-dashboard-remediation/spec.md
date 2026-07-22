@@ -93,7 +93,7 @@
 - dropped count 辅助查询失败时仅降级对应指标；监控存储失败不得影响公开业务响应。
 - 用户切换 `zh-Hant`、`zh-Hans`、`en` 时，保持当前工作区、日期范围、筛选和调查对象；繁中使用香港监控语境，英文保持自然克制。
 - 桌面端保留高密度表格与图表；手机端使用两列/单列指标、纵向卡片和 key-value 事件卡，不整体缩放桌面布局。
-- 后续 UI 迭代通过本规格 `figma.md` 找到 v1.1 真实锚点和 v1.2 差异导入包；在用户完成导入前不得虚构新节点 ID。
+- 后续 UI 迭代通过本规格 `figma.md` 找到 v1.1 真实锚点和 v1.2 真实导入批次锚点 `80:151`；不得虚构尚未机器读取的子画板 ID。
 - 服务端私有查询契约变更必须先更新 feature OpenAPI 3.1 YAML，再同步 shared 契约、生成中文 API UI 并验证 lint/bundle。
 - 服务端异常由既有 recovery 和脱敏请求日志承接；不得以 `panic` 作为业务控制流，本功能不新增无保护 goroutine。
 
@@ -109,7 +109,7 @@
 - **代码可读性**：香港日期边界、上一等长周期、热力图补位、会话切分、完整范围摘要、动态状态与配置事实的映射必须由聚焦函数和清晰命名表达，并对不直观的外部约束与降级规则补充中文注释。
 - **三语范围**：新增或修改日期预设/校验、比较状态、UV 标签、图例、Tooltip、热力图、四个调查页和状态文案，均提供 `zh-Hant`、`zh-Hans`、`en`；繁中按香港产品习惯审校，英文避免逐句直译和过度口语化。
 - **UI 可视化**：完整页面沿用 `63:2118`、`67:672` 下已确认的 Pulse v1.1 画板；本次新增 `docs/superpowers/prototypes/2026-07-23-analytics-dashboard-remediation-figma-import/` 差异画板与渲染截图，覆盖字体/指标状态、Grafana 图表/逐日热力图、四页桌面片段及手机片段。
-- **Figma 设计**：权威文件为 [BusIsComing Website Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)，已确认锚点为 [63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118) 与 [67:672](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=67-672)；v1.2 差异画板逻辑节点和导入状态记录在 `figma.md`，真实导入锚点由用户完成 plugin 导入后补录，实施不得虚构。
+- **Figma 设计**：权威文件为 [BusIsComing Website Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)，已确认 v1.1 锚点 [63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118)、[67:672](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=67-672) 与 v1.2 差异画板导入批次锚点 [80:151](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=80-151&t=pXavKmVnFOvABrsi-0)；四张子画板的独立 ID 未机器读取，实施不得虚构。
 - **双端适配**：桌面以 1440×1200 验证六列 KPI、图表、表格和调查层级；手机以 390×844 交互视口及长页面截图验证 36px 指标、纵向卡片、事件 key-value 卡、44px 触摸目标和局部热力图滚动；页面整体不得横向滚动。
 - **外部集成与降级**：不新增外部服务。Figma MCP 额度不足时使用已确认的 HTML 导入流程；私有 monitoring API 单个辅助查询失败时局部降级，整个监控存储不可用时显示明确状态；公开主页、试查和下载继续 fail-open。
 - **验证与提交**：规格以需求清单、无占位符检查、Figma 导入包语法/渲染检查和 `git diff --check` 验证；通过后只提交 011 规格与设计证据，不包含用户现有 APK/版本文件改动。
@@ -147,7 +147,7 @@
 - **FR-027**：既有私有 monitoring API 的响应扩展必须以本功能 OpenAPI 3.1 YAML 为权威源，保持既有端点与 operationId，并同步 shared 契约、中文 API UI、示例和统一错误说明。
 - **FR-028**：服务端必须保持 analytics DDD 依赖方向、HTTP recovery 和脱敏请求日志，不得以 `panic` 作为业务控制流，不得为本功能新增无 recover 保护的 goroutine。
 - **FR-029**：本功能不得增加匿名事件类型、IP、指纹、完整 UA/Referrer、查询词、地点、坐标、请求体、Cookie/token 明细、公开端点、汇总表、定时聚合、清理、备份、导出、删除或编辑能力。
-- **FR-030**：前端完整页面必须沿用已确认 Figma v1.1 信息架构，并使用 v1.2 差异画板校验新字体、指标状态、图表、热力图和四个调查工作区的桌面/手机片段；用户未导入前必须保留“待导入”状态且不得虚构锚点。
+- **FR-030**：前端完整页面必须沿用已确认 Figma v1.1 信息架构，并使用已导入批次锚点 `80:151` 下的 v1.2 差异画板校验新字体、指标状态、图表、热力图和四个调查工作区的桌面/手机片段；不得虚构尚未机器读取的子画板 ID。
 
 ### 关键实体（涉及数据时填写）
 
@@ -183,7 +183,7 @@
 - 匿名 visitor Cookie、机器人过滤、30 分钟会话边界、长期保留、只存明细、单份数据且允许丢失等 010 决策继续有效。
 - 主页访问仍只统计主页，不扩大到隐私页或其他公开页面。
 - 本次不增加重新加载 APK 版本信息的操作；版本信息失败仍不得影响 APK 下载。
-- 既有 010 Figma v1.1 两个真实锚点是完整页面信息架构权威；v1.2 采用本地 HTML 导入包，由用户通过 import plugin 导入同一文件后补录真实锚点。
+- 既有 010 Figma v1.1 两个真实锚点是完整页面信息架构权威；v1.2 本地 HTML 导入包已由用户通过 import plugin 导入同一文件，真实批次锚点为 `80:151`。
 - 设计稿中的数值只用于布局验证，运行时必须展示 API 数据，不得以示例值作为失败回退。
 - 复杂日期与统计规则需要中文注释，自解释的简单布局和样式不增加噪音注释。
 - OpenAPI 3.1 YAML 是私有 monitoring API 的唯一权威契约，API UI 仅用于中文预览、试接口、lint 与 bundle。

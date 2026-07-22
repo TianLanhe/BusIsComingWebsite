@@ -2,13 +2,14 @@
 
 **设计版本**：`Pulse v1.2 · Dashboard Remediation · 2026-07-23`
 
-**状态**：v1.1 完整页面已导入；v1.2 差异画板导出包已准备，等待用户通过 import plugin 导入并回填真实节点锚点
+**状态**：v1.1 完整页面与 v1.2 差异画板均已由用户确认导入权威文件
 
 ## 权威文件与既有锚点
 
 - Figma 文件：[BusIsComing Website Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)
 - v1.1 完整页面锚点：[节点 63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118)
 - v1.1 补充状态锚点：[节点 67:672](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=67-672)
+- v1.2 差异画板导入批次锚点：[节点 80:151](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=80-151&t=pXavKmVnFOvABrsi-0)
 - 目标页面：`Website Analytics / v1`
 - File key：`LAm6RjzFuFHsHFlcipx8pU`
 
@@ -20,12 +21,12 @@
 
 | 序号 | 逻辑画板名称 | 视口 | 修复证据 | Figma 节点 |
 |------|--------------|------|----------|------------|
-| 14 | `Pulse v1.2 / Typography & Metric States / 1440` | 1440×1000 | C 级桌面字号、40px 指标、三种比较状态、无装饰圆圈/光斑 | 待用户导入后回填 |
-| 15 | `Pulse v1.2 / Grafana Charts & Daily Heatmap / 1440` | 1440×1100 | 顶部图例、X/Y 轴、网格、数据点、十字线、共享 Tooltip、逐日七行热力图和局部滚动 | 待用户导入后回填 |
-| 16 | `Pulse v1.2 / Detailed Workspaces / 1440` | 1440×1200 | 事件、访客、性能、系统四页恢复后的关键桌面片段与新字号 | 待用户导入后回填 |
-| 17 | `Pulse v1.2 / Mobile Remediation / 390` | 390×1640 | 36px 指标、趋势状态、移动图表 Tooltip、事件卡、系统状态和 44px 操作 | 待用户导入后回填 |
+| 14 | `Pulse v1.2 / Typography & Metric States / 1440` | 1440×1000 | C 级桌面字号、40px 指标、三种比较状态、无装饰圆圈/光斑 | 导入批次锚点 `80:151` |
+| 15 | `Pulse v1.2 / Grafana Charts & Daily Heatmap / 1440` | 1440×1100 | 顶部图例、X/Y 轴、网格、数据点、十字线、共享 Tooltip、逐日七行热力图和局部滚动 | 导入批次锚点 `80:151` |
+| 16 | `Pulse v1.2 / Detailed Workspaces / 1440` | 1440×1200 | 事件、访客、性能、系统四页恢复后的关键桌面片段与新字号 | 导入批次锚点 `80:151` |
+| 17 | `Pulse v1.2 / Mobile Remediation / 390` | 390×1640 | 36px 指标、趋势状态、移动图表 Tooltip、事件卡、系统状态和 44px 操作 | 导入批次锚点 `80:151` |
 
-不得为“待用户导入后回填”的画板猜测或编造子节点 ID。用户提供包含任一新画板的真实 Figma 链接后，应更新本表并把状态改为“已导入”。
+用户于 2026-07-23 提供真实导入批次锚点 `80:151`。Figma MCP 额度限制下尚未机器读取该锚点内四张子画板的独立 ID，因此本表只引用真实批次锚点，不猜测或编造子节点 ID。
 
 ## 关键交互与状态
 
@@ -46,20 +47,19 @@
 
 ## 导入与验证流程
 
-1. 在仓库根目录按导入包 README 启动本地静态服务器。
-2. 按 manifest 顺序用 import plugin 导入 14–17 四张画板到既有 `Website Analytics / v1` 页面并重命名。
-3. 把用户提供的真实 Figma 节点链接回填到本文件；Figma MCP 额度恢复前不要求机器读取子节点。
-4. 实施时同时对照 v1.1 完整页面锚点和 v1.2 差异画板；v1.2 只覆盖本次明确修复的视觉与交互差异。
-5. 以导入包截图、1440px/390px Playwright 实施截图和真实节点完成视觉验收。
+1. 14–17 四张画板已按 manifest 顺序通过 import plugin 导入既有 `Website Analytics / v1` 页面。
+2. 用户提供的真实导入批次锚点 `80:151` 已回填；Figma MCP 额度恢复前不要求机器读取子节点。
+3. 实施时同时对照 v1.1 完整页面锚点和 v1.2 差异画板；v1.2 只覆盖本次明确修复的视觉与交互差异。
+4. 以导入包截图、1440px/390px Playwright 实施截图和真实节点完成视觉验收。
 
 ## 导出包验证记录
 
 - `app.js` 已通过 JavaScript 语法检查，`manifest.json` 与 `tokens.json` 已通过 JSON 解析。
 - 14–17 四张画板已完成无头浏览器渲染与逐张视觉检查，截图尺寸依次为 1440×1000、1440×1100、1440×1200、390×1640。
 - 截图位于导入包 `screenshots/`，当前未发现画板裁切或页面级横向溢出。
-- 这些截图只证明导入源与视口，不表示 v1.2 已完成 Figma 导入；真实节点仍须由用户导入后回填。
+- 这些截图证明导入源与视口；用户已另行提供 v1.2 真实导入批次锚点 `80:151`。
 
 ## 版本说明
 
 - v1.1（2026-07-22）：完整 Dashboard、移动调查、APK 状态和普通查询失败，真实锚点为 `63:2118` 与 `67:672`。
-- v1.2（2026-07-23）：修复时间、字号、指标语义、Grafana 折线、逐日热力图和四个详细工作区的还原偏差；只追加差异画板，不重写 v1.1 历史。
+- v1.2（2026-07-23）：修复时间、字号、指标语义、Grafana 折线、逐日热力图和四个详细工作区的还原偏差；只追加差异画板，不重写 v1.1 历史；真实导入批次锚点为 `80:151`。

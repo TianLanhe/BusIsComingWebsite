@@ -28,7 +28,7 @@
 
 **性能目标**：日增不超过 1,000、长期不超过 1,000,000 明细时，核心 Dashboard 查询和单 visitor 时间线 95% 在 1 秒内完成；日期/图表交互在普通桌面与手机上无明显卡顿；总览成功载入后 60 秒刷新且不叠加请求；监控改动对公开业务新增失败为 0
 
-**约束**：不记录 IP、指纹、完整 Cookie/UA/Referrer、请求 URL/query/body、查询词、地点、坐标、token 或第三方原始响应；不新增事件类型、公开 endpoint、数据导出/删除/编辑；不虚构系统队列、备份或健康值；不以 0、旧缓存或 Figma 示例掩盖缺失数据；服务端不以 panic 作为业务控制流；Figma v1.2 未导入前不得编造节点 ID
+**约束**：不记录 IP、指纹、完整 Cookie/UA/Referrer、请求 URL/query/body、查询词、地点、坐标、token 或第三方原始响应；不新增事件类型、公开 endpoint、数据导出/删除/编辑；不虚构系统队列、备份或健康值；不以 0、旧缓存或 Figma 示例掩盖缺失数据；服务端不以 panic 作为业务控制流；不得编造 v1.2 导入批次锚点 `80:151` 下尚未机器读取的子画板 ID
 
 **规模/范围**：1 个公开 Vite 根路径行为、7/30/90 与自定义日期、1 个通用折线组件、1 个逐日热力图、4 类事件 P95、4 个详细工作区、4 个私有响应 schema 增量、3 种语言、桌面/手机两类布局；既有七个私有 operation 和一张事实表数量不变
 
@@ -57,11 +57,11 @@
 
 **UI 可视化产物**：`docs/superpowers/prototypes/2026-07-23-analytics-dashboard-remediation-figma-import/` 的 HTML、manifest、tokens 与四张已验证截图；完整页面仍引用 010 的 13 张 Pulse v1.1 画板。映射和导入状态见 [figma.md](./figma.md)。
 
-**Figma 设计引用**：[权威文件](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)、v1.1 完整页面真实锚点 [63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118)、补充状态真实锚点 [67:672](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=67-672)。v1.2 四张差异画板已导出和截图验证，用户通过 import plugin 导入并回填真实锚点是产品实现前的视觉追溯门禁；当前不虚构 ID。
+**Figma 设计引用**：[权威文件](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)、v1.1 完整页面真实锚点 [63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118)、补充状态真实锚点 [67:672](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=67-672)，以及用户已导入的 v1.2 差异画板批次锚点 [80:151](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=80-151&t=pXavKmVnFOvABrsi-0)。四张子画板独立 ID 未机器读取时不虚构 ID。
 
 **双端适配范围**：桌面基准 1440×1200，保留六列 KPI、高密度图表和语义表格；手机以 390×844 交互视口和 390×1640 full-page 验证 36px 指标、两列/单列卡、key-value 事件、纵向会话、44px 操作与底部导航。页面不整体横向滚动，只有热力图绘图区允许局部横向滚动。
 
-**用户故事交付顺序**：先建立 OpenAPI、日期/比较、token 和通用测试基础；US1 修复时间正确性与自定义范围；US2 完成指标/图表/热力图/事件 P95；US3 恢复四个调查工作区和后端摘要；US4 最后加入隔离的公开 Vite 302。US1+US2 形成可独立验收的监控正确性 MVP，US3 完成调查闭环，US4 为本地入口便利性。Figma v1.2 真实锚点回填是 UI 产品代码实施前的首项门禁任务。
+**用户故事交付顺序**：先建立 OpenAPI、日期/比较、token 和通用测试基础；US1 修复时间正确性与自定义范围；US2 完成指标/图表/热力图/事件 P95；US3 恢复四个调查工作区和后端摘要；US4 最后加入隔离的公开 Vite 302。US1+US2 形成可独立验收的监控正确性 MVP，US3 完成调查闭环，US4 为本地入口便利性。Figma v1.2 真实批次锚点 `80:151` 已回填，视觉追溯门禁已满足。
 
 ## 宪法检查
 
@@ -75,9 +75,9 @@
 | OpenAPI 驱动的服务端接口文档：服务端 HTTP API 已有 OpenAPI 3.1 YAML、中文 API UI、共享沉淀路径和验证方式 | 通过 | `contracts/analytics-monitoring-api.openapi.yaml` 已建立；shared、Redocly 与中文 docs 路径已列出。 |
 | 三语国际化 | 通过 | 新增文案范围、香港繁中和自然英文审校、key 完整性与 1440/390 验证已定义。 |
 | 试用查询与可靠降级 | 通过 | 不改变外部巴士服务；监控失败与性能页辅助失败均有 fail-open/局部降级。 |
-| 现代界面与可视化评审 | 通过 | v1.1 Figma 两个真实锚点和 v1.2 四张 HTML/截图差异画板可见；实现前回填新锚点。 |
+| 现代界面与可视化评审 | 通过 | v1.1 两个真实锚点、v1.2 四张 HTML/截图和真实导入批次锚点 `80:151` 均可追溯。 |
 | 电脑与手机双端一致可用 | 通过 | 1440×1200、390×844/1640 的字号、布局、事件卡、滚动和触摸目标已约束。 |
-| Figma 驱动的前端规格 | 通过 | 权威文件、v1.1 真实锚点、v1.2 逻辑画板/版本/交互/导入状态记录在 `figma.md`；真实新锚点为实现前门禁。 |
+| Figma 驱动的前端规格 | 通过 | 权威文件、v1.1 真实锚点、v1.2 逻辑画板/版本/交互和真实批次锚点 `80:151` 已记录在 `figma.md`。 |
 | 服务端 DDD 架构 | 通过 | analytics domain/application/infrastructure/interfaces 职责和依赖方向已定义，无 handler 直接 SQL。 |
 | 服务端稳健性与可观测性 | 通过 | 无新 goroutine，保持双 engine recovery/logger、错误返回与脱敏日志；公开业务不受监控失败影响。 |
 | 中文注释与代码可读性 | 通过 | 复杂日期、空值、聚合、键盘交互、配置事实和重定向规则已列为中文注释点。 |
@@ -191,7 +191,7 @@ docs/superpowers/prototypes/
 | 试用查询与可靠降级 | 通过 | 统计响应扩展不接触公开业务用例；system 辅助失败局部降级，存储失败保持公开 fail-open。 |
 | 现代界面与可视化评审 | 通过 | 四张 v1.2 差异截图已按 1440/390 manifest 渲染和检查；v1.1 完整页面真实锚点保留。 |
 | 电脑与手机双端一致可用 | 通过 | UI contract、数据模型和 quickstart 覆盖双端字号、事件卡、44px 目标与局部滚动。 |
-| Figma 驱动的前端规格 | 通过 | `figma.md` 含权威文件、v1.1 真实锚点、v1.2 逻辑节点、交互、版本与诚实的待导入状态；任务阶段首项回填新锚点。 |
+| Figma 驱动的前端规格 | 通过 | `figma.md` 含权威文件、v1.1 真实锚点、v1.2 逻辑节点、交互、版本与真实导入批次锚点 `80:151`；不虚构子画板 ID。 |
 | 服务端 DDD 架构 | 通过 | data model 与项目结构把统计规则、应用编排、SQLite 聚合和 HTTP DTO 分开。 |
 | 服务端稳健性与可观测性 | 通过 | 无新 goroutine/端点；保持 recovery/logger、错误返回、敏感信息禁止与公开 fail-open 测试。 |
 | 中文注释与代码可读性 | 通过 | research/plan 列出需中文注释的复杂日期、null、SQL、图表焦点、配置事实和重定向规则。 |
