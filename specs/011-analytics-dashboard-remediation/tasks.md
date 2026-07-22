@@ -25,7 +25,7 @@
 
 ### 基础测试与契约
 
-- [ ] T005 [P] 为 `latencyByEvent`、逐日 HeatmapCell、EventRangeSummary、visitor eventComposition/commonPlatform 和七个 operationId 编写先失败的 OpenAPI 结构测试，路径：`frontend/src/monitoring/services/analyticsContract.test.ts`
+- [ ] T005 [P] 为 `latencyByEvent`、逐日 HeatmapCell、EventRangeSummary、visitor eventComposition/commonPlatform 和七个 operationId 编写先失败的 OpenAPI 结构测试；明确断言 011 `heatmap[]` 只接受逐日字段并拒绝旧 `weekday/hour`，路径：`frontend/src/monitoring/services/analyticsContract.test.ts`
 - [ ] T006 [P] 为新增日期、比较状态、UV、Tooltip、热力图、四页区块和局部降级 key 的三语完整性编写先失败测试，路径：`frontend/src/monitoring/content/copy.test.ts`
 - [ ] T007 [P] 扩展固定私有 API fixture，使新字段具备 ready、无数据、无同期、无成功样本和辅助 system 失败数据，路径：`frontend/playwright-monitor/fixtures/analytics.ts`、`frontend/playwright-monitor/fixtures/details.ts`
 
@@ -49,7 +49,7 @@
 ### 用户故事 1 的测试与验证
 
 - [ ] T012 [P] [US1] 为预设 7/30/90 天、香港 00:30、非香港浏览器时区、跨月/跨年、自定义首尾包含和非法日期编写先失败纯函数测试，路径：`frontend/src/monitoring/model/dateRange.test.ts`
-- [ ] T013 [P] [US1] 为 selection 与 refresh anchor 分离、手动刷新推进今天 `to`、历史范围不漂移和筛选保持编写先失败 provider 测试，路径：`frontend/src/monitoring/app/FilterProvider.test.tsx`
+- [ ] T013 [P] [US1] 为 selection 与 refresh anchor 分离、手动刷新推进今天 `to`、历史范围不漂移，以及切换语言/工作区时日期与筛选不重置编写先失败 provider 测试，路径：`frontend/src/monitoring/app/FilterProvider.test.tsx`
 - [ ] T014 [P] [US1] 为 7/30/90、自定义起止、控件旁三语错误、错误时不发查询和 44px 手机操作编写先失败组件测试，路径：`frontend/src/monitoring/components/filters/GlobalFilters.test.tsx`
 - [ ] T015 [P] [US1] 为总览成功后 60 秒重新求值、无请求叠加、失败不自动循环和手动重试保留范围编写先失败测试，路径：`frontend/src/monitoring/pages/OverviewPage.test.tsx`
 - [ ] T016 [US1] 以固定时钟和 API fixture 编写包含当天、手动/自动刷新、自定义日期及三语校验的桌面/手机先失败 E2E，路径：`frontend/playwright-monitor/time-range.spec.ts`
@@ -57,7 +57,7 @@
 ### 用户故事 1 的实现
 
 - [ ] T017 [US1] 实现 `DateRangeSelection`、`ResolvedDateRange`、香港日历运算、上一等长周期与校验错误，并用中文注释解释半开区间和今天/历史结束日差异，路径：`frontend/src/monitoring/model/dateRange.ts`
-- [ ] T018 [US1] 将全局状态改为保存日期 selection，并让筛选、手动刷新和总览自动刷新使用新的 clock anchor 重新求值，路径：`frontend/src/monitoring/app/FilterProvider.tsx`
+- [ ] T018 [US1] 将全局状态改为保存日期 selection，并让筛选、手动刷新和总览自动刷新使用新的 clock anchor 重新求值；确保语言/工作区切换不重挂 provider 或清空日期与筛选，路径：`frontend/src/monitoring/app/FilterProvider.tsx`
 - [ ] T019 [US1] 实现预设按钮、自定义开始/结束日期、内联错误、比较开关和双端可达交互，路径：`frontend/src/monitoring/components/filters/GlobalFilters.tsx`
 - [ ] T020 [P] [US1] 补齐预设、自定义、日期错误、包含今天、刷新与比较的 `zh-Hant`、`zh-Hans`、`en` 自然文案，路径：`frontend/src/monitoring/content/copy.ts`
 - [ ] T021 [US1] 让总览自动刷新调用全局 refresh 重新计算查询，并保持 AbortController、成功后调度和失败后手动重试语义，路径：`frontend/src/monitoring/pages/OverviewPage.tsx`
@@ -76,9 +76,9 @@
 
 ### 用户故事 2 的后端测试
 
-- [ ] T024 [P] [US2] 为四类事件稳定顺序、只统计成功样本、最近秩 P95 和无样本 null 编写先失败应用测试，路径：`backend/internal/analytics/application/query_overview_test.go`
+- [ ] T024 [P] [US2] 为四类事件稳定顺序、只统计成功样本、最近秩 P95 和无样本 null，以及 overview/traffic/downloads/performance 在上一周期无匹配事件时 `previousValue/delta/deltaRate` 全为 null、真实零值仍可比较编写先失败应用测试，路径：`backend/internal/analytics/application/query_overview_test.go`、`backend/internal/analytics/application/query_details_test.go`
 - [ ] T025 [P] [US2] 为逐日香港桶、7/30/90 格、零事件日期、首尾截断、eventCount/UV 和排序编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
-- [ ] T026 [P] [US2] 为 overview/traffic JSON 与 011 schema、旧路径/operationId 不变、无敏感字段编写先失败 handler 契约测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
+- [ ] T026 [P] [US2] 为 overview/traffic JSON 与 011 schema、旧路径/operationId 不变、Heatmap 响应不含旧 `weekday/hour`、无敏感字段编写先失败 handler 契约测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
 
 ### 用户故事 2 的前端测试
 
@@ -90,8 +90,8 @@
 
 ### 用户故事 2 的后端实现
 
-- [ ] T032 [US2] 在应用 DTO 中增加 `EventLatencySummary`、`OverviewData.latencyByEvent` 并把 HeatmapCell 改为 localDate/bucketStart/bucketEnd/eventCount/uv，路径：`backend/internal/analytics/application/dto.go`
-- [ ] T033 [US2] 按四类既有事件聚合成功请求数和可空 P95，保留旧全局 latency 兼容字段，路径：`backend/internal/analytics/application/query_overview.go`
+- [ ] T032 [US2] 在应用 DTO 中增加 `EventLatencySummary`、`OverviewData.latencyByEvent`，并把 HeatmapCell 破坏性替换为 localDate/bucketStart/bucketEnd/eventCount/uv，不保留或双写旧 `weekday/hour` 字段，路径：`backend/internal/analytics/application/dto.go`
+- [ ] T033 [US2] 按四类既有事件聚合成功请求数和可空 P95，保留旧全局 latency 字段；统一 `buildMetrics`/`buildMetricsForKeys` 的上一周期可用性规则，无匹配事件时保持 `previousValue/delta/deltaRate=null`，真实零值仍参与计算，路径：`backend/internal/analytics/application/query_overview.go`、`backend/internal/analytics/application/query_details.go`
 - [ ] T034 [US2] 用香港日桶生成完整范围逐日热力图，零事件日期仍返回 cell，并用中文注释说明首尾半开边界，路径：`backend/internal/analytics/application/query_details.go`
 - [ ] T035 [US2] 保持七个私有路由不变并完成新增 DTO/envelope 映射与受控错误回归，路径：`backend/internal/analytics/interfaces/http/overview_handler.go`、`backend/internal/analytics/interfaces/http/detail_handlers.go`
 
@@ -132,7 +132,7 @@
 - [ ] T052 [P] [US3] 为 22 位精确搜索/复制反馈、四指标、事件构成、可空平台、返回事件页和 30 分钟会话编写先失败测试，路径：`frontend/src/monitoring/pages/VisitorPage.test.tsx`、`frontend/src/monitoring/components/timeline/VisitorTimeline.test.tsx`
 - [ ] T053 [P] [US3] 为性能六指标、Grafana P50/P95、失败分布、端点表及 system 失败只降级 Dropped 编写先失败测试，路径：`frontend/src/monitoring/pages/PerformancePage.test.tsx`
 - [ ] T054 [P] [US3] 为系统四动态状态卡、运行/存储/隔离区块、配置事实标签、无虚构队列和无敏感值编写先失败测试，路径：`frontend/src/monitoring/pages/SystemPage.test.tsx`
-- [ ] T055 [US3] 编写两分钟调查路径、五种状态、三语 1440/390 信息架构和性能局部降级先失败 E2E，路径：`frontend/playwright-monitor/investigation.spec.ts`、`frontend/playwright-monitor/states.spec.ts`
+- [ ] T055 [US3] 编写两分钟调查路径、五种状态、三语 1440/390 信息架构和性能局部降级先失败 E2E；先设置自定义日期、筛选和 Visitor ID，再切换三语、工作区并执行失败重试，逐步断言调查上下文不丢失，路径：`frontend/playwright-monitor/investigation.spec.ts`、`frontend/playwright-monitor/states.spec.ts`
 
 ### 用户故事 3 的后端实现
 
@@ -186,14 +186,14 @@
 - [ ] T075 将实现后的 011 OpenAPI 再次同步到 shared，运行 feature/shared lint、bundle 和中文 API UI 生成，并确认 docs 不进入公网 `frontend/dist`，路径：`shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`、`shared/contracts/openapi/analytics-monitoring-api.bundle.yaml`、`shared/contracts/openapi/docs/analytics-monitoring-api.html`
 - [ ] T076 [P] 完成新增三语文案的香港繁中、自然克制英文、UV/PV/隐私/配置事实语义审校并记录非机械直译结论，路径：`specs/011-analytics-dashboard-remediation/zh-hant-en-copy-review.md`
 - [ ] T077 [P] 扩展显式 1,000,000 行 fixture 与 `EXPLAIN QUERY PLAN` 断言，证明事件摘要、逐日桶、总览和 visitor 时间线 95% 在 1 秒内且不新增汇总表，路径：`backend/internal/analytics/infrastructure/sqlite/performance_test.go`
-- [ ] T078 根据 T077 证据只在必要时调整现有普通索引/query builder，不增加表、缓存、队列、清理或备份，路径：`backend/internal/analytics/infrastructure/sqlite/migrations/001_create_analytics_events.sql`、`backend/internal/analytics/infrastructure/sqlite/query_builder.go`
+- [ ] T078 根据 T077 证据优先优化 query builder；只有仍不达标时才新增只创建普通索引的前向 `002_add_analytics_query_indexes.sql`，并用已执行 001 的旧数据库 fixture 验证升级与重复 Migrate 幂等，绝不修改 001，也不增加表、缓存、队列、清理或备份，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`、`backend/internal/analytics/infrastructure/sqlite/migrations/002_add_analytics_query_indexes.sql`、`backend/internal/analytics/infrastructure/sqlite/migrations_test.go`
 - [ ] T079 [P] 运行 `go test ./backend/...`、目标 SQLite 性能测试和 handler 隐私 sentinel，记录实际命令与结果，路径：`specs/011-analytics-dashboard-remediation/verification-results.md`
-- [ ] T080 [P] 运行前端全量 Vitest、TypeScript、public/monitor build，确认 `dist`/`dist-monitor` 物理隔离和 monitor bundle 不进入公网，路径：`specs/011-analytics-dashboard-remediation/verification-results.md`
+- [ ] T080 [P] 运行前端全量 Vitest、TypeScript、public/monitor build，确认 `dist`/`dist-monitor` 物理隔离、monitor bundle 不进入公网，并记录 011 monitor bundle 只消费逐日 Heatmap schema，路径：`specs/011-analytics-dashboard-remediation/verification-results.md`
 - [ ] T081 运行 public/monitor Playwright，生成七工作区 × 三语 × 1440/390 及五种状态的最终视觉证据，路径：`frontend/playwright-monitor/__screenshots__/`、`frontend/playwright/__screenshots__/`
 - [ ] T082 审计 analytics DDD 依赖方向、无业务 panic、public/private recovery/logger、无新无保护 goroutine、脱敏错误和公开 fail-open，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
 - [ ] T083 审计只有既有四类匿名事件，且无 IP/指纹/完整 UA/Referrer/查询内容/敏感系统值、无公开监控端点、无汇总表/导出/删除/清理/备份，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`、`specs/011-analytics-dashboard-remediation/spec.md`
 - [ ] T084 对照 Figma v1.1 `63:2118`/`67:672`、v1.2 真实回填锚点、四张导出画板和最终三语双端截图记录一致性与有意差异，路径：`specs/011-analytics-dashboard-remediation/figma.md`
-- [ ] T085 执行 `specs/011-analytics-dashboard-remediation/quickstart.md` 的 OpenAPI、日期、Go、前端、本地三进程、Figma、性能和隐私步骤，并汇总所有通过/失败证据，路径：`specs/011-analytics-dashboard-remediation/verification-results.md`
+- [ ] T085 执行 `specs/011-analytics-dashboard-remediation/quickstart.md` 的 OpenAPI、日期、Go、前端、本地三进程、Figma、性能和隐私步骤；运行部署脚本测试确认私有后端与 `dist-monitor` 同一发布物原子升级/整体回滚且不能新旧混搭，并汇总所有通过/失败证据，路径：`scripts/tests/deploy_test.sh`、`specs/011-analytics-dashboard-remediation/verification-results.md`
 - [ ] T086 运行 `git diff --check` 和任务/需求追踪检查，确认提交范围不包含用户现有 `backend/downloads/android/BusIsComing.apk`、`backend/downloads/android/current.json` 改动，路径：`specs/011-analytics-dashboard-remediation/verification-matrix.md`
 
 ---
@@ -230,7 +230,7 @@ flowchart LR
 
 - 先编写并确认测试因缺失能力失败，再按契约/领域 → 应用 → 基础设施/接口 → 前端 → E2E/视觉实现。
 - OpenAPI 与 TypeScript 类型先于 DTO/handler/client；handler 不计算统计，SQLite 不泄露到 application/domain。
-- 日期、Metric null、日桶、摘要过滤、Recharts 键盘状态、system 配置事实和 Vite 边界随实现写中文注释。
+- 日期、Metric null、日桶、摘要过滤、Heatmap 破坏性契约、Recharts 键盘状态、system 配置事实和 Vite 边界随实现写中文注释。
 - 三语文案和双端样式与组件同故事完成，不推迟到最终阶段首次实现。
 - 每个故事检查点前完成对应 1440px 与 390px 验证；阶段 7 只做跨故事回归。
 
