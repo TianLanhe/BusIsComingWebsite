@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -36,19 +37,36 @@ func TestMillionRowCommonQueriesUseIndexesAndFinishWithinOneSecond(t *testing.T)
 	overviewBuilder := newEventQueryBuilder(from, to)
 	overviewSQL, overviewArgs := overviewBuilder.selectSQL("ASC")
 	assertQueryPlanUsesIndex(t, store.db, overviewSQL, overviewArgs, "idx_analytics_events_time")
+	summarySQL, summaryArgs := overviewBuilder.summarySQL()
+	assertQueryPlanUsesIndex(t, store.db, summarySQL, summaryArgs, "idx_analytics_events_time")
 	assertQueryPlanUsesIndex(t, store.db,
 		"SELECT "+eventColumns+" FROM analytics_events WHERE visitor_id = ? ORDER BY occurred_at_ms ASC, id ASC",
 		[]any{millionRowVisitorID(17)}, "idx_analytics_events_visitor_time")
 
 	overview := analyticsapp.NewQueryOverview(store, analyticsapp.ClockFunc(func() time.Time { return to }))
-	assertFinishesWithinOneSecond(t, "近 30 天总览", func() error {
-		_, queryErr := overview.Execute(ctx, domain.AnalyticsQuery{
+	assertP95FinishesWithinOneSecond(t, "近 30 天总览", func() error {
+		data, queryErr := overview.Execute(ctx, domain.AnalyticsQuery{
 			From: from, To: to, Granularity: domain.GranularityDay,
 		})
+		if queryErr == nil && len(data.Metrics) == 0 {
+			return fmt.Errorf("overview metrics are unexpectedly empty")
+		}
 		return queryErr
 	})
 
-	assertFinishesWithinOneSecond(t, "带多维筛选的事件页", func() error {
+	assertP95FinishesWithinOneSecond(t, "逐日流量桶", func() error {
+		data, queryErr := overview.Execute(ctx, domain.AnalyticsQuery{
+			From: from, To: to, Granularity: domain.GranularityDay,
+			EventTypes: []domain.EventType{domain.EventPageView},
+		})
+		// UTC 零点的 30 天半开区间在香港时区跨越 31 个日历日（首尾各一个部分日）。
+		if queryErr == nil && len(data.TrafficSeries) != 31 {
+			return fmt.Errorf("daily Hong Kong traffic bucket count = %d, want 31", len(data.TrafficSeries))
+		}
+		return queryErr
+	})
+
+	assertP95FinishesWithinOneSecond(t, "带多维筛选的事件摘要", func() error {
 		_, queryErr := store.ListEvents(ctx, analyticsapp.EventListRequest{
 			Query: domain.AnalyticsQuery{
 				From: from, To: to, Granularity: domain.GranularityDay,
@@ -61,7 +79,7 @@ func TestMillionRowCommonQueriesUseIndexesAndFinishWithinOneSecond(t *testing.T)
 		return queryErr
 	})
 
-	assertFinishesWithinOneSecond(t, "单 visitor 时间线", func() error {
+	assertP95FinishesWithinOneSecond(t, "单 visitor 时间线", func() error {
 		events, queryErr := store.LoadVisitorEvents(ctx, millionRowVisitorID(17))
 		if queryErr == nil && len(events) == 0 {
 			return fmt.Errorf("visitor timeline is unexpectedly empty")
@@ -173,17 +191,31 @@ func assertQueryPlanUsesIndex(t *testing.T, database *sql.DB, query string, args
 	}
 }
 
-func assertFinishesWithinOneSecond(t *testing.T, name string, query func() error) {
+func assertP95FinishesWithinOneSecond(t *testing.T, name string, query func() error) {
 	t.Helper()
-	startedAt := time.Now()
-	if err := query(); err != nil {
-		t.Fatalf("%s failed: %v", name, err)
+	const warmupSamples = 2
+	const measuredSamples = 20
+	for sample := 0; sample < warmupSamples; sample++ {
+		if err := query(); err != nil {
+			t.Fatalf("%s warmup %d failed: %v", name, sample+1, err)
+		}
 	}
-	if elapsed := time.Since(startedAt); elapsed >= time.Second {
-		t.Fatalf("%s took %s, want < 1s", name, elapsed)
-	} else {
-		t.Logf("%s: %s", name, elapsed)
+
+	durations := make([]time.Duration, 0, measuredSamples)
+	for sample := 0; sample < measuredSamples; sample++ {
+		startedAt := time.Now()
+		if err := query(); err != nil {
+			t.Fatalf("%s sample %d failed: %v", name, sample+1, err)
+		}
+		durations = append(durations, time.Since(startedAt))
 	}
+	sort.Slice(durations, func(left, right int) bool { return durations[left] < durations[right] })
+	// 20 个样本的最近秩 P95 是排序后的第 19 个值（1-based），与产品侧 P95 口径一致。
+	p95 := durations[18]
+	if p95 >= time.Second {
+		t.Fatalf("%s P95 took %s, want < 1s (samples=%v)", name, p95, durations)
+	}
+	t.Logf("%s: P95=%s, min=%s, max=%s, samples=%d", name, p95, durations[0], durations[len(durations)-1], measuredSamples)
 }
 
 func assertNoDerivedAnalyticsTablesExist(t *testing.T, database *sql.DB) {

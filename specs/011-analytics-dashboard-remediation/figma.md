@@ -63,3 +63,31 @@
 
 - v1.1（2026-07-22）：完整 Dashboard、移动调查、APK 状态和普通查询失败，真实锚点为 `63:2118` 与 `67:672`。
 - v1.2（2026-07-23）：修复时间、字号、指标语义、Grafana 折线、逐日热力图和四个详细工作区的还原偏差；只追加差异画板，不重写 v1.1 历史；真实导入批次锚点为 `80:151`。
+
+## 最终实施对照
+
+### 与 v1.1/v1.2 一致的部分
+
+- 沿用 v1.1 的七工作区、侧栏、全局筛选和“总览 → 事件 → Visitor → 性能 → 系统”的调查信息架构。
+- 指标值落实为桌面 40px、手机 36px，并删除无含义圆圈；持平、无同期数据和关闭比较均有独立文字状态。
+- 折线图落实顶部图例、X/Y 轴、网格、实际数据点、十字线、鼠标/键盘共享 Tooltip 和视觉隐藏数据表。
+- 热力图按香港日历日一日一格，以星期为行、周次为列；只有绘图区可横向滚动。
+- 事件桌面表在手机转换为 key-value 卡；Visitor、性能和系统恢复 v1.1 全部关键区块并采用 v1.2 字号。
+- loading、无数据、筛选无结果、普通失败、存储不可用和 system 局部失败均保留独立状态表达。
+
+### 有意差异
+
+- Figma 曲线和数值只用于说明布局；实施使用 Recharts 和 API 数据，不把示例值作为失败回退。
+- v1.2 手机导入画板为 390×1640 的长画板，实施验收使用 390×844 真实交互视口并通过滚动查看完整页面。
+- 实际热力图格数由 7/30/90 日或自定义范围决定，Figma 中的格子只作结构示例。
+- 系统页把长期保留、无备份、无写入队列和只存明细明确标为“配置事实”，避免把静态决策误画成动态健康探测。
+- 性能页的 system 请求失败只令 dropped count 显示局部不可用，其他性能指标与图表继续显示；这是可运行降级状态而非静态原型假数据。
+
+### 最终截图证据
+
+- 图表三语双端：`frontend/playwright-monitor/__screenshots__/charts-en-desktop.png`、`charts-zh-Hans-desktop.png`、`charts-zh-Hant-mobile.png`。
+- 调查工作区：`investigation-zh-Hans-desktop.png`、`investigation-zh-Hant-mobile.png`、`performance-system-partial-error.png`。
+- 时间范围：`time-range-desktop.png`、`time-range-mobile.png`。
+- 五种状态：`state-loading-*`、`state-no_data-*`、`state-no_results-*`、`state-query_failed-*`、`state-storage_unavailable-*`。
+
+以上对照只引用用户确认的真实节点 `63:2118`、`67:672` 和批次锚点 `80:151`，没有为尚未机器读取的子画板编造节点 ID。

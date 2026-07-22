@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BusIsComing 匿名访问统计监控 API
-  version: 2026-07-21
+  version: 2026-07-23
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -9,6 +9,8 @@ info:
     仅供服务器本机私有 Dashboard 查询匿名事件明细和按请求聚合结果。
     本 API 固定绑定 loopback，通过 SSH 隧道访问；不得注册到公开 Gin engine、Caddy 或公网路由。
     所有聚合均从允许字段的事件明细即时计算，不保存汇总结果。
+    本版本把热力图改为香港逐日桶，为事件分页增加完整筛选范围摘要，为访客增加事件构成和
+    可空常见平台，并为总览增加四类成功事件 P95；不新增端点或匿名采集字段。
 servers:
   - url: http://127.0.0.1:18081
     description: 仅服务器本机可访问的私有监听器
@@ -32,7 +34,7 @@ x-private-access:
   accessMethod: SSH local port forwarding
   cors: disabled
 x-contract-locations:
-  feature: specs/010-website-analytics/contracts/analytics-monitoring-api.openapi.yaml
+  feature: specs/011-analytics-dashboard-remediation/contracts/analytics-monitoring-api.openapi.yaml
   sharedPrimary: shared/contracts/openapi/analytics-monitoring-api.openapi.yaml
 paths:
   /api/analytics/overview:
@@ -76,7 +78,7 @@ paths:
       tags: [流量与试查]
       operationId: getAnalyticsTraffic
       summary: 查询主页流量与路线试查分析
-      description: 返回流量趋势、试查漏斗、小时热力图以及语言、设备和来源分布。
+      description: 返回流量趋势、试查漏斗、香港逐日热力图以及语言、设备和来源分布。
       parameters:
         - $ref: "#/components/parameters/From"
         - $ref: "#/components/parameters/To"
@@ -146,6 +148,7 @@ paths:
       description: |
         按 `(occurredAt DESC,eventId DESC)` 返回允许字段。完整 visitor ID 精确筛选只能通过
         `X-Analytics-Visitor-ID` header；不得提供导出、删除、编辑或无上限历史下载。
+        `summary` 使用与分页项目完全相同的筛选范围，但不受 limit 和 cursor 影响。
       parameters:
         - $ref: "#/components/parameters/From"
         - $ref: "#/components/parameters/To"
@@ -183,7 +186,8 @@ paths:
       summary: 精确查询匿名访客摘要和会话时间线
       description: |
         visitor ID 是私有监控资源的精确检索条件，但仍不进入 path、query 或 body，只通过
-        `X-Analytics-Visitor-ID` header 传递。时间线按 30 分钟无活动边界派生会话。
+        `X-Analytics-Visitor-ID` header 传递。时间线按 30 分钟无活动边界派生会话；摘要和
+        事件构成基于该匿名标识的完整保留历史，分页只影响返回的时间线事件。
       parameters:
         - $ref: "#/components/parameters/VisitorIdRequired"
         - $ref: "#/components/parameters/Limit"
@@ -802,23 +806,47 @@ components:
       additionalProperties: false
     HeatmapCell:
       type: object
-      required: [weekday, hour, eventCount, uv]
+      description: 011 私有契约的逐日热力图单元，直接替换旧 weekday/hour item schema；不提供旧结构兼容
+      required: [localDate, bucketStart, bucketEnd, eventCount, uv]
       properties:
-        weekday:
-          type: integer
-          minimum: 1
-          maximum: 7
-          description: ISO weekday，1 为星期一
-        hour:
-          type: integer
-          minimum: 0
-          maximum: 23
+        localDate:
+          type: string
+          format: date
+          description: 香港当地日期；在同一查询响应中唯一并按升序排列
+          example: "2026-07-23"
+        bucketStart:
+          type: string
+          format: date-time
+          description: 当日香港 00:00，包含
+          example: "2026-07-23T00:00:00+08:00"
+        bucketEnd:
+          type: string
+          format: date-time
+          description: 下一日香港 00:00 或本次查询结束时刻，不包含
+          example: "2026-07-23T09:16:42+08:00"
         eventCount:
           type: integer
           minimum: 0
+          description: 当日通过筛选的匿名事件总数
         uv:
           type: integer
           minimum: 0
+          description: 当日不同匿名浏览器标识数量
+      additionalProperties: false
+    EventLatencySummary:
+      type: object
+      required: [eventType, requestCount, p95Ms]
+      properties:
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        requestCount:
+          type: integer
+          minimum: 0
+          description: 当前范围内该事件类型的成功请求样本数
+        p95Ms:
+          type: [integer, "null"]
+          minimum: 0
+          description: 成功样本最近秩 P95；没有成功样本时为空，不得以 0 替代
       additionalProperties: false
     OverviewData:
       type: object
@@ -830,6 +858,7 @@ components:
         - downloadFunnel
         - eventComposition
         - latency
+        - latencyByEvent
         - downloadPlatforms
         - downloadVersions
       properties:
@@ -853,6 +882,13 @@ components:
             $ref: "#/components/schemas/DistributionPoint"
         latency:
           $ref: "#/components/schemas/LatencySummary"
+        latencyByEvent:
+          type: array
+          minItems: 4
+          maxItems: 4
+          description: 按 APK 元数据、地点查询、路线查询、下载响应稳定顺序返回的成功请求 P95
+          items:
+            $ref: "#/components/schemas/EventLatencySummary"
         downloadPlatforms:
           type: array
           items:
@@ -888,6 +924,7 @@ components:
           $ref: "#/components/schemas/Funnel"
         heatmap:
           type: array
+          description: 逐日热力图；011 与旧 weekday/hour item schema 不兼容，调用方必须与服务端原子升级
           items:
             $ref: "#/components/schemas/HeatmapCell"
         locales:
@@ -1042,12 +1079,35 @@ components:
           type: integer
           minimum: 0
       additionalProperties: false
+    EventRangeSummary:
+      type: object
+      required: [totalCount, successCount, failureCount, uniqueVisitors]
+      properties:
+        totalCount:
+          type: integer
+          minimum: 0
+          description: 完整筛选范围事件总数
+        successCount:
+          type: integer
+          minimum: 0
+          description: 完整筛选范围成功事件数
+        failureCount:
+          type: integer
+          minimum: 0
+          description: 完整筛选范围失败事件数
+        uniqueVisitors:
+          type: integer
+          minimum: 0
+          description: 完整筛选范围独立匿名浏览器数
+      additionalProperties: false
     EventListData:
       type: object
-      required: [meta, items, pageInfo]
+      required: [meta, summary, items, pageInfo]
       properties:
         meta:
           $ref: "#/components/schemas/AnalyticsMeta"
+        summary:
+          $ref: "#/components/schemas/EventRangeSummary"
         items:
           type: array
           items:
@@ -1066,6 +1126,8 @@ components:
         - commonLocale
         - commonDeviceType
         - commonSourceType
+        - eventComposition
+        - commonPlatform
       properties:
         visitorId:
           $ref: "#/components/schemas/VisitorId"
@@ -1087,6 +1149,16 @@ components:
           $ref: "#/components/schemas/DeviceType"
         commonSourceType:
           $ref: "#/components/schemas/SourceType"
+        eventComposition:
+          type: array
+          description: 该匿名标识完整保留历史中的事件类型分布
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+        commonPlatform:
+          oneOf:
+            - $ref: "#/components/schemas/Platform"
+            - type: "null"
+          description: 只从下载事件归因计算；没有有效下载平台时为空
       additionalProperties: false
     DerivedSession:
       type: object

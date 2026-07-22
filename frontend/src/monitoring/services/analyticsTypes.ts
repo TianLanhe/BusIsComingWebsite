@@ -19,9 +19,9 @@ export interface AnalyticsQuery {
   platform: Platform[];
   versionName: string[];
   versionCode: number[];
-	 eventType?: EventType[];
-	 limit?: number;
-	 cursor?: string;
+  eventType?: EventType[];
+  limit?: number;
+  cursor?: string;
 }
 
 export interface AppliedFilters {
@@ -102,8 +102,15 @@ export interface OverviewData {
   downloadFunnel: Funnel;
   eventComposition: DistributionPoint[];
   latency: { requestCount: number; p50Ms: number | null; p95Ms: number | null };
+  latencyByEvent: EventLatencySummary[];
   downloadPlatforms: DistributionPoint[];
   downloadVersions: VersionDistribution[];
+}
+
+export interface EventLatencySummary {
+  eventType: EventType;
+  requestCount: number;
+  p95Ms: number | null;
 }
 
 export interface AnalyticsErrorBody {
@@ -117,15 +124,16 @@ export interface AnalyticsEnvelope<T> {
   error: AnalyticsErrorBody | null;
 }
 
-export interface HeatmapCell { weekday: number; hour: number; eventCount: number; uv: number }
+export interface HeatmapCell { localDate: string; bucketStart: string; bucketEnd: string; eventCount: number; uv: number }
 export interface DownloadSeriesPoint { bucketStart: string; bucketEnd: string; requests: number; successfulResponses: number; uv: number }
 export interface TrafficData { meta: AnalyticsMeta; metrics: Metric[]; series: TrafficSeriesPoint[]; trialFunnel: Funnel; heatmap: HeatmapCell[]; locales: DistributionPoint[]; devices: DistributionPoint[]; sources: DistributionPoint[] }
 export interface DownloadsData { meta: AnalyticsMeta; metrics: Metric[]; series: DownloadSeriesPoint[]; downloadFunnel: Funnel; platforms: DistributionPoint[]; versions: VersionDistribution[]; failures: DistributionPoint[] }
 export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx" | "aborted" | "unknown";
 export interface EventDetail { eventId: string; occurredAt: string; visitorId: string; eventType: EventType; outcome: Outcome; httpStatus: number | null; statusClass: StatusClass; failureCategory: string | null; durationMs: number; locale: AnalyticsLocale; deviceType: DeviceType; sourceType: SourceType; download: { platform: Platform; versionName: string | null; versionCode: number | null; sizeBytes: number | null } | null }
 export interface PageInfo { limit: number; nextCursor: string | null; hasMore: boolean; totalCount: number }
-export interface EventListData { meta: AnalyticsMeta; items: EventDetail[]; pageInfo: PageInfo }
-export interface VisitorSummary { visitorId: string; firstSeenAt: string; lastSeenAt: string; eventCount: number; sessionCount: number; commonLocale: AnalyticsLocale; commonDeviceType: DeviceType; commonSourceType: SourceType }
+export interface EventRangeSummary { totalCount: number; successCount: number; failureCount: number; uniqueVisitors: number }
+export interface EventListData { meta: AnalyticsMeta; summary: EventRangeSummary; items: EventDetail[]; pageInfo: PageInfo }
+export interface VisitorSummary { visitorId: string; firstSeenAt: string; lastSeenAt: string; eventCount: number; sessionCount: number; commonLocale: AnalyticsLocale; commonDeviceType: DeviceType; commonSourceType: SourceType; eventComposition: DistributionPoint[]; commonPlatform: Platform | null }
 export interface DerivedSession { ordinal: number; startedAt: string; endedAt: string; durationMs: number; eventCount: number; events: EventDetail[] }
 export interface VisitorData { generatedAt: string; timezone: "Asia/Hong_Kong"; visitor: VisitorSummary; sessions: DerivedSession[]; pageInfo: PageInfo }
 export interface EndpointPerformance { operationId: "getLatestAndroidApkMetadata" | "queryRoutePlaces" | "queryRouteOptions" | "downloadLatestAndroidApk"; eventType: EventType; requestCount: number; successRate: number | null; p50Ms: number | null; p95Ms: number | null }

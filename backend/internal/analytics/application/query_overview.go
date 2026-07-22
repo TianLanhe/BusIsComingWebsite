@@ -46,7 +46,7 @@ func (usecase *QueryOverview) Execute(ctx context.Context, query domain.Analytic
 		if loadErr != nil {
 			return OverviewData{}, fmt.Errorf("%w: load comparison overview events", ErrStorageUnavailable)
 		}
-		previous = aggregateOverview(scopeEvents(previousRaw, query), from, to, query.Granularity, state == domain.QueryReady)
+		previous = aggregateOverview(scopeEvents(previousRaw, query), from, to, query.Granularity, false)
 	}
 
 	currentAggregate := aggregateOverview(current, query.From, query.To, query.Granularity, state == domain.QueryReady)
@@ -56,12 +56,13 @@ func (usecase *QueryOverview) Execute(ctx context.Context, query domain.Analytic
 			Compare: query.Compare, ComparisonFrom: comparisonFrom, ComparisonTo: comparisonTo,
 			AppliedFilters: appliedFilters(query), GeneratedAt: usecase.clock.Now().UTC(), State: state,
 		},
-		Metrics:           buildMetrics(currentAggregate.metricValues, previous.metricValues, query.Compare, state),
+		Metrics:           buildMetrics(currentAggregate.metricValues, previous.metricValues, previous.metricAvailable, query.Compare, state),
 		TrafficSeries:     currentAggregate.trafficSeries,
 		TrialFunnel:       currentAggregate.trialFunnel,
 		DownloadFunnel:    currentAggregate.downloadFunnel,
 		EventComposition:  currentAggregate.eventComposition,
 		Latency:           currentAggregate.latency,
+		LatencyByEvent:    currentAggregate.latencyByEvent,
 		DownloadPlatforms: currentAggregate.downloadPlatforms,
 		DownloadVersions:  currentAggregate.downloadVersions,
 	}
@@ -126,11 +127,13 @@ func containsOrEmpty[T comparable](values []T, target T) bool {
 
 type overviewAggregate struct {
 	metricValues      map[string]float64
+	metricAvailable   map[string]bool
 	trafficSeries     []domain.TrafficSeriesPoint
 	trialFunnel       domain.Funnel
 	downloadFunnel    domain.Funnel
 	eventComposition  []domain.DistributionItem
 	latency           domain.LatencySummary
+	latencyByEvent    []EventLatencySummary
 	downloadPlatforms []domain.DistributionItem
 	downloadVersions  []domain.VersionDistribution
 }
@@ -169,9 +172,15 @@ func aggregateOverview(events scopedOverviewEvents, from, to time.Time, granular
 	combinedForDownloadFunnel := append(append([]domain.AnalyticsEvent(nil), events.traffic...), events.download...)
 	result := overviewAggregate{
 		metricValues: values,
-		trialFunnel:  domain.TrialFunnel(events.traffic), downloadFunnel: domain.DownloadFunnel(combinedForDownloadFunnel),
+		metricAvailable: map[string]bool{
+			"pv": len(events.traffic) > 0, "uv": len(events.traffic) > 0,
+			"viewsPerVisitor": len(events.traffic) > 0, "successfulRouteQueries": len(events.traffic) > 0,
+			"downloadRequests": len(events.download) > 0, "requestSuccessRate": len(events.combined) > 0,
+		},
+		trialFunnel: domain.TrialFunnel(events.traffic), downloadFunnel: domain.DownloadFunnel(combinedForDownloadFunnel),
 		eventComposition:  distributionByEventType(events.combined),
 		latency:           domain.LatencySummary{RequestCount: int64(len(latencies)), P50MS: domain.NearestRank(latencies, .5), P95MS: domain.NearestRank(latencies, .95)},
+		latencyByEvent:    latencyByEvent(events.combined),
 		downloadPlatforms: distributionByPlatform(events.download), downloadVersions: distributionByVersion(events.download),
 	}
 	if includeSeries {
@@ -182,7 +191,7 @@ func aggregateOverview(events scopedOverviewEvents, from, to time.Time, granular
 	return result
 }
 
-func buildMetrics(current, previous map[string]float64, compare bool, state domain.QueryState) []domain.Metric {
+func buildMetrics(current, previous map[string]float64, previousAvailable map[string]bool, compare bool, state domain.QueryState) []domain.Metric {
 	keys := []string{"pv", "uv", "viewsPerVisitor", "successfulRouteQueries", "downloadRequests", "requestSuccessRate"}
 	metrics := make([]domain.Metric, 0, len(keys))
 	for _, key := range keys {
@@ -191,7 +200,7 @@ func buildMetrics(current, previous map[string]float64, compare bool, state doma
 			value := current[key]
 			metric.Value = &value
 		}
-		if compare {
+		if compare && previousAvailable[key] {
 			previousValue := previous[key]
 			metric.PreviousValue = &previousValue
 			if metric.Value != nil {
@@ -206,6 +215,28 @@ func buildMetrics(current, previous map[string]float64, compare bool, state doma
 		metrics = append(metrics, metric)
 	}
 	return metrics
+}
+
+func latencyByEvent(events []domain.AnalyticsEvent) []EventLatencySummary {
+	eventTypes := []domain.EventType{
+		domain.EventPageView,
+		domain.EventPlaceQuery,
+		domain.EventRouteQuery,
+		domain.EventDownloadRequest,
+	}
+	result := make([]EventLatencySummary, 0, len(eventTypes))
+	for _, eventType := range eventTypes {
+		durations := make([]int64, 0)
+		for _, event := range events {
+			if event.EventType == eventType && event.Outcome == domain.OutcomeSuccess {
+				durations = append(durations, event.DurationMS)
+			}
+		}
+		result = append(result, EventLatencySummary{
+			EventType: eventType, RequestCount: int64(len(durations)), P95MS: domain.NearestRank(durations, .95),
+		})
+	}
+	return result
 }
 
 func buildTrafficSeries(events []domain.AnalyticsEvent, from, to time.Time, granularity domain.Granularity) []domain.TrafficSeriesPoint {

@@ -12,6 +12,12 @@ describe("EventsPage", () => {
     expect((await screen.findAllByText("abcdef…stuv")).length).toBeGreaterThan(0);
     expect(screen.queryByText("abcdefghijklmnopqrstuv")).not.toBeInTheDocument();
     expect(screen.queryByText(/导出|删除|编辑/)).not.toBeInTheDocument();
+    expect(screen.getByText("完整范围事件")).toBeInTheDocument();
+    expect(screen.getByText("成功事件")).toBeInTheDocument();
+    expect(screen.getByText("失败事件")).toBeInTheDocument();
+    expect(screen.getByText("独立浏览器")).toBeInTheDocument();
+    expect(screen.getByText("第 1–1 条，共 51 条")).toBeInTheDocument();
+    expect(screen.getAllByText("第 1 页").length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "下一页" }));
     expect(await screen.findByRole("heading", { name: "事件明细" })).toBeInTheDocument();
     expect(loader.mock.calls[1]?.[0]).toEqual(expect.objectContaining({ cursor: "next-cursor" }));
@@ -25,6 +31,7 @@ function renderDetail(element: React.ReactElement) {
 function eventPage(nextCursor: string | null): EventListData {
   return {
     meta: { from: "2026-06-21T00:00:00+08:00", to: "2026-07-21T00:00:00+08:00", timezone: "Asia/Hong_Kong", granularity: "day", compare: false, comparisonFrom: null, comparisonTo: null, appliedFilters: { locale: [], device: [], source: [], outcome: [], platform: [], versionName: [], versionCode: [], eventType: [] }, generatedAt: "2026-07-21T01:00:00Z", state: "ready" },
+    summary: { totalCount: 51, successCount: 40, failureCount: 11, uniqueVisitors: 22 },
     items: [{ eventId: "99", occurredAt: "2026-07-21T00:00:00Z", visitorId: "abcdefghijklmnopqrstuv", eventType: "route_query", outcome: "success", httpStatus: 200, statusClass: "2xx", failureCategory: null, durationMs: 420, locale: "zh-Hant", deviceType: "mobile", sourceType: "direct", download: null }],
     pageInfo: { limit: 50, nextCursor, hasMore: nextCursor != null, totalCount: 51 },
   };

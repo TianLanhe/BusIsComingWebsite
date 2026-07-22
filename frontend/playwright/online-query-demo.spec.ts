@@ -85,7 +85,7 @@ test("online query selects places, shows loading, renders route cards, and updat
     });
   });
 
-  await page.goto("/#online-query");
+  await page.goto("/en/#online-query");
   await expect(page.getByTestId("online-query-demo")).toBeVisible();
   await page.locator("#online-query").evaluate((element) => element.scrollIntoView({ block: "start" }));
   await page.screenshot({
@@ -104,7 +104,7 @@ test("online query selects places, shows loading, renders route cards, and updat
   await expect(page.getByTestId("destination-place-dropdown")).toBeVisible();
   await page.getByRole("button", { name: "Destination Place" }).click();
 
-  await page.getByRole("button", { name: /Search|查詢|查询/ }).click();
+  await page.getByTestId("online-query-demo").getByRole("button", { name: /Search|查詢|查询/ }).click();
   await expect(page.getByTestId("route-loading")).toBeVisible();
   await expect(page.getByText("606")).toBeVisible();
   await expect(page.getByText(longOriginStop)).toBeVisible();

@@ -31,4 +31,27 @@ describe("monitoring copy completeness", () => {
       expect(text).toMatch(/query|查詢|查询/);
     }
   });
+
+  it("covers every remediation state in all three languages", () => {
+    const overviewKeys = [
+      "customRange", "startDate", "endDate", "applyRange", "dateInvalid", "dateFuture", "dateOrder",
+      "comparisonUnchanged", "comparisonMissing", "comparisonOff", "currentMissing",
+      "successfulPlaceUV", "successfulRouteUV", "anonymousUvNote",
+      "chartLegend", "chartXAxis", "chartYAxis", "chartTooltip", "chartEmpty",
+      "heatmapEvents", "heatmapUv", "heatmapLess", "heatmapMore",
+      "latencyByEvent", "noSuccessfulSamples",
+    ] as const;
+    const detailKeys = [
+      "eventSummaryTotal", "eventSummarySuccess", "eventSummaryFailure", "eventSummaryVisitors",
+      "itemRange", "pagePosition", "eventComposition", "commonPlatform", "noPlatformData",
+      "backToEvents", "copyFailed", "configurationFact", "runtimeStatus", "storageOverview",
+      "isolationFallback", "retentionLongTerm", "backupDisabled", "writeQueueDisabled",
+      "detailOnlyStorage", "droppedUnavailable",
+    ] as const;
+
+    for (const locale of locales) {
+      for (const key of overviewKeys) expect(monitoringCopyCatalog[locale]).toHaveProperty(key);
+      for (const key of detailKeys) expect(detailCopy[locale]).toHaveProperty(key);
+    }
+  });
 });

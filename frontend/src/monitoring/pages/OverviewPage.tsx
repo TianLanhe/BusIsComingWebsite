@@ -9,6 +9,7 @@ import { TrafficChart } from "../components/charts/TrafficChart";
 import { DashboardShell } from "../components/layout/DashboardShell";
 import { QueryState } from "../components/states/QueryState";
 import { monitoringCopy, type CopyKey } from "../content/copy";
+import { eventLabels } from "../content/types";
 import { AnalyticsClientError, fetchOverview } from "../services/analyticsClient";
 import type { AnalyticsQuery, Metric, OverviewData } from "../services/analyticsTypes";
 
@@ -28,9 +29,9 @@ export function OverviewPage({ loadOverview = fetchOverview }: { loadOverview?: 
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
-    const run = async (initial: boolean) => {
+    const run = async () => {
       if (!active) return;
-      if (initial && !data) setLoading(true); else setRefreshing(true);
+      if (!data) setLoading(true); else setRefreshing(true);
       try {
         const result = await loadOverview(filters.query, controller.signal);
         if (!active) return;
@@ -38,8 +39,8 @@ export function OverviewPage({ loadOverview = fetchOverview }: { loadOverview?: 
         setError(null);
         setLoading(false);
         setRefreshing(false);
-        // 只在成功完成后安排下一次刷新；请求未完成时不会叠加计时器。
-        timer.current = window.setTimeout(() => { void run(false); }, 60_000);
+        // 只在成功完成后推进全局时钟；Provider 会重新计算包含今天的查询上界。
+        timer.current = window.setTimeout(filters.refresh, 60_000);
       } catch (caught) {
         if (!active || (caught instanceof DOMException && caught.name === "AbortError")) return;
         setError(caught instanceof AnalyticsClientError ? caught : new AnalyticsClientError("ANALYTICS_QUERY_FAILED", 0));
@@ -47,7 +48,7 @@ export function OverviewPage({ loadOverview = fetchOverview }: { loadOverview?: 
         setRefreshing(false);
       }
     };
-    void run(true);
+    void run();
     return () => {
       active = false;
       controller.abort();
@@ -67,18 +68,17 @@ export function OverviewPage({ loadOverview = fetchOverview }: { loadOverview?: 
       onRetry={state === "query_failed" || state === "storage_unavailable" ? () => setRetryVersion((value) => value + 1) : undefined}
     /> : <>
       <section className="metric-grid" data-testid="metric-grid">
-        <MetricCard label={t("pv")} metric={metrics.get("pv")} locale={locale} />
-        <MetricCard label={t("uv")} metric={metrics.get("uv")} locale={locale} />
-        <MetricCard label={t("viewsPerVisitor")} metric={metrics.get("viewsPerVisitor")} locale={locale} format="decimal" />
-        <MetricCard label={t("successfulRouteQueries")} metric={metrics.get("successfulRouteQueries")} locale={locale} />
-        <MetricCard label={t("downloadRequests")} metric={metrics.get("downloadRequests")} locale={locale} />
-        <MetricCard label={t("requestSuccessRate")} metric={metrics.get("requestSuccessRate")} locale={locale} format="percent" />
+        <MetricCard label={t("pv")} metric={metrics.get("pv")} locale={locale} compareEnabled={data!.meta.compare} />
+        <MetricCard label={t("uv")} metric={metrics.get("uv")} locale={locale} compareEnabled={data!.meta.compare} />
+        <MetricCard label={t("viewsPerVisitor")} metric={metrics.get("viewsPerVisitor")} locale={locale} format="decimal" compareEnabled={data!.meta.compare} />
+        <MetricCard label={t("successfulRouteQueries")} metric={metrics.get("successfulRouteQueries")} locale={locale} compareEnabled={data!.meta.compare} />
+        <MetricCard label={t("downloadRequests")} metric={metrics.get("downloadRequests")} locale={locale} compareEnabled={data!.meta.compare} />
+        <MetricCard label={t("requestSuccessRate")} metric={metrics.get("requestSuccessRate")} locale={locale} format="percent" compareEnabled={data!.meta.compare} />
       </section>
       <section className="overview-primary-grid">
         <article className="dashboard-card chart-card trend-card">
           <CardHeading title={t("trend")} note={t("trendNote")} meta={t("hoverDetail")} />
-          <div className="chart-legend"><span><i className="pv" />PV</span><span><i className="uv" />UV</span></div>
-          <TrafficChart data={data!.trafficSeries} locale={locale} summary={t("chartSummary")} />
+          <TrafficChart data={data!.trafficSeries} locale={locale} summary={t("chartSummary")} emptyLabel={t("chartEmpty")} />
         </article>
         <article className="dashboard-card chart-card">
           <CardHeading title={t("trialFunnel")} note={t("trialNote")} meta="UV" />
@@ -93,8 +93,13 @@ export function OverviewPage({ loadOverview = fetchOverview }: { loadOverview?: 
         </article>
         <article className="dashboard-card compact-card latency-card">
           <CardHeading title={t("latencyP95")} note={t("latencyNote")} meta={t("success")} />
-          <div className="latency-hero"><span><TimerReset /><small>P95</small></span><strong>{formatDuration(data!.latency.p95Ms)}</strong></div>
-          <div className="latency-stats"><span>{t("p50")}<b>{formatDuration(data!.latency.p50Ms)}</b></span><span>{t("requestCount")}<b>{new Intl.NumberFormat(locale).format(data!.latency.requestCount)}</b></span></div>
+          <div className="latency-event-list">
+            {data!.latencyByEvent.map((item) => <div key={item.eventType}>
+              <span><TimerReset aria-hidden="true" />{latencyEventLabel(item.eventType, locale, t)}</span>
+              <b>{item.p95Ms == null ? t("noSuccessfulSamples") : formatDuration(item.p95Ms)}</b>
+              <small>{t("requestCount")} {new Intl.NumberFormat(locale).format(item.requestCount)}</small>
+            </div>)}
+          </div>
         </article>
         <article className="dashboard-card compact-card download-card-monitor">
           <CardHeading title={t("downloadSummary")} note={t("downloadNote")} meta={data!.downloadPlatforms[0]?.key ?? "—"} />
@@ -135,4 +140,10 @@ function funnelCaption(funnel: OverviewData["trialFunnel"], locale: string) {
 function formatDuration(value: number | null) {
   if (value == null) return "—";
   return value >= 1000 ? `${(value / 1000).toFixed(1)}s` : `${value}ms`;
+}
+
+function latencyEventLabel(eventType: OverviewData["latencyByEvent"][number]["eventType"], locale: keyof typeof eventLabels["page_view"], t: (key: CopyKey) => string) {
+  if (eventType === "page_view") return t("apkMetadata");
+  if (eventType === "download_request") return t("downloadResponseLatency");
+  return eventLabels[eventType][locale];
 }

@@ -49,6 +49,15 @@ func (builder *eventQueryBuilder) countSQL() (string, []any) {
 	return "SELECT COUNT(*) FROM analytics_events WHERE " + strings.Join(builder.where, " AND "), append([]any(nil), builder.args...)
 }
 
+func (builder *eventQueryBuilder) summarySQL() (string, []any) {
+	query := `SELECT COUNT(*),
+		COALESCE(SUM(CASE WHEN outcome = 'success' THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN outcome = 'failure' THEN 1 ELSE 0 END), 0),
+		COUNT(DISTINCT visitor_id)
+		FROM analytics_events WHERE ` + strings.Join(builder.where, " AND ")
+	return query, append([]any(nil), builder.args...)
+}
+
 func (builder *eventQueryBuilder) clone() *eventQueryBuilder {
 	return &eventQueryBuilder{where: append([]string(nil), builder.where...), args: append([]any(nil), builder.args...)}
 }

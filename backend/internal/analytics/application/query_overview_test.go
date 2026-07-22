@@ -72,6 +72,68 @@ func TestQueryOverviewReturnsNoDataAndNoResultsDistinctly(t *testing.T) {
 	}
 }
 
+func TestQueryOverviewReturnsSuccessfulLatencyByEventInStableOrder(t *testing.T) {
+	from := time.Date(2026, time.July, 1, 0, 0, 0, 0, time.UTC)
+	to := from.Add(24 * time.Hour)
+	events := []domain.AnalyticsEvent{}
+	types := []domain.EventType{domain.EventPageView, domain.EventPlaceQuery, domain.EventRouteQuery, domain.EventDownloadRequest}
+	id := int64(1)
+	for typeIndex, eventType := range types {
+		for _, duration := range []int64{10, 20, 30, 40, 100 + int64(typeIndex)} {
+			event := overviewEvent(id, "abcdefghijklmnopqrstuv", eventType, from.Add(time.Duration(id)*time.Minute))
+			event.DurationMS = duration
+			events = append(events, event)
+			id++
+		}
+		failure := overviewEvent(id, "0123456789abcdefghijkl", eventType, from.Add(time.Duration(id)*time.Minute))
+		failure.Outcome = domain.OutcomeFailure
+		failure.DurationMS = 9_999
+		events = append(events, failure)
+		id++
+	}
+	store := overviewEventStoreFunc(func(context.Context, time.Time, time.Time) ([]domain.AnalyticsEvent, error) { return events, nil })
+	result, err := NewQueryOverview(store, ClockFunc(func() time.Time { return to })).Execute(
+		context.Background(),
+		domain.AnalyticsQuery{From: from, To: to, Granularity: domain.GranularityDay},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.LatencyByEvent) != 4 {
+		t.Fatalf("latencyByEvent length=%d", len(result.LatencyByEvent))
+	}
+	for index, eventType := range types {
+		item := result.LatencyByEvent[index]
+		if item.EventType != eventType || item.RequestCount != 5 || item.P95MS == nil || *item.P95MS != 100+int64(index) {
+			t.Fatalf("latencyByEvent[%d]=%#v", index, item)
+		}
+	}
+}
+
+func TestQueryOverviewKeepsMissingPreviousPopulationNullAndRealZeroComparable(t *testing.T) {
+	current := map[string]float64{"pv": 2}
+	metrics := buildMetrics(current, map[string]float64{"pv": 0}, map[string]bool{"pv": true}, true, domain.QueryReady)
+	pv := findMetric(metrics, "pv")
+	if pv.PreviousValue == nil || *pv.PreviousValue != 0 || pv.Delta == nil || *pv.Delta != 2 || pv.DeltaRate != nil {
+		t.Fatalf("real zero must remain comparable: %#v", pv)
+	}
+
+	metrics = buildMetrics(current, map[string]float64{}, map[string]bool{}, true, domain.QueryReady)
+	pv = findMetric(metrics, "pv")
+	if pv.PreviousValue != nil || pv.Delta != nil || pv.DeltaRate != nil {
+		t.Fatalf("missing previous population must remain null: %#v", pv)
+	}
+}
+
+func findMetric(metrics []domain.Metric, key string) domain.Metric {
+	for _, metric := range metrics {
+		if metric.Key == key {
+			return metric
+		}
+	}
+	return domain.Metric{}
+}
+
 func metricValue(metrics []domain.Metric, key string) float64 {
 	for _, metric := range metrics {
 		if metric.Key == key && metric.Value != nil {

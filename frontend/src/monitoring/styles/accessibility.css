@@ -1,5 +1,5 @@
 .accessible-chart-frame { margin: 0; }
-.accessible-chart-frame > figcaption { margin-top: 5px; color: var(--pulse-muted); font-size: 8px; line-height: 14px; }
+.accessible-chart-frame > figcaption { margin-top: 5px; color: var(--pulse-muted); font-size: var(--pulse-font-supporting); line-height: 14px; }
 
 :where(.monitor-shell button, .monitor-shell a, .monitor-shell select, .monitor-shell summary, .monitor-shell input):focus-visible {
   outline: 3px solid rgba(39, 153, 168, .42);

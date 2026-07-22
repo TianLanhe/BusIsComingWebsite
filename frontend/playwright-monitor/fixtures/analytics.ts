@@ -24,8 +24,30 @@ export const overviewEnvelope = {
     downloadFunnel: { key: "download", sessionGapMinutes: 30, stages: [{ key: "homepage", uniqueVisitors: 3216, fromPreviousRate: null, fromFirstRate: null }, { key: "successful_download_response", uniqueVisitors: 692, fromPreviousRate: .215, fromFirstRate: .215 }] },
     eventComposition: [{ key: "page_view", count: 12480, ratio: .44 }, { key: "place_query", count: 5906, ratio: .32 }, { key: "route_query", count: 2674, ratio: .15 }, { key: "download_request", count: 1682, ratio: .09 }],
     latency: { requestCount: 22742, p50Ms: 28, p95Ms: 640 },
+    latencyByEvent: [
+      { eventType: "page_view", requestCount: 12480, p95Ms: 42 },
+      { eventType: "place_query", requestCount: 5906, p95Ms: 310 },
+      { eventType: "route_query", requestCount: 2674, p95Ms: 640 },
+      { eventType: "download_request", requestCount: 1682, p95Ms: 95 },
+    ],
     downloadPlatforms: [{ key: "android", count: 318, ratio: 1 }],
     downloadVersions: [{ platform: "android", versionName: "1.0", versionCode: 1, requestCount: 318, successfulResponses: 315, uv: 292, sizeBytes: 20_000_000 }],
   },
   error: null,
+};
+
+export const overviewWithoutComparisonEnvelope = {
+  ...overviewEnvelope,
+  requestId: "req-overview-no-comparison",
+  data: {
+    ...overviewEnvelope.data,
+    metrics: overviewEnvelope.data.metrics.map((metric) => ({
+      ...metric,
+      previousValue: null,
+      delta: null,
+      deltaRate: null,
+    })),
+    latencyByEvent: overviewEnvelope.data.latencyByEvent.map((item, index) =>
+      index === 2 ? { ...item, requestCount: 0, p95Ms: null } : item),
+  },
 };

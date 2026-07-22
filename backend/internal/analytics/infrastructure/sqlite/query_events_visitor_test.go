@@ -45,6 +45,60 @@ func TestEventKeysetPaginationHasNoDuplicateOrGapAtSameMillisecond(t *testing.T)
 	}
 }
 
+func TestEventSummaryUsesFullFilteredRangeAndIgnoresCursor(t *testing.T) {
+	store, err := Open(context.Background(), filepath.Join(t.TempDir(), "analytics.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+	base := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	visitors := []string{"abcdefghijklmnopqrstuv", "0123456789abcdefghijkl", "visitor_12345678901234"}
+	for index := 0; index < 4; index++ {
+		event := overviewFixtureEvent(int64(index+1), visitors[index%2], domain.EventRouteQuery, base.Add(time.Duration(index)*time.Minute))
+		if index == 3 {
+			status := 503
+			category := domain.FailureInternal
+			event.Outcome, event.HTTPStatus, event.StatusClass, event.FailureCategory = domain.OutcomeFailure, &status, domain.Status5xx, &category
+		}
+		if err := store.WriteEvent(context.Background(), event); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// 这条不同事件类型的数据用于证明摘要复用了全部筛选条件。
+	if err := store.WriteEvent(context.Background(), overviewFixtureEvent(5, visitors[2], domain.EventPageView, base.Add(5*time.Minute))); err != nil {
+		t.Fatal(err)
+	}
+	query := domain.AnalyticsQuery{From: base, To: base.Add(time.Hour), Granularity: domain.GranularityHour, EventTypes: []domain.EventType{domain.EventRouteQuery}, Limit: 2}
+	first, err := store.ListEvents(context.Background(), analyticsapp.EventListRequest{Query: query, Limit: 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	cursor := domain.EventCursor{OccurredAt: first.Items[len(first.Items)-1].OccurredAt, EventID: first.Items[len(first.Items)-1].EventID}
+	second, err := store.ListEvents(context.Background(), analyticsapp.EventListRequest{Query: query, Cursor: &cursor, Limit: 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := analyticsapp.EventRangeSummary{TotalCount: 4, SuccessCount: 3, FailureCount: 1, UniqueVisitors: 2}
+	if first.Summary != want || second.Summary != want {
+		t.Fatalf("cursor changed full-range summary: first=%#v second=%#v", first.Summary, second.Summary)
+	}
+	if len(first.Items) != 2 || len(second.Items) != 2 {
+		t.Fatalf("unexpected pages: %d %d", len(first.Items), len(second.Items))
+	}
+}
+
+func TestEventSummaryQueryPlanUsesTimeIndex(t *testing.T) {
+	store, err := Open(context.Background(), filepath.Join(t.TempDir(), "analytics.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+	base := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	builder := newEventQueryBuilder(base, base.Add(24*time.Hour))
+	query, args := builder.summarySQL()
+	assertQueryPlanUsesIndex(t, store.db, query, args, "idx_analytics_events_time")
+}
+
 func TestVisitorSummaryAndThirtyMinuteBoundary(t *testing.T) {
 	store, err := Open(context.Background(), filepath.Join(t.TempDir(), "analytics.sqlite"))
 	if err != nil {
