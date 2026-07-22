@@ -806,6 +806,7 @@ components:
       additionalProperties: false
     HeatmapCell:
       type: object
+      description: 011 私有契约的逐日热力图单元，直接替换旧 weekday/hour item schema；不提供旧结构兼容
       required: [localDate, bucketStart, bucketEnd, eventCount, uv]
       properties:
         localDate:
@@ -923,6 +924,7 @@ components:
           $ref: "#/components/schemas/Funnel"
         heatmap:
           type: array
+          description: 逐日热力图；011 与旧 weekday/hour item schema 不兼容，调用方必须与服务端原子升级
           items:
             $ref: "#/components/schemas/HeatmapCell"
         locales:

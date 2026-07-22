@@ -65,7 +65,7 @@ go test ./backend/internal/analytics/infrastructure/sqlite/...
 go test ./backend/internal/analytics/interfaces/http/...
 ```
 
-覆盖：四类成功事件 P95、无样本 null、逐日桶、完整范围事件摘要、游标不影响摘要、访客事件构成、无下载平台 null、统一错误映射和隐私 sentinel。
+覆盖：四类成功事件 P95、无样本 null、上一周期无匹配事件时 `previousValue/delta/deltaRate` 全部为 null、逐日桶、完整范围事件摘要、游标不影响摘要、访客事件构成、无下载平台 null、统一错误映射和隐私 sentinel。
 
 ### 3.3 图表、指标卡和详细页面
 
@@ -139,6 +139,8 @@ npm --prefix frontend run test:e2e:monitor
 - 图例、坐标、Tooltip、热力图滚动和无可见数据摘要。
 - 四个详细工作区、loading/no data/no results/普通失败/存储不可用。
 - 性能页 system 辅助查询失败的局部降级。
+- 先设置自定义日期、筛选和 Visitor ID，再切换三语、工作区并触发失败重试；每一步均保持调查上下文。
+- 契约测试拒绝旧 `weekday/hour` Heatmap item，构建/部署检查确认私有后端与 `dist-monitor` 来自同一发布物。
 
 ## 6. Figma v1.2 差异画板
 
@@ -166,7 +168,7 @@ python3 -m http.server 59337 --bind 127.0.0.1 \
 go test -run 'Test.*Performance|Test.*Million' -count=1 ./backend/internal/analytics/infrastructure/sqlite/...
 ```
 
-目标是核心查询与访客时间线 95% 在 1 秒内完成。若不满足，先检查 SQL 过滤复用、游标和索引，不得新增汇总表或缓存明细。
+目标是核心查询与访客时间线 95% 在 1 秒内完成。若不满足，先检查 SQL 过滤复用、游标和既有索引；确需新普通索引时新增 `002_add_analytics_query_indexes.sql` 并验证旧数据库迁移，绝不修改已执行的 `001_create_analytics_events.sql`，也不得新增汇总表或缓存明细。
 
 最终确认：
 

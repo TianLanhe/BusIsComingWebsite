@@ -18,7 +18,7 @@
 
 **主要依赖**：现有 React、React DOM、Lucide React、Recharts 3.10.0、Gin 1.12.0、`database/sql`、modernc SQLite 1.54.0；不新增日期库、图表库、路由库、ORM、缓存或独立数据库服务
 
-**数据与存储**：继续使用单份 SQLite `analytics_events` 明细和进程内 runtime health；不新增 migration、汇总表、缓存表、定时聚合、清理或备份
+**数据与存储**：继续使用单份 SQLite `analytics_events` 明细和进程内 runtime health；不改变表结构，不新增汇总表、缓存表、定时聚合、清理或备份。默认不新增 migration；只有 T077 证明现有索引无法满足性能门禁时，才允许新增只创建普通索引的前向 `002_add_analytics_query_indexes.sql`，绝不修改已记录执行的 `001_create_analytics_events.sql`
 
 **测试**：Go `testing`、SQLite integration/performance tests、Vitest 2.1.8、Testing Library、Playwright 1.49.1、Redocly CLI 2.32.2、固定数据视觉回归、OpenAPI/隐私契约测试
 
@@ -39,15 +39,15 @@
 - [analytics-monitoring-api.openapi.yaml](./contracts/analytics-monitoring-api.openapi.yaml)：七个既有私有 endpoint 的完整 OpenAPI 3.1 权威源；新增 `latencyByEvent`、逐日 `HeatmapCell`、`EventRangeSummary`、visitor `eventComposition/commonPlatform`。
 - [dashboard-ui.contract.md](./contracts/dashboard-ui.contract.md)：OpenAPI 无法表达的 Vite 302、日期/刷新、指标、图表、热力图、详细页面、三语、响应式和局部降级契约。
 - 私有成功/错误继续使用 `{requestId,data,error}` envelope；visitor ID 精确检索继续只用 `X-Analytics-Visitor-ID` header，不进入 URL/query/body。
-- 兼容策略：保留路径、operationId、统一错误码和 OverviewData 旧 `latency` 字段；响应只做向后兼容增加，旧 `weekday/hour` 热力图由新逐日结构替换，前后端在同一发布中升级。
+- 版本策略：011 对 `TrafficData.heatmap[]` 实施受控破坏性变更，字段名保持不变，但 item schema 从旧 `weekday/hour` 直接替换为逐日 `localDate/bucketStart/bucketEnd/eventCount/uv`；不双写旧结构，也不承诺新后端兼容旧监控前端。路径、operationId、envelope、统一错误码和 OverviewData 旧 `latency` 字段继续保留。私有后端与 `dist-monitor` 必须作为同一发布物原子升级，回滚时也整体回滚；契约测试必须阻止新旧前后端混搭。
 
 **OpenAPI 接口文档**：feature 权威源为 `specs/011-analytics-dashboard-remediation/contracts/analytics-monitoring-api.openapi.yaml`；实现阶段单向同步到 `shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`，更新 `frontend/package.json` feature lint/bundle 路径为 011，运行 Redocly lint/bundle，并生成 `shared/contracts/openapi/docs/analytics-monitoring-api.html` 中文 API UI。API UI 只作私有预览，不进入公网产物。
 
 **服务端 DDD 边界**：
 
-- `domain`：香港日桶、Metric 空值、EventType、Outcome、分位值和 30 分钟会话等业务规则，不依赖 Gin/SQL/前端。
-- `application`：QueryOverview/QueryDetails 组织逐日热力图、事件维度 P95、事件摘要和 visitor 分布；端口表达完整筛选摘要，不暴露 SQL。
-- `infrastructure/sqlite`：复用 query builder 执行分页项目和完整范围聚合，负责 `COUNT(DISTINCT visitor_id)` 与性能索引；不新增表。
+- `domain`：香港日桶、Metric 空值与上一周期数据可用性、EventType、Outcome、分位值和 30 分钟会话等业务规则，不依赖 Gin/SQL/前端。
+- `application`：QueryOverview/QueryDetails 组织逐日热力图、事件维度 P95、事件摘要和 visitor 分布；上一周期没有匹配事件时保持 `previousValue/delta/deltaRate=null`，真实零值仍作为有效比较值；端口表达完整筛选摘要，不暴露 SQL。
+- `infrastructure/sqlite`：复用 query builder 执行分页项目和完整范围聚合，负责 `COUNT(DISTINCT visitor_id)` 与性能索引；不新增表。若基准要求新索引，必须通过新的前向 `002` migration 应用于既有数据库，不能改写已执行的 `001`。
 - `interfaces/http`：保持七个 operation，只映射 query/header、DTO、envelope 与现有错误；不得计算业务统计。
 - 依赖方向保持 interfaces/infrastructure → application → domain；前端只消费 OpenAPI DTO。
 
@@ -71,7 +71,7 @@
 |------|------|----------------|
 | 产品定位与范围边界：覆盖软件介绍、试用查询、下载 App，反馈和联系为次要功能 | 通过 | 本功能只修复主页访问、香港巴士试查和 APK 下载的既有匿名监控，不增加公众能力。 |
 | 范围排除：不提供完整出行路线规划，也不提供地铁等其他交通工具查询 | 通过 | spec FR-029 与 UI contract 不增加新交通或规划功能。 |
-| 前后端分离与契约优先：边界、契约和错误格式已记录 | 通过 | OpenAPI 3.1 + Dashboard UI contract 分别约束 HTTP 与前端行为；DDD/前端边界明确。 |
+| 前后端分离与契约优先：边界、契约、错误格式和版本策略已记录 | 通过 | OpenAPI 3.1 + Dashboard UI contract 分别约束 HTTP 与前端行为；Heatmap 受控破坏性变更采用前后端原子发布/整体回滚，DDD/前端边界明确。 |
 | OpenAPI 驱动的服务端接口文档：服务端 HTTP API 已有 OpenAPI 3.1 YAML、中文 API UI、共享沉淀路径和验证方式 | 通过 | `contracts/analytics-monitoring-api.openapi.yaml` 已建立；shared、Redocly 与中文 docs 路径已列出。 |
 | 三语国际化 | 通过 | 新增文案范围、香港繁中和自然英文审校、key 完整性与 1440/390 验证已定义。 |
 | 试用查询与可靠降级 | 通过 | 不改变外部巴士服务；监控失败与性能页辅助失败均有 fail-open/局部降级。 |
@@ -147,7 +147,9 @@ backend/
 │   │   └── query_details.go           # 逐日热力图、visitor 摘要
 │   ├── infrastructure/sqlite/
 │   │   ├── query_builder.go           # 分页与摘要复用 where
-│   │   └── query_events_visitor.go    # summary + page；表结构不变
+│   │   ├── query_events_visitor.go    # summary + page；表结构不变
+│   │   └── migrations/
+│   │       └── 002_add_analytics_query_indexes.sql # 仅在 T077 证明必要时新增；不改 001
 │   └── interfaces/http/               # DTO/envelope/contract tests；路由不变
 └── downloads/android/                 # 用户现有改动，不纳入本功能提交
 
@@ -173,7 +175,7 @@ docs/superpowers/prototypes/
 
 ## 第 1 阶段输出
 
-- [data-model.md](./data-model.md)：前端选择/求值/比较模型，以及逐日热力图、四类 P95、事件摘要、visitor 和 system 组合读模型；确认无持久化变更。
+- [data-model.md](./data-model.md)：前端选择/求值/比较模型，以及逐日热力图、四类 P95、事件摘要、visitor 和 system 组合读模型；确认表结构不变，必要时仅新增前向普通索引 migration。
 - [contracts/analytics-monitoring-api.openapi.yaml](./contracts/analytics-monitoring-api.openapi.yaml)：七个既有私有 operation 的完整 OpenAPI 3.1 与增量 schema。
 - [contracts/dashboard-ui.contract.md](./contracts/dashboard-ui.contract.md)：Vite、日期、指标、图表、热力图、工作区、三语、响应式和错误行为。
 - [quickstart.md](./quickstart.md)：契约、TDD、Go/Vitest/Playwright、本地三进程、Figma、性能和隐私验证。
@@ -185,7 +187,7 @@ docs/superpowers/prototypes/
 |------|------|------------|
 | 产品定位与范围边界 | 通过 | 数据模型只扩展既有四类匿名事件读模型，未增加产品功能或采集字段。 |
 | 范围排除 | 通过 | 两份契约无完整规划、非巴士交通、账号、指纹、导出或删除能力。 |
-| 前后端分离与契约优先 | 通过 | OpenAPI 定义 HTTP；UI contract 定义浏览器行为；应用端口隔离 SQLite。 |
+| 前后端分离与契约优先 | 通过 | OpenAPI 定义 HTTP；UI contract 定义浏览器行为；应用端口隔离 SQLite；Heatmap 破坏性变更的原子升级和整体回滚边界已记录。 |
 | OpenAPI 驱动的服务端接口文档 | 通过 | 011 完整 YAML 可独立 lint/bundle；shared 和中文 docs 同步步骤已确定。 |
 | 三语国际化 | 通过 | UI contract 明确全部新文案、locale 格式和繁中/英文审校；quickstart 覆盖 key 完整性。 |
 | 试用查询与可靠降级 | 通过 | 统计响应扩展不接触公开业务用例；system 辅助失败局部降级，存储失败保持公开 fail-open。 |

@@ -6,7 +6,7 @@
 
 ## 研究结论总览
 
-当前实现不需要更换前端框架、增加端点、增加数据库表或引入后台任务。修复应集中在：独立日期范围模型、通用可访问时间序列组件、逐日热力图读模型、四个既有私有查询响应的增量扩展，以及详细工作区的信息架构恢复。
+当前实现不需要更换前端框架、增加端点、增加数据库表或引入后台任务。修复应集中在：独立日期范围模型、通用可访问时间序列组件、逐日热力图读模型、四个既有私有查询响应的扩展，以及详细工作区的信息架构恢复。逐日 Heatmap 是 011 私有契约的受控破坏性变更，监控前端与后端必须原子发布。
 
 ## 决策 1：用独立香港日期模型替代组件内即时拼接
 
@@ -30,6 +30,8 @@
 
 **拒绝方案**：在 OverviewPage 内单独替换 `to`。这样总览与流量、下载、事件、性能会出现不同时间语义，也无法共享自定义日期控件。
 
+**比较空值约束**：比较开启但上一周期没有匹配事件时，后端必须返回 `previousValue=null`，并同时保持 `delta/deltaRate=null`；只有上一周期确有数据且计算结果为零时，零才是有效比较值。该规则必须由 overview 与 detail 应用测试共同覆盖，不能只在前端派生模型中模拟。
+
 ## 决策 3：通用折线图采用已安装 Recharts 3.10
 
 **决策**：以 Recharts 的 `ResponsiveContainer`、`LineChart`、`CartesianGrid`、`XAxis`、`YAxis`、`Legend`、`Tooltip` 和 `ReferenceLine` 构建 `TimeSeriesChart`；通过自定义 dot 暴露可聚焦数据点并控制 active index，使鼠标和键盘共享同一 Tooltip。`AccessibleChartFrame` 只保留 `sr-only` 表格，不再渲染可见 `figcaption` 摘要。
@@ -45,11 +47,13 @@
 
 ## 决策 4：逐日热力图由后端返回真实日期桶
 
-**决策**：把 `HeatmapCell` 从 `weekday + hour` 替换为 `localDate + bucketStart + bucketEnd + eventCount + uv`。应用层按香港日桶聚合筛选后的匿名事件，返回数量与实际查询日期范围一致；前端只做周一至周日行、周列和范围外补位布局。
+**决策**：把 `HeatmapCell` 从 `weekday + hour` 直接替换为 `localDate + bucketStart + bucketEnd + eventCount + uv`。应用层按香港日桶聚合筛选后的匿名事件，返回数量与实际查询日期范围一致；前端只做周一至周日行、周列和范围外补位布局。011 不双写或保留旧 Heatmap item schema；私有后端与 `dist-monitor` 原子升级，回滚时整体回滚，禁止新旧版本混搭。
 
 **理由**：日期是调查主键，前端若只收到星期/小时聚合就无法展示具体日期、准确 Tooltip 或随范围变化的格子数。后端已有同一范围的事件和 `TimeBuckets` 规则，适合生成权威日期桶。
 
 **拒绝方案**：保留 168 个星期×小时格后在前端重排。它已经丢失日期维度，无法恢复逐日信息。
+
+**拒绝方案**：同时返回旧、新两套 Heatmap。用户已选择不做向后兼容，双写会延长错误口径寿命并增加契约分支。
 
 ## 决策 5：总览新增四类成功事件 P95 数组
 
@@ -64,6 +68,8 @@
 **决策**：`StoredEventPage` 增加 `Summary`，SQLite 的事件列表查询在同一 `EventListRequest` 过滤条件下分别执行聚合和分页查询；聚合返回 `totalCount`、`successCount`、`failureCount`、`uniqueVisitors`。应用层输出 `EventListData.summary`，`PageInfo.totalCount` 与 summary.totalCount 必须一致。
 
 **理由**：不能用当前页 50 条推算总览卡；由存储适配器复用相同 where builder 可避免前后筛选漂移，并利用 SQLite `COUNT` 与 `COUNT(DISTINCT visitor_id)` 在 100 万行目标规模内完成。
+
+**索引升级约束**：先用既有索引完成 100 万行基准。只有基准失败且 query builder 优化不足时，才新增只含普通索引的 `002_add_analytics_query_indexes.sql`；SQLite 通过 `schema_migrations` 只执行未登记版本，因此绝不能修改已执行的 `001_create_analytics_events.sql` 来升级既有数据库。
 
 **拒绝方案**：应用层加载整个筛选范围后聚合。会绕过分页、增加内存和响应时间，无法满足规模目标。
 
@@ -111,7 +117,7 @@
 
 **决策**：从 010 的完整 monitoring OpenAPI 3.1 契约建立 011 权威版本，保持七个路径、operationId、统一 envelope 和错误代码；只修改 OverviewData、HeatmapCell、EventListData、VisitorSummary 相关 schema 与中文示例。实现完成后同步到 `shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`，并运行 Redocly lint、bundle、中文 docs 和前后端契约测试。
 
-**理由**：完整 OpenAPI 文件可独立 lint/bundle 和生成 UI，也明确展示兼容字段；相对补丁或说明文档不能作为运行时接口权威源。
+**理由**：完整 OpenAPI 文件可独立 lint/bundle 和生成 UI，也明确展示保留字段与 Heatmap 破坏性变更；相对补丁或说明文档不能作为运行时接口权威源。
 
 **拒绝方案**：只在 plan 中描述字段差异。无法被 lint、契约测试或生成 API UI 使用。
 

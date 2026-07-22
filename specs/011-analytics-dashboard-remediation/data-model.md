@@ -79,7 +79,7 @@ invalid custom selection ──→ inline validation error（不发请求）
 
 ## 5. DailyHeatmapCell（私有 API 读模型）
 
-替换旧 `weekday + hour` 结构。
+直接替换旧 `weekday + hour` 结构。011 不保留或双写旧 item schema；私有后端与 `dist-monitor` 必须原子升级，不能新旧混搭。
 
 | 字段 | 类型 | 规则 |
 |------|------|------|
@@ -169,5 +169,5 @@ invalid custom selection ──→ inline validation error（不发请求）
 
 - `analytics_events` 表结构不变。
 - 不新增汇总表、缓存表、清理表或备份记录。
-- 事件摘要复用现有筛选构建器与索引；如性能基准显示 `COUNT(DISTINCT visitor_id)` 超出 1 秒目标，只允许添加普通索引或重写查询，不改变只存明细原则。
+- 事件摘要先复用现有筛选构建器与索引；如性能基准显示 `COUNT(DISTINCT visitor_id)` 超出 1 秒目标，优先重写查询，仍不满足时只允许通过新的前向 `002_add_analytics_query_indexes.sql` 添加普通索引，不得修改已由 `schema_migrations` 记录的 `001_create_analytics_events.sql`，也不改变只存明细原则。
 - 日增不超过 1000、长期不超过 100 万明细的规模假设继续有效。
