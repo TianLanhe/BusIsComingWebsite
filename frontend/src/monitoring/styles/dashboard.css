@@ -7,7 +7,7 @@
 .monitor-brand small { color: #72a29e; font-size: var(--pulse-font-supporting); line-height: 13px; font-weight: 580; letter-spacing: .09em; text-transform: uppercase; }
 .nav-group { display: grid; gap: 4px; margin-top: 27px; }
 .nav-group p { margin: 0 10px 7px; color: #62827f; font-size: var(--pulse-font-supporting); font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
-.nav-group a { display: flex; align-items: center; gap: 11px; min-height: 40px; padding: 0 12px; border-radius: 10px; color: #8faeab; text-decoration: none; font-size: 12px; font-weight: 570; transition: color .15s, background .15s, transform .15s; }
+.nav-group a { display: flex; align-items: center; gap: 11px; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #8faeab; text-decoration: none; font-size: 12px; font-weight: 570; transition: color .15s, background .15s, transform .15s; }
 .nav-group a:hover { color: #e6f4f2; background: rgba(255,255,255,.045); transform: translateX(1px); }
 .nav-group a.active { color: white; background: linear-gradient(90deg, rgba(49,163,151,.22), rgba(49,163,151,.1)); box-shadow: inset 3px 0 #63c5b7; }
 .sidebar-status { display: grid; grid-template-columns: 24px 1fr; gap: 9px; align-items: start; padding: 14px 12px; margin-top: auto; border: 1px solid rgba(133,190,183,.12); border-radius: 13px; color: #9ab6b3; background: rgba(14,56,58,.45); font-size: var(--pulse-font-supporting); line-height: 15px; }

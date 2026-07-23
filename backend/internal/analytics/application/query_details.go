@@ -214,10 +214,14 @@ func (usecase *QueryDetails) Visitor(ctx context.Context, visitorID string, limi
 	if hasMore {
 		descending = descending[:limit]
 	}
+	selected := make(map[int64]struct{}, len(descending))
+	for _, event := range descending {
+		selected[event.EventID] = struct{}{}
+	}
 	return VisitorData{
 		GeneratedAt: usecase.now(), Timezone: "Asia/Hong_Kong",
-		// 调查时间线必须反映完整访客历史；分页只限制事件列表游标，不能截断 30 分钟会话边界。
-		Visitor: visitorSummary(events, int64(len(allSessions))), Sessions: selectedSessions(allSessions, nil),
+		// 摘要从完整历史派生；时间线只能返回当前 cursor 页面，避免私有接口隐式无上限返回。
+		Visitor: visitorSummary(events, int64(len(allSessions))), Sessions: selectedSessions(allSessions, selected),
 		PageInfo: pageInfo(limit, int64(len(events)), hasMore, descending),
 	}, nil
 }
@@ -699,16 +703,15 @@ func selectedSessions(sessions []domain.DerivedSession, selected map[int64]struc
 	for _, session := range sessions {
 		events := []domain.AnalyticsEvent{}
 		for _, event := range session.Events {
-			if selected == nil {
-				events = append(events, event)
-			} else if _, ok := selected[event.EventID]; ok {
+			if _, ok := selected[event.EventID]; ok {
 				events = append(events, event)
 			}
 		}
 		if len(events) == 0 {
 			continue
 		}
-		result = append(result, SessionDetail{Ordinal: session.Ordinal, StartedAt: events[0].OccurredAt, EndedAt: events[len(events)-1].OccurredAt, DurationMS: events[len(events)-1].OccurredAt.Sub(events[0].OccurredAt).Milliseconds(), EventCount: len(events), Events: eventDetails(events)})
+		// 会话元数据描述完整历史会话，cursor 只裁剪其中可见的事件明细。
+		result = append(result, SessionDetail{Ordinal: session.Ordinal, StartedAt: session.StartedAt, EndedAt: session.EndedAt, DurationMS: session.EndedAt.Sub(session.StartedAt).Milliseconds(), EventCount: len(session.Events), Events: eventDetails(events)})
 	}
 	return result
 }

@@ -198,9 +198,9 @@ npm --prefix frontend run test:e2e:monitor -- --reporter=line
 | 对照区块 | Figma `89:1310` / 契约要求 | 实现与证据 | 结果 |
 |---|---|---|---|
 | 访客四卡与偏好 | 首次出现、最后出现、会话、累计事件；语言、平台、装置 | `VisitorPage.test.tsx` 覆盖卡片顺序、无下载平台、完整 ID 复制与返回事件；页面保留事件构成与完整会话时间线。 | 通过 |
-| 完整历史与稳定并列 | 偏好依完整历史按稳定字符串顺序决出并列；无下载为 null；30 分钟会话不受分页影响 | Go 回归覆盖 locale/device/platform 并列、无下载 null、`limit=1` 时完整会话与构成仍来自全部历史。 | 通过 |
-| 三组七页导航 | 业务监控（总览/流量与试查/下载分析）、技术监控（稳定性及延迟/系统状态）、数据明细（事件明细/访客明细） | `DashboardShell` 单一 `navGroups` 驱动桌面侧栏、移动抽屉和三组底栏入口；accessibility test 断言七路由与当前页状态，mobile E2E 经抽屉到访客调查。 | 通过 |
-| 三语与双端视觉 | zh-Hans、zh-Hant、en；1440/390；无全页横向溢出；44px 操作 | `responsive-locales.spec.ts` 走过三语七页并保持筛选/调查对象；`investigation.spec.ts` 覆盖桌面和手机语言切换、日期与筛选保持；截图 `visitor-v13-desktop.png`、`visitor-v13-mobile.png` 对照 Figma System & Visitor Details / Mobile Observability 画板。 | 通过 |
+| 完整历史与稳定并列 | 偏好依完整历史按稳定字符串顺序决出并列；无下载为 null；timeline events 受 cursor/limit 限制 | Go 回归覆盖 locale/device/platform 并列、无下载 null、`limit=1` 第一页和第二页的真实 cursor、`pageInfo` 与单事件 timeline；`DerivedSession` 的开始、结束、时长和事件总数仍来自完整会话历史。 | 通过 |
+| 三组七页导航 | 业务监控（总览/流量与试查/下载分析）、技术监控（稳定性及延迟/系统状态）、数据明细（事件明细/访客明细） | `DashboardShell` 单一 `navGroups` 驱动桌面侧栏、移动抽屉和三组底栏入口；Playwright 在三语中真实点击桌面 7 链接、手机抽屉 7 链接及 3 个底栏入口，断言当前项和 44px 操作。 | 通过 |
+| 三语与双端视觉 | zh-Hans、zh-Hant、en；1440/390；无全页横向溢出；44px 操作 | `investigation.spec.ts` 覆盖桌面和手机的已应用日期、event/outcome、compare 未选中状态、未提交日期第 2 步、P50 和 Visitor 语言切换保持；截图 `visitor-v13-desktop.png`、`visitor-v13-mobile.png` 对照 Figma System & Visitor Details / Mobile Observability 画板。 | 通过 |
 
 执行命令：
 
@@ -209,14 +209,14 @@ go -C backend test ./...
 # passed
 
 npm --prefix frontend test
-# 42 files, 194 tests passed
+# 42 files, 195 tests passed
 
 npm --prefix frontend run build:monitor
 npm --prefix frontend run openapi:analytics:lint
 # passed；build 仅保留既有 bundle-size warning
 
 npm --prefix frontend run test:e2e:monitor -- --reporter=line
-# 35 passed, 1 skipped
+# 38 passed
 ```
 
 审查修复补充：SQLite 的 `row`、`today`、`size`、`version`、`journal`、`schema` 六个 probe 逐一注入失败，均验证其他事实仍可返回；`processStartedAt` 缺失时仍返回 Dropped。私有 host 接受 `127.0.0.1`、`localhost`、`::1` 与 IPv4-mapped loopback，统一规范化为 API 返回的实际 `127.0.0.1:19081`；拒绝 `127.0.0.1x`、通配地址、非 loopback 与畸形 host。System E2E 默认 fixture 覆盖 12 项全部可用，另覆盖局部缺失；页面以 B/KB/MB 与 zh-Hans 的秒/分钟/小时、zh-Hant 的秒/分鐘/小時、en 的 s/min/h 自适应显示，正数 1–499ms 显示为 `<1` 单位，并移除了壳层的静态监听器状态。

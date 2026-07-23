@@ -56,7 +56,7 @@ test("shows twelve system facts and degrades individual missing probes", async (
 test("preserves custom range, filters, language, visitor and workspace context through an investigation", async ({ page }, testInfo) => {
   await page.goto("/#overview");
   const simplified = testInfo.project.name.includes("desktop");
-  const labels = simplified ? { events: "事件明细", visitor: "访客明细", view: "查看访客", session: "会话 1", copy: "复制完整 ID", copied: "已复制完整匿名 ID" } : { events: "事件明細", visitor: "訪客明細", view: "查看訪客", session: "工作階段 1", copy: "複製完整 ID", copied: "已複製完整匿名 ID" };
+  const labels = simplified ? { events: "事件明细", visitor: "访客明细", view: "查看访客明细", session: "会话 1", copy: "复制完整 ID", copied: "已复制完整匿名 ID" } : { events: "事件明細", visitor: "訪客明細", view: "查看訪客明細", session: "工作階段 1", copy: "複製完整 ID", copied: "已複製完整匿名 ID" };
   await page.locator(".global-filters summary").click();
   await page.locator('input[type="date"]').nth(0).fill("2026-07-10");
   await page.locator('input[type="date"]').nth(1).fill("2026-07-20");
@@ -105,6 +105,41 @@ test("preserves custom range, filters, language, visitor and workspace context t
   await page.screenshot({ path: testInfo.project.name.includes("mobile") ? "playwright-monitor/__screenshots__/visitor-v13-mobile.png" : "playwright-monitor/__screenshots__/visitor-v13-desktop.png", fullPage: true });
   const path = testInfo.project.name.includes("desktop") ? "playwright-monitor/__screenshots__/investigation-zh-Hans-desktop.png" : "playwright-monitor/__screenshots__/investigation-zh-Hant-mobile.png";
   await page.screenshot({ path, fullPage: testInfo.project.name.includes("desktop") });
+});
+
+test("keeps applied filters, draft date step, percentile and page through a language switch", async ({ page }, testInfo) => {
+  const mobile = testInfo.project.name.includes("mobile");
+  const labels = mobile ? { filters: "篩選", apply: "套用日期", outcome: "失敗", event: "路線查詢", menu: "開啟導覽", performance: "穩定性及延遲", start: "開始日期" } : { filters: "筛选", apply: "应用日期", outcome: "失败", event: "路线查询", menu: "打开导航", performance: "稳定性 & 时延", start: "开始日期" };
+  await page.goto("/#overview");
+  await page.getByText(labels.filters, { exact: false }).first().click();
+  const dates = page.locator(".global-filters input[type='date']");
+  await dates.nth(0).fill("2026-07-10");
+  await dates.nth(1).fill("2026-07-20");
+  await page.getByRole("button", { name: labels.apply }).click();
+  await page.locator(".filter-group").filter({ hasText: labels.outcome }).getByRole("button", { name: labels.outcome }).click();
+  await page.locator(".filter-group").filter({ hasText: labels.event }).getByRole("button", { name: labels.event }).click();
+  await page.getByRole("checkbox").click();
+  if (mobile) {
+    await page.getByRole("button", { name: labels.menu }).click();
+    await page.getByRole("dialog").getByRole("link", { name: labels.performance }).click();
+  } else {
+    await page.getByTestId("desktop-sidebar").getByRole("link", { name: labels.performance }).click();
+  }
+  await page.getByRole("button", { name: "P50", exact: true }).click();
+  await page.getByRole("button", { name: /自定义日期|自訂日期/ }).click();
+  await page.getByRole("dialog", { name: mobile ? "日期範圍" : "日期范围" }).getByLabel(labels.start).fill("2026-07-12");
+  await page.getByLabel(/语言|語言/).selectOption("en");
+  await expect(page.getByRole("heading", { name: "Stability & latency" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "P50", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("dialog", { name: "Date range" })).toContainText("Step 2: choose an end date");
+  await expect(page.locator(".global-filters input[type='date']").nth(0)).toHaveValue("2026-07-10");
+  await expect(page.locator(".filter-count")).toHaveText("2");
+  await page.getByRole("dialog", { name: "Date range" }).getByRole("button", { name: "Cancel" }).click();
+  const filterPanel = page.locator(".global-filters");
+  const filterSummary = filterPanel.locator("summary");
+  if (await filterPanel.evaluate((element) => element.hasAttribute("open"))) await filterSummary.click();
+  await filterSummary.click();
+  await expect(page.getByRole("checkbox")).not.toBeChecked();
 });
 
 test("compares complete event ranges across pages and shows six traffic cards without changing the three-series trend", async ({ page }, testInfo) => {

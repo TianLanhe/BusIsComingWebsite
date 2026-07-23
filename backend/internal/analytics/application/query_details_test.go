@@ -270,8 +270,15 @@ func TestQueryDetailsVisitorUsesCompleteHistoryForCompositionAndCommonPlatform(t
 	if total != int64(len(events)) || len(result.Visitor.EventComposition) != 3 {
 		t.Fatalf("composition must use complete history: %#v", result.Visitor.EventComposition)
 	}
-	if result.PageInfo.TotalCount != int64(len(events)) || len(result.Sessions) != 1 || result.Sessions[0].EventCount != len(events) {
-		t.Fatalf("pagination must not change the complete session timeline: %#v", result)
+	if result.PageInfo.TotalCount != int64(len(events)) || !result.PageInfo.HasMore || result.PageInfo.NextCursor == nil || len(result.Sessions) != 1 || !result.Sessions[0].StartedAt.Equal(base) || !result.Sessions[0].EndedAt.Equal(base.Add(3*time.Minute)) || result.Sessions[0].EventCount != len(events) || result.Sessions[0].DurationMS != 3*time.Minute.Milliseconds() || len(result.Sessions[0].Events) != 1 || result.Sessions[0].Events[0].EventID != "4" {
+		t.Fatalf("visitor timeline must obey first-page pagination while summary uses complete history: %#v", result)
+	}
+	second, err := NewQueryDetails(&detailsStoreStub{visitorEvents: events}, nil, ClockFunc(time.Now), nil).Visitor(context.Background(), visitor, 1, *result.PageInfo.NextCursor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second.PageInfo.TotalCount != int64(len(events)) || !second.PageInfo.HasMore || second.PageInfo.NextCursor == nil || len(second.Sessions) != 1 || !second.Sessions[0].StartedAt.Equal(base) || !second.Sessions[0].EndedAt.Equal(base.Add(3*time.Minute)) || second.Sessions[0].EventCount != len(events) || second.Sessions[0].DurationMS != 3*time.Minute.Milliseconds() || second.Sessions[0].Events[0].EventID != "3" {
+		t.Fatalf("visitor second page must advance the cursor without expanding sessions: %#v", second)
 	}
 }
 
