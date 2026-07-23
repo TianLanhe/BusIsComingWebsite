@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BusIsComing 匿名访问统计监控 API
-  version: '2026-07-23'
+  version: '2026-07-24'
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -9,8 +9,9 @@ info:
     仅供服务器本机私有 Dashboard 查询匿名事件明细和按请求聚合结果。
     本 API 固定绑定 loopback，通过 SSH 隧道访问；不得注册到公开 Gin engine、Caddy 或公网路由。
     所有聚合均从允许字段的事件明细即时计算，不保存汇总结果。
-    本版本把热力图改为香港逐日桶，为事件分页增加完整筛选范围摘要，为访客增加事件构成和
-    可空常见平台，并为总览增加四类成功事件 P95；不新增端点或匿名采集字段。
+    本版本为事件摘要增加同期指标，为流量页增加主页、地点和路线六项 PV/UV 指标，为性能页
+    增加四类事件 SLI 与公开接口 P50/P95 同期比较，并扩展非敏感 SQLite 和进程运行快照。
+    不新增端点、事件类型、匿名采集字段或持久化表。
 servers:
   - url: http://127.0.0.1:18081
     description: 仅服务器本机可访问的私有监听器
@@ -24,8 +25,8 @@ tags:
     description: 下载请求、成功响应、平台和版本
   - name: 事件与访客
     description: 游标分页明细和匿名访客时间线
-  - name: 失败与性能
-    description: 脱敏失败类别及响应时间分位值
+  - name: 稳定性与时延
+    description: 脱敏失败类别、响应时间分位值、SLI 与公开接口同期比较
   - name: 系统状态
     description: SQLite、写入丢弃和私有监听器状态
 paths:
@@ -72,7 +73,9 @@ paths:
         - 流量与试查
       operationId: getAnalyticsTraffic
       summary: 查询主页流量与路线试查分析
-      description: 返回流量趋势、试查漏斗、香港逐日热力图以及语言、设备和来源分布。
+      description: |
+        返回主页、地点查询和路线查询的 PV/UV 指标、既有成功试查趋势、试查漏斗、香港逐日
+        热力图以及语言、设备和来源分布。六项 PV/UV 使用完整筛选范围，PV 包含成功与失败。
       parameters:
         - $ref: '#/components/parameters/From'
         - $ref: '#/components/parameters/To'
@@ -144,10 +147,12 @@ paths:
       description: |
         按 `(occurredAt DESC,eventId DESC)` 返回允许字段。完整 visitor ID 精确筛选只能通过
         `X-Analytics-Visitor-ID` header；不得提供导出、删除、编辑或无上限历史下载。
-        `summary` 使用与分页项目完全相同的筛选范围，但不受 limit 和 cursor 影响。
+        `summary` 和 `summaryMetrics` 使用与分页项目完全相同的筛选范围，但不受 limit 和 cursor
+        影响；`compare=true` 时四项指标包含紧邻当前范围之前的上一等长周期。
       parameters:
         - $ref: '#/components/parameters/From'
         - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/Compare'
         - $ref: '#/components/parameters/Locales'
         - $ref: '#/components/parameters/DeviceTypes'
         - $ref: '#/components/parameters/SourceTypes'
@@ -210,10 +215,12 @@ paths:
   /api/analytics/performance:
     get:
       tags:
-        - 失败与性能
+        - 稳定性与时延
       operationId: getAnalyticsPerformance
-      summary: 查询失败分类与公开接口性能
-      description: 返回四类公开统计入口的请求量、成功率、P50/P95、趋势和受控失败类别。
+      summary: 查询稳定性、时延与公开接口效能
+      description: |
+        返回四类公开统计入口的请求量、成功率、P50/P95、单分位趋势数据、SLI 成功率序列、
+        P50/P95 上一周期比较和受控失败类别。SLI 分母为 0 时 `successRate` 必须为空。
       parameters:
         - $ref: '#/components/parameters/From'
         - $ref: '#/components/parameters/To'
@@ -226,7 +233,7 @@ paths:
         - $ref: '#/components/parameters/EventTypes'
       responses:
         '200':
-          description: 失败与性能分析查询成功
+          description: 稳定性与时延分析查询成功
           headers:
             Cache-Control:
               $ref: '#/components/headers/NoStore'
@@ -247,9 +254,11 @@ paths:
       operationId: getAnalyticsSystemStatus
       summary: 查询匿名统计系统状态
       description: |
-        返回数据库、最后成功写入、进程启动以来的丢弃数量和私有监听器状态。
+        返回数据库明细数量、香港今日数量、主文件大小、SQLite 运行信息、最后成功写入、
+        进程启动/运行时长、启动以来丢弃数量和私有监听器状态。
         即使数据库不可用，本接口仍返回 200 和 `database.state=unavailable`，以便 Dashboard
-        解释公开主页、试查和下载不受影响。
+        解释公开主页、试查和下载不受影响。响应不得包含数据库绝对路径、客户端网络标识、
+        请求内容或内部错误原文。
       responses:
         '200':
           description: 系统状态查询成功；数据库状态可能为不可用
@@ -725,6 +734,9 @@ components:
         - previousValue
         - delta
         - deltaRate
+      description: |
+        当前与上一等长周期的可比较指标。`compare=false`、上一周期无样本或当前无样本时，
+        不适用字段为空；上一周期真实值为 0 时保留 0，`deltaRate` 为空以避免无穷百分比。
       properties:
         key:
           type: string
@@ -1015,6 +1027,10 @@ components:
           $ref: '#/components/schemas/AnalyticsMeta'
         metrics:
           type: array
+          description: |
+            至少包含 `pv`、`uv`、`placeQueryRequests`、`placeQueryVisitors`、
+            `routeQueryRequests`、`routeQueryVisitors` 六个稳定 key；地点和路线请求数包含成功
+            与失败。既有成功试查 Visitor key 继续保留。
           items:
             $ref: '#/components/schemas/Metric'
         series:
@@ -1242,6 +1258,7 @@ components:
       required:
         - meta
         - summary
+        - summaryMetrics
         - items
         - pageInfo
       properties:
@@ -1249,6 +1266,15 @@ components:
           $ref: '#/components/schemas/AnalyticsMeta'
         summary:
           $ref: '#/components/schemas/EventRangeSummary'
+        summaryMetrics:
+          type: array
+          minItems: 4
+          maxItems: 4
+          description: |
+            按 `totalCount`、`successCount`、`failureCount`、`uniqueVisitors` 稳定顺序
+            返回的完整筛选范围同期指标；当前值分别等于 `summary` 中对应值。
+          items:
+            $ref: '#/components/schemas/Metric'
         items:
           type: array
           items:
@@ -1286,8 +1312,10 @@ components:
           minimum: 1
         commonLocale:
           $ref: '#/components/schemas/Locale'
+          description: 完整访客历史中按出现次数和稳定并列规则派生的常见语言
         commonDeviceType:
           $ref: '#/components/schemas/DeviceType'
+          description: 完整访客历史中按出现次数和稳定并列规则派生的常见装置
         commonSourceType:
           $ref: '#/components/schemas/SourceType'
         eventComposition:
@@ -1356,6 +1384,37 @@ components:
         pageInfo:
           $ref: '#/components/schemas/PageInfo'
       additionalProperties: false
+    PercentileComparison:
+      type: object
+      required:
+        - currentMs
+        - previousMs
+        - deltaMs
+        - deltaRate
+      description: |
+        单个时延分位的当前与上一等长周期比较。上一周期为 0 时 `deltaMs` 有值、
+        `deltaRate` 为空；比较关闭或任一侧无样本时不适用字段为空。
+      properties:
+        currentMs:
+          type:
+            - integer
+            - 'null'
+          minimum: 0
+        previousMs:
+          type:
+            - integer
+            - 'null'
+          minimum: 0
+        deltaMs:
+          type:
+            - integer
+            - 'null'
+          description: 当前值减上一周期值
+        deltaRate:
+          type:
+            - number
+            - 'null'
+      additionalProperties: false
     EndpointPerformance:
       type: object
       required:
@@ -1364,7 +1423,9 @@ components:
         - requestCount
         - successRate
         - p50Ms
+        - p50Comparison
         - p95Ms
+        - p95Comparison
       properties:
         operationId:
           type: string
@@ -1389,11 +1450,15 @@ components:
             - integer
             - 'null'
           minimum: 0
+        p50Comparison:
+          $ref: '#/components/schemas/PercentileComparison'
         p95Ms:
           type:
             - integer
             - 'null'
           minimum: 0
+        p95Comparison:
+          $ref: '#/components/schemas/PercentileComparison'
       additionalProperties: false
     LatencySeriesPoint:
       type: object
@@ -1427,6 +1492,39 @@ components:
             - 'null'
           minimum: 0
       additionalProperties: false
+    SLISeriesPoint:
+      type: object
+      required:
+        - bucketStart
+        - bucketEnd
+        - eventType
+        - successfulPV
+        - totalPV
+        - successRate
+      description: 单个时间桶和事件类型的实际成功率，不代表 SLA 或承诺目标
+      properties:
+        bucketStart:
+          type: string
+          format: date-time
+        bucketEnd:
+          type: string
+          format: date-time
+        eventType:
+          $ref: '#/components/schemas/EventType'
+        successfulPV:
+          type: integer
+          minimum: 0
+        totalPV:
+          type: integer
+          minimum: 0
+        successRate:
+          type:
+            - number
+            - 'null'
+          minimum: 0
+          maximum: 1
+          description: '`successfulPV / totalPV`；`totalPV=0` 时必须为空'
+      additionalProperties: false
     PerformanceData:
       type: object
       required:
@@ -1434,6 +1532,7 @@ components:
         - metrics
         - endpoints
         - latencySeries
+        - sliSeries
         - failures
       properties:
         meta:
@@ -1450,6 +1549,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LatencySeriesPoint'
+        sliSeries:
+          type: array
+          description: 每个时间桶按四类事件稳定顺序返回；无请求桶的成功率为空
+          items:
+            $ref: '#/components/schemas/SLISeriesPoint'
         failures:
           type: array
           items:
@@ -1460,6 +1564,8 @@ components:
       required:
         - state
         - rowCount
+        - todayLocalDate
+        - todayRowCount
         - sizeBytes
         - lastSuccessfulWriteAt
       properties:
@@ -1474,6 +1580,16 @@ components:
             - integer
             - 'null'
           minimum: 0
+        todayLocalDate:
+          type: string
+          format: date
+          description: '`Asia/Hong_Kong` 当前自然日'
+        todayRowCount:
+          type:
+            - integer
+            - 'null'
+          minimum: 0
+          description: 香港当前自然日内的明细数量
         sizeBytes:
           type:
             - integer
@@ -1485,18 +1601,61 @@ components:
             - 'null'
           format: date-time
       additionalProperties: false
+    SQLiteRuntimeStatus:
+      type: object
+      required:
+        - version
+        - journalMode
+        - schemaVersion
+      properties:
+        version:
+          type:
+            - string
+            - 'null'
+          description: 服务端实际使用的 SQLite 运行库版本，不包含文件或构建路径
+        journalMode:
+          type:
+            - string
+            - 'null'
+          enum:
+            - delete
+            - truncate
+            - persist
+            - memory
+            - wal
+            - 'off'
+            - null
+        schemaVersion:
+          type:
+            - string
+            - 'null'
+          description: 当前已应用的最高 schema migration 版本
+      additionalProperties: false
     ProcessStatus:
       type: object
       required:
         - startedAt
+        - uptimeMs
         - droppedSinceStart
       properties:
         startedAt:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-        droppedSinceStart:
-          type: integer
+          description: 进程启动时刻；运行字段无法取得时为空
+        uptimeMs:
+          type:
+            - integer
+            - 'null'
           minimum: 0
+          description: 以同一次服务端生成时刻计算的进程运行毫秒数；无法取得时为空
+        droppedSinceStart:
+          type:
+            - integer
+            - 'null'
+          minimum: 0
+          description: 进程启动以来丢弃的事件数；无法取得时为空
       additionalProperties: false
     PrivateListenerStatus:
       type: object
@@ -1506,15 +1665,25 @@ components:
         - publicProxy
       properties:
         state:
-          type: string
+          type:
+            - string
+            - 'null'
           enum:
             - starting
             - available
             - unavailable
             - stopped
+            - null
+          description: 私有监听器状态；运行字段无法取得时为空
         bindAddress:
-          type: string
-          const: 127.0.0.1:18081
+          type:
+            - string
+            - 'null'
+          pattern: ^127\.0\.0\.1:[0-9]{1,5}$
+          example: 127.0.0.1:18081
+          description: |
+            服务实际使用的 loopback 监听地址，端口来自当前进程配置；无法取得时为空。
+            这是隐私哨兵唯一允许的 IP 字面量，不是客户端或事件来源网络标识。
         publicProxy:
           type: boolean
           const: false
@@ -1524,6 +1693,7 @@ components:
       required:
         - generatedAt
         - database
+        - sqlite
         - process
         - privateListener
       properties:
@@ -1532,6 +1702,8 @@ components:
           format: date-time
         database:
           $ref: '#/components/schemas/DatabaseStatus'
+        sqlite:
+          $ref: '#/components/schemas/SQLiteRuntimeStatus'
         process:
           $ref: '#/components/schemas/ProcessStatus'
         privateListener:
@@ -1641,5 +1813,5 @@ x-private-access:
   accessMethod: SSH local port forwarding
   cors: disabled
 x-contract-locations:
-  feature: specs/011-analytics-dashboard-remediation/contracts/analytics-monitoring-api.openapi.yaml
+  feature: specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml
   sharedPrimary: shared/contracts/openapi/analytics-monitoring-api.openapi.yaml

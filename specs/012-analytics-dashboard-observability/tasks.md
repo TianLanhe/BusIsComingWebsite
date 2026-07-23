@@ -18,10 +18,10 @@
 
 **目的**：把实现工具链切到 012 权威契约，并建立可追踪验证入口。
 
-- [ ] T001 将 analytics feature lint/bundle 路径从 011 切换到 012，保留 download/route 既有契约命令，路径：`frontend/package.json`
-- [ ] T002 [P] 将 analytics OpenAPI 契约测试的 featurePath 和标题切换到 012，保留既有 operation 基线断言；新增 schema 断言统一由 T005 编写，路径：`frontend/src/monitoring/services/analyticsContract.test.ts`
-- [ ] T003 将 `specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml` 单向同步到 `shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`，不得反向修改 feature 权威源
-- [ ] T004 [P] 建立 FR/SC→OpenAPI/Go/Vitest/Playwright/Figma/人工检查的验证矩阵，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T001 将 analytics feature lint/bundle 路径从 011 切换到 012，保留 download/route 既有契约命令，路径：`frontend/package.json`
+- [X] T002 [P] 将 analytics OpenAPI 契约测试的 featurePath 和标题切换到 012，保留既有 operation 基线断言；新增 schema 断言统一由 T005 编写，路径：`frontend/src/monitoring/services/analyticsContract.test.ts`
+- [X] T003 将 `specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml` 单向同步到 `shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`，不得反向修改 feature 权威源
+- [X] T004 [P] 建立 FR/SC→OpenAPI/Go/Vitest/Playwright/Figma/人工检查的验证矩阵，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 ---
 
@@ -32,18 +32,18 @@
 
 ### 基础测试与契约
 
-- [ ] T005 [P] 为 EventListData.summaryMetrics、Traffic 六项 key、PercentileComparison、SLISeriesPoint、SystemData.sqlite/uptime 和七个 operationId 编写先失败的结构测试，路径：`frontend/src/monitoring/services/analyticsContract.test.ts`
-- [ ] T006 [P] 扩展私有 API fixture，覆盖当前/上期、零基线、无样本、SLI 空桶、system 单字段 null、流量六卡和 visitor 无平台，路径：`frontend/playwright-monitor/fixtures/analytics.ts`、`frontend/playwright-monitor/fixtures/details.ts`
-- [ ] T007 [P] 为新增导航、日期步骤、比较七状态、分位、SLI、system、六卡和访客偏好 key 编写三语完整性先失败测试，路径：`frontend/src/monitoring/content/copy.test.ts`
-- [ ] T008 [P] 为 neutral/lower-is-better、持平、零基线、无上期、无当前和关闭比较编写先失败纯函数测试，路径：`frontend/src/monitoring/model/comparisonState.test.ts`
+- [X] T005 [P] 为 EventListData.summaryMetrics、Traffic 六项 key、PercentileComparison、SLISeriesPoint、SystemData.sqlite/uptime 和七个 operationId 编写先失败的结构测试，路径：`frontend/src/monitoring/services/analyticsContract.test.ts`
+- [X] T006 [P] 扩展私有 API fixture，覆盖当前/上期、零基线、无样本、SLI 空桶、system 单字段 null、流量六卡和 visitor 无平台，路径：`frontend/playwright-monitor/fixtures/analytics.ts`、`frontend/playwright-monitor/fixtures/details.ts`
+- [X] T007 [P] 为新增导航、日期步骤、比较七状态、分位、SLI、system、六卡和访客偏好 key 编写三语完整性先失败测试，路径：`frontend/src/monitoring/content/copy.test.ts`
+- [X] T008 [P] 为 neutral/lower-is-better、持平、零基线、无上期、无当前和关闭比较编写先失败纯函数测试，路径：`frontend/src/monitoring/model/comparisonState.test.ts`
 
 ### 基础实现
 
-- [ ] T009 按 012 OpenAPI 更新 EventListData、TrafficData、PercentileComparison、SLISeriesPoint、PerformanceData 和 SystemData TypeScript 类型，路径：`frontend/src/monitoring/services/analyticsTypes.ts`
-- [ ] T010 [P] 在三语类型中声明新导航、日期步骤、比较状态、P50/P95、SLI、system、流量六卡和访客偏好 key，路径：`frontend/src/monitoring/content/types.ts`
-- [ ] T011 实现七种 ComparisonViewState，并把变化方向与 neutral/lower-is-better 好坏策略分离；用中文注释解释零基线和反向语义，路径：`frontend/src/monitoring/model/comparisonState.ts`
-- [ ] T012 更新 MetricCard 公共 props 类型以支持 `count`、`percent`、`durationMs` 和好坏策略，但暂不改变各页面布局，路径：`frontend/src/monitoring/components/charts/MetricCard.tsx`
-- [ ] T013 运行 T005–T012 的 OpenAPI lint、契约、类型和纯函数测试，确认剩余失败只来自未实现用户故事，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T009 按 012 OpenAPI 更新 EventListData、TrafficData、PercentileComparison、SLISeriesPoint、PerformanceData 和 SystemData TypeScript 类型，路径：`frontend/src/monitoring/services/analyticsTypes.ts`
+- [X] T010 [P] 在三语类型中声明新导航、日期步骤、比较状态、P50/P95、SLI、system、流量六卡和访客偏好 key，路径：`frontend/src/monitoring/content/types.ts`
+- [X] T011 实现七种 ComparisonViewState，并把变化方向与 neutral/lower-is-better 好坏策略分离；用中文注释解释零基线和反向语义，路径：`frontend/src/monitoring/model/comparisonState.ts`
+- [X] T012 更新 MetricCard 公共 props 类型以支持 `count`、`percent`、`durationMs` 和好坏策略，但暂不改变各页面布局，路径：`frontend/src/monitoring/components/charts/MetricCard.tsx`
+- [X] T013 运行 T005–T012 的 OpenAPI lint、契约、类型和纯函数测试，确认剩余失败只来自未实现用户故事，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 **检查点**：012 契约、shared 源、TypeScript 类型、fixture、比较模型和三语 key 稳定，可以开始
 用户故事。

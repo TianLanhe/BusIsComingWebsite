@@ -24,6 +24,9 @@ const zhHans = {
   heatmapEvents: "事件总数", heatmapUv: "独立浏览器 UV", heatmapLess: "少", heatmapMore: "多",
   latencyByEvent: "各事件响应时间", noSuccessfulSamples: "暂无成功样本",
   apkMetadata: "APK 元数据", downloadResponseLatency: "下载响应",
+  businessMonitoring: "业务监控", technicalMonitoring: "技术监控", dataDetails: "数据明细", dateStepStart: "第 1 步：选择开始日期", dateStepEnd: "第 2 步：选择结束日期",
+  comparisonIncreased: "较上期增加", comparisonDecreased: "较上期减少", comparisonZeroBaseline: "上期为零，显示绝对变化", p95: "P95", sli: "实际成功率 SLI",
+  homepagePv: "主页浏览 PV", homepageUv: "主页浏览 UV", placeQueryPv: "地点查询 PV", placeQueryUv: "地点查询 UV", routeQueryPv: "路线查询 PV", routeQueryUv: "路线查询 UV",
 } as const;
 
 export type CopyKey = keyof typeof zhHans;
@@ -52,6 +55,9 @@ const zhHant: Record<CopyKey, string> = {
   heatmapEvents: "事件總數", heatmapUv: "獨立瀏覽器 UV", heatmapLess: "少", heatmapMore: "多",
   latencyByEvent: "各事件回應時間", noSuccessfulSamples: "暫無成功樣本",
   apkMetadata: "APK 元數據", downloadResponseLatency: "下載回應",
+  businessMonitoring: "業務監控", technicalMonitoring: "技術監控", dataDetails: "數據明細", dateStepStart: "第 1 步：選擇開始日期", dateStepEnd: "第 2 步：選擇結束日期",
+  comparisonIncreased: "較上期增加", comparisonDecreased: "較上期減少", comparisonZeroBaseline: "上期為零，顯示絕對變化", p95: "P95", sli: "實際成功率 SLI",
+  homepagePv: "主頁瀏覽 PV", homepageUv: "主頁瀏覽 UV", placeQueryPv: "地點查詢 PV", placeQueryUv: "地點查詢 UV", routeQueryPv: "路線查詢 PV", routeQueryUv: "路線查詢 UV",
 };
 
 const en: Record<CopyKey, string> = {
@@ -78,6 +84,9 @@ const en: Record<CopyKey, string> = {
   heatmapEvents: "Events", heatmapUv: "Unique browser UV", heatmapLess: "Less", heatmapMore: "More",
   latencyByEvent: "Latency by event", noSuccessfulSamples: "No successful samples",
   apkMetadata: "APK metadata", downloadResponseLatency: "Download response",
+  businessMonitoring: "Business monitoring", technicalMonitoring: "Technical monitoring", dataDetails: "Data detail", dateStepStart: "Step 1: choose a start date", dateStepEnd: "Step 2: choose an end date",
+  comparisonIncreased: "Increased from the previous period", comparisonDecreased: "Decreased from the previous period", comparisonZeroBaseline: "Previous period was zero; showing absolute change", p95: "P95", sli: "Actual success-rate SLI",
+  homepagePv: "Homepage PV", homepageUv: "Homepage UV", placeQueryPv: "Place-query PV", placeQueryUv: "Place-query UV", routeQueryPv: "Route-query PV", routeQueryUv: "Route-query UV",
 };
 
 export const monitoringCopyCatalog: Record<MonitoringLocale, Record<CopyKey, string>> = { "zh-Hant": zhHant, "zh-Hans": zhHans, en };

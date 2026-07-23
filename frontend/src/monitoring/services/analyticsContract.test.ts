@@ -14,12 +14,12 @@ type OpenApiDocument = {
   components: { schemas: Record<string, Schema> };
 };
 
-const featurePath = resolve(process.cwd(), "../specs/011-analytics-dashboard-remediation/contracts/analytics-monitoring-api.openapi.yaml");
+const featurePath = resolve(process.cwd(), "../specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml");
 const sharedPath = resolve(process.cwd(), "../shared/contracts/openapi/analytics-monitoring-api.openapi.yaml");
 const featureSource = readFileSync(featurePath, "utf8");
 const document = parse(featureSource) as OpenApiDocument;
 
-describe("011 monitoring OpenAPI contract", () => {
+describe("012 monitoring OpenAPI contract", () => {
   it("keeps the seven private operations stable", () => {
     const operations = Object.values(document.paths)
       .flatMap((path) => Object.values(path))
@@ -57,6 +57,18 @@ describe("011 monitoring OpenAPI contract", () => {
     expect(events.required).toContain("summary");
     expect(events.properties?.summary?.$ref).toBe("#/components/schemas/EventRangeSummary");
     expect(visitor.required).toEqual(expect.arrayContaining(["eventComposition", "commonPlatform"]));
+  });
+
+  it("defines the 012 event, traffic, performance, and nullable runtime additions", () => {
+    const schemas = document.components.schemas;
+
+    expect(schemas.EventListData.required).toContain("summaryMetrics");
+    expect(schemas.EventListData.properties?.summaryMetrics?.items?.$ref).toBe("#/components/schemas/Metric");
+    expect(schemas.TrafficData.properties?.metrics?.items?.$ref).toBe("#/components/schemas/Metric");
+    expect(schemas.PercentileComparison.required).toEqual(["currentMs", "previousMs", "deltaMs", "deltaRate"]);
+    expect(schemas.SLISeriesPoint.required).toEqual(["bucketStart", "bucketEnd", "eventType", "successfulPV", "totalPV", "successRate"]);
+    expect(schemas.PerformanceData.required).toContain("sliSeries");
+    expect(schemas.SystemData.required).toEqual(["generatedAt", "database", "sqlite", "process", "privateListener"]);
   });
 
   it("keeps the shared runtime contract byte-for-byte synchronized", () => {

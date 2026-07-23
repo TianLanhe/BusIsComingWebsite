@@ -56,6 +56,9 @@ export interface Metric {
   deltaRate: number | null;
 }
 
+export type TrafficMetricKey = "pv" | "uv" | "placeQueryRequests" | "placeQueryVisitors" | "routeQueryRequests" | "routeQueryVisitors";
+export type EventSummaryMetricKey = "totalCount" | "successCount" | "failureCount" | "uniqueVisitors";
+
 export interface TrafficSeriesPoint {
   bucketStart: string;
   bucketEnd: string;
@@ -132,11 +135,19 @@ export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx" | "aborted" | "unknown";
 export interface EventDetail { eventId: string; occurredAt: string; visitorId: string; eventType: EventType; outcome: Outcome; httpStatus: number | null; statusClass: StatusClass; failureCategory: string | null; durationMs: number; locale: AnalyticsLocale; deviceType: DeviceType; sourceType: SourceType; download: { platform: Platform; versionName: string | null; versionCode: number | null; sizeBytes: number | null } | null }
 export interface PageInfo { limit: number; nextCursor: string | null; hasMore: boolean; totalCount: number }
 export interface EventRangeSummary { totalCount: number; successCount: number; failureCount: number; uniqueVisitors: number }
-export interface EventListData { meta: AnalyticsMeta; summary: EventRangeSummary; items: EventDetail[]; pageInfo: PageInfo }
+export interface EventListData { meta: AnalyticsMeta; summary: EventRangeSummary; summaryMetrics: Metric[]; items: EventDetail[]; pageInfo: PageInfo }
 export interface VisitorSummary { visitorId: string; firstSeenAt: string; lastSeenAt: string; eventCount: number; sessionCount: number; commonLocale: AnalyticsLocale; commonDeviceType: DeviceType; commonSourceType: SourceType; eventComposition: DistributionPoint[]; commonPlatform: Platform | null }
 export interface DerivedSession { ordinal: number; startedAt: string; endedAt: string; durationMs: number; eventCount: number; events: EventDetail[] }
 export interface VisitorData { generatedAt: string; timezone: "Asia/Hong_Kong"; visitor: VisitorSummary; sessions: DerivedSession[]; pageInfo: PageInfo }
-export interface EndpointPerformance { operationId: "getLatestAndroidApkMetadata" | "queryRoutePlaces" | "queryRouteOptions" | "downloadLatestAndroidApk"; eventType: EventType; requestCount: number; successRate: number | null; p50Ms: number | null; p95Ms: number | null }
+export interface PercentileComparison { currentMs: number | null; previousMs: number | null; deltaMs: number | null; deltaRate: number | null }
+export interface EndpointPerformance { operationId: "getLatestAndroidApkMetadata" | "queryRoutePlaces" | "queryRouteOptions" | "downloadLatestAndroidApk"; eventType: EventType; requestCount: number; successRate: number | null; p50Ms: number | null; p50Comparison: PercentileComparison; p95Ms: number | null; p95Comparison: PercentileComparison }
 export interface LatencySeriesPoint { bucketStart: string; bucketEnd: string; eventType: EventType; requestCount: number; p50Ms: number | null; p95Ms: number | null }
-export interface PerformanceData { meta: AnalyticsMeta; metrics: Metric[]; endpoints: EndpointPerformance[]; latencySeries: LatencySeriesPoint[]; failures: DistributionPoint[] }
-export interface SystemData { generatedAt: string; database: { state: "available" | "degraded" | "unavailable"; rowCount: number | null; sizeBytes: number | null; lastSuccessfulWriteAt: string | null }; process: { startedAt: string; droppedSinceStart: number }; privateListener: { state: "starting" | "available" | "unavailable" | "stopped"; bindAddress: "127.0.0.1:18081"; publicProxy: false } }
+export interface SLISeriesPoint { bucketStart: string; bucketEnd: string; eventType: EventType; successfulPV: number; totalPV: number; successRate: number | null }
+export interface PerformanceData { meta: AnalyticsMeta; metrics: Metric[]; endpoints: EndpointPerformance[]; latencySeries: LatencySeriesPoint[]; sliSeries: SLISeriesPoint[]; failures: DistributionPoint[] }
+export interface SystemData {
+  generatedAt: string;
+  database: { state: "available" | "degraded" | "unavailable"; rowCount: number | null; todayLocalDate: string; todayRowCount: number | null; sizeBytes: number | null; lastSuccessfulWriteAt: string | null };
+  sqlite: { version: string | null; journalMode: "delete" | "truncate" | "persist" | "memory" | "wal" | "off" | null; schemaVersion: string | null };
+  process: { startedAt: string | null; uptimeMs: number | null; droppedSinceStart: number | null };
+  privateListener: { state: "starting" | "available" | "unavailable" | "stopped" | null; bindAddress: string | null; publicProxy: false };
+}

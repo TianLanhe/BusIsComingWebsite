@@ -54,4 +54,21 @@ describe("monitoring copy completeness", () => {
       for (const key of detailKeys) expect(detailCopy[locale]).toHaveProperty(key);
     }
   });
+
+  it("covers the 012 navigation, date-flow, comparison, performance, traffic, system, and visitor keys", () => {
+    const overviewKeys = [
+      "businessMonitoring", "technicalMonitoring", "dataDetails", "dateStepStart", "dateStepEnd",
+      "comparisonIncreased", "comparisonDecreased", "comparisonZeroBaseline", "p50", "p95", "sli",
+      "homepagePv", "homepageUv", "placeQueryPv", "placeQueryUv", "routeQueryPv", "routeQueryUv",
+    ] as const;
+    const detailKeys = [
+      "sqliteVersion", "journalMode", "schemaVersion", "todayRowCount", "processUptime",
+      "visitorPreferences", "commonPlatform", "commonDevice", "commonLocale",
+    ] as const;
+
+    for (const locale of locales) {
+      for (const key of overviewKeys) expect(monitoringCopyCatalog[locale]).toHaveProperty(key);
+      for (const key of detailKeys) expect(detailCopy[locale]).toHaveProperty(key);
+    }
+  });
 });

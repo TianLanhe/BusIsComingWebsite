@@ -45,7 +45,7 @@ export function PerformancePage({ loadPerformance = fetchPerformance, loadSystem
   </DashboardShell>;
 }
 
-function valueMetric(key: string, value: number): Metric { return { key, value, previousValue: null, delta: null, deltaRate: null }; }
+function valueMetric(key: string, value: number | null): Metric { return { key, value, previousValue: null, delta: null, deltaRate: null }; }
 function formatMS(value: number | null, locale: string) { return value == null ? "—" : `${new Intl.NumberFormat(locale).format(value)} ms`; }
 
 function latencyChart(data: PerformanceData | null, locale: "zh-Hans" | "zh-Hant" | "en") {

@@ -20,4 +20,4 @@ describe("SystemPage", () => {
   });
 });
 
-function system(): SystemData { return { generatedAt: "2026-07-21T01:00:00Z", database: { state: "available", rowCount: 100, sizeBytes: 4096, lastSuccessfulWriteAt: "2026-07-21T00:59:00Z" }, process: { startedAt: "2026-07-20T00:00:00Z", droppedSinceStart: 2 }, privateListener: { state: "available", bindAddress: "127.0.0.1:18081", publicProxy: false } }; }
+function system(): SystemData { return { generatedAt: "2026-07-21T01:00:00Z", database: { state: "available", rowCount: 100, todayLocalDate: "2026-07-21", todayRowCount: 2, sizeBytes: 4096, lastSuccessfulWriteAt: "2026-07-21T00:59:00Z" }, sqlite: { version: "3.50.4", journalMode: "wal", schemaVersion: "001" }, process: { startedAt: "2026-07-20T00:00:00Z", uptimeMs: 2, droppedSinceStart: 2 }, privateListener: { state: "available", bindAddress: "127.0.0.1:18081", publicProxy: false } }; }
