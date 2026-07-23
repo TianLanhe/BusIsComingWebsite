@@ -140,33 +140,33 @@ Visitor 的 fixture 验证六卡及趋势口径。
 
 ### 用户故事 3 的后端测试
 
-- [ ] T045 [P] [US3] 为 events 当前/上一 summaryMetrics 共用全部筛选、Visitor header、cursor/limit 不影响摘要和无上期 null 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
-- [ ] T046 [P] [US3] 为 SummarizeEvents 复用 query builder、COUNT DISTINCT、当前/上一范围和 query plan 编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_events_visitor_test.go`
-- [ ] T047 [US3] 在 T045 完成后，为地点/路线 PV 包含失败、各自 UV 完整范围去重和既有成功 Visitor key 不变编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
-- [ ] T048 [P] [US3] 为 events compare 参数解析、summaryMetrics 响应和七路由不变编写先失败 HTTP 测试；新建 parser 测试文件，不在测试阶段修改生产 parser，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/query_parser_test.go`
+- [X] T045 [P] [US3] 为 events 当前/上一 summaryMetrics 共用全部筛选、Visitor header、cursor/limit 不影响摘要和无上期 null 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [X] T046 [P] [US3] 为 SummarizeEvents 复用 query builder、COUNT DISTINCT、当前/上一范围和 query plan 编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_events_visitor_test.go`
+- [X] T047 [US3] 在 T045 完成后，为地点/路线 PV 包含失败、各自 UV 完整范围去重和既有成功 Visitor key 不变编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [X] T048 [P] [US3] 为 events compare 参数解析、summaryMetrics 响应和七路由不变编写先失败 HTTP 测试；新建 parser 测试文件，不在测试阶段修改生产 parser，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/query_parser_test.go`
 
 ### 用户故事 3 的前端测试
 
-- [ ] T049 [P] [US3] 为事件四卡比较七状态、失败反向语义、翻页不改变卡片和 compare 关闭编写先失败测试，路径：`frontend/src/monitoring/pages/EventsPage.test.tsx`
-- [ ] T050 [P] [US3] 为主页/地点/路线六卡、PV/UV 标签和既有三序列趋势编写先失败测试，路径：`frontend/src/monitoring/pages/DetailPages.test.tsx`
-- [ ] T051 [US3] 编写事件翻页/比较切换、六卡和既有趋势不变的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/investigation.spec.ts`、`frontend/playwright-monitor/charts.spec.ts`
+- [X] T049 [P] [US3] 为事件四卡比较七状态、失败反向语义、翻页不改变卡片和 compare 关闭编写先失败测试，路径：`frontend/src/monitoring/pages/EventsPage.test.tsx`
+- [X] T050 [P] [US3] 为主页/地点/路线六卡、PV/UV 标签和既有三序列趋势编写先失败测试，路径：`frontend/src/monitoring/pages/DetailPages.test.tsx`
+- [X] T051 [US3] 编写事件翻页/比较切换、六卡和既有趋势不变的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/investigation.spec.ts`、`frontend/playwright-monitor/charts.spec.ts`
 
 ### 用户故事 3 的后端实现
 
-- [ ] T052 [US3] 增加 EventListData.summaryMetrics 和独立 SummarizeEvents port，保持当前 summary/pageInfo 字段，路径：`backend/internal/analytics/application/dto.go`、`backend/internal/analytics/application/ports.go`
-- [ ] T053 [US3] 复用时间、事件、结果、语言、设备、来源、平台、版本和 Visitor header 条件实现不带 cursor/limit 的摘要查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`、`backend/internal/analytics/infrastructure/sqlite/query_events_visitor.go`
-- [ ] T054 [US3] 编排 events 当前/上一摘要并构造四个 Metric；用中文注释说明分页隔离与无样本语义，路径：`backend/internal/analytics/application/query_details.go`
-- [ ] T055 [US3] 扩展 trafficMetricValues 返回 placeQueryVisitors/routeQueryVisitors，同时保留成功 Visitor 和趋势口径，路径：`backend/internal/analytics/application/query_details.go`
-- [ ] T056 [US3] 允许 events 消费既有 compare 参数并保持 cursor/header/error/no-store 行为，路径：`backend/internal/analytics/interfaces/http/query_parser.go`、`backend/internal/analytics/interfaces/http/detail_handlers.go`
+- [X] T052 [US3] 增加 EventListData.summaryMetrics 和独立 SummarizeEvents port，保持当前 summary/pageInfo 字段，路径：`backend/internal/analytics/application/dto.go`、`backend/internal/analytics/application/ports.go`
+- [X] T053 [US3] 复用时间、事件、结果、语言、设备、来源、平台、版本和 Visitor header 条件实现不带 cursor/limit 的摘要查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`、`backend/internal/analytics/infrastructure/sqlite/query_events_visitor.go`
+- [X] T054 [US3] 编排 events 当前/上一摘要并构造四个 Metric；用中文注释说明分页隔离与无样本语义，路径：`backend/internal/analytics/application/query_details.go`
+- [X] T055 [US3] 扩展 trafficMetricValues 返回 placeQueryVisitors/routeQueryVisitors，同时保留成功 Visitor 和趋势口径，路径：`backend/internal/analytics/application/query_details.go`
+- [X] T056 [US3] 允许 events 消费既有 compare 参数并保持 cursor/header/error/no-store 行为，路径：`backend/internal/analytics/interfaces/http/query_parser.go`、`backend/internal/analytics/interfaces/http/detail_handlers.go`
 
 ### 用户故事 3 的前端实现
 
-- [ ] T057 [US3] 更新 client 类型映射并停止 EventsPage 强制 compare=false，路径：`frontend/src/monitoring/services/analyticsDetailsClient.ts`、`frontend/src/monitoring/pages/EventsPage.tsx`
-- [ ] T058 [US3] 用 summaryMetrics 渲染事件四卡和失败好坏语义，保持桌面/手机明细与分页，路径：`frontend/src/monitoring/pages/EventsPage.tsx`
-- [ ] T059 [US3] 将 TrafficPage 顶部改为主页/地点/路线六卡，保留主页 PV、主页 UV、成功路线 UV 三序列，路径：`frontend/src/monitoring/pages/TrafficPage.tsx`
-- [ ] T060 [P] [US3] 补齐筛选结果/成功/失败/独立访客和六项 PV/UV 的三语自然文案与匿名浏览器说明，路径：`frontend/src/monitoring/content/copy.ts`
-- [ ] T061 [US3] 实现事件四卡与流量六卡的 1440 六列、390 两列/单列和比较状态样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/responsive.css`
-- [ ] T062 [US3] 运行 US3 Go/Vitest/Playwright 并保存事件/流量三语双端证据，对照 Figma `89:1310` Business & Event Metrics 画板记录结果，路径：`frontend/playwright-monitor/__screenshots__/business-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/business-v13-mobile.png`、`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T057 [US3] 更新 client 类型映射并停止 EventsPage 强制 compare=false，路径：`frontend/src/monitoring/services/analyticsDetailsClient.ts`、`frontend/src/monitoring/pages/EventsPage.tsx`
+- [X] T058 [US3] 用 summaryMetrics 渲染事件四卡和失败好坏语义，保持桌面/手机明细与分页，路径：`frontend/src/monitoring/pages/EventsPage.tsx`
+- [X] T059 [US3] 将 TrafficPage 顶部改为主页/地点/路线六卡，保留主页 PV、主页 UV、成功路线 UV 三序列，路径：`frontend/src/monitoring/pages/TrafficPage.tsx`
+- [X] T060 [P] [US3] 补齐筛选结果/成功/失败/独立访客和六项 PV/UV 的三语自然文案与匿名浏览器说明，路径：`frontend/src/monitoring/content/copy.ts`
+- [X] T061 [US3] 实现事件四卡与流量六卡的 1440 六列、390 两列/单列和比较状态样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/responsive.css`
+- [X] T062 [US3] 运行 US3 Go/Vitest/Playwright 并保存事件/流量三语双端证据，对照 Figma `89:1310` Business & Event Metrics 画板记录结果，路径：`frontend/playwright-monitor/__screenshots__/business-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/business-v13-mobile.png`、`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 **检查点**：US3 可独立区分事件量和独立 Visitor 变化，分页与趋势口径均可信。
 

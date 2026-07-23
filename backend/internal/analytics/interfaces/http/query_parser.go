@@ -90,7 +90,6 @@ func parseDetailsQuery(values url.Values, allowPagination bool) (domain.Analytic
 		return domain.AnalyticsQuery{}, err
 	}
 	if allowPagination {
-		query.Compare = false
 		if raw := values.Get("limit"); raw != "" {
 			if len(values["limit"]) != 1 {
 				return domain.AnalyticsQuery{}, fmt.Errorf("invalid limit")

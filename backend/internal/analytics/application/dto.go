@@ -101,10 +101,11 @@ type EventRangeSummary struct {
 }
 
 type EventListData struct {
-	Meta     AnalyticsMeta     `json:"meta"`
-	Summary  EventRangeSummary `json:"summary"`
-	Items    []EventDetail     `json:"items"`
-	PageInfo PageInfo          `json:"pageInfo"`
+	Meta           AnalyticsMeta     `json:"meta"`
+	Summary        EventRangeSummary `json:"summary"`
+	SummaryMetrics []domain.Metric   `json:"summaryMetrics"`
+	Items          []EventDetail     `json:"items"`
+	PageInfo       PageInfo          `json:"pageInfo"`
 }
 
 type VisitorSummaryData struct {

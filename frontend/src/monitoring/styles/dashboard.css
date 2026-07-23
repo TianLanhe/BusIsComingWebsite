@@ -164,7 +164,7 @@
 .workspace-placeholder h2 { margin: 0; }
 .workspace-placeholder p { color: var(--pulse-muted); }
 .mobile-drawer, .mobile-bottom-nav { display: none; }
-.detail-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.detail-metrics { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .detail-grid-2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 12px; margin-top: 12px; }
 .detail-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
 .dimension-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 7px; }

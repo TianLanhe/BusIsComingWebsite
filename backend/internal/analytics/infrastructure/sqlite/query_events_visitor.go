@@ -52,6 +52,20 @@ func (store *Store) ListEvents(ctx context.Context, request analyticsapp.EventLi
 	return analyticsapp.StoredEventPage{Items: items, Summary: summary, HasMore: hasMore}, nil
 }
 
+func (store *Store) SummarizeEvents(ctx context.Context, request analyticsapp.EventSummaryRequest) (analyticsapp.EventRangeSummary, error) {
+	base := newEventQueryBuilder(request.Query.From, request.Query.To)
+	addEventFilters(base, request.Query)
+	if request.VisitorID != "" {
+		base.addEqual("visitor_id", request.VisitorID)
+	}
+	query, arguments := base.summarySQL()
+	var summary analyticsapp.EventRangeSummary
+	if err := store.db.QueryRowContext(ctx, query, arguments...).Scan(&summary.TotalCount, &summary.SuccessCount, &summary.FailureCount, &summary.UniqueVisitors); err != nil {
+		return analyticsapp.EventRangeSummary{}, fmt.Errorf("summarize analytics events: %w", err)
+	}
+	return summary, nil
+}
+
 func (store *Store) LoadVisitorEvents(ctx context.Context, visitorID string) ([]domain.AnalyticsEvent, error) {
 	query := "SELECT " + eventColumns + " FROM analytics_events WHERE visitor_id = ? ORDER BY occurred_at_ms ASC, id ASC"
 	rows, err := store.db.QueryContext(ctx, query, visitorID)

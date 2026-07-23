@@ -69,7 +69,7 @@ func (usecase *QueryDetails) Traffic(ctx context.Context, query domain.Analytics
 	}
 	return TrafficData{
 		Meta:    metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()),
-		Metrics: buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"pv", "uv", "successfulPlaceVisitors", "successfulRouteVisitors", "placeQueryRequests", "routeQueryRequests"}, previousAvailable),
+		Metrics: buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"pv", "uv", "placeQueryRequests", "placeQueryVisitors", "routeQueryRequests", "routeQueryVisitors", "successfulPlaceVisitors", "successfulRouteVisitors"}, previousAvailable),
 		Series:  current.trafficSeries, TrialFunnel: current.trialFunnel, Heatmap: trafficHeatmap(currentScope.traffic, query.From, query.To),
 		Locales: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.Locale) }),
 		Devices: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.DeviceType) }),
@@ -129,21 +129,43 @@ func (usecase *QueryDetails) Events(ctx context.Context, query domain.AnalyticsQ
 	if usecase.store == nil {
 		return EventListData{}, ErrStorageUnavailable
 	}
+	// 摘要在完整筛选范围上独立计算；分页只影响下方明细，不能改变四张指标卡。
+	summaryQuery := query
+	summaryQuery.Cursor, summaryQuery.Limit = "", 0
+	summary, err := usecase.store.SummarizeEvents(ctx, EventSummaryRequest{Query: summaryQuery, VisitorID: visitorID})
+	if err != nil {
+		return EventListData{}, fmt.Errorf("%w: summarize events", ErrStorageUnavailable)
+	}
 	page, err := usecase.store.ListEvents(ctx, EventListRequest{Query: query, VisitorID: visitorID, Cursor: cursor, Limit: limit})
 	if err != nil {
 		return EventListData{}, fmt.Errorf("%w: list events", ErrStorageUnavailable)
 	}
 	state := domain.QueryReady
-	if page.Summary.TotalCount == 0 {
+	if summary.TotalCount == 0 {
 		if hasEventFilters(query) || visitorID != "" {
 			state = domain.QueryNoResults
 		} else {
 			state = domain.QueryNoData
 		}
 	}
+	var previous EventRangeSummary
+	previousAvailable := false
+	var comparisonFrom, comparisonTo *time.Time
+	if query.Compare {
+		from, to := domain.PreviousRange(query.From, query.To)
+		previousQuery := summaryQuery
+		previousQuery.From, previousQuery.To = from, to
+		previous, err = usecase.store.SummarizeEvents(ctx, EventSummaryRequest{Query: previousQuery, VisitorID: visitorID})
+		if err != nil {
+			return EventListData{}, fmt.Errorf("%w: summarize previous events", ErrStorageUnavailable)
+		}
+		previousAvailable = previous.TotalCount > 0
+		comparisonFrom, comparisonTo = &from, &to
+	}
 	return EventListData{
-		Meta: metaFor(query, state, nil, nil, usecase.now()), Summary: page.Summary, Items: eventDetails(page.Items),
-		PageInfo: pageInfo(limit, page.Summary.TotalCount, page.HasMore, page.Items),
+		Meta: metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()), Summary: summary,
+		SummaryMetrics: eventSummaryMetrics(summary, previous, query.Compare, state, previousAvailable), Items: eventDetails(page.Items),
+		PageInfo: pageInfo(limit, summary.TotalCount, page.HasMore, page.Items),
 	}, nil
 }
 
@@ -304,6 +326,7 @@ func queryState(rawCount, filteredCount int) domain.QueryState {
 
 func trafficMetricValues(events []domain.AnalyticsEvent) map[string]float64 {
 	pageVisitors, placeVisitors, routeVisitors := map[string]struct{}{}, map[string]struct{}{}, map[string]struct{}{}
+	placeAllVisitors, routeAllVisitors := map[string]struct{}{}, map[string]struct{}{}
 	var pv, placeRequests, routeRequests int64
 	for _, event := range events {
 		switch event.EventType {
@@ -312,17 +335,25 @@ func trafficMetricValues(events []domain.AnalyticsEvent) map[string]float64 {
 			pageVisitors[event.VisitorID] = struct{}{}
 		case domain.EventPlaceQuery:
 			placeRequests++
+			placeAllVisitors[event.VisitorID] = struct{}{}
 			if event.Outcome == domain.OutcomeSuccess {
 				placeVisitors[event.VisitorID] = struct{}{}
 			}
 		case domain.EventRouteQuery:
 			routeRequests++
+			routeAllVisitors[event.VisitorID] = struct{}{}
 			if event.Outcome == domain.OutcomeSuccess {
 				routeVisitors[event.VisitorID] = struct{}{}
 			}
 		}
 	}
-	return map[string]float64{"pv": float64(pv), "uv": float64(len(pageVisitors)), "successfulPlaceVisitors": float64(len(placeVisitors)), "successfulRouteVisitors": float64(len(routeVisitors)), "placeQueryRequests": float64(placeRequests), "routeQueryRequests": float64(routeRequests)}
+	return map[string]float64{"pv": float64(pv), "uv": float64(len(pageVisitors)), "successfulPlaceVisitors": float64(len(placeVisitors)), "successfulRouteVisitors": float64(len(routeVisitors)), "placeQueryRequests": float64(placeRequests), "placeQueryVisitors": float64(len(placeAllVisitors)), "routeQueryRequests": float64(routeRequests), "routeQueryVisitors": float64(len(routeAllVisitors))}
+}
+
+func eventSummaryMetrics(current, previous EventRangeSummary, compare bool, state domain.QueryState, previousAvailable bool) []domain.Metric {
+	currentValues := map[string]float64{"totalCount": float64(current.TotalCount), "successCount": float64(current.SuccessCount), "failureCount": float64(current.FailureCount), "uniqueVisitors": float64(current.UniqueVisitors)}
+	previousValues := map[string]float64{"totalCount": float64(previous.TotalCount), "successCount": float64(previous.SuccessCount), "failureCount": float64(previous.FailureCount), "uniqueVisitors": float64(previous.UniqueVisitors)}
+	return buildMetricsForKeys(currentValues, previousValues, compare, state, []string{"totalCount", "successCount", "failureCount", "uniqueVisitors"}, previousAvailable)
 }
 
 func downloadMetricValues(events []domain.AnalyticsEvent) map[string]float64 {

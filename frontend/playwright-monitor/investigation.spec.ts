@@ -75,3 +75,33 @@ test("preserves custom range, filters, language, visitor and workspace context t
   const path = testInfo.project.name.includes("desktop") ? "playwright-monitor/__screenshots__/investigation-zh-Hans-desktop.png" : "playwright-monitor/__screenshots__/investigation-zh-Hant-mobile.png";
   await page.screenshot({ path, fullPage: testInfo.project.name.includes("desktop") });
 });
+
+test("compares complete event ranges across pages and shows six traffic cards without changing the three-series trend", async ({ page }, testInfo) => {
+  const traditional = testInfo.project.name.includes("mobile");
+  const labels = traditional
+    ? { events: "事件明細", traffic: "流量與試查", total: "完整時段事件", failed: "失敗事件", homepagePv: "主頁瀏覽 PV", homepageUv: "主頁瀏覽 UV", placePv: "地點查詢 PV", placeUv: "地點查詢 UV", routePv: "路線查詢 PV", routeUv: "路線查詢 UV", comparison: "比較上期" }
+    : { events: "事件明细", traffic: "流量与试查", total: "完整范围事件", failed: "失败事件", homepagePv: "主页浏览 PV", homepageUv: "主页浏览 UV", placePv: "地点查询 PV", placeUv: "地点查询 UV", routePv: "路线查询 PV", routeUv: "路线查询 UV", comparison: "对比上期" };
+  await page.goto("/#events");
+  await expect(page.getByRole("heading", { name: labels.events })).toBeVisible();
+  await expect(page.locator(".event-summary-grid [data-testid='metric-card']")).toHaveCount(4);
+  await expect(page.locator(".event-summary-grid")).toContainText(labels.total);
+  await expect(page.locator(".event-summary-grid")).toContainText(labels.failed);
+  await expect(page.locator(".event-summary-grid")).toContainText(labels.comparison);
+  await expect(page.getByRole("button", { name: traditional ? "下一頁" : "下一页" })).toBeDisabled();
+  const trafficLink = testInfo.project.name.includes("desktop")
+    ? page.getByTestId("desktop-sidebar").getByRole("link", { name: labels.traffic })
+    : page.getByTestId("mobile-bottom-nav").getByRole("link", { name: labels.traffic });
+  await trafficLink.click();
+  await expect(page.getByRole("heading", { name: labels.traffic })).toBeVisible();
+  for (const label of [labels.homepagePv, labels.homepageUv, labels.placePv, labels.placeUv, labels.routePv, labels.routeUv]) {
+    await expect(page.locator(".detail-metrics")).toContainText(label);
+  }
+  await expect(page.locator(".detail-metrics [data-testid='metric-card']")).toHaveCount(6);
+  await expect(page.getByRole("list", { name: traditional ? "圖例" : "图例" })).toContainText(traditional ? "成功路線查詢 UV" : "成功路线查询 UV");
+  if (traditional) {
+    const width = await page.evaluate(() => ({ viewport: window.innerWidth, document: document.documentElement.scrollWidth }));
+    expect(width.document).toBe(width.viewport);
+  }
+  const path = traditional ? "playwright-monitor/__screenshots__/business-v13-mobile.png" : "playwright-monitor/__screenshots__/business-v13-desktop.png";
+  await page.screenshot({ path, fullPage: true });
+});

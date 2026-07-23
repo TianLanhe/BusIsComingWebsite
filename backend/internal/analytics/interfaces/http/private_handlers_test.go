@@ -49,8 +49,9 @@ func TestPrivateEventAndVisitorResponsesExposeOnly011ContractFields(t *testing.T
 	platform := domain.PlatformAndroid
 	stub := detailsQueryStub{
 		events: analyticsapp.EventListData{
-			Summary:  analyticsapp.EventRangeSummary{TotalCount: 4, SuccessCount: 3, FailureCount: 1, UniqueVisitors: 2},
-			PageInfo: analyticsapp.PageInfo{Limit: 50, TotalCount: 4},
+			Summary:        analyticsapp.EventRangeSummary{TotalCount: 4, SuccessCount: 3, FailureCount: 1, UniqueVisitors: 2},
+			SummaryMetrics: []domain.Metric{{Key: "totalCount"}, {Key: "successCount"}, {Key: "failureCount"}, {Key: "uniqueVisitors"}},
+			PageInfo:       analyticsapp.PageInfo{Limit: 50, TotalCount: 4},
 		},
 		visitor: analyticsapp.VisitorData{Visitor: analyticsapp.VisitorSummaryData{
 			VisitorID: visitorID, EventCount: 4, SessionCount: 2,
@@ -64,7 +65,7 @@ func TestPrivateEventAndVisitorResponsesExposeOnly011ContractFields(t *testing.T
 
 	eventsResponse := httptest.NewRecorder()
 	engine.ServeHTTP(eventsResponse, httptest.NewRequest(http.MethodGet, "/api/analytics/events"+query, nil))
-	if eventsResponse.Code != http.StatusOK || !strings.Contains(eventsResponse.Body.String(), `"summary"`) || !strings.Contains(eventsResponse.Body.String(), `"uniqueVisitors":2`) {
+	if eventsResponse.Code != http.StatusOK || !strings.Contains(eventsResponse.Body.String(), `"summary"`) || !strings.Contains(eventsResponse.Body.String(), `"summaryMetrics"`) || !strings.Contains(eventsResponse.Body.String(), `"uniqueVisitors":2`) {
 		t.Fatalf("events response does not match 011: %d %s", eventsResponse.Code, eventsResponse.Body.String())
 	}
 

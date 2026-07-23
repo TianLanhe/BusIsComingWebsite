@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -84,6 +85,13 @@ func (store *detailsStoreStub) ListEvents(_ context.Context, request EventListRe
 	store.lastRequest = request
 	return store.listResult, nil
 }
+func (store *detailsStoreStub) SummarizeEvents(_ context.Context, request EventSummaryRequest) (EventRangeSummary, error) {
+	// 测试替身沿用完整范围结果，便于验证分页参数不会进入摘要路径。
+	if request.Query.Cursor != "" || request.Query.Limit != 0 {
+		return EventRangeSummary{}, errors.New("summary must not receive pagination")
+	}
+	return store.listResult.Summary, nil
+}
 func (store *detailsStoreStub) LoadVisitorEvents(context.Context, string) ([]domain.AnalyticsEvent, error) {
 	return store.visitorEvents, nil
 }
@@ -139,6 +147,35 @@ func TestQueryDetailsEventsReturnsFullRangeSummaryIndependentOfCursor(t *testing
 	if result.Summary != store.listResult.Summary || result.PageInfo.TotalCount != result.Summary.TotalCount {
 		t.Fatalf("summary/page total mismatch: %#v", result)
 	}
+}
+
+func TestQueryDetailsEventsBuildsComparisonMetricsFromCompleteRanges(t *testing.T) {
+	from := time.Date(2026, 7, 2, 0, 0, 0, 0, time.UTC)
+	to := from.Add(24 * time.Hour)
+	current := EventRangeSummary{TotalCount: 9, SuccessCount: 6, FailureCount: 3, UniqueVisitors: 4}
+	previous := EventRangeSummary{TotalCount: 4, SuccessCount: 4, FailureCount: 0, UniqueVisitors: 2}
+	store := &summaryStoreStub{detailsStoreStub: detailsStoreStub{listResult: StoredEventPage{Summary: current}}, summaries: map[time.Time]EventRangeSummary{from: current, from.Add(-24 * time.Hour): previous}}
+	result, err := NewQueryDetails(store, nil, ClockFunc(func() time.Time { return to }), nil).Events(context.Background(), domain.AnalyticsQuery{From: from, To: to, Granularity: domain.GranularityDay, Compare: true, Limit: 1, Cursor: EncodeEventCursor(domain.EventCursor{OccurredAt: to, EventID: 10})}, "abcdefghijklmnopqrstuv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.SummaryMetrics) != 4 || result.SummaryMetrics[0].Key != "totalCount" || result.SummaryMetrics[0].Value == nil || *result.SummaryMetrics[0].Value != 9 || result.SummaryMetrics[0].PreviousValue == nil || *result.SummaryMetrics[0].PreviousValue != 4 || result.SummaryMetrics[2].PreviousValue == nil || *result.SummaryMetrics[2].PreviousValue != 0 || result.SummaryMetrics[2].DeltaRate != nil {
+		t.Fatalf("unexpected complete-range metrics: %#v", result.SummaryMetrics)
+	}
+	if len(store.summaryRequests) != 2 || store.summaryRequests[0].VisitorID != "abcdefghijklmnopqrstuv" || store.summaryRequests[0].Query.Cursor != "" || store.summaryRequests[0].Query.Limit != 0 || store.summaryRequests[1].Query.From != from.Add(-24*time.Hour) {
+		t.Fatalf("summary did not reuse filters without pagination: %#v", store.summaryRequests)
+	}
+}
+
+type summaryStoreStub struct {
+	detailsStoreStub
+	summaries       map[time.Time]EventRangeSummary
+	summaryRequests []EventSummaryRequest
+}
+
+func (store *summaryStoreStub) SummarizeEvents(_ context.Context, request EventSummaryRequest) (EventRangeSummary, error) {
+	store.summaryRequests = append(store.summaryRequests, request)
+	return store.summaries[request.Query.From], nil
 }
 
 func TestQueryDetailsVisitorRequiresExactIDAndPreservesSessionBoundary(t *testing.T) {
@@ -214,6 +251,22 @@ func TestBuildMetricsForKeysDistinguishesMissingPreviousPopulationFromZero(t *te
 	metrics = buildMetricsForKeys(current, map[string]float64{}, true, domain.QueryReady, []string{"requestCount"}, false)
 	if metrics[0].PreviousValue != nil || metrics[0].Delta != nil || metrics[0].DeltaRate != nil {
 		t.Fatalf("missing comparison should stay null: %#v", metrics[0])
+	}
+}
+
+func TestTrafficMetricValuesCountFailedPlaceAndRouteVisitors(t *testing.T) {
+	base := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	events := []domain.AnalyticsEvent{
+		detailTestEvent(1, "abcdefghijklmnopqrstuv", domain.EventPlaceQuery, base),
+		detailTestEvent(2, "abcdefghijklmnopqrstuv", domain.EventPlaceQuery, base.Add(time.Minute)),
+		detailTestEvent(3, "0123456789abcdefghijkl", domain.EventPlaceQuery, base.Add(2*time.Minute)),
+		detailTestEvent(4, "abcdefghijklmnopqrstuv", domain.EventRouteQuery, base.Add(3*time.Minute)),
+		detailTestEvent(5, "0123456789abcdefghijkl", domain.EventRouteQuery, base.Add(4*time.Minute)),
+	}
+	events[2].Outcome, events[4].Outcome = domain.OutcomeFailure, domain.OutcomeFailure
+	values := trafficMetricValues(events)
+	if values["placeQueryRequests"] != 3 || values["placeQueryVisitors"] != 2 || values["routeQueryRequests"] != 2 || values["routeQueryVisitors"] != 2 || values["successfulPlaceVisitors"] != 1 || values["successfulRouteVisitors"] != 1 {
+		t.Fatalf("PV must include failures and UV must deduplicate complete range: %#v", values)
 	}
 }
 

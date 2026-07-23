@@ -150,3 +150,32 @@ npx playwright test --config playwright.monitor.config.ts --reporter=line
 ```
 
 审查修复补充：`performance-v13-desktop.png`（简体）、`performance-v13-en-desktop.png`（英文）和 `performance-v13-zh-Hant-mobile.png`（繁体手机）均保持默认 P95；全量 Playwright 在三语七页流程中同时回归页面标题、筛选上下文和手机布局。
+
+## US3 比较事件与业务流量（T045–T062，2026-07-24）
+
+| 对照区块 | Figma `89:1310` / 契约要求 | 实现与证据 | 结果 |
+|---|---|---|---|
+| 事件四卡 | 当前与上一等长周期使用完整筛选范围；分页不能改变卡片 | `SummarizeEvents` 复用 SQLite event query builder；应用层清空 cursor/limit 后分别聚合当前、上一周期并以 `summaryMetrics` 返回。应用、SQLite、HTTP 和 React 测试覆盖 visitor header、过滤条件、零基线、无上期与翻页隔离。 | 通过 |
+| 失败语义 | 失败增加为不利，变化不只依赖颜色 | `EventsPage` 使用 `MetricCard` 的 `lower_is_better`；箭头、带符号值与状态文字同时呈现。 | 通过 |
+| 流量六卡与趋势 | 主页/地点/路线 PV+UV；地点/路线 PV 含失败；趋势仍只显示主页 PV、主页 UV、成功路线 UV | `trafficMetricValues` 分别维护全量查询 UV 与既有成功 Visitor 集合；`TrafficPage` 顶部为六卡，`TrafficChart` 未改动既有三条序列。 | 通过 |
+| 1440×1200 | 六卡同一行、趋势与漏斗可读 | `business-v13-desktop.png`：六卡完整显示，并保留三条趋势图例。 | 通过 |
+| 390×844 | 两列卡片、无页面横向溢出、移动底栏可用 | `business-v13-mobile.png`：六卡两列重排；Playwright 断言 `document.scrollWidth === innerWidth`。 | 通过 |
+
+Figma 差异记录：`89:1310` 的 Business & Event Metrics 画板用于核对六卡层级、对比状态和桌面/手机栅格；示例数值不会作为运行时数据回退。移动端沿用既有固定底栏，长内容在其下方保持安全底部留白，不引入页面横向滚动。
+
+执行命令：
+
+```text
+go test -race ./...
+# passed
+
+npm --prefix frontend test
+# 42 files, 178 tests passed
+
+npm --prefix frontend run openapi:lint
+npm --prefix frontend run openapi:bundle
+# passed
+
+npm --prefix frontend run test:e2e:monitor -- playwright-monitor/investigation.spec.ts --reporter=line
+# desktop/mobile 共 6 tests passed；含事件同期/分页与流量六卡流程
+```

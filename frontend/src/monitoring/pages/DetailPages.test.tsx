@@ -32,18 +32,26 @@ describe("detail workspaces", () => {
     expect(loader).toHaveBeenCalledTimes(1);
   });
 
-  it("labels place and route trials as UV and includes all traffic legend series", async () => {
+  it("renders six homepage/place/route PV/UV cards while preserving the three trend series", async () => {
     const data = traffic();
     data.metrics = [
       { key: "pv", value: 10, previousValue: null, delta: null, deltaRate: null },
       { key: "uv", value: 5, previousValue: null, delta: null, deltaRate: null },
+      { key: "placeQueryRequests", value: 6, previousValue: null, delta: null, deltaRate: null },
+      { key: "placeQueryVisitors", value: 4, previousValue: null, delta: null, deltaRate: null },
+      { key: "routeQueryRequests", value: 5, previousValue: null, delta: null, deltaRate: null },
+      { key: "routeQueryVisitors", value: 3, previousValue: null, delta: null, deltaRate: null },
       { key: "successfulPlaceVisitors", value: 4, previousValue: null, delta: null, deltaRate: null },
       { key: "successfulRouteVisitors", value: 3, previousValue: null, delta: null, deltaRate: null },
     ];
     data.series = [{ bucketStart: meta.from, bucketEnd: meta.to, pv: 10, uv: 5, successfulPlaceVisitors: 4, successfulRouteVisitors: 3 }];
     renderDetail(<TrafficPage loadTraffic={async () => data} />);
-    expect(await screen.findByText("成功地点查询 UV")).toBeInTheDocument();
-    expect(screen.getAllByText("成功路线查询 UV").length).toBeGreaterThan(0);
+    expect(await screen.findByText("主页浏览 PV")).toBeInTheDocument();
+    expect(screen.getByText("主页浏览 UV")).toBeInTheDocument();
+    expect(screen.getByText("地点查询 PV")).toBeInTheDocument();
+    expect(screen.getByText("地点查询 UV")).toBeInTheDocument();
+    expect(screen.getByText("路线查询 PV")).toBeInTheDocument();
+    expect(screen.getByText("路线查询 UV")).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "图例" })).toHaveTextContent("主页 PV");
     expect(screen.getByRole("list", { name: "图例" })).toHaveTextContent("主页 UV");
     expect(screen.getByRole("list", { name: "图例" })).toHaveTextContent("成功路线查询 UV");
