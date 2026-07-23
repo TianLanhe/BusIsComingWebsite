@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1400" viewBox="0 0 1800 1400">
+  <defs>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#183c43" flood-opacity=".11"/>
+    </filter>
+    <style>
+      .bg{fill:#f4f8f8}.surface{fill:#fff;stroke:#d7e5e7;stroke-width:2}.soft{fill:#edf8f7}
+      .nav{fill:#103c42}.navActive{fill:#20565c}.teal{fill:#0b7377}.amber{fill:#d98a14}.purple{fill:#8b5cf6}.blue{fill:#2799a8}.red{fill:#c74e48}.green{fill:#16865f}
+      .text{fill:#173b42;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.muted{fill:#657b80;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+      .white{fill:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.title{font-size:30px;font-weight:800}.h2{font-size:22px;font-weight:780}.label{font-size:17px;font-weight:700}.body{font-size:16px;font-weight:520}.tiny{font-size:14px;font-weight:600}.metric{font-size:31px;font-weight:820}
+      .grid{stroke:#dfeaec;stroke-width:1.5;stroke-dasharray:5 7}.axis{stroke:#90a5aa;stroke-width:1.5}.line1{fill:none;stroke:#0b7377;stroke-width:4}.line2{fill:none;stroke:#8b5cf6;stroke-width:4}.line3{fill:none;stroke:#d98a14;stroke-width:4}.line4{fill:none;stroke:#2799a8;stroke-width:4}
+      .arrow{stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
+  <rect class="bg" width="1800" height="1400"/>
+  <text class="text title" x="48" y="52">BusIsComing Pulse v1.3 · 监控体验修复信息架构</text>
+  <text class="muted body" x="48" y="82">桌面端 1440 基线 · 手机端同语义纵向排列 · 所有数据来自匿名事件明细即时聚合</text>
+
+  <!-- Sidebar IA -->
+  <g transform="translate(48 115)">
+    <rect class="nav" rx="24" width="300" height="1235" filter="url(#shadow)"/>
+    <circle cx="42" cy="48" r="22" fill="#2da8a4"/><text class="white h2" x="34" y="56">B</text>
+    <text class="white h2" x="77" y="47">BusIsComing</text><text class="white tiny" x="77" y="68" opacity=".7">Pulse</text>
+
+    <text class="white tiny" x="28" y="124" opacity=".58">业务监控</text>
+    <rect class="navActive" x="18" y="143" rx="11" width="264" height="48"/><text class="white label" x="48" y="174">总览</text>
+    <text class="white label" x="48" y="226">流量与试查</text><text class="white label" x="48" y="278">下载分析</text>
+
+    <text class="white tiny" x="28" y="340" opacity=".58">技术监控</text>
+    <text class="white label" x="48" y="390">稳定性 &amp; 时延</text><text class="white label" x="48" y="442">系统状态</text>
+
+    <text class="white tiny" x="28" y="505" opacity=".58">数据明细</text>
+    <text class="white label" x="48" y="555">事件明细</text><text class="white label" x="48" y="607">访客明细</text>
+
+    <rect x="20" y="1130" width="260" height="80" rx="14" fill="#164a50"/>
+    <circle cx="45" cy="1157" r="6" fill="#43c59e"/><text class="white label" x="62" y="1163">私有访问</text>
+    <text class="white tiny" x="36" y="1190" opacity=".66">127.0.0.1 · 实时写入</text>
+  </g>
+
+  <!-- Performance workspace -->
+  <g transform="translate(380 115)">
+    <rect class="surface" rx="24" width="1372" height="660" filter="url(#shadow)"/>
+    <text class="text title" x="28" y="48">稳定性 &amp; 时延</text>
+    <text class="muted body" x="28" y="76">请求成功率、P95 尾延迟与公开接口同期变化</text>
+    <rect class="surface" x="1030" y="26" width="310" height="44" rx="11"/><text class="text label" x="1050" y="54">2026/07/01 – 2026/07/24</text>
+
+    <!-- metric cards -->
+    <g transform="translate(28 104)">
+      <g><rect class="surface" rx="14" width="205" height="112"/><text class="muted tiny" x="16" y="28">总请求</text><text class="text metric" x="16" y="69">20,486</text><text class="green tiny" x="16" y="94">↗ +11.8% 较上期</text></g>
+      <g transform="translate(221)"><rect class="surface" rx="14" width="205" height="112"/><text class="muted tiny" x="16" y="28">成功率</text><text class="text metric" x="16" y="69">98.2%</text><text class="red tiny" x="16" y="94">↘ -0.4% 较上期</text></g>
+      <g transform="translate(442)"><rect class="surface" rx="14" width="205" height="112"/><text class="muted tiny" x="16" y="28">P50</text><text class="text metric" x="16" y="69">218 ms</text><text class="green tiny" x="16" y="94">↘ -18 ms 较上期</text></g>
+      <g transform="translate(663)"><rect class="surface" rx="14" width="205" height="112"/><text class="muted tiny" x="16" y="28">P95</text><text class="text metric" x="16" y="69">1,120 ms</text><text class="red tiny" x="16" y="94">↗ +8.2% 较上期</text></g>
+      <g transform="translate(884)"><rect class="surface" rx="14" width="205" height="112"/><text class="muted tiny" x="16" y="28">失败请求</text><text class="text metric" x="16" y="69">320</text><text class="muted tiny" x="16" y="94">1.8% 总请求</text></g>
+      <g transform="translate(1105)"><rect class="surface" rx="14" width="205" height="112"/><text class="muted tiny" x="16" y="28">Dropped</text><text class="text metric" x="16" y="69">7</text><text class="muted tiny" x="16" y="94">进程启动以来</text></g>
+    </g>
+
+    <!-- charts -->
+    <g transform="translate(28 240)">
+      <rect class="surface" rx="16" width="642" height="245"/>
+      <text class="text h2" x="18" y="34">响应时间趋势</text><text class="muted tiny" x="18" y="56">四类事件 · 单位 ms</text>
+      <rect class="soft" x="520" y="16" rx="9" width="102" height="35"/><text class="text label" x="542" y="40">P95⌄</text>
+      <line class="grid" x1="58" y1="88" x2="616" y2="88"/><line class="grid" x1="58" y1="132" x2="616" y2="132"/><line class="grid" x1="58" y1="176" x2="616" y2="176"/>
+      <line class="axis" x1="58" y1="78" x2="58" y2="190"/><line class="axis" x1="58" y1="190" x2="616" y2="190"/>
+      <path class="line1" d="M58 175 L145 166 L232 150 L319 159 L406 122 L493 138 L580 98"/>
+      <path class="line2" d="M58 160 L145 145 L232 158 L319 119 L406 135 L493 92 L580 108"/>
+      <path class="line3" d="M58 180 L145 174 L232 168 L319 162 L406 146 L493 151 L580 137"/>
+      <path class="line4" d="M58 185 L145 182 L232 180 L319 177 L406 170 L493 173 L580 164"/>
+      <text class="muted tiny" x="58" y="220">● 主页</text><text class="muted tiny" x="160" y="220">● 地点</text><text class="muted tiny" x="262" y="220">● 路线</text><text class="muted tiny" x="364" y="220">● 下载</text>
+    </g>
+    <g transform="translate(690 240)">
+      <rect class="surface" rx="16" width="654" height="245"/>
+      <text class="text h2" x="18" y="34">SLI 成功率</text><text class="muted tiny" x="18" y="56">成功 PV ÷ 总 PV · 无事件桶留空</text>
+      <text class="muted tiny" x="570" y="34">%</text>
+      <line class="grid" x1="58" y1="88" x2="628" y2="88"/><line class="grid" x1="58" y1="132" x2="628" y2="132"/><line class="grid" x1="58" y1="176" x2="628" y2="176"/>
+      <line class="axis" x1="58" y1="78" x2="58" y2="190"/><line class="axis" x1="58" y1="190" x2="628" y2="190"/>
+      <path class="line1" d="M58 94 L147 92 L236 97 L325 90 L414 95 L503 91 L592 93"/>
+      <path class="line2" d="M58 108 L147 104 L236 116 L325 101 L414 107 L503 99 L592 105"/>
+      <path class="line3" d="M58 119 L147 112 L236 128 L325 109 L414 121 L503 111 L592 116"/>
+      <path class="line4" d="M58 101 L147 98 L236 103 L325 97 L414 102 L503 96 L592 100"/>
+      <text class="muted tiny" x="58" y="220">● 主页</text><text class="muted tiny" x="160" y="220">● 地点</text><text class="muted tiny" x="262" y="220">● 路线</text><text class="muted tiny" x="364" y="220">● 下载</text>
+    </g>
+
+    <!-- endpoint table -->
+    <g transform="translate(28 505)">
+      <text class="text h2" x="0" y="28">公开接口效能</text>
+      <rect class="soft" x="0" y="42" rx="11" width="1316" height="80"/>
+      <text class="muted tiny" x="18" y="68">Operation ID</text><text class="muted tiny" x="245" y="68">请求</text><text class="muted tiny" x="350" y="68">成功率</text>
+      <text class="muted tiny" x="475" y="68">P50</text><text class="muted tiny" x="590" y="68">P50 较上期</text><text class="muted tiny" x="785" y="68">P95</text><text class="muted tiny" x="900" y="68">P95 较上期</text>
+      <text class="text tiny" x="18" y="103">queryRouteOptions</text><text class="text tiny" x="245" y="103">6,102</text><text class="text tiny" x="350" y="103">96.4%</text>
+      <text class="text tiny" x="475" y="103">420 ms</text><text class="green tiny" x="590" y="103">↘ -24 ms</text><text class="text tiny" x="785" y="103">1,800 ms</text><text class="red tiny" x="900" y="103">↗ +9.1%</text>
+    </g>
+  </g>
+
+  <!-- Lower cards -->
+  <g transform="translate(380 805)">
+    <rect class="surface" rx="22" width="432" height="545" filter="url(#shadow)"/>
+    <text class="text h2" x="24" y="42">事件明细 · 同期比较</text><text class="muted tiny" x="24" y="67">所有卡片使用完整筛选范围</text>
+    <g transform="translate(24 94)">
+      <rect class="soft" rx="13" width="184" height="98"/><text class="muted tiny" x="14" y="25">筛选结果</text><text class="text metric" x="14" y="63">17,742</text><text class="green tiny" x="14" y="84">↗ +6.2%</text>
+      <g transform="translate(200)"><rect class="soft" rx="13" width="184" height="98"/><text class="muted tiny" x="14" y="25">成功事件</text><text class="text metric" x="14" y="63">17,422</text><text class="muted tiny" x="14" y="84">— 无变化</text></g>
+      <g transform="translate(0 114)"><rect class="soft" rx="13" width="184" height="98"/><text class="muted tiny" x="14" y="25">失败事件</text><text class="text metric" x="14" y="63">320</text><text class="red tiny" x="14" y="84">↗ +28</text></g>
+      <g transform="translate(200 114)"><rect class="soft" rx="13" width="184" height="98"/><text class="muted tiny" x="14" y="25">独立访客</text><text class="text metric" x="14" y="63">3,216</text><text class="green tiny" x="14" y="84">↗ +4.8%</text></g>
+    </g>
+    <text class="text h2" x="24" y="356">流量与试查 · 六项指标</text>
+    <text class="muted body" x="24" y="392">主页浏览 PV / UV</text><text class="muted body" x="24" y="426">地点查询 PV / UV</text><text class="muted body" x="24" y="460">路线查询 PV / UV</text>
+    <rect class="soft" x="24" y="485" width="384" height="38" rx="10"/><text class="text tiny" x="40" y="510">PV 含成功与失败；UV 按 Visitor ID 去重</text>
+  </g>
+
+  <g transform="translate(834 805)">
+    <rect class="surface" rx="22" width="448" height="545" filter="url(#shadow)"/>
+    <text class="text h2" x="24" y="42">访客明细 · 对齐 Figma</text><text class="muted tiny" x="24" y="67">四张摘要卡只描述时间与行为规模</text>
+    <g transform="translate(24 94)">
+      <rect class="soft" rx="13" width="192" height="92"/><text class="muted tiny" x="14" y="25">首次出现</text><text class="text h2" x="14" y="57">06/24</text><text class="muted tiny" x="14" y="78">18:42</text>
+      <g transform="translate(208)"><rect class="soft" rx="13" width="192" height="92"/><text class="muted tiny" x="14" y="25">最后出现</text><text class="text h2" x="14" y="57">07/23</text><text class="muted tiny" x="14" y="78">09:16</text></g>
+      <g transform="translate(0 108)"><rect class="soft" rx="13" width="192" height="92"/><text class="muted tiny" x="14" y="25">会话</text><text class="text metric" x="14" y="64">18</text><text class="muted tiny" x="70" y="64">30 分钟切分</text></g>
+      <g transform="translate(208 108)"><rect class="soft" rx="13" width="192" height="92"/><text class="muted tiny" x="14" y="25">累计事件</text><text class="text metric" x="14" y="64">126</text><text class="muted tiny" x="87" y="64">4 类事件</text></g>
+    </g>
+    <rect class="surface" x="24" y="330" rx="14" width="400" height="184"/>
+    <text class="text h2" x="44" y="365">访客偏好</text>
+    <text class="muted body" x="44" y="405">语言</text><text class="text label" x="250" y="405">繁体中文</text>
+    <text class="muted body" x="44" y="446">平台</text><text class="text label" x="250" y="446">Android</text>
+    <text class="muted body" x="44" y="487">装置</text><text class="text label" x="250" y="487">手机</text>
+  </g>
+
+  <g transform="translate(1304 805)">
+    <rect class="surface" rx="22" width="448" height="545" filter="url(#shadow)"/>
+    <text class="text h2" x="24" y="42">系统状态 · 技术监控</text><text class="muted tiny" x="24" y="67">删除重复存储概况与隔离降级说明</text>
+    <rect class="soft" x="24" y="94" rx="14" width="400" height="194"/>
+    <text class="text h2" x="44" y="128">SQLite 明细存储</text>
+    <text class="muted body" x="44" y="164">总明细数</text><text class="text label" x="295" y="164">1,002,486</text>
+    <text class="muted body" x="44" y="197">今日明细数</text><text class="text label" x="295" y="197">684</text>
+    <text class="muted body" x="44" y="230">文件大小</text><text class="text label" x="295" y="230">86.4 MB</text>
+    <text class="muted body" x="44" y="263">最后成功写入</text><text class="text label" x="295" y="263">09:16:42</text>
+
+    <rect class="surface" x="24" y="310" rx="14" width="400" height="202"/>
+    <text class="text h2" x="44" y="345">运行信息</text>
+    <text class="muted body" x="44" y="382">SQLite / Journal</text><text class="text label" x="270" y="382">3.51.3 / WAL</text>
+    <text class="muted body" x="44" y="418">Schema 版本</text><text class="text label" x="300" y="418">002</text>
+    <text class="muted body" x="44" y="454">进程运行时长</text><text class="text label" x="300" y="454">3d 12h</text>
+    <text class="muted body" x="44" y="490">私有监听器</text><text class="green label" x="300" y="490">正常</text>
+  </g>
+</svg>
