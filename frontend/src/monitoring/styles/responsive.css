@@ -69,6 +69,7 @@
 
 @media (max-width: 1180px) {
   .performance-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .performance-charts { grid-template-columns: 1fr; }
   .system-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -83,6 +84,7 @@
   .visitor-identity button { width: 100%; }
   .visitor-fact strong { font-size: 22px; }
   .performance-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .performance-charts { grid-template-columns: 1fr; }
   .performance-lower, .system-detail-grid { grid-template-columns: 1fr; }
   .system-status-grid { grid-template-columns: 1fr; }
   .system-status-card { min-height: 180px; }

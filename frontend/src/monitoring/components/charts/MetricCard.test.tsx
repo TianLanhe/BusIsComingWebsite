@@ -36,4 +36,11 @@ describe("MetricCard", () => {
     render(<MetricCard label="PV" metric={metric({ value: 123_456_789 })} locale="en" compareEnabled />);
     expect(screen.getByText("123,456,789")).toHaveClass("metric-value", "long");
   });
+
+  it("formats response time with ms and marks an increasing latency as worse", () => {
+    render(<MetricCard label="P95" metric={metric({ value: 180, previousValue: 120, delta: 60, deltaRate: .5 })} locale="zh-Hans" format="durationMs" compareEnabled presentation="lower_is_better" />);
+    expect(screen.getByText("180 ms")).toBeInTheDocument();
+    expect(screen.getByText("+60 ms")).toBeInTheDocument();
+    expect(screen.getByTestId("metric-card").querySelector(".worse")).not.toBeNull();
+  });
 });

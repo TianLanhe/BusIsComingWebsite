@@ -118,3 +118,33 @@ npm --prefix frontend run test:e2e:monitor -- playwright-monitor/time-range.spec
 npm --prefix frontend run test:e2e:monitor -- playwright-monitor/charts.spec.ts --reporter=line
 # desktop/mobile 共 2 tests passed
 ```
+
+## US2 稳定性与时延（T028–T044，2026-07-24）
+
+| 对照区块 | Figma `89:1310` / 契约要求 | 实现与证据 | 结果 |
+|---|---|---|---|
+| 六项概览卡 | 请求、成功率、P50、P95、失败、Dropped；时延使用 ms | `MetricCard` 对 durationMs 始终显示 `ms` 与带符号的毫秒变化；时延、失败使用 lower-is-better | 通过 |
+| 响应时间趋势 | 默认 P95、局部切换 P50、四事件线、无样本断线 | `PerformancePage` 保持同一响应中的 P50/P95；Playwright 断言点击后没有新增 performance 请求，仅首图从 P95 换成 P50 | 通过 |
+| SLI 图 | 四事件固定顺序、成功 PV/总 PV、空桶不是 0% | `domain.SLISuccessRate` 与应用层香港时间桶聚合；空桶为 null、全失败为 0；fixture 同时覆盖二者 | 通过 |
+| endpoint 表 | P50/P95 与上一周期的七种比较状态，时延增加为恶化 | `PercentileComparison` 保留 current/previous/delta；previous=0 只有绝对毫秒变化；无当前/上期与 compare=false 保持可区分 | 通过 |
+| Dropped 局部降级 | system 失败不遮蔽 performance 主体 | `useAuxiliaryResource` 仅使 Dropped 显示局部提示；`performance-system-partial-error.png` 保留端点表 | 通过 |
+| 1440×1200 | 双图、六卡和端点表同屏可读 | `performance-v13-desktop.png`，桌面 Playwright | 通过 |
+| 390×844 | 双图单列、局部 P50/P95 控件不小于 44px、无整体横向滚动 | `performance-v13-mobile.png`，手机 Playwright | 通过 |
+
+Figma 差异记录：`89:1310` 的示例数据与颜色用于核对信息层级和双图区块，不作为运行时回退；实现按权威 OpenAPI 的真实 null/0 语义保留缺口。手机端将两张图纵向排列，并让端点表在自身容器中横向阅读，避免页面整体横向滚动。
+
+执行命令：
+
+```text
+go test ./internal/analytics/application ./internal/analytics/interfaces/http
+# passed
+
+npm --prefix frontend test -- --run src/monitoring/content/copy.test.ts src/monitoring/pages/PerformancePage.test.tsx src/monitoring/components/charts/MetricCard.test.tsx
+# 3 files, 15 tests passed
+
+npm --prefix frontend run build
+# passed; 保留既有 monitor bundle 大小提示
+
+npx playwright test --config playwright.monitor.config.ts --grep 'switches stability|Dropped auxiliary' --reporter=line
+# desktop/mobile: 3 passed, 1 skipped（仅 desktop 保存辅助失败截图）
+```

@@ -38,3 +38,24 @@ test("shows one tooltip for true pointer or keyboard input and no visible summar
     await page.screenshot({ path: "playwright-monitor/__screenshots__/charts-en-desktop.png", fullPage: true });
   }
 });
+
+test("switches stability latency percentile locally while preserving four SLI series", async ({ page }, testInfo) => {
+  let performanceRequests = 0;
+  await page.route("**/api/analytics/performance**", async (route) => {
+    performanceRequests++;
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(detailEnvelopes["/api/analytics/performance"]) });
+  });
+  await page.goto("/#performance");
+  await expect(page.getByRole("button", { name: "P95", exact: true })).toHaveAttribute("aria-pressed", "true");
+  const legends = page.locator(".time-series-legend");
+  await expect(legends).toHaveCount(2);
+  await expect(legends.nth(0)).toContainText("P95");
+  await expect(legends.nth(1)).toContainText(/Homepage|主页|主頁/);
+  const before = performanceRequests;
+  await page.getByRole("button", { name: "P50", exact: true }).click();
+  await expect(page.getByRole("button", { name: "P50", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(legends.nth(0)).toContainText("P50");
+  expect(performanceRequests).toBe(before);
+  const path = testInfo.project.name.includes("mobile") ? "playwright-monitor/__screenshots__/performance-v13-mobile.png" : "playwright-monitor/__screenshots__/performance-v13-desktop.png";
+  await page.screenshot({ path, fullPage: true });
+});

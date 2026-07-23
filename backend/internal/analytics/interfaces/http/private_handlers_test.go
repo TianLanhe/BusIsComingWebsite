@@ -112,6 +112,18 @@ func TestPrivateHandlersRegisterSixReadOnlyOperationsWithNoStore(t *testing.T) {
 	}
 }
 
+func TestPerformanceResponseKeepsEnvelopeAndExposes012SLIFields(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	engine := platformhttp.NewPrivateEngine(&bytes.Buffer{})
+	RegisterPrivateRoutes(engine, nil, detailsQueryStub{}, "")
+	query := "?from=2026-07-01T00%3A00%3A00Z&to=2026-07-02T00%3A00%3A00Z&granularity=day"
+	response := httptest.NewRecorder()
+	engine.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/analytics/performance"+query, nil))
+	if response.Code != http.StatusOK || response.Header().Get("Cache-Control") != "no-store" || !strings.Contains(response.Body.String(), `"sliSeries"`) {
+		t.Fatalf("012 performance envelope missing SLI field: status=%d body=%s", response.Code, response.Body.String())
+	}
+}
+
 func TestPrivateHandlersRequireVisitorHeaderAndMapControlledErrors(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	tests := []struct {

@@ -208,17 +208,27 @@ func (usecase *QueryDetails) Performance(ctx context.Context, query domain.Analy
 	scoped := scopeEvents(raw, query)
 	state := queryState(len(raw), len(scoped.combined))
 	currentValues := performanceMetricValues(scoped.combined)
-	previousValues, previousAvailable, comparisonFrom, comparisonTo, err := usecase.comparisonValues(ctx, query, func(events scopedOverviewEvents) (map[string]float64, bool) {
-		return performanceMetricValues(events.combined), len(events.combined) > 0
-	})
-	if err != nil {
-		return PerformanceData{}, err
+	previousValues := map[string]float64{}
+	var previous scopedOverviewEvents
+	var previousAvailable bool
+	var comparisonFrom, comparisonTo *time.Time
+	if query.Compare {
+		from, to := domain.PreviousRange(query.From, query.To)
+		previousRaw, loadErr := usecase.loadEvents(ctx, from, to)
+		if loadErr != nil {
+			return PerformanceData{}, loadErr
+		}
+		previous = scopeEvents(previousRaw, query)
+		previousAvailable = len(previous.combined) > 0
+		previousValues = performanceMetricValues(previous.combined)
+		comparisonFrom, comparisonTo = &from, &to
 	}
 	return PerformanceData{
 		Meta:      metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()),
 		Metrics:   buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"requestCount", "requestSuccessRate", "p50Ms", "p95Ms"}, previousAvailable),
-		Endpoints: endpointPerformance(scoped.combined), LatencySeries: latencySeries(scoped.combined, query.From, query.To, query.Granularity, state == domain.QueryReady),
-		Failures: failureDistribution(scoped.combined),
+		Endpoints: endpointPerformance(scoped.combined, previous.combined, query.Compare), LatencySeries: latencySeries(scoped.combined, query.From, query.To, query.Granularity, state == domain.QueryReady),
+		SLISeries: sliSeries(scoped.combined, query.From, query.To, query.Granularity, state == domain.QueryReady),
+		Failures:  failureDistribution(scoped.combined),
 	}, nil
 }
 
@@ -454,7 +464,7 @@ func failureDistribution(events []domain.AnalyticsEvent) []domain.DistributionIt
 	return distributions(counts)
 }
 
-func endpointPerformance(events []domain.AnalyticsEvent) []EndpointPerformance {
+func endpointPerformance(events []domain.AnalyticsEvent, previousEvents []domain.AnalyticsEvent, compare bool) []EndpointPerformance {
 	definitions := []struct {
 		operation string
 		eventType domain.EventType
@@ -475,7 +485,30 @@ func endpointPerformance(events []domain.AnalyticsEvent) []EndpointPerformance {
 				successes++
 			}
 		}
-		result = append(result, EndpointPerformance{OperationID: definition.operation, EventType: definition.eventType, RequestCount: int64(len(selected)), SuccessRate: ratioFloat(successes, int64(len(selected))), P50MS: domain.NearestRank(durations, .5), P95MS: domain.NearestRank(durations, .95)})
+		previousDurations := make([]int64, 0)
+		for _, event := range previousEvents {
+			if event.EventType == definition.eventType {
+				previousDurations = append(previousDurations, event.DurationMS)
+			}
+		}
+		p50, p95 := domain.NearestRank(durations, .5), domain.NearestRank(durations, .95)
+		result = append(result, EndpointPerformance{OperationID: definition.operation, EventType: definition.eventType, RequestCount: int64(len(selected)), SuccessRate: ratioFloat(successes, int64(len(selected))), P50MS: p50, P95MS: p95,
+			P50Comparison: percentileComparison(p50, domain.NearestRank(previousDurations, .5), compare), P95Comparison: percentileComparison(p95, domain.NearestRank(previousDurations, .95), compare)})
+	}
+	return result
+}
+
+func percentileComparison(current, previous *int64, compare bool) PercentileComparison {
+	result := PercentileComparison{CurrentMS: current}
+	if !compare || current == nil || previous == nil {
+		return result
+	}
+	result.PreviousMS = previous
+	delta := *current - *previous
+	result.DeltaMS = &delta
+	if *previous != 0 {
+		rate := float64(delta) / float64(*previous)
+		result.DeltaRate = &rate
 	}
 	return result
 }
@@ -498,6 +531,52 @@ func latencySeries(events []domain.AnalyticsEvent, from, to time.Time, granulari
 				}
 			}
 			result = append(result, LatencySeriesPoint{BucketStart: bucket.Start, BucketEnd: bucket.End, EventType: eventType, RequestCount: int64(len(durations)), P50MS: domain.NearestRank(durations, .5), P95MS: domain.NearestRank(durations, .95)})
+		}
+	}
+	return result
+}
+
+func sliSeries(events []domain.AnalyticsEvent, from, to time.Time, granularity domain.Granularity, include bool) []SLISeriesPoint {
+	if !include {
+		return []SLISeriesPoint{}
+	}
+	location, _ := time.LoadLocation("Asia/Hong_Kong")
+	buckets := domain.TimeBuckets(from, to, granularity, location)
+	types := []domain.EventType{domain.EventPageView, domain.EventPlaceQuery, domain.EventRouteQuery, domain.EventDownloadRequest}
+	type counts struct{ successful, total int64 }
+	grouped := make(map[string]*counts, len(buckets)*len(types))
+	keyFor := func(bucket int, eventType domain.EventType) string {
+		return strconv.Itoa(bucket) + ":" + string(eventType)
+	}
+	// 每条事件只进入一个香港时间桶，先完整建模空桶，再按固定事件顺序输出。
+	for _, event := range events {
+		at := event.OccurredAt.In(location)
+		for index, bucket := range buckets {
+			if at.Before(bucket.Start) || !at.Before(bucket.End) {
+				continue
+			}
+			key := keyFor(index, event.EventType)
+			item := grouped[key]
+			if item == nil {
+				item = &counts{}
+				grouped[key] = item
+			}
+			item.total++
+			if event.Outcome == domain.OutcomeSuccess {
+				item.successful++
+			}
+			break
+		}
+	}
+	result := make([]SLISeriesPoint, 0, len(buckets)*len(types))
+	for index, bucket := range buckets {
+		for _, eventType := range types {
+			item := grouped[keyFor(index, eventType)]
+			var successful, total int64
+			if item != nil {
+				successful, total = item.successful, item.total
+			}
+			result = append(result, SLISeriesPoint{BucketStart: bucket.Start, BucketEnd: bucket.End, EventType: eventType, SuccessfulPV: successful, TotalPV: total, SuccessRate: domain.SLISuccessRate(successful, total)})
 		}
 	}
 	return result

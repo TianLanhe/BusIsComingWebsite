@@ -2,20 +2,82 @@ package application
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
 	"busiscoming-website/backend/internal/analytics/domain"
 )
 
+func TestQueryDetailsPerformanceReturnsFourOrderedSLISeriesWithNullAndZeroRates(t *testing.T) {
+	location := time.FixedZone("Asia/Hong_Kong", 8*60*60)
+	from := time.Date(2026, time.July, 20, 0, 0, 0, 0, location)
+	events := []domain.AnalyticsEvent{
+		detailTestEvent(1, "abcdefghijklmnopqrstuv", domain.EventPageView, from.Add(time.Hour)),
+		detailTestEvent(2, "abcdefghijklmnopqrstuv", domain.EventPlaceQuery, from.Add(2*time.Hour)),
+	}
+	events[1].Outcome = domain.OutcomeFailure
+	result, err := NewQueryDetails(&detailsStoreStub{events: events}, nil, ClockFunc(func() time.Time { return from }), nil).Performance(context.Background(), domain.AnalyticsQuery{From: from, To: from.Add(24 * time.Hour), Granularity: domain.GranularityDay})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, err := json.Marshal(result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(body), `"sliSeries"`) || !strings.Contains(string(body), `"successRate":null`) || !strings.Contains(string(body), `"successRate":0`) {
+		t.Fatalf("performance must expose ordered SLI null/zero semantics: %s", body)
+	}
+}
+
+func TestQueryDetailsPerformanceComparesEndpointPercentilesWithoutInventingZeroRates(t *testing.T) {
+	location := time.FixedZone("Asia/Hong_Kong", 8*60*60)
+	from := time.Date(2026, time.July, 20, 0, 0, 0, 0, location)
+	to := from.Add(24 * time.Hour)
+	current := detailTestEvent(1, "abcdefghijklmnopqrstuv", domain.EventRouteQuery, from.Add(time.Hour))
+	current.DurationMS = 150
+	previous := detailTestEvent(2, "abcdefghijklmnopqrstuv", domain.EventRouteQuery, from.Add(-23*time.Hour))
+	previous.DurationMS = 100
+	store := &detailsStoreStub{eventsByFrom: map[time.Time][]domain.AnalyticsEvent{from: {current}, from.Add(-24 * time.Hour): {previous}}}
+	result, err := NewQueryDetails(store, nil, ClockFunc(func() time.Time { return from }), nil).Performance(context.Background(), domain.AnalyticsQuery{From: from, To: to, Granularity: domain.GranularityDay, Compare: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	endpoint := result.Endpoints[2]
+	if endpoint.P50Comparison.CurrentMS == nil || endpoint.P50Comparison.PreviousMS == nil || endpoint.P50Comparison.DeltaMS == nil || *endpoint.P50Comparison.DeltaMS != 50 || endpoint.P50Comparison.DeltaRate == nil || *endpoint.P50Comparison.DeltaRate != .5 {
+		t.Fatalf("expected route percentile comparison, got %#v", endpoint.P50Comparison)
+	}
+	zero := percentileComparison(int64Pointer(50), int64Pointer(0), true)
+	if zero.DeltaMS == nil || *zero.DeltaMS != 50 || zero.DeltaRate != nil {
+		t.Fatalf("zero baseline must retain absolute delta only: %#v", zero)
+	}
+	missing := percentileComparison(nil, int64Pointer(100), true)
+	if missing.PreviousMS != nil || missing.DeltaMS != nil || missing.DeltaRate != nil {
+		t.Fatalf("missing current sample must remain distinct: %#v", missing)
+	}
+	disabled := percentileComparison(int64Pointer(100), int64Pointer(80), false)
+	if disabled.PreviousMS != nil || disabled.DeltaMS != nil || disabled.DeltaRate != nil {
+		t.Fatalf("compare=false must omit comparison values: %#v", disabled)
+	}
+}
+
+func int64Pointer(value int64) *int64 { return &value }
+
 type detailsStoreStub struct {
 	events        []domain.AnalyticsEvent
+	eventsByFrom  map[time.Time][]domain.AnalyticsEvent
 	listResult    StoredEventPage
 	visitorEvents []domain.AnalyticsEvent
 	lastRequest   EventListRequest
 }
 
-func (store *detailsStoreStub) LoadOverviewEvents(context.Context, time.Time, time.Time) ([]domain.AnalyticsEvent, error) {
+func (store *detailsStoreStub) LoadOverviewEvents(_ context.Context, from, _ time.Time) ([]domain.AnalyticsEvent, error) {
+	if store.eventsByFrom != nil {
+		if events, ok := store.eventsByFrom[from]; ok {
+			return events, nil
+		}
+	}
 	return store.events, nil
 }
 func (store *detailsStoreStub) ListEvents(_ context.Context, request EventListRequest) (StoredEventPage, error) {

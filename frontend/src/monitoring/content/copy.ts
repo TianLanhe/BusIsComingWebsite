@@ -1,7 +1,7 @@
 import type { MonitoringLocale } from "../app/MonitoringI18nProvider";
 
 const zhHans = {
-  overview: "总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "匿名访客", performance: "失败与性能", system: "系统状态",
+  overview: "总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "匿名访客", performance: "稳定性 & 时延", system: "系统状态",
   monitorCenter: "监控中心", diagnostics: "数据与诊断", privateAccess: "仅通过 SSH 隧道访问", liveWriting: "数据正常写入", listener: "监听 127.0.0.1:18081",
   pageTitle: "监控总览", pageSubtitle: "主页访问、路线试查与安装包下载的统一视图", brandEyebrow: "BusIsComing Pulse",
   refresh: "刷新数据", range7: "近 7 天", range30: "近 30 天", range90: "近 90 天", hourly: "按小时", daily: "按日", weekly: "按周", monthly: "按月",
@@ -32,7 +32,7 @@ const zhHans = {
 export type CopyKey = keyof typeof zhHans;
 
 const zhHant: Record<CopyKey, string> = {
-  overview: "總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "匿名訪客", performance: "失敗與效能", system: "系統狀態",
+  overview: "總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "匿名訪客", performance: "穩定性及延遲", system: "系統狀態",
   monitorCenter: "監控中心", diagnostics: "數據與診斷", privateAccess: "只可經 SSH 隧道存取", liveWriting: "數據正常寫入", listener: "監聽 127.0.0.1:18081",
   pageTitle: "監控總覽", pageSubtitle: "主頁瀏覽、巴士路線試查及安裝檔下載的統一視圖", brandEyebrow: "BusIsComing Pulse",
   refresh: "更新數據", range7: "最近 7 日", range30: "最近 30 日", range90: "最近 90 日", hourly: "每小時", daily: "每日", weekly: "每週", monthly: "每月",
@@ -61,7 +61,7 @@ const zhHant: Record<CopyKey, string> = {
 };
 
 const en: Record<CopyKey, string> = {
-  overview: "Overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Anonymous visitor", performance: "Failures & latency", system: "System status",
+  overview: "Overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Anonymous visitor", performance: "Stability & latency", system: "System status",
   monitorCenter: "Monitor", diagnostics: "Data & diagnostics", privateAccess: "SSH tunnel access only", liveWriting: "Events are being recorded", listener: "Listening on 127.0.0.1:18081",
   pageTitle: "Monitoring overview", pageSubtitle: "A unified view of homepage traffic, route trials, and package downloads", brandEyebrow: "BusIsComing Pulse",
   refresh: "Refresh", range7: "Last 7 days", range30: "Last 30 days", range90: "Last 90 days", hourly: "Hourly", daily: "Daily", weekly: "Weekly", monthly: "Monthly",

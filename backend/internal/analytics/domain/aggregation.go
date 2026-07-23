@@ -162,6 +162,16 @@ func NearestRank(values []int64, percentile float64) *int64 {
 	return &value
 }
 
+// SLISuccessRate 保留「没有请求」与「所有请求失败」两个不同的领域事实：前者
+// 没有可计算的比率，后者则是实际的 0%。调用方据此避免把空桶画成失败。
+func SLISuccessRate(successfulPV, totalPV int64) *float64 {
+	if totalPV == 0 {
+		return nil
+	}
+	value := float64(successfulPV) / float64(totalPV)
+	return &value
+}
+
 func ratio(numerator, denominator int64) *float64 {
 	if denominator == 0 {
 		return nil

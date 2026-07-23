@@ -99,32 +99,32 @@
 
 ### 用户故事 2 的后端测试
 
-- [ ] T028 [P] [US2] 为 SLI 四事件稳定顺序、无请求 null、全失败 0% 和单次遍历分桶编写先失败领域/应用测试，路径：`backend/internal/analytics/domain/aggregation_test.go`、`backend/internal/analytics/application/query_details_test.go`
-- [ ] T029 [US2] 在 T028 完成后，为端点 P50/P95 当前/上期、持平、零基线、无当前、无上期和 compare=false 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
-- [ ] T030 [P] [US2] 为 PerformanceData 新字段、null 语义、no-store、既有错误 envelope 和 operationId 编写先失败 handler 测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`
+- [X] T028 [P] [US2] 为 SLI 四事件稳定顺序、无请求 null、全失败 0% 和单次遍历分桶编写先失败领域/应用测试，路径：`backend/internal/analytics/domain/aggregation_test.go`、`backend/internal/analytics/application/query_details_test.go`
+- [X] T029 [US2] 在 T028 完成后，为端点 P50/P95 当前/上期、持平、零基线、无当前、无上期和 compare=false 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [X] T030 [P] [US2] 为 PerformanceData 新字段、null 语义、no-store、既有错误 envelope 和 operationId 编写先失败 handler 测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`
 
 ### 用户故事 2 的前端测试
 
-- [ ] T031 [P] [US2] 为 P50/P95 指标 ms、默认 P95、局部切换、SLI 四序列、端点比较七状态和 Dropped 局部降级编写先失败页面测试，路径：`frontend/src/monitoring/pages/PerformancePage.test.tsx`
-- [ ] T032 [P] [US2] 为 durationMs 格式、lower-is-better 箭头/颜色/文字和零基线绝对值编写先失败组件测试，路径：`frontend/src/monitoring/components/charts/MetricCard.test.tsx`
-- [ ] T033 [US2] 编写 P95→P50、SLI null/0、端点比较和 system 辅助失败的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/charts.spec.ts`、`frontend/playwright-monitor/investigation.spec.ts`
+- [X] T031 [P] [US2] 为 P50/P95 指标 ms、默认 P95、局部切换、SLI 四序列、端点比较七状态和 Dropped 局部降级编写先失败页面测试，路径：`frontend/src/monitoring/pages/PerformancePage.test.tsx`
+- [X] T032 [P] [US2] 为 durationMs 格式、lower-is-better 箭头/颜色/文字和零基线绝对值编写先失败组件测试，路径：`frontend/src/monitoring/components/charts/MetricCard.test.tsx`
+- [X] T033 [US2] 编写 P95→P50、SLI null/0、端点比较和 system 辅助失败的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/charts.spec.ts`、`frontend/playwright-monitor/investigation.spec.ts`
 
 ### 用户故事 2 的后端实现
 
-- [ ] T034 [US2] 实现按香港桶和四类事件计算 SLI 的领域 helper，并用中文注释区分 null 与 0%，路径：`backend/internal/analytics/domain/aggregation.go`、`backend/internal/analytics/domain/results.go`
-- [ ] T035 [US2] 增加 PercentileComparison、SLISeriesPoint 和 PerformanceData DTO/应用端口字段，路径：`backend/internal/analytics/application/dto.go`、`backend/internal/analytics/application/ports.go`
-- [ ] T036 [US2] 在同一当前/上一查询中聚合四类 SLI 和各 operation P50/P95 比较，上一周期为 0 时只返回绝对变化，路径：`backend/internal/analytics/application/query_details.go`
-- [ ] T037 [US2] 保持 performance route/参数/错误不变并映射 012 DTO，确认 handler 不计算统计，路径：`backend/internal/analytics/interfaces/http/detail_handlers.go`
+- [X] T034 [US2] 实现按香港桶和四类事件计算 SLI 的领域 helper，并用中文注释区分 null 与 0%，路径：`backend/internal/analytics/domain/aggregation.go`、`backend/internal/analytics/domain/results.go`
+- [X] T035 [US2] 增加 PercentileComparison、SLISeriesPoint 和 PerformanceData DTO/应用端口字段，路径：`backend/internal/analytics/application/dto.go`、`backend/internal/analytics/application/ports.go`
+- [X] T036 [US2] 在同一当前/上一查询中聚合四类 SLI 和各 operation P50/P95 比较，上一周期为 0 时只返回绝对变化，路径：`backend/internal/analytics/application/query_details.go`
+- [X] T037 [US2] 保持 performance route/参数/错误不变并映射 012 DTO，确认 handler 不计算统计，路径：`backend/internal/analytics/interfaces/http/detail_handlers.go`
 
 ### 用户故事 2 的前端实现
 
-- [ ] T038 [US2] 更新 analytics details client 消费 PercentileComparison、sliSeries 和字段级 null，路径：`frontend/src/monitoring/services/analyticsDetailsClient.ts`
-- [ ] T039 [US2] 完成 MetricCard 的 durationMs 和 lower-is-better 展示，确保变化不只依赖颜色，路径：`frontend/src/monitoring/components/charts/MetricCard.tsx`
-- [ ] T040 [US2] 重构 PerformancePage：六卡带单位、局部 P50/P95 选择、单分位四线、SLI 四线和端点两列比较，路径：`frontend/src/monitoring/pages/PerformancePage.tsx`
-- [ ] T041 [P] [US2] 补齐“稳定性 & 时延”、分位、SLI、端点比较、零基线、无样本和 Dropped 局部失败的三语文案，路径：`frontend/src/monitoring/content/copy.ts`
-- [ ] T042 [US2] 实现双图、局部分位选择器、端点比较桌面表/手机语义卡及单位样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
-- [ ] T043 [US2] 运行 US2 Go/Vitest/Playwright 并保存三语 1440×1200、390×844 和 system 辅助失败证据，路径：`frontend/playwright-monitor/__screenshots__/performance-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/performance-v13-mobile.png`、`frontend/playwright-monitor/__screenshots__/performance-system-partial-error.png`
-- [ ] T044 [US2] 对照 Figma `89:1310` 的 Stability & SLI 画板记录双图、六卡、端点表和全部比较状态，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T038 [US2] 更新 analytics details client 消费 PercentileComparison、sliSeries 和字段级 null，路径：`frontend/src/monitoring/services/analyticsDetailsClient.ts`
+- [X] T039 [US2] 完成 MetricCard 的 durationMs 和 lower-is-better 展示，确保变化不只依赖颜色，路径：`frontend/src/monitoring/components/charts/MetricCard.tsx`
+- [X] T040 [US2] 重构 PerformancePage：六卡带单位、局部 P50/P95 选择、单分位四线、SLI 四线和端点两列比较，路径：`frontend/src/monitoring/pages/PerformancePage.tsx`
+- [X] T041 [P] [US2] 补齐“稳定性 & 时延”、分位、SLI、端点比较、零基线、无样本和 Dropped 局部失败的三语文案，路径：`frontend/src/monitoring/content/copy.ts`
+- [X] T042 [US2] 实现双图、局部分位选择器、端点比较桌面表/手机语义卡及单位样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
+- [X] T043 [US2] 运行 US2 Go/Vitest/Playwright 并保存三语 1440×1200、390×844 和 system 辅助失败证据，路径：`frontend/playwright-monitor/__screenshots__/performance-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/performance-v13-mobile.png`、`frontend/playwright-monitor/__screenshots__/performance-system-partial-error.png`
+- [X] T044 [US2] 对照 Figma `89:1310` 的 Stability & SLI 画板记录双图、六卡、端点表和全部比较状态，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 **检查点**：US2 可独立定位整体成功率、尾时延和具体 operation；US1+US2 构成调查主路径 MVP。
 

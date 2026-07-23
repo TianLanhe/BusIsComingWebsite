@@ -138,12 +138,30 @@ type VisitorData struct {
 }
 
 type EndpointPerformance struct {
-	OperationID  string           `json:"operationId"`
+	OperationID   string               `json:"operationId"`
+	EventType     domain.EventType     `json:"eventType"`
+	RequestCount  int64                `json:"requestCount"`
+	SuccessRate   *float64             `json:"successRate"`
+	P50MS         *int64               `json:"p50Ms"`
+	P95MS         *int64               `json:"p95Ms"`
+	P50Comparison PercentileComparison `json:"p50Comparison"`
+	P95Comparison PercentileComparison `json:"p95Comparison"`
+}
+
+type PercentileComparison struct {
+	CurrentMS  *int64   `json:"currentMs"`
+	PreviousMS *int64   `json:"previousMs"`
+	DeltaMS    *int64   `json:"deltaMs"`
+	DeltaRate  *float64 `json:"deltaRate"`
+}
+
+type SLISeriesPoint struct {
+	BucketStart  time.Time        `json:"bucketStart"`
+	BucketEnd    time.Time        `json:"bucketEnd"`
 	EventType    domain.EventType `json:"eventType"`
-	RequestCount int64            `json:"requestCount"`
+	SuccessfulPV int64            `json:"successfulPV"`
+	TotalPV      int64            `json:"totalPV"`
 	SuccessRate  *float64         `json:"successRate"`
-	P50MS        *int64           `json:"p50Ms"`
-	P95MS        *int64           `json:"p95Ms"`
 }
 
 type LatencySeriesPoint struct {
@@ -160,6 +178,7 @@ type PerformanceData struct {
 	Metrics       []domain.Metric           `json:"metrics"`
 	Endpoints     []EndpointPerformance     `json:"endpoints"`
 	LatencySeries []LatencySeriesPoint      `json:"latencySeries"`
+	SLISeries     []SLISeriesPoint          `json:"sliSeries"`
 	Failures      []domain.DistributionItem `json:"failures"`
 }
 

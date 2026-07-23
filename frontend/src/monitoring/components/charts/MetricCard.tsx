@@ -40,7 +40,8 @@ function formatMetric(value: number | null, locale: string, format: MetricValueF
 }
 
 function formatChange(rate: number | null, delta: number, locale: string, format: MetricValueFormat) {
-  if (rate != null) return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1, signDisplay: "always" }).format(rate);
+  // 时延的百分比不如毫秒差值直观，且零基线时绝不能展示无穷百分比。
   if (format === "durationMs") return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0, signDisplay: "always" }).format(delta)} ms`;
+  if (rate != null) return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1, signDisplay: "always" }).format(rate);
   return new Intl.NumberFormat(locale, { maximumFractionDigits: 2, signDisplay: "always" }).format(delta);
 }

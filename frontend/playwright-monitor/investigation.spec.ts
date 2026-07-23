@@ -13,6 +13,17 @@ test.beforeEach(async ({ page, context }, testInfo) => {
   });
 });
 
+test("keeps stability data visible when the Dropped auxiliary request fails", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile"), "desktop evidence is sufficient for the auxiliary-error panel");
+  await page.route("**/api/analytics/system", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ requestId: "system-failure", data: null, error: { code: "ANALYTICS_QUERY_FAILED", message: "受控错误" } }) });
+  });
+  await page.goto("/#performance");
+  await expect(page.getByText("Dropped 暂不可用")).toBeVisible();
+  await expect(page.getByRole("table", { name: "公开接口性能" })).toBeVisible();
+  await page.screenshot({ path: "playwright-monitor/__screenshots__/performance-system-partial-error.png", fullPage: true });
+});
+
 test("preserves custom range, filters, language, visitor and workspace context through an investigation", async ({ page }, testInfo) => {
   await page.goto("/#overview");
   const simplified = testInfo.project.name.includes("desktop");

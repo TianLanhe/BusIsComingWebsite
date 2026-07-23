@@ -49,7 +49,11 @@ export const detailEnvelopes = {
       { operationId: "downloadLatestAndroidApk", eventType: "download_request", requestCount: 60, successRate: .98, p50Ms: null, p50Comparison: { currentMs: null, previousMs: 95, deltaMs: null, deltaRate: null }, p95Ms: null, p95Comparison: { currentMs: null, previousMs: null, deltaMs: null, deltaRate: null } },
     ],
     latencySeries: Array.from({ length: 8 }, (_, index) => ["page_view", "place_query", "route_query", "download_request"].map((eventType, typeIndex) => ({ bucketStart: `2026-07-${String(index + 13).padStart(2, "0")}T00:00:00+08:00`, bucketEnd: `2026-07-${String(index + 14).padStart(2, "0")}T00:00:00+08:00`, eventType, requestCount: 20 + index, p50Ms: 50 + typeIndex * 45 + index * 3, p95Ms: 100 + typeIndex * 130 + index * 9 }))).flat(),
-    sliSeries: ["page_view", "place_query", "route_query", "download_request"].map((eventType) => ({ bucketStart: "2026-07-20T00:00:00+08:00", bucketEnd: "2026-07-21T00:00:00+08:00", eventType, successfulPV: 0, totalPV: 0, successRate: null })),
+    sliSeries: Array.from({ length: 8 }, (_, index) => ["page_view", "place_query", "route_query", "download_request"].map((eventType, typeIndex) => {
+      const totalPV = index === 2 && typeIndex === 3 ? 0 : 20 + index;
+      const successfulPV = typeIndex === 1 && index === 4 ? 0 : totalPV - typeIndex;
+      return { bucketStart: `2026-07-${String(index + 13).padStart(2, "0")}T00:00:00+08:00`, bucketEnd: `2026-07-${String(index + 14).padStart(2, "0")}T00:00:00+08:00`, eventType, successfulPV, totalPV, successRate: totalPV === 0 ? null : successfulPV / totalPV };
+    })).flat(),
     failures: [{ key: "external_timeout", count: 11, ratio: .55 }, { key: "external_unavailable", count: 6, ratio: .3 }, { key: "invalid_request", count: 3, ratio: .15 }],
   }),
   "/api/analytics/system": envelope({ generatedAt: meta.generatedAt, database: { state: "available", rowCount: 2, todayLocalDate: "2026-07-21", todayRowCount: null, sizeBytes: 4096, lastSuccessfulWriteAt: meta.generatedAt }, sqlite: { version: "3.50.4", journalMode: "wal", schemaVersion: "001" }, process: { startedAt: meta.from, uptimeMs: null, droppedSinceStart: 0 }, privateListener: { state: "available", bindAddress: "127.0.0.1:18081", publicProxy: false } }),
