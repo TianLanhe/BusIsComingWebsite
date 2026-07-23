@@ -27,7 +27,7 @@ ID。用户已确认继续采用 HTML 导出包 + import plugin 的方式。
 上述可视化确定信息层级和交互，不包含运行数据事实。所有数值仅用于布局示例，不得成为 API
 失败时的回退值。
 
-## v1.3 待导入画板
+## v1.3 已导入画板
 
 导入包、manifest、使用说明和校验截图见
 [BusIsComing Pulse v1.3 Figma 导入包](../../docs/superpowers/prototypes/2026-07-24-analytics-dashboard-v13-figma-import/README.md)。

@@ -191,9 +191,8 @@ P50 后只改变该图，并使用包含上期为零、持平和无同期样本�
   `docs/superpowers/specs/2026-07-24-analytics-dashboard-observability-design.md`。
 - **Figma 设计**：权威文件为
   [BusIsComing Website Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)，
-  既有节点为 `63:2118`、`67:672`、`80:151`；v1.3 画板、交互状态、viewport 和导入门禁记录于
-  [figma.md](figma.md)。因 Starter 额度耗尽，不编造新节点；进入计划前必须通过 import plugin
-  导入并回填真实锚点。
+  既有节点为 `63:2118`、`67:672`、`80:151`；用户通过 import plugin 导入后的 v1.3 真实锚点
+  为 `89:1310`。画板、交互状态、viewport 和已满足的导入门禁记录于 [figma.md](figma.md)。
 - **双端适配**：桌面以 1440×1200 验证六列指标、双图和端点表；手机以 390×844 交互视口和长
   页面截图验证日期两步流程、纵向指标、图表筛选、导航可达与至少 44px 触控目标。
 - **外部集成与降级**：本功能不新增外部服务、缓存或后台任务；Figma 仅用于设计追溯。私有监控
@@ -339,7 +338,7 @@ P50 后只改变该图，并使用包含上期为零、持平和无同期样本�
 - 访客平台只来自已有下载归因；没有下载事件时平台为空。
 - 系统“文件大小”指匿名统计主数据文件大小，不包含备份，因为项目不保留备份。
 - Journal Mode、Schema 版本等技术信息只显示非敏感值，不暴露文件位置或内部 SQL。
-- Figma v1.3 将沿用既有 `Website Analytics / v1` 页面；由于 MCP 额度限制，使用本地导入包由
-  用户导入并回填真实节点。
+- Figma v1.3 沿用既有 `Website Analytics / v1` 页面；用户已通过本地导入包完成导入并提供
+  真实节点 `89:1310`。
 - 本功能不需要新增 goroutine、后台任务、外部服务或缓存；若计划阶段发现必须新增，必须重新
   评审范围和稳健性门禁。
