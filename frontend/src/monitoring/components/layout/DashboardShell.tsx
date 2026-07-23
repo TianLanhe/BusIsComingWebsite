@@ -1,10 +1,11 @@
-import { Activity, BarChart3, Clock3, Database, Download, Gauge, LayoutDashboard, Menu, RefreshCw, Route, Search, ShieldCheck, Users, X } from "lucide-react";
+import { Activity, BarChart3, Database, Download, Gauge, LayoutDashboard, Menu, RefreshCw, Route, Search, ShieldCheck, Users, X } from "lucide-react";
 import { useState } from "react";
 import { useAnalyticsFilters } from "../../app/FilterProvider";
 import type { MonitorRoute } from "../../app/hashRoute";
 import { useMonitoringI18n } from "../../app/MonitoringI18nProvider";
 import { monitoringCopy, type CopyKey } from "../../content/copy";
 import { GlobalFilters } from "../filters/GlobalFilters";
+import { DateRangeControl } from "../filters/DateRangeControl";
 import { MonitoringLanguageSwitcher } from "./MonitoringLanguageSwitcher";
 
 const nav: { route: MonitorRoute; label: CopyKey; icon: typeof Activity; group: "monitor" | "diagnostics" }[] = [
@@ -36,7 +37,7 @@ export function DashboardShell({ active = "overview", title = "pageTitle", subti
         <div className="mobile-brand-row"><Brand compact /><button type="button" aria-label={t("mobileMenu")} onClick={() => setMenuOpen(true)}><Menu /></button></div>
         <div className="title-block"><p>{t("brandEyebrow")}</p><h1>{titleText ?? t(title)}</h1><span>{subtitleText ?? t(subtitle)}</span></div>
         <div className="topbar-controls">
-          <label className="monitor-control"><Clock3 size={15} /><select value={filters.selection.kind === "preset" ? filters.selection.presetDays ?? 30 : "custom"} onChange={(event) => { if (event.target.value !== "custom") filters.setRangeDays(Number(event.target.value)); }} aria-label={t("dateRange")}><option value={7}>{t("range7")}</option><option value={30}>{t("range30")}</option><option value={90}>{t("range90")}</option><option value="custom">{t("customRange")}</option></select></label>
+          <DateRangeControl locale={locale} appliedRange={{ startDate: filters.resolvedRange.displayStartDate, endDate: filters.resolvedRange.displayEndDate }} onCommit={(startDate, endDate) => { filters.setCustomRange(startDate, endDate); }} />
           <label className="monitor-control"><BarChart3 size={15} /><select value={filters.query.granularity} onChange={(event) => filters.setGranularity(event.target.value as typeof filters.query.granularity)} aria-label={t("granularity")}><option value="hour">{t("hourly")}</option><option value="day">{t("daily")}</option><option value="week">{t("weekly")}</option><option value="month">{t("monthly")}</option></select></label>
           <MonitoringLanguageSwitcher />
           <button type="button" className="monitor-control primary" onClick={filters.refresh}><RefreshCw size={15} className={refreshing ? "spin" : ""} />{t("refresh")}</button>

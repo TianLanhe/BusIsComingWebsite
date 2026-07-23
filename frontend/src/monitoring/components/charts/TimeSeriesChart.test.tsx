@@ -33,6 +33,42 @@ describe("TimeSeriesChart", () => {
     expect(container.querySelector(".chart-visible-summary")).toBeNull();
   });
 
+  it("keeps pointer and keyboard tooltip modes mutually exclusive and clears them", () => {
+    const { container } = render(<TimeSeriesChart title="流量趋势" data={data} series={series} locale="zh-Hans" emptyLabel="暂无数据" />);
+    const point = screen.getAllByTestId("chart-point")[0];
+
+    fireEvent.mouseEnter(point);
+    expect(container.querySelector(".chart-keyboard-tooltip")).toBeNull();
+
+    fireEvent.focus(screen.getAllByTestId("chart-point")[0]);
+    expect(container.querySelectorAll(".chart-tooltip, .chart-keyboard-tooltip")).toHaveLength(1);
+    expect(screen.getByRole("status")).toHaveTextContent("主页 PV");
+
+    fireEvent.mouseEnter(screen.getAllByTestId("chart-point")[0]);
+    expect(container.querySelector(".chart-keyboard-tooltip")).toBeNull();
+    expect(container.querySelector(".recharts-reference-line")).toBeInTheDocument();
+
+    fireEvent.focus(screen.getAllByTestId("chart-point")[0]);
+    fireEvent.blur(screen.getAllByTestId("chart-point")[0]);
+    expect(container.querySelector(".chart-keyboard-tooltip")).toBeNull();
+  });
+
+  it("clears interaction when replacement data or a non-empty visible series changes", () => {
+    const { container, rerender } = render(<TimeSeriesChart title="流量趋势" data={data} series={series} locale="zh-Hans" emptyLabel="暂无数据" />);
+    fireEvent.focus(screen.getAllByTestId("chart-point")[0]);
+    expect(container.querySelector(".chart-keyboard-tooltip")).toBeInTheDocument();
+
+    rerender(<TimeSeriesChart title="流量趋势" data={[...data]} series={series} locale="zh-Hans" emptyLabel="暂无数据" />);
+    expect(container.querySelector(".chart-keyboard-tooltip")).toBeNull();
+    expect(container.querySelector(".recharts-reference-line")).toBeNull();
+
+    fireEvent.mouseEnter(screen.getAllByTestId("chart-point")[0]);
+    expect(container.querySelector(".recharts-reference-line")).toBeInTheDocument();
+    rerender(<TimeSeriesChart title="流量趋势" data={[...data]} series={[series[0]]} locale="zh-Hans" emptyLabel="暂无数据" />);
+    expect(container.querySelector(".chart-keyboard-tooltip")).toBeNull();
+    expect(container.querySelector(".recharts-reference-line")).toBeNull();
+  });
+
   it("renders an explicit empty state instead of a zero line", () => {
     render(<TimeSeriesChart title="流量趋势" data={[]} series={series} locale="en" emptyLabel="No chartable data" />);
     expect(screen.getByText("No chartable data")).toBeInTheDocument();

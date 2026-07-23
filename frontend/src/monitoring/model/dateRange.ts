@@ -78,6 +78,10 @@ function hongKongDate(date: Date): string {
   return new Date(date.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
+export function hongKongToday(date: Date): string {
+  return hongKongDate(date);
+}
+
 function hongKongMidnight(date: string): string {
   return `${date}T00:00:00+08:00`;
 }

@@ -33,4 +33,19 @@ describe("GlobalFilters", () => {
     fireEvent.click(screen.getByRole("button", { name: "Apply dates" }));
     expect(screen.getByRole("alert")).toHaveTextContent("start date cannot be after");
   });
+
+  it("synchronizes custom dates from the shared applied range after the top control commits", () => {
+    render(<MonitoringI18nProvider initialLocale="zh-Hans">
+      <FilterProvider now={() => new Date("2026-07-24T12:00:00+08:00")}>
+        <GlobalFilters />
+      </FilterProvider>
+    </MonitoringI18nProvider>);
+    fireEvent.click(screen.getByText("筛选"));
+    fireEvent.change(screen.getByLabelText("开始日期"), { target: { value: "2025-12-31" } });
+    fireEvent.change(screen.getByLabelText("结束日期"), { target: { value: "2026-01-02" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用日期" }));
+
+    expect(screen.getByLabelText("开始日期")).toHaveValue("2025-12-31");
+    expect(screen.getByLabelText("结束日期")).toHaveValue("2026-01-02");
+  });
 });

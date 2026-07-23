@@ -66,3 +66,55 @@ npm --prefix frontend run openapi:lint
 npm --prefix frontend run openapi:bundle
 # passed
 ```
+
+## US1 日期范围与单一 Tooltip（T014–T027，2026-07-24）
+
+| 对照区块 | Figma `89:1310` 要求 | 实现与证据 | 结果 |
+|---|---|---|---|
+| 顶部日期范围 | 已应用范围显示完整起止日期 | `DateRangeControl` 在 1440/390 均显示 `YYYY/MM/DD – YYYY/MM/DD`；高级筛选继续由同一 `resolvedRange` 回填 | 通过 |
+| 两步选择与降级 | 开始、结束、取消、非法范围及浏览器阻止自动打开 | `CustomDateFlow` 只保存草稿；`showPicker()` 缺失/抛错时保留“选择结束日期”显式入口；非法/未来/倒序均不提交 | 通过 |
+| 单一 Tooltip | 指针和键盘任意时刻只能有一个 Tooltip 与参考线 | 指针使用 Recharts Tooltip，键盘使用无障碍自定义 Tooltip；最近有效输入会替换前一种模式，blur/leave/数据越界清理状态 | 通过 |
+| 桌面 1440×1200 | 日期控件、完整范围和 Tooltip 可读 | `playwright-monitor/__screenshots__/time-range-desktop.png`：顶部完整范围与图内单一键盘 Tooltip 同屏 | 通过 |
+| 手机 390×844 | 日期控件、Tooltip 和主操作可读，触控目标至少 44px | `playwright-monitor/__screenshots__/time-range-mobile.png`：范围控件单列重排，刷新及日期操作 44px；单一 Tooltip 保持可读 | 通过 |
+
+有意差异：Figma 用静态日历面板讲解两步流程；实现采用浏览器原生日期选择器以符合 `showPicker()` 与系统辅助功能约束，无法自动打开时提供明确的继续点击。Figma 示例数字仅用于版式，对运行时数据没有回退作用。
+
+执行命令：
+
+```text
+npm --prefix frontend test -- src/monitoring/model/dateRangeFlow.test.ts src/monitoring/components/filters/DateRangeControl.test.tsx src/monitoring/app/FilterProvider.test.tsx src/monitoring/components/filters/GlobalFilters.test.tsx src/monitoring/components/charts/TimeSeriesChart.test.tsx
+# 5 files, 16 tests passed
+
+npm --prefix frontend run build:monitor
+# passed; 保留既有 Vite bundle-size warning
+
+npm --prefix frontend run test:e2e:monitor -- playwright-monitor/time-range.spec.ts --reporter=line
+npm --prefix frontend run test:e2e:monitor -- playwright-monitor/charts.spec.ts --reporter=line
+# 各命令均在 desktop 1440 与 mobile 390 项目通过（各 2 tests）
+```
+
+### US1 审查修复（2026-07-24）
+
+| 审查项 | 修复与可复验证据 | 结果 |
+|---|---|---|
+| 原生 picker fallback | 日期输入始终在弹层内可见可操作；缺失或抛错时“选择结束日期”只 focus 输入而不重试 `showPicker()`。组件测试分开断言 missing、throwing 与一次提交；截图由 persistent failure 流程生成，不含原生日历遮挡。 | 通过 |
+| 取消不改 query | Escape 与 root 外真实点击清除草稿。Playwright 以实际初始请求数为基线，断言未来/倒序后取消的请求增量均为 0。 | 通过 |
+| 跨年与同步 | 合法 `2025-12-31` 至 `2026-01-02` 只增加一次查询，顶部 accessible name 保留完整两年；高级筛选两个日期字段回读同一 applied range。 | 通过 |
+| Tooltip 生命周期 | 新 data 引用或非空 visible-series key 改变时无条件清除 interaction；单测断言 Tooltip/ReferenceLine 消失，并覆盖两种输入方式互斥切换。 | 通过 |
+| 可访问性与文案 | trigger 的 `aria-label` 包含完整 applied range；选择中显示第 1/2 步；开始日期未来错误使用独立的三语文案。Playwright 验证 44px，Vitest 验证英文精确文案。 | 通过 |
+
+复验命令：
+
+```text
+npm --prefix frontend test
+# 42 files, 171 tests passed
+
+npm --prefix frontend run build:monitor
+# passed；仅既有 Vite bundle-size warning
+
+npm --prefix frontend run test:e2e:monitor -- playwright-monitor/time-range.spec.ts --reporter=line
+# desktop/mobile 共 4 tests passed
+
+npm --prefix frontend run test:e2e:monitor -- playwright-monitor/charts.spec.ts --reporter=line
+# desktop/mobile 共 2 tests passed
+```

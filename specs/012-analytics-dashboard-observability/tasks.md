@@ -60,25 +60,32 @@
 
 ### 用户故事 1 的测试与验证
 
-- [ ] T014 [P] [US1] 为 idle/selecting_start/selecting_end、取消、非法范围和 fallback 编写先失败状态机测试，路径：`frontend/src/monitoring/model/dateRangeFlow.test.ts`
-- [ ] T015 [P] [US1] 为 showPicker 成功/缺失/抛异常、两步标签、结束后一次提交和 44px 操作编写先失败组件测试，路径：`frontend/src/monitoring/components/filters/DateRangeControl.test.tsx`
-- [ ] T016 [P] [US1] 为预设/自定义两处同步、取消不改 query、跨年完整年份和切换语言/页面不丢状态编写先失败 provider/filter 测试，路径：`frontend/src/monitoring/app/FilterProvider.test.tsx`、`frontend/src/monitoring/components/filters/GlobalFilters.test.tsx`
-- [ ] T017 [P] [US1] 为 pointer/keyboard/null 互斥、输入方式切换、blur/leave/data change 清理和共用格式化编写先失败图表测试，路径：`frontend/src/monitoring/components/charts/TimeSeriesChart.test.tsx`
-- [ ] T018 [US1] 用真实浏览器编写两步日期与真正 hover/focus 后可见 Tooltip 数量等于 1 的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/time-range.spec.ts`、`frontend/playwright-monitor/charts.spec.ts`
+- [X] T014 [P] [US1] 为 idle/selecting_start/selecting_end、取消、非法范围和 fallback 编写先失败状态机测试，路径：`frontend/src/monitoring/model/dateRangeFlow.test.ts`
+- [X] T015 [P] [US1] 为 showPicker 成功/缺失/抛异常、两步标签、结束后一次提交和 44px 操作编写先失败组件测试，路径：`frontend/src/monitoring/components/filters/DateRangeControl.test.tsx`
+- [X] T016 [P] [US1] 为预设/自定义两处同步、取消不改 query、跨年完整年份和切换语言/页面不丢状态编写先失败 provider/filter 测试，路径：`frontend/src/monitoring/app/FilterProvider.test.tsx`、`frontend/src/monitoring/components/filters/GlobalFilters.test.tsx`
+- [X] T017 [P] [US1] 为 pointer/keyboard/null 互斥、输入方式切换、blur/leave/data change 清理和共用格式化编写先失败图表测试，路径：`frontend/src/monitoring/components/charts/TimeSeriesChart.test.tsx`
+- [X] T018 [US1] 用真实浏览器编写两步日期与真正 hover/focus 后可见 Tooltip 数量等于 1 的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/time-range.spec.ts`、`frontend/playwright-monitor/charts.spec.ts`
 
 ### 用户故事 1 的实现
 
-- [ ] T019 [US1] 实现 CustomDateFlow 纯状态机并用中文注释区分草稿与已应用范围，路径：`frontend/src/monitoring/model/dateRangeFlow.ts`
-- [ ] T020 [US1] 实现原生两步 DateRangeControl、showPicker 能力检测、异常 fallback、取消和完整 aria-label，路径：`frontend/src/monitoring/components/filters/DateRangeControl.tsx`
-- [ ] T021 [US1] 在右上角接入 DateRangeControl，显示已应用起止日期并移除忽略 custom 的分支，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`
-- [ ] T022 [US1] 让高级筛选草稿始终从同一 resolvedRange 同步，应用后更新右上角且只触发一次查询，路径：`frontend/src/monitoring/components/filters/GlobalFilters.tsx`、`frontend/src/monitoring/app/FilterProvider.tsx`
-- [ ] T023 [US1] 重构 TimeSeriesChart 为显式最近输入方式，pointer 只显示 Recharts Tooltip、keyboard 只显示自定义提示，并统一 reference line/formatter，路径：`frontend/src/monitoring/components/charts/TimeSeriesChart.tsx`
-- [ ] T024 [P] [US1] 补齐日期两步、选择结束、fallback、取消、非法范围、跨年和单一 Tooltip 的三语自然文案，路径：`frontend/src/monitoring/content/copy.ts`
-- [ ] T025 [US1] 实现桌面/手机日期弹层、完整范围标签、Tooltip 层级和至少 44px 触控样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/responsive.css`、`frontend/src/monitoring/styles/accessibility.css`
-- [ ] T026 [US1] 运行 US1 Vitest/Playwright 并保存 1440×1200 与 390×844 日期/单一 Tooltip 证据，路径：`frontend/playwright-monitor/__screenshots__/time-range-desktop.png`、`frontend/playwright-monitor/__screenshots__/time-range-mobile.png`
-- [ ] T027 [US1] 对照 Figma `89:1310` 的 Date Range & Single Tooltip 画板记录逐区块一致性和有意差异，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T019 [US1] 实现 CustomDateFlow 纯状态机并用中文注释区分草稿与已应用范围，路径：`frontend/src/monitoring/model/dateRangeFlow.ts`
+- [X] T020 [US1] 实现原生两步 DateRangeControl、showPicker 能力检测、异常 fallback、取消和完整 aria-label，路径：`frontend/src/monitoring/components/filters/DateRangeControl.tsx`
+- [X] T021 [US1] 在右上角接入 DateRangeControl，显示已应用起止日期并移除忽略 custom 的分支，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`
+- [X] T022 [US1] 让高级筛选草稿始终从同一 resolvedRange 同步，应用后更新右上角且只触发一次查询，路径：`frontend/src/monitoring/components/filters/GlobalFilters.tsx`、`frontend/src/monitoring/app/FilterProvider.tsx`
+- [X] T023 [US1] 重构 TimeSeriesChart 为显式最近输入方式，pointer 只显示 Recharts Tooltip、keyboard 只显示自定义提示，并统一 reference line/formatter，路径：`frontend/src/monitoring/components/charts/TimeSeriesChart.tsx`
+- [X] T024 [P] [US1] 补齐日期两步、选择结束、fallback、取消、非法范围、跨年和单一 Tooltip 的三语自然文案，路径：`frontend/src/monitoring/content/copy.ts`
+- [X] T025 [US1] 实现桌面/手机日期弹层、完整范围标签、Tooltip 层级和至少 44px 触控样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/responsive.css`、`frontend/src/monitoring/styles/accessibility.css`
+- [X] T026 [US1] 运行 US1 Vitest/Playwright 并保存 1440×1200 与 390×844 日期/单一 Tooltip 证据，路径：`frontend/playwright-monitor/__screenshots__/time-range-desktop.png`、`frontend/playwright-monitor/__screenshots__/time-range-mobile.png`
+- [X] T027 [US1] 对照 Figma `89:1310` 的 Date Range & Single Tooltip 画板记录逐区块一致性和有意差异，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 **检查点**：US1 可独立证明日期范围可信且图表不存在重复 Tooltip。
+
+#### US1 审查修复证据（2026-07-24）
+
+- `DateRangeControl.test.tsx` 分别覆盖 `showPicker()` 缺失与持续抛错；fallback 只聚焦可见原生输入，不会重试失败 API。
+- 同一组件测试覆盖 Escape 与点击外部取消，均不调用应用范围回调；Playwright 进一步断言取消使 query 请求增量为 0。
+- `TimeSeriesChart.test.tsx` 覆盖 pointer→keyboard、活跃 keyboard→pointer，以及替换 data/非空 visible series 后清除 Tooltip/参考线。
+- `time-range.spec.ts` 在 desktop/mobile 断言合法跨年范围只增加一次查询、顶部与高级筛选同步、未来/倒序非法范围、44px、无 native picker fallback 和无原生日历截图遮挡。
 
 ---
 

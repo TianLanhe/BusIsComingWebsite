@@ -11,11 +11,14 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("shows Grafana-style chart detail and daily heatmap without visible summaries", async ({ page }, testInfo) => {
+test("shows one tooltip for true pointer or keyboard input and no visible summaries", async ({ page }, testInfo) => {
   await page.goto("/#overview");
   await expect(page.getByRole("list", { name: "图例" })).toContainText("主页 PV");
+  await page.getByTestId("chart-point").first().hover({ force: true });
+  await expect(page.locator(".chart-tooltip, .chart-keyboard-tooltip")).toHaveCount(1);
   await page.getByTestId("chart-point").first().focus();
   await expect(page.getByRole("status")).toContainText("主页 UV");
+  await expect(page.locator(".chart-tooltip, .chart-keyboard-tooltip")).toHaveCount(1);
   await expect(page.locator("figcaption")).toHaveCount(0);
   const fontSize = Number.parseFloat(await page.getByTestId("metric-card").first().locator(".metric-value").evaluate((node) => getComputedStyle(node).fontSize));
   expect(fontSize).toBeGreaterThanOrEqual(testInfo.project.name.includes("mobile") ? 36 : 40);

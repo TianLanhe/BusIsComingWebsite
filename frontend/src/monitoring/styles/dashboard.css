@@ -18,7 +18,7 @@
 .sidebar-status small { color: #658986; font-size: var(--pulse-font-supporting); }
 
 .monitor-main { min-height: 100vh; margin-left: 240px; }
-.monitor-topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; padding: 28px 32px 20px; border-bottom: 1px solid var(--pulse-border); background: rgba(255,255,255,.82); backdrop-filter: blur(16px); }
+.monitor-topbar { position: relative; z-index: 10; display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; padding: 28px 32px 20px; border-bottom: 1px solid var(--pulse-border); background: rgba(255,255,255,.82); backdrop-filter: blur(16px); }
 .title-block > p { margin: 0 0 4px; color: var(--pulse-cyan); font-size: var(--pulse-font-supporting); font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
 .title-block h1 { margin: 0; color: var(--pulse-text); font-size: var(--pulse-font-page-title); line-height: 1.2; letter-spacing: -.035em; }
 .title-block > span { display: block; margin-top: 4px; color: var(--pulse-muted); font-size: var(--pulse-font-body); line-height: 17px; }
@@ -29,6 +29,16 @@
 .monitor-control.primary { border-color: var(--pulse-brand); color: white; background: var(--pulse-brand); cursor: pointer; }
 .monitor-control.primary svg { color: white; }
 .monitor-control.primary:hover { background: #08676d; }
+.date-range-control { position: relative; }
+.date-range-trigger { min-width: 216px; min-height: 44px; justify-content: space-between; cursor: pointer; }
+.date-range-trigger > span { white-space: nowrap; }
+.date-range-popover { position: absolute; z-index: 12; top: calc(100% + 8px); right: 0; display: grid; gap: 10px; width: min(390px, calc(100vw - 28px)); padding: 15px; border: 1px solid var(--pulse-border-strong); border-radius: 13px; background: rgba(255,255,255,.99); box-shadow: var(--pulse-shadow-float); }
+.date-range-step { margin: 0; color: var(--pulse-brand); font-size: var(--pulse-font-supporting); font-weight: 750; }
+.date-range-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.date-range-fields label { display: grid; gap: 5px; color: var(--pulse-muted); font-size: var(--pulse-font-supporting); }
+.date-range-fields input { min-height: 44px; padding: 0 9px; border: 1px solid var(--pulse-border); border-radius: 8px; color: var(--pulse-text); background: white; font: inherit; }
+.date-range-fallback, .date-range-cancel { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 12px; border: 1px solid var(--pulse-border); border-radius: 8px; color: var(--pulse-brand); background: #f5fbfa; cursor: pointer; font: inherit; font-size: var(--pulse-font-supporting); font-weight: 700; }
+.date-range-cancel { justify-self: end; color: #526c71; background: white; }
 .mobile-brand-row { display: none; }
 .monitor-health { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 35px; padding: 0 32px; color: #577176; background: linear-gradient(90deg, #e9f5f4, #f2f9f8); border-bottom: 1px solid #dcebea; font-size: var(--pulse-font-supporting); font-weight: 570; }
 .monitor-health span { display: flex; align-items: center; gap: 6px; }

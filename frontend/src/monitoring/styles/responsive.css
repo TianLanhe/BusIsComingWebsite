@@ -28,6 +28,9 @@
   .language-control svg { display: none; }
   .language-control select { width: 100%; }
   .monitor-control.primary { grid-column: 1 / -1; }
+  .date-range-control { grid-column: 1 / -1; }
+  .date-range-trigger { width: 100%; min-height: 44px; }
+  .date-range-popover { position: static; width: 100%; margin-top: 7px; }
   .monitor-health { align-items: flex-start; min-height: 54px; padding: 9px 15px; font-size: var(--pulse-font-supporting); line-height: 13px; }
   .monitor-health span:last-child { max-width: 115px; text-align: right; }
   .global-filters { margin: 10px 14px 0; }
