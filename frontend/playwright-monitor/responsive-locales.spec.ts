@@ -44,7 +44,7 @@ test("keeps all workspaces, filters, and investigation context usable in three l
   await expect(page).toHaveURL(/#visitor$/);
   await page.locator(".language-control select").selectOption("en");
   await expect(page.getByRole("heading", { name: "Anonymous visitor" })).toBeVisible();
-  await expect(page.locator(".visitor-summary code")).toHaveText("abcdefghijklmnopqrstuv");
+  await expect(page.locator(".visitor-identity code")).toHaveText("abcdefghijklmnopqrstuv");
   await expect(page.locator(".filter-count")).toHaveText("1");
   await expect.poll(() => page.evaluate(() => localStorage.getItem("busiscoming.monitor.locale"))).toBe("en");
 });

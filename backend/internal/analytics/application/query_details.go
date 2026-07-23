@@ -61,14 +61,16 @@ func (usecase *QueryDetails) Traffic(ctx context.Context, query domain.Analytics
 	state := queryState(len(raw), len(currentScope.traffic))
 	current := aggregateOverview(currentScope, query.From, query.To, query.Granularity, state == domain.QueryReady)
 	currentValues := trafficMetricValues(currentScope.traffic)
-	previousValues, comparisonFrom, comparisonTo, err := usecase.comparisonValues(ctx, query, func(events scopedOverviewEvents) map[string]float64 { return trafficMetricValues(events.traffic) })
+	previousValues, previousAvailable, comparisonFrom, comparisonTo, err := usecase.comparisonValues(ctx, query, func(events scopedOverviewEvents) (map[string]float64, bool) {
+		return trafficMetricValues(events.traffic), len(events.traffic) > 0
+	})
 	if err != nil {
 		return TrafficData{}, err
 	}
 	return TrafficData{
 		Meta:    metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()),
-		Metrics: buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"pv", "uv", "successfulPlaceVisitors", "successfulRouteVisitors", "placeQueryRequests", "routeQueryRequests"}),
-		Series:  current.trafficSeries, TrialFunnel: current.trialFunnel, Heatmap: trafficHeatmap(currentScope.traffic),
+		Metrics: buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"pv", "uv", "successfulPlaceVisitors", "successfulRouteVisitors", "placeQueryRequests", "routeQueryRequests"}, previousAvailable),
+		Series:  current.trafficSeries, TrialFunnel: current.trialFunnel, Heatmap: trafficHeatmap(currentScope.traffic, query.From, query.To),
 		Locales: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.Locale) }),
 		Devices: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.DeviceType) }),
 		Sources: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.SourceType) }),
@@ -86,14 +88,16 @@ func (usecase *QueryDetails) Downloads(ctx context.Context, query domain.Analyti
 	scoped := scopeEvents(raw, query)
 	state := queryState(len(raw), len(scoped.download))
 	currentValues := downloadMetricValues(scoped.download)
-	previousValues, comparisonFrom, comparisonTo, err := usecase.comparisonValues(ctx, query, func(events scopedOverviewEvents) map[string]float64 { return downloadMetricValues(events.download) })
+	previousValues, previousAvailable, comparisonFrom, comparisonTo, err := usecase.comparisonValues(ctx, query, func(events scopedOverviewEvents) (map[string]float64, bool) {
+		return downloadMetricValues(events.download), len(events.download) > 0
+	})
 	if err != nil {
 		return DownloadsData{}, err
 	}
 	combined := append(append([]domain.AnalyticsEvent(nil), scoped.traffic...), scoped.download...)
 	return DownloadsData{
 		Meta:           metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()),
-		Metrics:        buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"downloadRequests", "successfulDownloadResponses", "downloadUV", "downloadSuccessRate"}),
+		Metrics:        buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"downloadRequests", "successfulDownloadResponses", "downloadUV", "downloadSuccessRate"}, previousAvailable),
 		Series:         downloadSeries(scoped.download, query.From, query.To, query.Granularity, state == domain.QueryReady),
 		DownloadFunnel: domain.DownloadFunnel(combined), Platforms: distributionByPlatform(scoped.download),
 		Versions: distributionByVersion(scoped.download), Failures: failureDistribution(scoped.download),
@@ -130,7 +134,7 @@ func (usecase *QueryDetails) Events(ctx context.Context, query domain.AnalyticsQ
 		return EventListData{}, fmt.Errorf("%w: list events", ErrStorageUnavailable)
 	}
 	state := domain.QueryReady
-	if page.TotalCount == 0 {
+	if page.Summary.TotalCount == 0 {
 		if hasEventFilters(query) || visitorID != "" {
 			state = domain.QueryNoResults
 		} else {
@@ -138,8 +142,8 @@ func (usecase *QueryDetails) Events(ctx context.Context, query domain.AnalyticsQ
 		}
 	}
 	return EventListData{
-		Meta: metaFor(query, state, nil, nil, usecase.now()), Items: eventDetails(page.Items),
-		PageInfo: pageInfo(limit, page.TotalCount, page.HasMore, page.Items),
+		Meta: metaFor(query, state, nil, nil, usecase.now()), Summary: page.Summary, Items: eventDetails(page.Items),
+		PageInfo: pageInfo(limit, page.Summary.TotalCount, page.HasMore, page.Items),
 	}, nil
 }
 
@@ -204,13 +208,15 @@ func (usecase *QueryDetails) Performance(ctx context.Context, query domain.Analy
 	scoped := scopeEvents(raw, query)
 	state := queryState(len(raw), len(scoped.combined))
 	currentValues := performanceMetricValues(scoped.combined)
-	previousValues, comparisonFrom, comparisonTo, err := usecase.comparisonValues(ctx, query, func(events scopedOverviewEvents) map[string]float64 { return performanceMetricValues(events.combined) })
+	previousValues, previousAvailable, comparisonFrom, comparisonTo, err := usecase.comparisonValues(ctx, query, func(events scopedOverviewEvents) (map[string]float64, bool) {
+		return performanceMetricValues(events.combined), len(events.combined) > 0
+	})
 	if err != nil {
 		return PerformanceData{}, err
 	}
 	return PerformanceData{
 		Meta:      metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()),
-		Metrics:   buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"requestCount", "requestSuccessRate", "p50Ms", "p95Ms"}),
+		Metrics:   buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"requestCount", "requestSuccessRate", "p50Ms", "p95Ms"}, previousAvailable),
 		Endpoints: endpointPerformance(scoped.combined), LatencySeries: latencySeries(scoped.combined, query.From, query.To, query.Granularity, state == domain.QueryReady),
 		Failures: failureDistribution(scoped.combined),
 	}, nil
@@ -259,16 +265,17 @@ func (usecase *QueryDetails) now() time.Time {
 	return usecase.clock.Now().UTC()
 }
 
-func (usecase *QueryDetails) comparisonValues(ctx context.Context, query domain.AnalyticsQuery, aggregate func(scopedOverviewEvents) map[string]float64) (map[string]float64, *time.Time, *time.Time, error) {
+func (usecase *QueryDetails) comparisonValues(ctx context.Context, query domain.AnalyticsQuery, aggregate func(scopedOverviewEvents) (map[string]float64, bool)) (map[string]float64, bool, *time.Time, *time.Time, error) {
 	if !query.Compare {
-		return map[string]float64{}, nil, nil, nil
+		return map[string]float64{}, false, nil, nil, nil
 	}
 	from, to := domain.PreviousRange(query.From, query.To)
 	raw, err := usecase.loadEvents(ctx, from, to)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, false, nil, nil, err
 	}
-	return aggregate(scopeEvents(raw, query)), &from, &to, nil
+	values, available := aggregate(scopeEvents(raw, query))
+	return values, available, &from, &to, nil
 }
 
 func metaFor(query domain.AnalyticsQuery, state domain.QueryState, comparisonFrom, comparisonTo *time.Time, generatedAt time.Time) AnalyticsMeta {
@@ -340,7 +347,7 @@ func performanceMetricValues(events []domain.AnalyticsEvent) map[string]float64 
 	return values
 }
 
-func buildMetricsForKeys(current, previous map[string]float64, compare bool, state domain.QueryState, keys []string) []domain.Metric {
+func buildMetricsForKeys(current, previous map[string]float64, compare bool, state domain.QueryState, keys []string, previousAvailable bool) []domain.Metric {
 	metrics := make([]domain.Metric, 0, len(keys))
 	for _, key := range keys {
 		metric := domain.Metric{Key: key}
@@ -348,7 +355,7 @@ func buildMetricsForKeys(current, previous map[string]float64, compare bool, sta
 			value := current[key]
 			metric.Value = &value
 		}
-		if compare {
+		if compare && previousAvailable {
 			before := previous[key]
 			metric.PreviousValue = &before
 			if metric.Value != nil {
@@ -365,38 +372,31 @@ func buildMetricsForKeys(current, previous map[string]float64, compare bool, sta
 	return metrics
 }
 
-func trafficHeatmap(events []domain.AnalyticsEvent) []HeatmapCell {
+func trafficHeatmap(events []domain.AnalyticsEvent, from, to time.Time) []HeatmapCell {
 	location, _ := time.LoadLocation("Asia/Hong_Kong")
 	type accumulator struct {
 		count    int64
 		visitors map[string]struct{}
 	}
-	values := make(map[[2]int]*accumulator)
-	for _, event := range events {
-		local := event.OccurredAt.In(location)
-		weekday := int(local.Weekday())
-		if weekday == 0 {
-			weekday = 7
-		}
-		key := [2]int{weekday, local.Hour()}
-		item := values[key]
-		if item == nil {
-			item = &accumulator{visitors: make(map[string]struct{})}
-			values[key] = item
-		}
-		item.count++
-		item.visitors[event.VisitorID] = struct{}{}
-	}
-	result := make([]HeatmapCell, 0, 168)
-	for weekday := 1; weekday <= 7; weekday++ {
-		for hour := 0; hour < 24; hour++ {
-			item := values[[2]int{weekday, hour}]
-			cell := HeatmapCell{Weekday: weekday, Hour: hour}
-			if item != nil {
-				cell.EventCount, cell.UV = item.count, int64(len(item.visitors))
+	buckets := domain.TimeBuckets(from, to, domain.GranularityDay, location)
+	result := make([]HeatmapCell, 0, len(buckets))
+	for _, bucket := range buckets {
+		item := accumulator{visitors: make(map[string]struct{})}
+		for _, event := range events {
+			if event.OccurredAt.Before(bucket.Start) || !event.OccurredAt.Before(bucket.End) {
+				continue
 			}
-			result = append(result, cell)
+			item.count++
+			item.visitors[event.VisitorID] = struct{}{}
 		}
+		// 首尾桶沿用查询的半开边界，中间桶严格按香港自然日 00:00 切分。
+		result = append(result, HeatmapCell{
+			LocalDate:   bucket.Start.In(location).Format("2006-01-02"),
+			BucketStart: bucket.Start,
+			BucketEnd:   bucket.End,
+			EventCount:  item.count,
+			UV:          int64(len(item.visitors)),
+		})
 	}
 	return result
 }
@@ -524,7 +524,24 @@ func pageInfo(limit int, total int64, hasMore bool, events []domain.AnalyticsEve
 }
 
 func visitorSummary(events []domain.AnalyticsEvent, sessions int64) VisitorSummaryData {
-	return VisitorSummaryData{VisitorID: events[0].VisitorID, FirstSeenAt: events[0].OccurredAt, LastSeenAt: events[len(events)-1].OccurredAt, EventCount: int64(len(events)), SessionCount: sessions, CommonLocale: commonLocale(events), CommonDeviceType: commonDevice(events), CommonSourceType: commonSource(events)}
+	composition := make(map[string]int64)
+	platforms := make(map[domain.Platform]int)
+	for _, event := range events {
+		composition[string(event.EventType)]++
+		if event.Download != nil {
+			platforms[event.Download.Platform]++
+		}
+	}
+	var commonPlatform *domain.Platform
+	if len(platforms) > 0 {
+		value := mostCommon(platforms)
+		commonPlatform = &value
+	}
+	return VisitorSummaryData{
+		VisitorID: events[0].VisitorID, FirstSeenAt: events[0].OccurredAt, LastSeenAt: events[len(events)-1].OccurredAt,
+		EventCount: int64(len(events)), SessionCount: sessions, CommonLocale: commonLocale(events), CommonDeviceType: commonDevice(events), CommonSourceType: commonSource(events),
+		EventComposition: distributions(composition), CommonPlatform: commonPlatform,
+	}
 }
 func commonLocale(events []domain.AnalyticsEvent) domain.Locale {
 	counts := map[domain.Locale]int{}

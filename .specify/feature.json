@@ -1,1 +1,3 @@
-{"feature_directory":"specs/010-website-analytics"}
+{
+  "feature_directory": "specs/012-analytics-dashboard-observability"
+}

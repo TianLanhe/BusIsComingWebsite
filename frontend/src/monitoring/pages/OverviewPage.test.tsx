@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { MonitoringI18nProvider } from "../app/MonitoringI18nProvider";
 import { FilterProvider } from "../app/FilterProvider";
 import { AnalyticsClientError } from "../services/analyticsClient";
-import type { OverviewData } from "../services/analyticsTypes";
+import type { AnalyticsQuery, OverviewData } from "../services/analyticsTypes";
 import { OverviewPage } from "./OverviewPage";
 
 describe("OverviewPage", () => {
@@ -22,6 +22,10 @@ describe("OverviewPage", () => {
     expect(screen.getByText("访问趋势")).toBeInTheDocument();
     expect(screen.getByText("试查漏斗")).toBeInTheDocument();
     expect(screen.getByText("响应时间 P95")).toBeInTheDocument();
+    expect(screen.getByText("APK 元数据")).toBeInTheDocument();
+    expect(screen.getAllByText("地点查询").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("路线查询").length).toBeGreaterThan(0);
+    expect(screen.getByText("下载响应")).toBeInTheDocument();
     expect(screen.getByText("下载漏斗与版本")).toBeInTheDocument();
   });
 
@@ -69,6 +73,28 @@ describe("OverviewPage", () => {
     });
     expect(loader).toHaveBeenCalledTimes(3);
   });
+
+  it("re-resolves a range containing today before the automatic request", async () => {
+    vi.useFakeTimers();
+    let instant = new Date("2026-07-21T00:30:00+08:00");
+    const loader = vi.fn(async (_query: AnalyticsQuery) => readyOverview());
+    render(
+      <MonitoringI18nProvider initialLocale="zh-Hans">
+        <FilterProvider now={() => instant}>
+          <OverviewPage loadOverview={loader} />
+        </FilterProvider>
+      </MonitoringI18nProvider>,
+    );
+    await act(async () => { await Promise.resolve(); });
+    expect(loader.mock.calls[0][0].to).toBe("2026-07-21T00:30:00+08:00");
+
+    instant = new Date("2026-07-21T00:31:00+08:00");
+    await act(async () => {
+      vi.advanceTimersByTime(60_000);
+      await Promise.resolve();
+    });
+    expect(loader.mock.calls[1][0].to).toBe("2026-07-21T00:31:00+08:00");
+  });
 });
 
 function renderOverview(loader: () => Promise<OverviewData>) {
@@ -96,6 +122,12 @@ function readyOverview(): OverviewData {
     downloadFunnel: { key: "download", sessionGapMinutes: 30, stages: [{ key: "homepage", uniqueVisitors: 3216, fromPreviousRate: null, fromFirstRate: null }, { key: "successful_download_response", uniqueVisitors: 692, fromPreviousRate: .215, fromFirstRate: .215 }] },
     eventComposition: [{ key: "page_view", count: 12480, ratio: .44 }, { key: "place_query", count: 5906, ratio: .32 }],
     latency: { requestCount: 17742, p50Ms: 28, p95Ms: 640 },
+    latencyByEvent: [
+      { eventType: "page_view", requestCount: 12480, p95Ms: 42 },
+      { eventType: "place_query", requestCount: 5906, p95Ms: 310 },
+      { eventType: "route_query", requestCount: 2674, p95Ms: 640 },
+      { eventType: "download_request", requestCount: 682, p95Ms: 95 },
+    ],
     downloadPlatforms: [{ key: "android", count: 318, ratio: 1 }],
     downloadVersions: [{ platform: "android", versionName: "1.0", versionCode: 1, requestCount: 318, successfulResponses: 315, uv: 292, sizeBytes: 20_000_000 }],
   };

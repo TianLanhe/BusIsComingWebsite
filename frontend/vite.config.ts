@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { publicRootRedirect } from "./viteRootRedirect";
 
 const frontendHost = process.env.FRONTEND_HOST ?? "0.0.0.0";
 const frontendPort = Number(process.env.FRONTEND_PORT ?? 5173);
@@ -7,7 +8,7 @@ const backendHost = process.env.BACKEND_HOST ?? "0.0.0.0";
 const backendPort = process.env.BACKEND_PORT ?? process.env.PORT ?? "8080";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [publicRootRedirect(), react()],
   server: {
     host: frontendHost,
     port: frontendPort,

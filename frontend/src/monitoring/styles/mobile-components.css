@@ -9,8 +9,8 @@
   .responsive-event-list { display: grid; gap: 8px; }
   .responsive-event-card { padding: 13px 14px; border: 1px solid var(--pulse-border); border-radius: 13px; background: white; box-shadow: var(--pulse-shadow-card); }
   .responsive-event-card header { display: flex; align-items: center; justify-content: space-between; }
-  .responsive-event-card code { color: #28575e; font-size: 10px; font-weight: 720; }
-  .responsive-event-card dl { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 6px 10px; margin: 11px 0; font-size: 8px; }
+  .responsive-event-card code { color: #28575e; font-size: var(--pulse-font-supporting); font-weight: 720; }
+  .responsive-event-card dl { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px 12px; margin: 14px 0; font-size: var(--pulse-font-body); }
   .responsive-event-card dt { color: var(--pulse-muted); }
   .responsive-event-card dd { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; margin: 0; color: #3c5b61; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .responsive-event-card button { width: 100%; justify-content: center; min-height: 36px; }
@@ -23,9 +23,10 @@
   .visitor-summary dl { grid-template-columns: auto 1fr; }
   .visitor-summary button { min-height: 44px; }
   .copy-feedback { text-align: center; }
-  .timeline-event { grid-template-columns: 18px 42px minmax(0, 1fr) 49px; gap: 5px; min-height: 48px; }
-  .timeline-event time, .timeline-event > div span, .timeline-event .outcome-badge { font-size: 7px; }
-  .timeline-event > div b { font-size: 8px; }
+  .timeline-event { grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; min-height: 72px; }
+  .timeline-event time { grid-column: 2 / -1; }
+  .timeline-event time, .timeline-event > div span, .timeline-event .outcome-badge { font-size: var(--pulse-font-supporting); }
+  .timeline-event > div b { font-size: var(--pulse-font-supporting); }
   .timeline-event .outcome-badge { min-width: 44px; padding: 0 4px; }
   .visitor-timeline > section { padding: 11px; }
   .endpoint-grid { grid-template-columns: 1fr 1fr; }

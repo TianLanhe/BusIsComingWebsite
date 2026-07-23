@@ -69,6 +69,12 @@ function overviewFixture(): OverviewData {
     downloadFunnel: { key: "download", sessionGapMinutes: 30, stages: [] },
     eventComposition: [],
     latency: { requestCount: 0, p50Ms: null, p95Ms: null },
+    latencyByEvent: [
+      { eventType: "page_view", requestCount: 0, p95Ms: null },
+      { eventType: "place_query", requestCount: 0, p95Ms: null },
+      { eventType: "route_query", requestCount: 0, p95Ms: null },
+      { eventType: "download_request", requestCount: 0, p95Ms: null },
+    ],
     downloadPlatforms: [],
     downloadVersions: [],
   };

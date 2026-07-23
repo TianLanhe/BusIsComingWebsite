@@ -43,9 +43,9 @@ type EventListRequest struct {
 }
 
 type StoredEventPage struct {
-	Items      []domain.AnalyticsEvent
-	TotalCount int64
-	HasMore    bool
+	Items   []domain.AnalyticsEvent
+	Summary EventRangeSummary
+	HasMore bool
 }
 
 type DetailsStore interface {

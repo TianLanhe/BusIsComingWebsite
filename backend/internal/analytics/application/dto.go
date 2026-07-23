@@ -28,10 +28,17 @@ type SystemStorageSnapshot struct {
 }
 
 type HeatmapCell struct {
-	Weekday    int   `json:"weekday"`
-	Hour       int   `json:"hour"`
-	EventCount int64 `json:"eventCount"`
-	UV         int64 `json:"uv"`
+	LocalDate   string    `json:"localDate"`
+	BucketStart time.Time `json:"bucketStart"`
+	BucketEnd   time.Time `json:"bucketEnd"`
+	EventCount  int64     `json:"eventCount"`
+	UV          int64     `json:"uv"`
+}
+
+type EventLatencySummary struct {
+	EventType    domain.EventType `json:"eventType"`
+	RequestCount int64            `json:"requestCount"`
+	P95MS        *int64           `json:"p95Ms"`
 }
 
 type DownloadSeriesPoint struct {
@@ -86,21 +93,31 @@ type PageInfo struct {
 	TotalCount int64   `json:"totalCount"`
 }
 
+type EventRangeSummary struct {
+	TotalCount     int64 `json:"totalCount"`
+	SuccessCount   int64 `json:"successCount"`
+	FailureCount   int64 `json:"failureCount"`
+	UniqueVisitors int64 `json:"uniqueVisitors"`
+}
+
 type EventListData struct {
-	Meta     AnalyticsMeta `json:"meta"`
-	Items    []EventDetail `json:"items"`
-	PageInfo PageInfo      `json:"pageInfo"`
+	Meta     AnalyticsMeta     `json:"meta"`
+	Summary  EventRangeSummary `json:"summary"`
+	Items    []EventDetail     `json:"items"`
+	PageInfo PageInfo          `json:"pageInfo"`
 }
 
 type VisitorSummaryData struct {
-	VisitorID        string            `json:"visitorId"`
-	FirstSeenAt      time.Time         `json:"firstSeenAt"`
-	LastSeenAt       time.Time         `json:"lastSeenAt"`
-	EventCount       int64             `json:"eventCount"`
-	SessionCount     int64             `json:"sessionCount"`
-	CommonLocale     domain.Locale     `json:"commonLocale"`
-	CommonDeviceType domain.DeviceType `json:"commonDeviceType"`
-	CommonSourceType domain.SourceType `json:"commonSourceType"`
+	VisitorID        string                    `json:"visitorId"`
+	FirstSeenAt      time.Time                 `json:"firstSeenAt"`
+	LastSeenAt       time.Time                 `json:"lastSeenAt"`
+	EventCount       int64                     `json:"eventCount"`
+	SessionCount     int64                     `json:"sessionCount"`
+	CommonLocale     domain.Locale             `json:"commonLocale"`
+	CommonDeviceType domain.DeviceType         `json:"commonDeviceType"`
+	CommonSourceType domain.SourceType         `json:"commonSourceType"`
+	EventComposition []domain.DistributionItem `json:"eventComposition"`
+	CommonPlatform   *domain.Platform          `json:"commonPlatform"`
 }
 
 type SessionDetail struct {
@@ -213,6 +230,7 @@ type OverviewData struct {
 	DownloadFunnel    domain.Funnel                `json:"downloadFunnel"`
 	EventComposition  []domain.DistributionItem    `json:"eventComposition"`
 	Latency           domain.LatencySummary        `json:"latency"`
+	LatencyByEvent    []EventLatencySummary        `json:"latencyByEvent"`
 	DownloadPlatforms []domain.DistributionItem    `json:"downloadPlatforms"`
 	DownloadVersions  []domain.VersionDistribution `json:"downloadVersions"`
 }

@@ -1,0 +1,13 @@
+{
+  "name": "BusIsComing Pulse v1.2 Dashboard Remediation",
+  "version": "2026-07-23",
+  "figmaFileKey": "LAm6RjzFuFHsHFlcipx8pU",
+  "targetPage": "Website Analytics / v1",
+  "baseUrl": "http://127.0.0.1:59337/index.html?screen=",
+  "frames": [
+    { "screen": "typography", "frameName": "14 Pulse v1.2 / Typography & Metric States / 1440", "width": 1440, "height": 1000, "x": 0, "y": 5560 },
+    { "screen": "charts", "frameName": "15 Pulse v1.2 / Grafana Charts & Daily Heatmap / 1440", "width": 1440, "height": 1100, "x": 1520, "y": 5560 },
+    { "screen": "workspaces", "frameName": "16 Pulse v1.2 / Detailed Workspaces / 1440", "width": 1440, "height": 1200, "x": 3040, "y": 5560 },
+    { "screen": "mobile", "frameName": "17 Pulse v1.2 / Mobile Remediation / 390", "width": 390, "height": 1640, "x": 4560, "y": 5560 }
+  ]
+}

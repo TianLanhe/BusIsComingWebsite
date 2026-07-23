@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#183c43" flood-opacity=".14"/>
+    </filter>
+    <style>
+      .bg { fill: #f4f8f8; }
+      .panel { fill: #fff; stroke: #d8e6e8; stroke-width: 2; }
+      .control { fill: #fff; stroke: #cddfe2; stroke-width: 2; }
+      .active { fill: #edf9f8; stroke: #0d6f72; stroke-width: 2.5; }
+      .primary { fill: #0d6f72; }
+      .text { fill: #183c43; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .muted { fill: #60777d; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .tiny { font-size: 20px; font-weight: 650; }
+      .label { font-size: 23px; font-weight: 650; }
+      .title { font-size: 30px; font-weight: 780; }
+      .step { font-size: 22px; font-weight: 800; letter-spacing: 1px; fill: #0d6f72; }
+      .white { fill: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 22px; font-weight: 760; }
+      .day { fill: #27484f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 18px; text-anchor: middle; }
+      .arrow { stroke: #7aa8ac; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1600" height="900"/>
+  <text class="text title" x="72" y="70">自定日期交互方案 · 依次选择，完成后立即应用</text>
+  <text class="muted label" x="72" y="108">桌面端锚定右上角日期控件；移动端使用同样的两步流程并铺满可用宽度</text>
+
+  <g transform="translate(55 155)">
+    <rect class="panel" rx="28" width="450" height="650"/>
+    <text class="step" x="30" y="48">01 · 打开</text>
+    <text class="text title" x="30" y="92">选择「自定日期」</text>
+    <rect class="active" x="30" y="128" width="390" height="62" rx="14"/>
+    <circle cx="59" cy="159" r="10" fill="none" stroke="#0d6f72" stroke-width="3"/>
+    <line x1="59" y1="145" x2="59" y2="138" stroke="#0d6f72" stroke-width="3" stroke-linecap="round"/>
+    <text class="text label" x="82" y="168">自定日期</text>
+    <path d="M388 151 l8 8 8-8" class="arrow" stroke-width="3"/>
+
+    <rect class="panel" x="30" y="210" width="390" height="388" rx="20" filter="url(#shadow)"/>
+    <text class="text title" x="58" y="257">选择开始日期</text>
+    <text class="muted tiny" x="58" y="290">第 1 / 2 步</text>
+    <rect class="control" x="58" y="317" width="334" height="58" rx="12"/>
+    <text class="text label" x="78" y="355">2026 / 07 / 01</text>
+    <rect x="58" y="397" width="334" height="2" fill="#e6eff0"/>
+    <text class="muted tiny" x="85" y="435">日</text><text class="muted tiny" x="130" y="435">一</text><text class="muted tiny" x="175" y="435">二</text>
+    <text class="muted tiny" x="220" y="435">三</text><text class="muted tiny" x="265" y="435">四</text><text class="muted tiny" x="310" y="435">五</text><text class="muted tiny" x="355" y="435">六</text>
+    <text class="day" x="85" y="477">28</text><text class="day" x="130" y="477">29</text><text class="day" x="175" y="477">30</text>
+    <circle cx="220" cy="470" r="22" fill="#0d6f72"/><text class="white" text-anchor="middle" x="220" y="478">1</text>
+    <text class="day" x="265" y="477">2</text><text class="day" x="310" y="477">3</text><text class="day" x="355" y="477">4</text>
+    <text class="muted tiny" x="58" y="637">点选后自动进入结束日期</text>
+  </g>
+
+  <path d="M520 478 h62 m-16-14 16 14-16 14" class="arrow"/>
+
+  <g transform="translate(590 155)">
+    <rect class="panel" rx="28" width="450" height="650"/>
+    <text class="step" x="30" y="48">02 · 继续</text>
+    <text class="text title" x="30" y="92">选择结束日期</text>
+    <rect class="active" x="30" y="128" width="390" height="62" rx="14"/>
+    <text class="text label" x="55" y="168">07/01 – 选择结束日期</text>
+    <path d="M388 151 l8 8 8-8" class="arrow" stroke-width="3"/>
+
+    <rect class="panel" x="30" y="210" width="390" height="388" rx="20" filter="url(#shadow)"/>
+    <text class="text title" x="58" y="257">选择结束日期</text>
+    <text class="muted tiny" x="58" y="290">第 2 / 2 步 · 最早 07/01</text>
+    <rect class="control" x="58" y="317" width="334" height="58" rx="12"/>
+    <text class="text label" x="78" y="355">2026 / 07 / 24</text>
+    <rect x="58" y="397" width="334" height="2" fill="#e6eff0"/>
+    <text class="muted tiny" x="85" y="435">日</text><text class="muted tiny" x="130" y="435">一</text><text class="muted tiny" x="175" y="435">二</text>
+    <text class="muted tiny" x="220" y="435">三</text><text class="muted tiny" x="265" y="435">四</text><text class="muted tiny" x="310" y="435">五</text><text class="muted tiny" x="355" y="435">六</text>
+    <text class="day" x="85" y="477">19</text><text class="day" x="130" y="477">20</text><text class="day" x="175" y="477">21</text>
+    <text class="day" x="220" y="477">22</text><text class="day" x="265" y="477">23</text>
+    <circle cx="310" cy="470" r="22" fill="#0d6f72"/><text class="white" text-anchor="middle" x="310" y="478">24</text>
+    <text class="day" x="355" y="477">25</text>
+    <text class="muted tiny" x="58" y="637">点选后立即应用并关闭</text>
+  </g>
+
+  <path d="M1055 478 h62 m-16-14 16 14-16 14" class="arrow"/>
+
+  <g transform="translate(1125 155)">
+    <rect class="panel" rx="28" width="420" height="650"/>
+    <text class="step" x="30" y="48">03 · 完成</text>
+    <text class="text title" x="30" y="92">右上角保留已选范围</text>
+    <rect class="active" x="30" y="128" width="360" height="62" rx="14"/>
+    <circle cx="58" cy="159" r="10" fill="none" stroke="#0d6f72" stroke-width="3"/>
+    <line x1="58" y1="145" x2="58" y2="138" stroke="#0d6f72" stroke-width="3" stroke-linecap="round"/>
+    <text class="text label" x="81" y="168">07/01 – 07/24</text>
+    <path d="M357 151 l8 8 8-8" class="arrow" stroke-width="3"/>
+
+    <rect x="30" y="224" width="360" height="128" rx="18" fill="#edf9f8"/>
+    <circle cx="66" cy="263" r="14" fill="#0d6f72"/>
+    <path d="M59 263 l5 5 10-12" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text class="text label" x="92" y="271">范围已应用</text>
+    <text class="muted tiny" x="58" y="315">Dashboard 自动刷新一次</text>
+
+    <text class="text label" x="30" y="416">交互保障</text>
+    <text class="muted tiny" x="30" y="458">• 结束日期不能早于开始日期</text>
+    <text class="muted tiny" x="30" y="495">• 不能选择香港时区的未来日期</text>
+    <text class="muted tiny" x="30" y="532">• Escape / 点击外部可取消</text>
+    <text class="muted tiny" x="30" y="569">• 键盘焦点按步骤推进</text>
+  </g>
+</svg>

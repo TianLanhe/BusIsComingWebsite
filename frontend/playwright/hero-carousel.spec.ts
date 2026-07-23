@@ -20,7 +20,7 @@ test("carousel keeps the expected order and separates screenshot and copy gestur
   await clickExposedBackCard(page, "home-all-routes-sheet");
   await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-all-routes-sheet");
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "favorite-citybus-routes");
-  await page.getByRole("button", { name: "Feature Clearer route comparison" }).click();
+  await page.getByTestId("active-slide").getByRole("button").nth(1).click();
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison");
   await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "route-comparison", { timeout: 7_000 });
@@ -41,7 +41,7 @@ test("carousel keeps the expected order and separates screenshot and copy gestur
   await page.mouse.up();
   await expect(page.getByTestId("active-slide")).toHaveAttribute("data-slide-id", "predeparture-monitor");
 
-  await page.getByRole("button", { name: "Feature Saved Citybus routes in one tap" }).click();
+  await page.getByTestId("active-slide").getByRole("button").nth(0).click();
   await clickExposedBackCard(page, "home-favorites-results");
   await expect(page.getByTestId("screenshot-rail")).toHaveAttribute("data-active-image-id", "home-favorites-results");
   const foldedImageBox = await page.locator('button[data-image-id="home-all-routes-sheet"]').boundingBox();

@@ -15,10 +15,12 @@ func (store *Store) ListEvents(ctx context.Context, request analyticsapp.EventLi
 	if request.VisitorID != "" {
 		base.addEqual("visitor_id", request.VisitorID)
 	}
-	countQuery, countArguments := base.countSQL()
-	var total int64
-	if err := store.db.QueryRowContext(ctx, countQuery, countArguments...).Scan(&total); err != nil {
-		return analyticsapp.StoredEventPage{}, fmt.Errorf("count analytics events: %w", err)
+	summaryQuery, summaryArguments := base.summarySQL()
+	var summary analyticsapp.EventRangeSummary
+	if err := store.db.QueryRowContext(ctx, summaryQuery, summaryArguments...).Scan(
+		&summary.TotalCount, &summary.SuccessCount, &summary.FailureCount, &summary.UniqueVisitors,
+	); err != nil {
+		return analyticsapp.StoredEventPage{}, fmt.Errorf("summarize analytics events: %w", err)
 	}
 	page := base.clone()
 	if request.Cursor != nil {
@@ -47,7 +49,7 @@ func (store *Store) ListEvents(ctx context.Context, request analyticsapp.EventLi
 	if hasMore {
 		items = items[:request.Limit]
 	}
-	return analyticsapp.StoredEventPage{Items: items, TotalCount: total, HasMore: hasMore}, nil
+	return analyticsapp.StoredEventPage{Items: items, Summary: summary, HasMore: hasMore}, nil
 }
 
 func (store *Store) LoadVisitorEvents(ctx context.Context, visitorID string) ([]domain.AnalyticsEvent, error) {

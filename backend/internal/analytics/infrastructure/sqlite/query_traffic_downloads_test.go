@@ -36,7 +36,7 @@ func TestTrafficAndDownloadsProduceHeatmapVersionsPlatformsAndFailures(t *testin
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(traffic.Heatmap) != 168 || traffic.TrialFunnel.Stages[1].UniqueVisitors != 1 {
+	if len(traffic.Heatmap) != 2 || traffic.TrialFunnel.Stages[1].UniqueVisitors != 1 {
 		t.Fatalf("unexpected traffic: %#v", traffic)
 	}
 	downloads, err := usecase.Downloads(context.Background(), query)

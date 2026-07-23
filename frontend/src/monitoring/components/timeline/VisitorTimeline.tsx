@@ -4,5 +4,11 @@ import type { DerivedSession } from "../../services/analyticsTypes";
 import { formatDate } from "../tables/EventTable";
 
 export function VisitorTimeline({ sessions, locale }: { sessions: DerivedSession[]; locale: MonitoringLocale }) {
-  return <div className="visitor-timeline">{sessions.map((session) => <section key={session.ordinal}><div className="session-divider"><b>{detailText(locale, "session")} {session.ordinal}</b><span>{session.eventCount} · {Math.round(session.durationMs / 1000)}s</span></div><div className="timeline-events">{session.events.map((event) => <div className="timeline-event" key={event.eventId}><i /><time>{formatDate(event.occurredAt, locale)}</time><div><b>{eventLabels[event.eventType][locale]}</b><span>{dimensionText(locale, event.deviceType)} · {dimensionText(locale, event.sourceType)} · {event.durationMs}ms</span></div><em className={`outcome-badge ${event.outcome}`}>{dimensionText(locale, event.outcome)}</em></div>)}</div></section>)}</div>;
+  return <div className="visitor-timeline"><div className="timeline-heading"><h2>{detailText(locale, "sessionTimeline")}</h2><p>{detailText(locale, "sessionRule")}</p></div>{sessions.map((session) => <section key={session.ordinal}><div className="session-divider"><b>{detailText(locale, "session")} {session.ordinal}</b><span>{session.eventCount} · {formatDuration(session.durationMs, locale)}</span></div><div className="timeline-events">{session.events.map((event) => <div className="timeline-event" key={event.eventId}><i /><time>{formatDate(event.occurredAt, locale)}</time><div><b>{eventLabels[event.eventType][locale]}</b><span>{dimensionText(locale, event.deviceType)} · {dimensionText(locale, event.sourceType)} · {event.durationMs}ms</span></div><em className={`outcome-badge ${event.outcome}`}>{dimensionText(locale, event.outcome)}</em></div>)}</div></section>)}</div>;
+}
+
+function formatDuration(value: number, locale: string) {
+  const minutes = Math.floor(value / 60_000);
+  const seconds = Math.round((value % 60_000) / 1000);
+  return `${new Intl.NumberFormat(locale).format(minutes)}m ${new Intl.NumberFormat(locale).format(seconds)}s`;
 }

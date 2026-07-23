@@ -9,7 +9,7 @@ describe("monitoring accessibility", () => {
     render(<AccessibleChartFrame title="Traffic" summary="PV and UV by day" columns={["Day", "PV", "UV"]} rows={[["07-21", "10", "4"]]}><div data-testid="visual-chart" /></AccessibleChartFrame>);
     expect(screen.getByRole("figure", { name: "Traffic" })).toHaveTextContent("PV and UV by day");
     expect(screen.getByRole("table", { name: "Traffic" })).toHaveTextContent("07-21");
-    expect(screen.getByTestId("visual-chart")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByTestId("visual-chart")).not.toHaveAttribute("aria-hidden");
   });
 
   it("announces query state changes", () => {

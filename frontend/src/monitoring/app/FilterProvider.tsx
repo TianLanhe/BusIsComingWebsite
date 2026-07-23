@@ -1,10 +1,14 @@
-import { createContext, useContext, useMemo, useState } from "react";
-import type { AnalyticsLocale, AnalyticsQuery, DeviceType, Granularity, Outcome, Platform, SourceType } from "../services/analyticsTypes";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { DateRangeValidationError, resolveDateRange, type DateRangeSelection, type PresetDays, type ResolvedDateRange } from "../model/dateRange";
+import type { AnalyticsLocale, AnalyticsQuery, DeviceType, EventType, Granularity, Outcome, Platform, SourceType } from "../services/analyticsTypes";
 
 interface FilterValue {
   query: AnalyticsQuery;
+  selection: DateRangeSelection;
+  resolvedRange: ResolvedDateRange;
   rangeDays: number;
   setRangeDays: (days: number) => void;
+  setCustomRange: (startDate: string, endDate: string) => DateRangeValidationError | null;
   setGranularity: (value: Granularity) => void;
   setCompare: (value: boolean) => void;
   toggleLocale: (value: AnalyticsLocale) => void;
@@ -12,14 +16,17 @@ interface FilterValue {
   toggleSource: (value: SourceType) => void;
   toggleOutcome: (value: Outcome) => void;
   togglePlatform: (value: Platform) => void;
+  toggleEventType: (value: EventType) => void;
   refreshVersion: number;
   refresh: () => void;
 }
 
 const FilterContext = createContext<FilterValue | null>(null);
+const defaultSelection: DateRangeSelection = { kind: "preset", presetDays: 30, startDate: null, endDate: null };
 
 export function FilterProvider({ children, now = () => new Date() }: { children: React.ReactNode; now?: () => Date }) {
-  const [rangeDays, setRangeDays] = useState(30);
+  const [selection, setSelection] = useState<DateRangeSelection>(defaultSelection);
+  const [clockAnchor, setClockAnchor] = useState(() => now());
   const [granularity, setGranularity] = useState<Granularity>("day");
   const [compare, setCompare] = useState(true);
   const [locale, setLocale] = useState<AnalyticsLocale[]>([]);
@@ -27,18 +34,70 @@ export function FilterProvider({ children, now = () => new Date() }: { children:
   const [source, setSource] = useState<SourceType[]>([]);
   const [outcome, setOutcome] = useState<Outcome[]>([]);
   const [platform, setPlatform] = useState<Platform[]>([]);
+  const [eventType, setEventType] = useState<EventType[]>([]);
   const [refreshVersion, setRefreshVersion] = useState(0);
-  const boundaries = useMemo(() => hongKongRange(now(), rangeDays), [now, rangeDays]);
+  const resolvedRange = useMemo(() => resolveDateRange(selection, clockAnchor), [clockAnchor, selection]);
   const query = useMemo<AnalyticsQuery>(() => ({
-    ...boundaries, granularity, compare, locale, device, source, outcome, platform, versionName: [], versionCode: [],
-  }), [boundaries, compare, device, granularity, locale, outcome, platform, source]);
-  const toggle = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, value: T) => setter((current) => current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
+    from: resolvedRange.from,
+    to: resolvedRange.to,
+    granularity,
+    compare,
+    locale,
+    device,
+    source,
+    outcome,
+    platform,
+    versionName: [],
+    versionCode: [],
+    eventType,
+  }), [compare, device, eventType, granularity, locale, outcome, platform, resolvedRange.from, resolvedRange.to, source]);
+
+  const setRangeDays = useCallback((days: number) => {
+    if (days !== 7 && days !== 30 && days !== 90) return;
+    setSelection({ kind: "preset", presetDays: days as PresetDays, startDate: null, endDate: null });
+    setClockAnchor(now());
+  }, [now]);
+
+  const setCustomRange = useCallback((startDate: string, endDate: string) => {
+    const next: DateRangeSelection = { kind: "custom", presetDays: null, startDate, endDate };
+    const anchor = now();
+    try {
+      resolveDateRange(next, anchor);
+    } catch (error) {
+      return error instanceof DateRangeValidationError ? error : new DateRangeValidationError("invalid");
+    }
+    setClockAnchor(anchor);
+    setSelection(next);
+    return null;
+  }, [now]);
+
+  const refresh = useCallback(() => {
+    setClockAnchor(now());
+    setRefreshVersion((value) => value + 1);
+  }, [now]);
+
+  const toggle = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, value: T) =>
+    setter((current) => current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
+
   const value = useMemo<FilterValue>(() => ({
-    query, rangeDays, setRangeDays, setGranularity, setCompare,
-    toggleLocale: (item) => toggle(setLocale, item), toggleDevice: (item) => toggle(setDevice, item),
-    toggleSource: (item) => toggle(setSource, item), toggleOutcome: (item) => toggle(setOutcome, item),
-    togglePlatform: (item) => toggle(setPlatform, item), refreshVersion, refresh: () => setRefreshVersion((value) => value + 1),
-  }), [query, rangeDays, refreshVersion]);
+    query,
+    selection,
+    resolvedRange,
+    rangeDays: selection.kind === "preset" ? selection.presetDays! : resolvedRange.dayCount,
+    setRangeDays,
+    setCustomRange,
+    setGranularity,
+    setCompare,
+    toggleLocale: (item) => toggle(setLocale, item),
+    toggleDevice: (item) => toggle(setDevice, item),
+    toggleSource: (item) => toggle(setSource, item),
+    toggleOutcome: (item) => toggle(setOutcome, item),
+    togglePlatform: (item) => toggle(setPlatform, item),
+    toggleEventType: (item) => toggle(setEventType, item),
+    refreshVersion,
+    refresh,
+  }), [query, refresh, refreshVersion, resolvedRange, selection, setCustomRange, setRangeDays]);
+
   return <FilterContext.Provider value={value}>{children}</FilterContext.Provider>;
 }
 
@@ -46,16 +105,4 @@ export function useAnalyticsFilters() {
   const value = useContext(FilterContext);
   if (!value) throw new Error("useAnalyticsFilters must be used inside FilterProvider");
   return value;
-}
-
-function hongKongRange(now: Date, days: number): Pick<AnalyticsQuery, "from" | "to"> {
-  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Hong_Kong", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now).map((part) => [part.type, part.value]));
-  const endUTC = new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00+08:00`);
-  const startUTC = new Date(endUTC.getTime() - days * 24 * 60 * 60 * 1000);
-  return { from: hkDate(startUTC), to: hkDate(endUTC) };
-}
-
-function hkDate(date: Date): string {
-  const local = new Date(date.getTime() + 8 * 60 * 60 * 1000);
-  return `${local.toISOString().slice(0, 19)}+08:00`;
 }

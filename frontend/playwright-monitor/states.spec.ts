@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { overviewEnvelope } from "./fixtures/analytics";
+import { detailEnvelopes, systemFailureEnvelope } from "./fixtures/details";
 
 const states = ["loading", "no_data", "no_results", "query_failed", "storage_unavailable"] as const;
 const headings = {
@@ -39,6 +40,7 @@ for (const state of states) {
     }
     if (state === "query_failed") {
       const beforeRetry = requestCount;
+      await page.locator(".global-filters summary").click();
       await page.getByRole("button", { name: "重试查询" }).click();
       await expect.poll(() => requestCount).toBeGreaterThan(beforeRetry);
       await expect(page.locator(".filter-count")).toHaveText("1");
@@ -47,3 +49,15 @@ for (const state of states) {
     await page.screenshot({ path: `playwright-monitor/__screenshots__/state-${state}-${viewport}.png`, fullPage: false });
   });
 }
+
+test("system failure only degrades Dropped on the performance workspace", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile"), "desktop evidence is sufficient for this local partial failure");
+  await page.addInitScript(() => localStorage.setItem("busiscoming.monitor.locale", "zh-Hans"));
+  await page.route("**/api/analytics/performance?**", async (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(detailEnvelopes["/api/analytics/performance"]) }));
+  await page.route("**/api/analytics/system", async (route) => route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify(systemFailureEnvelope) }));
+  await page.goto("/#performance");
+  await expect(page.getByRole("table", { name: "公开接口性能" })).toBeVisible();
+  await expect(page.getByText("Dropped 暂不可用")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "统计查询暂时失败" })).toHaveCount(0);
+  await page.screenshot({ path: "playwright-monitor/__screenshots__/performance-system-partial-error.png", fullPage: true });
+});
