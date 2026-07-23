@@ -56,7 +56,7 @@
   .distribution { justify-content: center; }
   .query-state { grid-template-columns: 1fr; gap: 14px; min-height: 390px; padding: 30px 22px; text-align: center; }
   .query-state-icon { margin: 0 auto; }
-  .mobile-bottom-nav { position: fixed; z-index: 20; right: 12px; bottom: 10px; left: 12px; display: grid; grid-template-columns: repeat(4, 1fr); height: 62px; padding: 7px; border-radius: 18px; background: #0e2f31; box-shadow: var(--pulse-shadow-float); }
+  .mobile-bottom-nav { position: fixed; z-index: 20; right: 12px; bottom: 10px; left: 12px; display: grid; grid-template-columns: repeat(3, 1fr); height: 62px; padding: 7px; border-radius: 18px; background: #0e2f31; box-shadow: var(--pulse-shadow-float); }
   .mobile-bottom-nav a { display: grid; place-items: center; gap: 2px; border-radius: 12px; color: #84aaa6; text-decoration: none; font-size: var(--pulse-font-supporting); }
   .mobile-bottom-nav a svg { width: 16px; }
   .mobile-bottom-nav a.active { color: white; background: rgba(112,218,197,.13); }

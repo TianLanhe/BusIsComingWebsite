@@ -34,10 +34,10 @@
 | FR-004–010, SC-001 | UI contract §1 | date flow、FilterProvider、DateRangeControl、GlobalFilters | `time-range.spec.ts`，Figma 日期流程，桌面/手机 | 后续 US1 |
 | FR-011–014, SC-003 | EventListData.summaryMetrics；Go event summary | `comparisonState.test.ts`、EventsPage、MetricCard | `investigation.spec.ts`，人工分页隔离 | 基础模型已通过；US2/US3 待完成 |
 | FR-015–027, SC-004–006 | PerformanceData、PercentileComparison、SLISeriesPoint；Go performance | comparison、MetricCard、PerformancePage | `charts.spec.ts`，Figma Stability & SLI | 基础类型/模型已通过；US2 待完成 |
-| FR-028–032 | UI contract §4 | copy、导航组件 | `responsive-locales.spec.ts`，Figma 导航 | 三语 key 已通过；US5 待完成 |
+| FR-028–032 | UI contract §4 | copy、导航组件 | `accessibility.test.tsx`、`responsive-locales.spec.ts`，Figma 导航 | 通过 |
 | FR-033–039, SC-008 | SystemData、SQLiteRuntimeStatus、ProcessStatus；Go system ports | SystemPage | `investigation.spec.ts`，隐私人工检查 | 基础类型/fixture 已通过；US4 待完成 |
 | FR-040–043, SC-007 | TrafficData six metrics；Go traffic query | DetailPages、TrafficPage | `investigation.spec.ts`，Figma Business & Event Metrics | 基础类型/fixture 已通过；US3 待完成 |
-| FR-044–048, SC-009 | Visitor schema；Go stable tie ordering | VisitorPage、DetailPages | `investigation.spec.ts`，Figma System & Visitor Details | fixture 无平台已通过；US5 待完成 |
+| FR-044–048, SC-009 | Visitor schema；Go stable tie ordering | VisitorPage、DetailPages | `investigation.spec.ts`，Figma System & Visitor Details | 通过 |
 | FR-049–050, SC-011 | 中文 OpenAPI project copy | `copy.test.ts` | `responsive-locales.spec.ts`，繁中/英文人工审校 | 基础 key 已通过；全页待完成 |
 | FR-051–053, SC-010/013 | UI contract §6，Figma metadata | responsive component tests | 两 viewport 截图、Figma 节点 89:1310 逐区块 | 后续 US1–US5 |
 | FR-054, SC-014 | feature/shared 012 YAML，7 operationIds | `analyticsContract.test.ts`，Redocly | bundle/私有 docs 人工检查 | 通过 |
@@ -192,6 +192,15 @@ npm --prefix frontend run test:e2e:monitor -- --reporter=line
 | 12 项页面与局部无数据 | 仅保留 SQLite 明细、SQLite 运行信息、服务运行信息；恰好 12 项动态事实，任何空字段仅局部显示无数据 | `SystemPage.test.tsx` 断言 12 项、三块和删除重复区块；Playwright 使 Journal Mode/监听地址为空，确认其余事实如 SQLite version 保留。 | 通过 |
 | 三语与双端视觉 | `zh-Hans`、`zh-Hant`、`en`，1440 与 390，无全页横向溢出 | `system-v13-{zh-Hans,zh-Hant,en}-{desktop,mobile}.png` 与 `system-v13-{desktop,mobile}.png`；对照 Figma System & Visitor Details 画板，三段式卡片在手机两列重排。 | 通过 |
 | HTTP、隐私与回归 | 单一 system endpoint、no-store、既有 envelope、无数据库路径/SQL/内部错误/访客数据 | HTTP 单测覆盖 nullable 运行字段、`Cache-Control: no-store` 与禁止项；`go test ./...` 运行既有隐私哨兵；OpenAPI shared lint 通过。 | 通过 |
+
+## US5 访客调查与导航（T079–T087，2026-07-24）
+
+| 对照区块 | Figma `89:1310` / 契约要求 | 实现与证据 | 结果 |
+|---|---|---|---|
+| 访客四卡与偏好 | 首次出现、最后出现、会话、累计事件；语言、平台、装置 | `VisitorPage.test.tsx` 覆盖卡片顺序、无下载平台、完整 ID 复制与返回事件；页面保留事件构成与完整会话时间线。 | 通过 |
+| 完整历史与稳定并列 | 偏好依完整历史按稳定字符串顺序决出并列；无下载为 null；30 分钟会话不受分页影响 | Go 回归覆盖 locale/device/platform 并列、无下载 null、`limit=1` 时完整会话与构成仍来自全部历史。 | 通过 |
+| 三组七页导航 | 业务监控（总览/流量与试查/下载分析）、技术监控（稳定性及延迟/系统状态）、数据明细（事件明细/访客明细） | `DashboardShell` 单一 `navGroups` 驱动桌面侧栏、移动抽屉和三组底栏入口；accessibility test 断言七路由与当前页状态，mobile E2E 经抽屉到访客调查。 | 通过 |
+| 三语与双端视觉 | zh-Hans、zh-Hant、en；1440/390；无全页横向溢出；44px 操作 | `responsive-locales.spec.ts` 走过三语七页并保持筛选/调查对象；`investigation.spec.ts` 覆盖桌面和手机语言切换、日期与筛选保持；截图 `visitor-v13-desktop.png`、`visitor-v13-mobile.png` 对照 Figma System & Visitor Details / Mobile Observability 画板。 | 通过 |
 
 执行命令：
 

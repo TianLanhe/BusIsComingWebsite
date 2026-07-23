@@ -270,8 +270,30 @@ func TestQueryDetailsVisitorUsesCompleteHistoryForCompositionAndCommonPlatform(t
 	if total != int64(len(events)) || len(result.Visitor.EventComposition) != 3 {
 		t.Fatalf("composition must use complete history: %#v", result.Visitor.EventComposition)
 	}
-	if result.PageInfo.TotalCount != int64(len(events)) || len(result.Sessions) != 1 || result.Sessions[0].EventCount != 1 {
-		t.Fatalf("pagination must not change summary: %#v", result)
+	if result.PageInfo.TotalCount != int64(len(events)) || len(result.Sessions) != 1 || result.Sessions[0].EventCount != len(events) {
+		t.Fatalf("pagination must not change the complete session timeline: %#v", result)
+	}
+}
+
+func TestQueryDetailsVisitorUsesStableOrderingForPreferenceTies(t *testing.T) {
+	base := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	visitor := "abcdefghijklmnopqrstuv"
+	events := []domain.AnalyticsEvent{
+		detailTestEvent(1, visitor, domain.EventPageView, base),
+		detailTestEvent(2, visitor, domain.EventDownloadRequest, base.Add(time.Minute)),
+		detailTestEvent(3, visitor, domain.EventPageView, base.Add(2*time.Minute)),
+		detailTestEvent(4, visitor, domain.EventDownloadRequest, base.Add(3*time.Minute)),
+	}
+	events[0].Locale, events[1].Locale, events[2].Locale, events[3].Locale = domain.LocaleZhHant, domain.LocaleEnglish, domain.LocaleZhHant, domain.LocaleEnglish
+	events[0].DeviceType, events[1].DeviceType, events[2].DeviceType, events[3].DeviceType = domain.DeviceMobile, domain.DeviceDesktop, domain.DeviceMobile, domain.DeviceDesktop
+	events[1].Download = &domain.DownloadAttribution{Platform: domain.PlatformIOS}
+	events[3].Download = &domain.DownloadAttribution{Platform: domain.PlatformAndroid}
+	result, err := NewQueryDetails(&detailsStoreStub{visitorEvents: events}, nil, ClockFunc(time.Now), nil).Visitor(context.Background(), visitor, 1, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Visitor.CommonLocale != domain.LocaleEnglish || result.Visitor.CommonDeviceType != domain.DeviceDesktop || result.Visitor.CommonPlatform == nil || *result.Visitor.CommonPlatform != domain.PlatformAndroid {
+		t.Fatalf("preference ties must use stable enum ordering: %#v", result.Visitor)
 	}
 }
 

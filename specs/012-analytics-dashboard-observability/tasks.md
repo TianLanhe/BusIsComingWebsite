@@ -224,18 +224,18 @@ Visitor 的 fixture 验证六卡及趋势口径。
 
 ### 用户故事 5 的测试与验证
 
-- [ ] T079 [P] [US5] 为 common locale/device/platform 稳定并列、无下载 null、完整历史和 30 分钟会话不受分页影响补充后端回归测试，路径：`backend/internal/analytics/application/query_details_test.go`
-- [ ] T080 [P] [US5] 为首次/最后/会话/累计事件四卡顺序、语言/平台/装置、无平台、复制和时间线编写先失败页面测试，路径：`frontend/src/monitoring/pages/VisitorPage.test.tsx`
-- [ ] T081 [P] [US5] 为 business/technical/details 三组、七页路由、桌面侧栏/移动抽屉/底栏可达编写先失败布局测试，路径：`frontend/src/monitoring/components/accessibility.test.tsx`
-- [ ] T082 [US5] 编写有/无平台 Visitor、三语七页导航和语言切换保持调查对象的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/investigation.spec.ts`、`frontend/playwright-monitor/responsive-locales.spec.ts`
+- [X] T079 [P] [US5] 为 common locale/device/platform 稳定并列、无下载 null、完整历史和 30 分钟会话不受分页影响补充后端回归测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [X] T080 [P] [US5] 为首次/最后/会话/累计事件四卡顺序、语言/平台/装置、无平台、复制和时间线编写先失败页面测试，路径：`frontend/src/monitoring/pages/VisitorPage.test.tsx`
+- [X] T081 [P] [US5] 为 business/technical/details 三组、七页路由、桌面侧栏/移动抽屉/底栏可达编写先失败布局测试，路径：`frontend/src/monitoring/components/accessibility.test.tsx`
+- [X] T082 [US5] 编写有/无平台 Visitor、三语七页导航和语言切换保持调查对象的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/investigation.spec.ts`、`frontend/playwright-monitor/responsive-locales.spec.ts`
 
 ### 用户故事 5 的实现
 
-- [ ] T083 [US5] 重排 VisitorPage 四卡和“访客偏好”，移除来源/首次/最后在偏好区的混排并保留事件构成、复制和时间线，路径：`frontend/src/monitoring/pages/VisitorPage.tsx`
-- [ ] T084 [US5] 将 DashboardShell 导航模型改为业务监控/技术监控/数据明细三组，并让桌面、移动抽屉和底栏共享路由来源，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`
-- [ ] T085 [P] [US5] 补齐三组导航、“稳定性 & 时延”“访客明细”、四卡和语言/平台/装置的三语自然文案，路径：`frontend/src/monitoring/content/copy.ts`、`frontend/src/monitoring/content/types.ts`
-- [ ] T086 [US5] 实现访客四卡/偏好和三组导航的 1440/390 响应式布局、44px 操作和无整体横向滚动，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
-- [ ] T087 [US5] 运行 US5 Go/Vitest/Playwright 并保存有/无平台与三语七页双端证据，对照 Figma `89:1310` 记录结果，路径：`frontend/playwright-monitor/__screenshots__/visitor-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/visitor-v13-mobile.png`、`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T083 [US5] 重排 VisitorPage 四卡和“访客偏好”，移除来源/首次/最后在偏好区的混排并保留事件构成、复制和时间线，路径：`frontend/src/monitoring/pages/VisitorPage.tsx`
+- [X] T084 [US5] 将 DashboardShell 导航模型改为业务监控/技术监控/数据明细三组，并让桌面、移动抽屉和底栏共享路由来源，路径：`frontend/src/monitoring/components/layout/DashboardShell.tsx`
+- [X] T085 [P] [US5] 补齐三组导航、“稳定性 & 时延”“访客明细”、四卡和语言/平台/装置的三语自然文案，路径：`frontend/src/monitoring/content/copy.ts`、`frontend/src/monitoring/content/types.ts`
+- [X] T086 [US5] 实现访客四卡/偏好和三组导航的 1440/390 响应式布局、44px 操作和无整体横向滚动，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
+- [X] T087 [US5] 运行 US5 Go/Vitest/Playwright 并保存有/无平台与三语七页双端证据，对照 Figma `89:1310` 记录结果，路径：`frontend/playwright-monitor/__screenshots__/visitor-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/visitor-v13-mobile.png`、`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 **检查点**：US5 可独立完成单 Visitor 调查，并从三组导航在桌面和手机到达全部工作区。
 

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { FilterProvider } from "../app/FilterProvider";
 import { MonitoringI18nProvider } from "../app/MonitoringI18nProvider";
@@ -6,14 +6,19 @@ import type { VisitorData } from "../services/analyticsTypes";
 import { VisitorPage } from "./VisitorPage";
 
 describe("VisitorPage", () => {
-  it("shows exact search, four facts, full-history mix, nullable platform, return and copy feedback", async () => {
+  it("shows the Figma-ordered visitor cards, preferences, nullable platform, return and copy feedback", async () => {
     Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
     renderPage(<VisitorPage initialVisitorID="abcdefghijklmnopqrstuv" loadVisitor={async () => visitor()} />);
     expect(await screen.findByText("事件类型构成")).toBeInTheDocument();
-    expect(screen.getByText("事件数")).toBeInTheDocument();
-    expect(screen.getByText("会话数")).toBeInTheDocument();
-    expect(screen.getByText("常用语言")).toBeInTheDocument();
-    expect(screen.getByText("常用设备")).toBeInTheDocument();
+    expect(screen.getByText("首次出现")).toBeInTheDocument();
+    expect(screen.getByText("最后出现")).toBeInTheDocument();
+    expect(screen.getByText("会话")).toBeInTheDocument();
+    expect(screen.getByText("累计事件")).toBeInTheDocument();
+    expect(screen.getByText("访客偏好")).toBeInTheDocument();
+    const preferences = screen.getByText("访客偏好").closest("article")!;
+    expect(within(preferences).getByText("语言")).toBeInTheDocument();
+    expect(within(preferences).getByText("平台")).toBeInTheDocument();
+    expect(within(preferences).getByText("设备")).toBeInTheDocument();
     expect(screen.getByText("暂无下载平台数据")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "返回事件明细" })).toHaveAttribute("href", "#events");
     fireEvent.click(screen.getByRole("button", { name: "复制完整 ID" }));

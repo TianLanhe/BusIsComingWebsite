@@ -56,7 +56,7 @@ test("shows twelve system facts and degrades individual missing probes", async (
 test("preserves custom range, filters, language, visitor and workspace context through an investigation", async ({ page }, testInfo) => {
   await page.goto("/#overview");
   const simplified = testInfo.project.name.includes("desktop");
-  const labels = simplified ? { events: "事件明细", visitor: "匿名访客", view: "查看访客", session: "会话 1", copy: "复制完整 ID", copied: "已复制完整匿名 ID" } : { events: "事件明細", visitor: "匿名訪客", view: "查看訪客", session: "工作階段 1", copy: "複製完整 ID", copied: "已複製完整匿名 ID" };
+  const labels = simplified ? { events: "事件明细", visitor: "访客明细", view: "查看访客", session: "会话 1", copy: "复制完整 ID", copied: "已复制完整匿名 ID" } : { events: "事件明細", visitor: "訪客明細", view: "查看訪客", session: "工作階段 1", copy: "複製完整 ID", copied: "已複製完整匿名 ID" };
   await page.locator(".global-filters summary").click();
   await page.locator('input[type="date"]').nth(0).fill("2026-07-10");
   await page.locator('input[type="date"]').nth(1).fill("2026-07-20");
@@ -79,10 +79,12 @@ test("preserves custom range, filters, language, visitor and workspace context t
     expect(layout?.documentWidth).toBe(layout?.viewportWidth);
     expect(layout?.navWidth).toBeLessThanOrEqual((layout?.viewportWidth ?? 0) - 24);
   }
-  const eventLink = testInfo.project.name.includes("desktop")
-    ? page.getByTestId("desktop-sidebar").getByRole("link", { name: labels.events })
-    : page.getByTestId("mobile-bottom-nav").getByRole("link", { name: labels.events });
-  await eventLink.click();
+  if (testInfo.project.name.includes("desktop")) {
+    await page.getByTestId("desktop-sidebar").getByRole("link", { name: labels.events }).click();
+  } else {
+    await page.getByRole("button", { name: "開啟導覽" }).click();
+    await page.getByRole("dialog").getByRole("link", { name: labels.events }).click();
+  }
   await expect(page.getByRole("heading", { name: labels.events })).toBeVisible();
   await expect(page.locator('input[type="date"]').nth(0)).toHaveValue("2026-07-10");
   await expect(page.locator(".filter-count")).toHaveText("1");
@@ -96,10 +98,11 @@ test("preserves custom range, filters, language, visitor and workspace context t
   await page.getByRole("button", { name: labels.copy }).click();
   await expect(page.getByText(labels.copied)).toBeVisible();
   await page.getByLabel(simplified ? "语言" : "語言").selectOption("en");
-  await expect(page.getByRole("heading", { name: "Anonymous visitor" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Visitor detail" })).toBeVisible();
   await page.getByLabel("Language").selectOption(testInfo.project.name.includes("mobile") ? "zh-Hant" : "zh-Hans");
   await expect(page.locator(".visitor-identity code")).toHaveText("abcdefghijklmnopqrstuv");
   await expect(page.locator(".filter-count")).toHaveText("1");
+  await page.screenshot({ path: testInfo.project.name.includes("mobile") ? "playwright-monitor/__screenshots__/visitor-v13-mobile.png" : "playwright-monitor/__screenshots__/visitor-v13-desktop.png", fullPage: true });
   const path = testInfo.project.name.includes("desktop") ? "playwright-monitor/__screenshots__/investigation-zh-Hans-desktop.png" : "playwright-monitor/__screenshots__/investigation-zh-Hant-mobile.png";
   await page.screenshot({ path, fullPage: testInfo.project.name.includes("desktop") });
 });
