@@ -74,4 +74,11 @@ describe("TimeSeriesChart", () => {
     expect(screen.getByText("No chartable data")).toBeInTheDocument();
     expect(screen.queryByTestId("chart-point")).not.toBeInTheDocument();
   });
+
+  it("formats SLI axis ticks as percentages while preserving zero and null points", () => {
+    const { container } = render(<TimeSeriesChart title="SLI" data={[{ bucketStart: data[0].bucketStart, success: 0 }, { bucketStart: data[1].bucketStart, success: null }]} series={[{ key: "success", label: "Homepage", unit: "percent", color: "#00545b", lineStyle: "solid", pointShape: "circle" }]} locale="en" emptyLabel="No data" />);
+    expect(screen.getByTestId("chart-point")).toHaveAttribute("aria-label", "Homepage 0%");
+    expect(screen.getByRole("table", { name: "SLI" })).toHaveTextContent("0");
+    expect(screen.getByRole("table", { name: "SLI" })).toHaveTextContent("—");
+  });
 });

@@ -5,9 +5,9 @@ import { detailEnvelopes } from "./fixtures/details";
 const locales = ["zh-Hans", "zh-Hant", "en"] as const;
 const routes = ["overview", "traffic", "downloads", "events", "visitor", "performance", "system"] as const;
 const titles = {
-  "zh-Hans": { overview: "监控总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "匿名访客", performance: "失败与性能", system: "系统状态" },
-  "zh-Hant": { overview: "監控總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "匿名訪客", performance: "失敗與效能", system: "系統狀態" },
-  en: { overview: "Monitoring overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Anonymous visitor", performance: "Failures & latency", system: "System status" },
+  "zh-Hans": { overview: "监控总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "匿名访客", performance: "稳定性 & 时延", system: "系统状态" },
+  "zh-Hant": { overview: "監控總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "匿名訪客", performance: "穩定性及延遲", system: "系統狀態" },
+  en: { overview: "Monitoring overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Anonymous visitor", performance: "Stability & latency", system: "System status" },
 } as const;
 
 test.beforeEach(async ({ page }) => {

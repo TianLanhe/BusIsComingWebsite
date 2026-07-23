@@ -122,8 +122,8 @@
 - [X] T039 [US2] 完成 MetricCard 的 durationMs 和 lower-is-better 展示，确保变化不只依赖颜色，路径：`frontend/src/monitoring/components/charts/MetricCard.tsx`
 - [X] T040 [US2] 重构 PerformancePage：六卡带单位、局部 P50/P95 选择、单分位四线、SLI 四线和端点两列比较，路径：`frontend/src/monitoring/pages/PerformancePage.tsx`
 - [X] T041 [P] [US2] 补齐“稳定性 & 时延”、分位、SLI、端点比较、零基线、无样本和 Dropped 局部失败的三语文案，路径：`frontend/src/monitoring/content/copy.ts`
-- [X] T042 [US2] 实现双图、局部分位选择器、端点比较桌面表/手机语义卡及单位样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
-- [X] T043 [US2] 运行 US2 Go/Vitest/Playwright 并保存三语 1440×1200、390×844 和 system 辅助失败证据，路径：`frontend/playwright-monitor/__screenshots__/performance-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/performance-v13-mobile.png`、`frontend/playwright-monitor/__screenshots__/performance-system-partial-error.png`
+- [X] T042 [US2] 实现双图、局部分位选择器、端点比较桌面表/手机局部横向滚动表及单位样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
+- [X] T043 [US2] 运行 US2 Go/Vitest/Playwright 并保存默认 P95 的简体/英文桌面、简体/繁体手机和双端 system 辅助失败证据，路径：`frontend/playwright-monitor/__screenshots__/performance-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/performance-v13-en-desktop.png`、`frontend/playwright-monitor/__screenshots__/performance-v13-zh-Hant-mobile.png`、`frontend/playwright-monitor/__screenshots__/performance-system-partial-error-desktop.png`、`frontend/playwright-monitor/__screenshots__/performance-system-partial-error-mobile.png`
 - [X] T044 [US2] 对照 Figma `89:1310` 的 Stability & SLI 画板记录双图、六卡、端点表和全部比较状态，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 **检查点**：US2 可独立定位整体成功率、尾时延和具体 operation；US1+US2 构成调查主路径 MVP。

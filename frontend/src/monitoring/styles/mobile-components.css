@@ -6,6 +6,8 @@
   .heatmap-hours, .heatmap-row { gap: 3px; grid-template-columns: 22px repeat(12, minmax(8px, 1fr)); }
   .heatmap-row i { height: 17px; }
   .event-table-wrap { display: none; }
+  .endpoint-panel .event-table-wrap { display: block; max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+  .endpoint-panel .endpoint-table { min-width: 980px; }
   .responsive-event-list { display: grid; gap: 8px; }
   .responsive-event-card { padding: 13px 14px; border: 1px solid var(--pulse-border); border-radius: 13px; background: white; box-shadow: var(--pulse-shadow-card); }
   .responsive-event-card header { display: flex; align-items: center; justify-content: space-between; }

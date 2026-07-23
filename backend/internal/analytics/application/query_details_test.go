@@ -53,8 +53,8 @@ func TestQueryDetailsPerformanceComparesEndpointPercentilesWithoutInventingZeroR
 		t.Fatalf("zero baseline must retain absolute delta only: %#v", zero)
 	}
 	missing := percentileComparison(nil, int64Pointer(100), true)
-	if missing.PreviousMS != nil || missing.DeltaMS != nil || missing.DeltaRate != nil {
-		t.Fatalf("missing current sample must remain distinct: %#v", missing)
+	if missing.PreviousMS == nil || *missing.PreviousMS != 100 || missing.DeltaMS != nil || missing.DeltaRate != nil {
+		t.Fatalf("missing current must preserve previous sample and omit deltas: %#v", missing)
 	}
 	disabled := percentileComparison(int64Pointer(100), int64Pointer(80), false)
 	if disabled.PreviousMS != nil || disabled.DeltaMS != nil || disabled.DeltaRate != nil {

@@ -25,7 +25,7 @@ const zhHans = {
   latencyByEvent: "各事件响应时间", noSuccessfulSamples: "暂无成功样本",
   apkMetadata: "APK 元数据", downloadResponseLatency: "下载响应",
   businessMonitoring: "业务监控", technicalMonitoring: "技术监控", dataDetails: "数据明细", dateStepStart: "第 1 步：选择开始日期", dateStepEnd: "第 2 步：选择结束日期",
-  comparisonIncreased: "较上期增加", comparisonDecreased: "较上期减少", comparisonZeroBaseline: "上期为零，显示绝对变化", p95: "P95", sli: "实际成功率 SLI",
+  comparisonIncreased: "较上期增加", comparisonDecreased: "较上期减少", comparisonZeroBaseline: "上期为零，显示绝对变化", p95: "P95", sli: "实际成功率 SLI", sliFormula: "成功 PV / 总 PV", latencyFaster: "较上期变快", latencySlower: "较上期变慢", latencyZeroBaseline: "上期为零，仅显示绝对变化", latencyNoCurrent: "暂无当前数据", latencyNoPrevious: "暂无同期数据", latencyUnchanged: "与上期持平", latencyComparisonOff: "未启用同期比较",
   homepagePv: "主页浏览 PV", homepageUv: "主页浏览 UV", placeQueryPv: "地点查询 PV", placeQueryUv: "地点查询 UV", routeQueryPv: "路线查询 PV", routeQueryUv: "路线查询 UV",
 } as const;
 
@@ -56,7 +56,7 @@ const zhHant: Record<CopyKey, string> = {
   latencyByEvent: "各事件回應時間", noSuccessfulSamples: "暫無成功樣本",
   apkMetadata: "APK 元數據", downloadResponseLatency: "下載回應",
   businessMonitoring: "業務監控", technicalMonitoring: "技術監控", dataDetails: "數據明細", dateStepStart: "第 1 步：選擇開始日期", dateStepEnd: "第 2 步：選擇結束日期",
-  comparisonIncreased: "較上期增加", comparisonDecreased: "較上期減少", comparisonZeroBaseline: "上期為零，顯示絕對變化", p95: "P95", sli: "實際成功率 SLI",
+  comparisonIncreased: "較上期增加", comparisonDecreased: "較上期減少", comparisonZeroBaseline: "上期為零，顯示絕對變化", p95: "P95", sli: "實際成功率 SLI", sliFormula: "成功 PV / 總 PV", latencyFaster: "較上期更快", latencySlower: "較上期更慢", latencyZeroBaseline: "上期為零，只顯示絕對變化", latencyNoCurrent: "暫無目前數據", latencyNoPrevious: "暫無同期數據", latencyUnchanged: "與上期持平", latencyComparisonOff: "未啟用同期比較",
   homepagePv: "主頁瀏覽 PV", homepageUv: "主頁瀏覽 UV", placeQueryPv: "地點查詢 PV", placeQueryUv: "地點查詢 UV", routeQueryPv: "路線查詢 PV", routeQueryUv: "路線查詢 UV",
 };
 
@@ -85,7 +85,7 @@ const en: Record<CopyKey, string> = {
   latencyByEvent: "Latency by event", noSuccessfulSamples: "No successful samples",
   apkMetadata: "APK metadata", downloadResponseLatency: "Download response",
   businessMonitoring: "Business monitoring", technicalMonitoring: "Technical monitoring", dataDetails: "Data detail", dateStepStart: "Step 1: choose a start date", dateStepEnd: "Step 2: choose an end date",
-  comparisonIncreased: "Increased from the previous period", comparisonDecreased: "Decreased from the previous period", comparisonZeroBaseline: "Previous period was zero; showing absolute change", p95: "P95", sli: "Actual success-rate SLI",
+  comparisonIncreased: "Increased from the previous period", comparisonDecreased: "Decreased from the previous period", comparisonZeroBaseline: "Previous period was zero; showing absolute change", p95: "P95", sli: "Actual success-rate SLI", sliFormula: "Successful PV / total PV", latencyFaster: "Faster than previous period", latencySlower: "Slower than previous period", latencyZeroBaseline: "Previous period was zero; absolute change shown", latencyNoCurrent: "No current data", latencyNoPrevious: "No previous-period data", latencyUnchanged: "Unchanged from previous period", latencyComparisonOff: "Period comparison off",
   homepagePv: "Homepage PV", homepageUv: "Homepage UV", placeQueryPv: "Place-query PV", placeQueryUv: "Place-query UV", routeQueryPv: "Route-query PV", routeQueryUv: "Route-query UV",
 };
 

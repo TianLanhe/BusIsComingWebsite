@@ -500,10 +500,13 @@ func endpointPerformance(events []domain.AnalyticsEvent, previousEvents []domain
 
 func percentileComparison(current, previous *int64, compare bool) PercentileComparison {
 	result := PercentileComparison{CurrentMS: current}
-	if !compare || current == nil || previous == nil {
+	if !compare {
 		return result
 	}
 	result.PreviousMS = previous
+	if current == nil || previous == nil {
+		return result
+	}
 	delta := *current - *previous
 	result.DeltaMS = &delta
 	if *previous != 0 {
@@ -541,43 +544,10 @@ func sliSeries(events []domain.AnalyticsEvent, from, to time.Time, granularity d
 		return []SLISeriesPoint{}
 	}
 	location, _ := time.LoadLocation("Asia/Hong_Kong")
-	buckets := domain.TimeBuckets(from, to, granularity, location)
-	types := []domain.EventType{domain.EventPageView, domain.EventPlaceQuery, domain.EventRouteQuery, domain.EventDownloadRequest}
-	type counts struct{ successful, total int64 }
-	grouped := make(map[string]*counts, len(buckets)*len(types))
-	keyFor := func(bucket int, eventType domain.EventType) string {
-		return strconv.Itoa(bucket) + ":" + string(eventType)
-	}
-	// 每条事件只进入一个香港时间桶，先完整建模空桶，再按固定事件顺序输出。
-	for _, event := range events {
-		at := event.OccurredAt.In(location)
-		for index, bucket := range buckets {
-			if at.Before(bucket.Start) || !at.Before(bucket.End) {
-				continue
-			}
-			key := keyFor(index, event.EventType)
-			item := grouped[key]
-			if item == nil {
-				item = &counts{}
-				grouped[key] = item
-			}
-			item.total++
-			if event.Outcome == domain.OutcomeSuccess {
-				item.successful++
-			}
-			break
-		}
-	}
-	result := make([]SLISeriesPoint, 0, len(buckets)*len(types))
-	for index, bucket := range buckets {
-		for _, eventType := range types {
-			item := grouped[keyFor(index, eventType)]
-			var successful, total int64
-			if item != nil {
-				successful, total = item.successful, item.total
-			}
-			result = append(result, SLISeriesPoint{BucketStart: bucket.Start, BucketEnd: bucket.End, EventType: eventType, SuccessfulPV: successful, TotalPV: total, SuccessRate: domain.SLISuccessRate(successful, total)})
-		}
+	domainPoints := domain.SLISeries(events, domain.TimeBuckets(from, to, granularity, location), location)
+	result := make([]SLISeriesPoint, 0, len(domainPoints))
+	for _, point := range domainPoints {
+		result = append(result, SLISeriesPoint{BucketStart: point.BucketStart, BucketEnd: point.BucketEnd, EventType: point.EventType, SuccessfulPV: point.SuccessfulPV, TotalPV: point.TotalPV, SuccessRate: point.SuccessRate})
 	}
 	return result
 }

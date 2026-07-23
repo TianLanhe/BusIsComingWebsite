@@ -51,11 +51,50 @@ test("switches stability latency percentile locally while preserving four SLI se
   await expect(legends).toHaveCount(2);
   await expect(legends.nth(0)).toContainText("P95");
   await expect(legends.nth(1)).toContainText(/Homepage|主页|主頁/);
+  await expect(page.locator(".filter-count")).toHaveText("0");
   const before = performanceRequests;
   await page.getByRole("button", { name: "P50", exact: true }).click();
   await expect(page.getByRole("button", { name: "P50", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(legends.nth(0)).toContainText("P50");
   expect(performanceRequests).toBe(before);
+  await expect(page.locator(".filter-count")).toHaveText("0");
+  await page.getByRole("button", { name: "P95", exact: true }).click();
+  await expect(page.getByRole("button", { name: "P95", exact: true })).toHaveAttribute("aria-pressed", "true");
+  const endpointTable = page.getByRole("table", { name: "公开接口性能" });
+  await endpointTable.scrollIntoViewIfNeeded();
+  await expect(endpointTable).toContainText("queryRouteOptions");
+  await expect(endpointTable).toContainText("P50");
+  await expect(endpointTable).toContainText("P95");
+  const selectorBox = await page.getByRole("button", { name: "P95", exact: true }).boundingBox();
+  expect(selectorBox?.height).toBeGreaterThanOrEqual(44);
+  if (testInfo.project.name.includes("mobile")) {
+    const endpointScroller = page.locator(".endpoint-panel .event-table-wrap");
+    const layout = await page.evaluate(() => ({ viewportWidth: window.innerWidth, documentWidth: document.documentElement.scrollWidth, endpointOverflow: document.querySelector<HTMLElement>(".endpoint-panel .event-table-wrap")?.scrollWidth ?? 0, endpointWidth: document.querySelector<HTMLElement>(".endpoint-panel .event-table-wrap")?.clientWidth ?? 0 }));
+    expect(layout.documentWidth).toBe(layout.viewportWidth);
+    expect(layout.endpointOverflow).toBeGreaterThan(layout.endpointWidth);
+    await expect(page.locator(".endpoint-table code").filter({ hasText: "queryRouteOptions" })).toBeVisible();
+    await endpointScroller.evaluate((node) => { node.scrollLeft = node.scrollWidth / 2; });
+    expect(await page.getByRole("columnheader", { name: "P50 对比上期", exact: true }).evaluate(isVisibleInsideScroller)).toBe(true);
+    await endpointScroller.evaluate((node) => { node.scrollLeft = node.scrollWidth; });
+    expect(await page.getByRole("columnheader", { name: "P95 对比上期", exact: true }).evaluate(isVisibleInsideScroller)).toBe(true);
+  }
   const path = testInfo.project.name.includes("mobile") ? "playwright-monitor/__screenshots__/performance-v13-mobile.png" : "playwright-monitor/__screenshots__/performance-v13-desktop.png";
   await page.screenshot({ path, fullPage: true });
+  if (testInfo.project.name.includes("mobile")) {
+    await page.locator(".language-control select").selectOption("zh-Hant");
+    await expect(page.getByRole("button", { name: "P95", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await page.screenshot({ path: "playwright-monitor/__screenshots__/performance-v13-zh-Hant-mobile.png", fullPage: true });
+  } else {
+    await page.locator(".language-control select").selectOption("en");
+    await expect(page.getByRole("button", { name: "P95", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await page.screenshot({ path: "playwright-monitor/__screenshots__/performance-v13-en-desktop.png", fullPage: true });
+  }
 });
+
+function isVisibleInsideScroller(element: HTMLElement) {
+  const scroller = element.closest<HTMLElement>(".event-table-wrap");
+  if (!scroller) return false;
+  const bounds = element.getBoundingClientRect();
+  const viewport = scroller.getBoundingClientRect();
+  return bounds.left >= viewport.left && bounds.right <= viewport.right;
+}

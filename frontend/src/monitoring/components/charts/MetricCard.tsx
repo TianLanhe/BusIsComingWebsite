@@ -22,9 +22,10 @@ export function MetricCard({ label, metric, locale, format = "count", compareEna
     <div className="metric-label"><span>{label}</span></div>
     <strong className={`metric-value ${long ? "long" : ""}`}>{formatted}</strong>
     <div className={`metric-comparison ${state.viewState} ${state.outcome}`}>
-      {state.direction === "up" && <><ArrowUpRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta ?? 0, locale, format)}</b><span>{text("compared")}</span></>}
-      {state.direction === "down" && <><ArrowDownRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta ?? 0, locale, format)}</b><span>{text("compared")}</span></>}
-      {state.viewState === "unchanged" && <><Minus aria-hidden="true" /><b>0%</b><span>{text("comparisonUnchanged")}</span></>}
+      {state.viewState === "zero_baseline" && <><ArrowUpRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta ?? 0, locale, format)}</b><span>{text("comparisonZeroBaseline")}</span></>}
+      {state.direction === "up" && state.viewState !== "zero_baseline" && <><ArrowUpRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta ?? 0, locale, format)}</b><span>{text("compared")}</span></>}
+      {state.direction === "down" && state.viewState !== "zero_baseline" && <><ArrowDownRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta ?? 0, locale, format)}</b><span>{text("compared")}</span></>}
+      {state.viewState === "unchanged" && <><Minus aria-hidden="true" /><b>{formatMetric(state.delta, locale, format)}</b><span>{text("comparisonUnchanged")}</span></>}
       {state.viewState === "no_previous" && <span>{text("comparisonMissing")}</span>}
       {state.viewState === "disabled" && <span>{text("comparisonOff")}</span>}
       {state.viewState === "no_current" && <span>{text("currentMissing")}</span>}

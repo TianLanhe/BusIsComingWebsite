@@ -17,10 +17,11 @@ import (
 )
 
 type detailsQueryStub struct {
-	err     error
-	traffic analyticsapp.TrafficData
-	events  analyticsapp.EventListData
-	visitor analyticsapp.VisitorData
+	err         error
+	traffic     analyticsapp.TrafficData
+	events      analyticsapp.EventListData
+	visitor     analyticsapp.VisitorData
+	performance analyticsapp.PerformanceData
 }
 
 func (stub detailsQueryStub) Traffic(context.Context, domain.AnalyticsQuery) (analyticsapp.TrafficData, error) {
@@ -87,7 +88,7 @@ func TestPrivateEventAndVisitorResponsesExposeOnly011ContractFields(t *testing.T
 	}
 }
 func (stub detailsQueryStub) Performance(context.Context, domain.AnalyticsQuery) (analyticsapp.PerformanceData, error) {
-	return analyticsapp.PerformanceData{}, stub.err
+	return stub.performance, stub.err
 }
 func (stub detailsQueryStub) System(context.Context) analyticsapp.SystemData {
 	return analyticsapp.SystemData{}
@@ -114,13 +115,40 @@ func TestPrivateHandlersRegisterSixReadOnlyOperationsWithNoStore(t *testing.T) {
 
 func TestPerformanceResponseKeepsEnvelopeAndExposes012SLIFields(t *testing.T) {
 	gin.SetMode(gin.TestMode)
+	current, previous, delta := int64(120), int64(100), int64(20)
+	previousOnly := int64(480)
 	engine := platformhttp.NewPrivateEngine(&bytes.Buffer{})
-	RegisterPrivateRoutes(engine, nil, detailsQueryStub{}, "")
+	RegisterPrivateRoutes(engine, nil, detailsQueryStub{performance: analyticsapp.PerformanceData{
+		Endpoints: []analyticsapp.EndpointPerformance{
+			{OperationID: "queryRouteOptions", EventType: domain.EventRouteQuery, P50Comparison: analyticsapp.PercentileComparison{CurrentMS: &current, PreviousMS: &previous, DeltaMS: &delta}},
+			{OperationID: "downloadLatestAndroidApk", EventType: domain.EventDownloadRequest, P95Comparison: analyticsapp.PercentileComparison{CurrentMS: nil, PreviousMS: &previousOnly, DeltaMS: nil, DeltaRate: nil}},
+		},
+		SLISeries: []analyticsapp.SLISeriesPoint{{EventType: domain.EventPageView, SuccessfulPV: 0, TotalPV: 0, SuccessRate: nil}},
+	}}, "")
 	query := "?from=2026-07-01T00%3A00%3A00Z&to=2026-07-02T00%3A00%3A00Z&granularity=day"
 	response := httptest.NewRecorder()
 	engine.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/analytics/performance"+query, nil))
 	if response.Code != http.StatusOK || response.Header().Get("Cache-Control") != "no-store" || !strings.Contains(response.Body.String(), `"sliSeries"`) {
 		t.Fatalf("012 performance envelope missing SLI field: status=%d body=%s", response.Code, response.Body.String())
+	}
+	var envelope struct {
+		Data struct {
+			Endpoints []struct {
+				OperationID   string         `json:"operationId"`
+				P50Comparison map[string]any `json:"p50Comparison"`
+				P95Comparison map[string]any `json:"p95Comparison"`
+			} `json:"endpoints"`
+		} `json:"data"`
+		Error any `json:"error"`
+	}
+	if err := json.Unmarshal(response.Body.Bytes(), &envelope); err != nil {
+		t.Fatal(err)
+	}
+	if envelope.Error != nil || len(envelope.Data.Endpoints) != 2 || envelope.Data.Endpoints[0].OperationID != "queryRouteOptions" || envelope.Data.Endpoints[1].OperationID != "downloadLatestAndroidApk" {
+		t.Fatalf("performance envelope lost operation IDs: %s", response.Body.String())
+	}
+	if envelope.Data.Endpoints[0].P50Comparison["currentMs"] != float64(120) || envelope.Data.Endpoints[0].P50Comparison["previousMs"] != float64(100) || envelope.Data.Endpoints[1].P95Comparison["currentMs"] != nil || envelope.Data.Endpoints[1].P95Comparison["previousMs"] != float64(480) || envelope.Data.Endpoints[1].P95Comparison["deltaMs"] != nil {
+		t.Fatalf("performance comparison null semantics changed: %s", response.Body.String())
 	}
 }
 
@@ -137,6 +165,7 @@ func TestPrivateHandlersRequireVisitorHeaderAndMapControlledErrors(t *testing.T)
 		{"visitor missing", "/api/analytics/visitor", "abcdefghijklmnopqrstuv", analyticsapp.ErrVisitorNotFound, 404, "ANALYTICS_VISITOR_NOT_FOUND"},
 		{"invalid cursor", "/api/analytics/events?from=2026-07-01T00%3A00%3A00Z&to=2026-07-02T00%3A00%3A00Z&cursor=bad", "", analyticsapp.ErrInvalidCursor, 400, "ANALYTICS_INVALID_CURSOR"},
 		{"storage", "/api/analytics/traffic?from=2026-07-01T00%3A00%3A00Z&to=2026-07-02T00%3A00%3A00Z", "", analyticsapp.ErrStorageUnavailable, 503, "ANALYTICS_STORAGE_UNAVAILABLE"},
+		{"performance storage", "/api/analytics/performance?from=2026-07-01T00%3A00%3A00Z&to=2026-07-02T00%3A00%3A00Z", "", analyticsapp.ErrStorageUnavailable, 503, "ANALYTICS_STORAGE_UNAVAILABLE"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

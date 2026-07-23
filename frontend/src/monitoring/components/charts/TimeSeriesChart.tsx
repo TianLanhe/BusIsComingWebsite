@@ -62,7 +62,7 @@ export function TimeSeriesChart({ title, data, series, locale, emptyLabel }: {
         >
           <CartesianGrid stroke="#dce8ea" strokeDasharray="3 5" vertical={false} />
           <XAxis dataKey="bucketStart" tickFormatter={(value) => formatTime(String(value), locale)} minTickGap={28} tick={{ fontSize: 12, fill: "#62747b" }} />
-          <YAxis tickFormatter={(value) => new Intl.NumberFormat(locale, { notation: "compact" }).format(Number(value))} width={54} tick={{ fontSize: 12, fill: "#62747b" }} />
+          <YAxis tickFormatter={(value) => formatAxisValue(Number(value), series[0]?.unit, locale)} width={54} tick={{ fontSize: 12, fill: "#62747b" }} />
           <Tooltip active={interaction.mode === "pointer"} defaultIndex={interaction.index ?? 0} cursor={{ stroke: "#82979b", strokeDasharray: "3 3" }} content={<MouseTooltip series={series} locale={locale} />} />
           {active && <ReferenceLine x={active.bucketStart} stroke="#82979b" strokeDasharray="3 3" />}
           {series.map((item) => <Line
@@ -75,7 +75,7 @@ export function TimeSeriesChart({ title, data, series, locale, emptyLabel }: {
             strokeDasharray={item.lineStyle === "dashed" ? "7 5" : undefined}
             connectNulls={false}
             isAnimationActive={false}
-            dot={(props) => <FocusableDot {...props} definition={item} onKeyboardActivate={(index) => setInteraction({ mode: "keyboard", index })} onPointerActivate={(index) => setInteraction({ mode: "pointer", index })} onBlur={() => setInteraction((current) => current.mode === "keyboard" ? { mode: null, index: null } : current)} />}
+            dot={(props) => <FocusableDot {...props} definition={item} locale={locale} onKeyboardActivate={(index) => setInteraction({ mode: "keyboard", index })} onPointerActivate={(index) => setInteraction({ mode: "pointer", index })} onBlur={() => setInteraction((current) => current.mode === "keyboard" ? { mode: null, index: null } : current)} />}
             activeDot={{ r: 5 }}
           />)}
         </LineChart>
@@ -88,7 +88,7 @@ export function TimeSeriesChart({ title, data, series, locale, emptyLabel }: {
   </AccessibleChartFrame>;
 }
 
-function FocusableDot(props: Record<string, unknown> & { definition: TimeSeriesDefinition; onKeyboardActivate: (index: number) => void; onPointerActivate: (index: number) => void; onBlur: () => void }) {
+function FocusableDot(props: Record<string, unknown> & { definition: TimeSeriesDefinition; locale: string; onKeyboardActivate: (index: number) => void; onPointerActivate: (index: number) => void; onBlur: () => void }) {
   const cx = Number(props.cx);
   const cy = Number(props.cy);
   const index = Number(props.index);
@@ -100,7 +100,7 @@ function FocusableDot(props: Record<string, unknown> & { definition: TimeSeriesD
     tabIndex: 0,
     role: "button",
     "data-testid": "chart-point",
-    "aria-label": `${props.definition.label} ${String(props.value ?? "")}`,
+    "aria-label": `${props.definition.label} ${formatValue(props.value, props.definition.unit, props.locale)}`,
     onFocus: () => props.onKeyboardActivate(index),
     onBlur: props.onBlur,
     onMouseEnter: () => props.onPointerActivate(index),
@@ -132,6 +132,11 @@ function formatValue(value: unknown, unit: TimeSeriesDefinition["unit"], locale:
   if (unit === "ms") return `${new Intl.NumberFormat(locale).format(value)} ms`;
   if (unit === "percent") return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(value);
   return new Intl.NumberFormat(locale).format(value);
+}
+
+function formatAxisValue(value: number, unit: TimeSeriesDefinition["unit"] | undefined, locale: string) {
+  if (unit === "percent") return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 }).format(value);
+  return new Intl.NumberFormat(locale, { notation: "compact" }).format(value);
 }
 
 function formatTime(value: string, locale: string, detailed = false) {

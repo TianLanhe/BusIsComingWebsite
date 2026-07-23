@@ -125,11 +125,11 @@ npm --prefix frontend run test:e2e:monitor -- playwright-monitor/charts.spec.ts 
 |---|---|---|---|
 | 六项概览卡 | 请求、成功率、P50、P95、失败、Dropped；时延使用 ms | `MetricCard` 对 durationMs 始终显示 `ms` 与带符号的毫秒变化；时延、失败使用 lower-is-better | 通过 |
 | 响应时间趋势 | 默认 P95、局部切换 P50、四事件线、无样本断线 | `PerformancePage` 保持同一响应中的 P50/P95；Playwright 断言点击后没有新增 performance 请求，仅首图从 P95 换成 P50 | 通过 |
-| SLI 图 | 四事件固定顺序、成功 PV/总 PV、空桶不是 0% | `domain.SLISuccessRate` 与应用层香港时间桶聚合；空桶为 null、全失败为 0；fixture 同时覆盖二者 | 通过 |
-| endpoint 表 | P50/P95 与上一周期的七种比较状态，时延增加为恶化 | `PercentileComparison` 保留 current/previous/delta；previous=0 只有绝对毫秒变化；无当前/上期与 compare=false 保持可区分 | 通过 |
-| Dropped 局部降级 | system 失败不遮蔽 performance 主体 | `useAuxiliaryResource` 仅使 Dropped 显示局部提示；`performance-system-partial-error.png` 保留端点表 | 通过 |
+| SLI 图 | 四事件固定顺序、成功 PV/总 PV、空桶不是 0% | `domain.SLISeries` 完成香港桶、固定顺序和计数；空桶为 null、全失败为 0；图的 Y 轴格式为百分比，fixture/单元测试同时覆盖 0 与 null | 通过 |
+| endpoint 表 | P50/P95 原值与上一周期的七种比较状态，时延增加为恶化 | `PercentileComparison` 在任意缺失侧保留 delta=null，current 缺失时仍返回 previousMs；表将原值和 P50/P95「对比上期」分列，零基线、无当前、无上期、关闭、持平、变快和变慢均有三语显式文案 | 通过 |
+| Dropped 局部降级 | system 失败不遮蔽 performance 主体 | `useAuxiliaryResource` 仅使 Dropped 显示局部提示；桌面和手机均以 `performance-system-partial-error-*.png` 证明端点表继续可用 | 通过 |
 | 1440×1200 | 双图、六卡和端点表同屏可读 | `performance-v13-desktop.png`，桌面 Playwright | 通过 |
-| 390×844 | 双图单列、局部 P50/P95 控件不小于 44px、无整体横向滚动 | `performance-v13-mobile.png`，手机 Playwright | 通过 |
+| 390×844 | 双图单列、局部 P50/P95 控件不小于 44px、无整体横向滚动 | `performance-v13-mobile.png`；E2E 断言按钮高度至少 44px、页面宽度等于视口宽度，端点表仅自身横向滚动且操作、P50/P95 比较列可分别滚动到可视区域 | 通过 |
 
 Figma 差异记录：`89:1310` 的示例数据与颜色用于核对信息层级和双图区块，不作为运行时回退；实现按权威 OpenAPI 的真实 null/0 语义保留缺口。手机端将两张图纵向排列，并让端点表在自身容器中横向阅读，避免页面整体横向滚动。
 
@@ -145,6 +145,8 @@ npm --prefix frontend test -- --run src/monitoring/content/copy.test.ts src/moni
 npm --prefix frontend run build
 # passed; 保留既有 monitor bundle 大小提示
 
-npx playwright test --config playwright.monitor.config.ts --grep 'switches stability|Dropped auxiliary' --reporter=line
-# desktop/mobile: 3 passed, 1 skipped（仅 desktop 保存辅助失败截图）
+npx playwright test --config playwright.monitor.config.ts --reporter=line
+# desktop/mobile: 27 passed, 1 skipped
 ```
+
+审查修复补充：`performance-v13-desktop.png`（简体）、`performance-v13-en-desktop.png`（英文）和 `performance-v13-zh-Hant-mobile.png`（繁体手机）均保持默认 P95；全量 Playwright 在三语七页流程中同时回归页面标题、筛选上下文和手机布局。
