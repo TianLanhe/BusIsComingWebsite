@@ -42,12 +42,16 @@ func privateServerAddress() string {
 
 func configuredPrivateServerAddress() (string, error) {
 	host := getenv("BUS_ANALYTICS_PRIVATE_HOST", "127.0.0.1")
-	if host != "127.0.0.1" || !net.ParseIP(host).IsLoopback() {
-		return "", fmt.Errorf("analytics private listener must use 127.0.0.1")
+	if host != "localhost" {
+		ip := net.ParseIP(host)
+		if ip == nil || !ip.IsLoopback() {
+			return "", fmt.Errorf("analytics private listener must use a loopback host")
+		}
 	}
 	port, err := strconv.Atoi(getenv("BUS_ANALYTICS_PRIVATE_PORT", "18081"))
 	if err != nil || port < 1 || port > 65535 {
 		return "", fmt.Errorf("analytics private listener port is invalid")
 	}
-	return host + ":" + strconv.Itoa(port), nil
+	// 对外快照只公开契约允许的一种 loopback 字面量，避免把输入别名当作运行时网络身份。
+	return "127.0.0.1:" + strconv.Itoa(port), nil
 }

@@ -67,12 +67,12 @@ func TestQueryDetailsPerformanceComparesEndpointPercentilesWithoutInventingZeroR
 func int64Pointer(value int64) *int64 { return &value }
 
 type detailsStoreStub struct {
-	events        []domain.AnalyticsEvent
-	eventsByFrom  map[time.Time][]domain.AnalyticsEvent
-	listResult    StoredEventPage
-	visitorEvents []domain.AnalyticsEvent
+	events         []domain.AnalyticsEvent
+	eventsByFrom   map[time.Time][]domain.AnalyticsEvent
+	listResult     StoredEventPage
+	visitorEvents  []domain.AnalyticsEvent
 	systemSnapshot SystemStorageSnapshot
-	lastRequest   EventListRequest
+	lastRequest    EventListRequest
 }
 
 func (store *detailsStoreStub) LoadOverviewEvents(_ context.Context, from, _ time.Time) ([]domain.AnalyticsEvent, error) {
@@ -109,9 +109,13 @@ func TestSystemUsesOneHongKongClockAndKeepsIndependentFacts(t *testing.T) {
 	health := NewRuntimeHealth(now.Add(-time.Hour))
 	result := NewQueryDetailsWithBindAddress(store, health, ClockFunc(func() time.Time { return now }), ListenerStateFunc(func() string { return "available" }), "127.0.0.1:19081").System(context.Background())
 	encoded, err := json.Marshal(result)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	var value map[string]any
-	if err := json.Unmarshal(encoded, &value); err != nil { t.Fatal(err) }
+	if err := json.Unmarshal(encoded, &value); err != nil {
+		t.Fatal(err)
+	}
 	database := value["database"].(map[string]any)
 	if database["todayLocalDate"] != "2026-07-25" || database["todayRowCount"] == nil {
 		t.Fatalf("expected Hong Kong daily snapshot, got %s", encoded)
@@ -120,6 +124,27 @@ func TestSystemUsesOneHongKongClockAndKeepsIndependentFacts(t *testing.T) {
 		t.Fatalf("expected runtime facts from the same injected clock, got %s", encoded)
 	}
 }
+
+func TestSystemKeepsDroppedWhenProcessStartIsUnavailable(t *testing.T) {
+	dropped := uint64(7)
+	result := NewQueryDetails(nil, runtimeHealthStub{snapshot: RuntimeHealthSnapshot{DatabaseState: DatabaseUnavailable, DroppedSinceStart: dropped}}, ClockFunc(time.Now), nil).System(context.Background())
+	if result.Process.StartedAt != nil || result.Process.UptimeMS != nil || result.Process.DroppedSinceStart == nil || *result.Process.DroppedSinceStart != dropped {
+		t.Fatalf("dropped must not depend on process start: %#v", result.Process)
+	}
+}
+
+func TestSystemKeepsStartWhenUptimeCannotBeCalculated(t *testing.T) {
+	now := time.Date(2026, 7, 24, 0, 0, 0, 0, time.UTC)
+	started := now.Add(time.Minute)
+	result := NewQueryDetails(nil, runtimeHealthStub{snapshot: RuntimeHealthSnapshot{DatabaseState: DatabaseUnavailable, ProcessStartedAt: started}}, ClockFunc(func() time.Time { return now }), nil).System(context.Background())
+	if result.Process.StartedAt == nil || !result.Process.StartedAt.Equal(started) || result.Process.UptimeMS != nil {
+		t.Fatalf("start and uptime must degrade independently: %#v", result.Process)
+	}
+}
+
+type runtimeHealthStub struct{ snapshot RuntimeHealthSnapshot }
+
+func (stub runtimeHealthStub) Snapshot() RuntimeHealthSnapshot { return stub.snapshot }
 
 func TestEventCursorRoundTripKeepsSameMillisecondStableID(t *testing.T) {
 	cursor := domain.EventCursor{OccurredAt: time.Date(2026, 7, 1, 1, 2, 3, 4_000_000, time.UTC), EventID: 42}

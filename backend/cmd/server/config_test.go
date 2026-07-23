@@ -1,10 +1,16 @@
 package main
 
 import (
+	"bytes"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
 	analyticsapp "busiscoming-website/backend/internal/analytics/application"
+	analyticshttp "busiscoming-website/backend/internal/analytics/interfaces/http"
+	platformhttp "busiscoming-website/backend/internal/platform/httpserver"
+	"github.com/gin-gonic/gin"
 )
 
 func TestAnalyticsWriteTimeoutConfig(t *testing.T) {
@@ -59,13 +65,44 @@ func TestServerAddresses(t *testing.T) {
 }
 
 func TestConfiguredPrivateServerAddressRejectsNonLoopback(t *testing.T) {
-	t.Setenv("BUS_ANALYTICS_PRIVATE_HOST", "0.0.0.0")
-	if _, err := configuredPrivateServerAddress(); err == nil {
-		t.Fatal("private listener must reject non-loopback hosts")
+	for _, host := range []string{"localhost", "::1", "::ffff:127.0.0.1", "127.0.0.1"} {
+		t.Run(host, func(t *testing.T) {
+			t.Setenv("BUS_ANALYTICS_PRIVATE_HOST", host)
+			t.Setenv("BUS_ANALYTICS_PRIVATE_PORT", "19081")
+			if address, err := configuredPrivateServerAddress(); err != nil || address != "127.0.0.1:19081" {
+				t.Fatalf("private listener failed to canonicalize %q: %q %v", host, address, err)
+			}
+		})
+	}
+	for _, host := range []string{"127.0.0.1x", "0.0.0.0", "::", "192.168.1.10", "not a host"} {
+		t.Run("reject_"+host, func(t *testing.T) {
+			t.Setenv("BUS_ANALYTICS_PRIVATE_HOST", host)
+			if _, err := configuredPrivateServerAddress(); err == nil {
+				t.Fatalf("private listener accepted %q", host)
+			}
+		})
 	}
 	t.Setenv("BUS_ANALYTICS_PRIVATE_HOST", "127.0.0.1")
 	t.Setenv("BUS_ANALYTICS_PRIVATE_PORT", "19081")
 	if address, err := configuredPrivateServerAddress(); err != nil || address != "127.0.0.1:19081" {
 		t.Fatalf("actual configured loopback address was not preserved: %q %v", address, err)
+	}
+}
+
+func TestConfiguredPrivateAddressIsTheSystemResponseAddress(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	t.Setenv("BUS_ANALYTICS_PRIVATE_HOST", "127.0.0.1")
+	t.Setenv("BUS_ANALYTICS_PRIVATE_PORT", "19081")
+	address, err := configuredPrivateServerAddress()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine := platformhttp.NewPrivateEngine(&bytes.Buffer{})
+	details := analyticsapp.NewQueryDetailsWithBindAddress(nil, nil, analyticsapp.ClockFunc(time.Now), analyticsapp.ListenerStateFunc(func() string { return "available" }), address)
+	analyticshttp.RegisterPrivateRoutes(engine, nil, details, "")
+	response := httptest.NewRecorder()
+	engine.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/analytics/system", nil))
+	if response.Code != http.StatusOK || !bytes.Contains(response.Body.Bytes(), []byte(`"bindAddress":"127.0.0.1:19081"`)) {
+		t.Fatalf("configured address was not injected: %d %s", response.Code, response.Body.String())
 	}
 }

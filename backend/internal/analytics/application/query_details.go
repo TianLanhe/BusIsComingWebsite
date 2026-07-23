@@ -19,10 +19,10 @@ var (
 )
 
 type QueryDetails struct {
-	store    DetailsStore
-	health   RuntimeHealthReader
-	clock    Clock
-	listener ListenerStateReader
+	store       DetailsStore
+	health      RuntimeHealthReader
+	clock       Clock
+	listener    ListenerStateReader
 	bindAddress string
 }
 
@@ -289,13 +289,22 @@ func (usecase *QueryDetails) System(ctx context.Context) SystemData {
 	var startedAt *time.Time
 	var uptimeMS *int64
 	var dropped *uint64
-	if usecase.health != nil && !snapshot.ProcessStartedAt.IsZero() {
+	if usecase.health != nil {
+		dropped = uint64Pointer(snapshot.DroppedSinceStart)
+	}
+	if !snapshot.ProcessStartedAt.IsZero() {
 		started := snapshot.ProcessStartedAt.UTC()
-		startedAt, dropped = &started, uint64Pointer(snapshot.DroppedSinceStart)
-		if !now.Before(started) { uptime := now.Sub(started).Milliseconds(); uptimeMS = &uptime }
+		startedAt = &started
+		if !now.Before(started) {
+			uptime := now.Sub(started).Milliseconds()
+			uptimeMS = &uptime
+		}
 	}
 	var bindAddress *string
-	if usecase.bindAddress != "" { address := usecase.bindAddress; bindAddress = &address }
+	if usecase.bindAddress != "" {
+		address := usecase.bindAddress
+		bindAddress = &address
+	}
 	return SystemData{
 		GeneratedAt: now, Database: database, SQLite: sqlite,
 		Process:         ProcessStatus{StartedAt: startedAt, UptimeMS: uptimeMS, DroppedSinceStart: dropped},

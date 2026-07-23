@@ -28,11 +28,13 @@ test("keeps stability data visible when the Dropped auxiliary request fails", as
 test("shows twelve system facts and degrades individual missing probes", async ({ page }, testInfo) => {
   await page.goto("/#system");
   await expect(page.locator("[data-testid='system-fact']")).toHaveCount(12);
+  await expect(page.locator(".system-fact dd.no-data")).toHaveCount(0);
   await expect(page.getByText(testInfo.project.name.includes("mobile") ? "SQLite 明細儲存" : "SQLite 明细存储")).toBeVisible();
   const viewport = testInfo.project.name.includes("mobile") ? "mobile" : "desktop";
   for (const locale of ["zh-Hans", "zh-Hant", "en"] as const) {
     await page.getByLabel(/语言|語言|Language/).selectOption(locale);
     await expect(page.locator("[data-testid='system-fact']")).toHaveCount(12);
+    if (locale === "zh-Hant") await expect(page.getByText("1 分鐘")).toBeVisible();
     await page.screenshot({ path: `playwright-monitor/__screenshots__/system-v13-${locale}-${viewport}.png`, fullPage: true });
   }
   await page.unroute("**/api/analytics/**");

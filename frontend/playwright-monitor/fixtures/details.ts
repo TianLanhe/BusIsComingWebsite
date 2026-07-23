@@ -54,7 +54,7 @@ export const detailEnvelopes = {
     })).flat(),
     failures: [{ key: "external_timeout", count: 11, ratio: .55 }, { key: "external_unavailable", count: 6, ratio: .3 }, { key: "invalid_request", count: 3, ratio: .15 }],
   }),
-  "/api/analytics/system": envelope({ generatedAt: meta.generatedAt, database: { state: "available", rowCount: 2, todayLocalDate: "2026-07-21", todayRowCount: null, sizeBytes: 4096, lastSuccessfulWriteAt: meta.generatedAt }, sqlite: { version: "3.50.4", journalMode: "wal", schemaVersion: "001" }, process: { startedAt: meta.from, uptimeMs: null, droppedSinceStart: 0 }, privateListener: { state: "available", bindAddress: "127.0.0.1:18081", publicProxy: false } }),
+  "/api/analytics/system": envelope({ generatedAt: meta.generatedAt, database: { state: "available", rowCount: 2, todayLocalDate: "2026-07-21", todayRowCount: 2, sizeBytes: 4096, lastSuccessfulWriteAt: meta.generatedAt }, sqlite: { version: "3.50.4", journalMode: "wal", schemaVersion: "001" }, process: { startedAt: meta.from, uptimeMs: 60_000, droppedSinceStart: 0 }, privateListener: { state: "available", bindAddress: "127.0.0.1:18081", publicProxy: false } }),
 };
 
 export const detailNoComparisonEnvelopes = {

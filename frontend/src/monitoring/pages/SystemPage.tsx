@@ -66,6 +66,20 @@ function factValue(fact: SystemFactKey, data: SystemData, locale: string): strin
 
 function stateLabel(state: string, locale: string) { return state === "available" ? detailText(locale as "zh-Hans", "healthy") : state === "starting" || state === "degraded" ? detailText(locale as "zh-Hans", "degraded") : detailText(locale as "zh-Hans", "unavailable"); }
 function formatNumber(value: number | null, locale: string) { return value == null ? null : new Intl.NumberFormat(locale).format(value); }
-function formatBytes(value: number | null, locale: string) { return value == null ? null : new Intl.NumberFormat(locale, { style: "unit", unit: "megabyte", maximumFractionDigits: 2 }).format(value / 1_000_000); }
+function formatBytes(value: number | null, locale: string) {
+  if (value == null) return null;
+  const units = ["B", "KB", "MB", "GB"];
+  let amount = value, unit = 0;
+  while (amount >= 1024 && unit < units.length - 1) { amount /= 1024; unit += 1; }
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: amount < 10 && unit > 0 ? 1 : 0 }).format(amount)} ${units[unit]}`;
+}
 function formatDate(value: string | null, locale: string) { return value == null ? null : new Intl.DateTimeFormat(locale, { timeZone: "Asia/Hong_Kong", dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
-function formatDuration(value: number | null, locale: string) { return value == null ? null : new Intl.NumberFormat(locale, { style: "unit", unit: "minute", maximumFractionDigits: 1 }).format(value / 60_000); }
+function formatDuration(value: number | null, locale: string) {
+  if (value == null) return null;
+  const labels = locale === "en" ? ["s", "min", "h"] : locale === "zh-Hant" ? ["秒", "分鐘", "小時"] : ["秒", "分钟", "小时"];
+  if (value > 0 && value < 1000) return `<1 ${labels[0]}`;
+  let amount = value / 1000, unit = 0;
+  if (amount >= 60) { amount /= 60; unit = 1; }
+  if (amount >= 60) { amount /= 60; unit = 2; }
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: amount < 10 && unit > 0 ? 1 : 0 }).format(amount)} ${labels[unit]}`;
+}

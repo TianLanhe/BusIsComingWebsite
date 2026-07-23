@@ -1,4 +1,4 @@
-import { Activity, BarChart3, Database, Download, Gauge, LayoutDashboard, Menu, RefreshCw, Route, Search, ShieldCheck, Users, X } from "lucide-react";
+import { Activity, BarChart3, Database, Download, Gauge, LayoutDashboard, Menu, RefreshCw, Route, Search, Users, X } from "lucide-react";
 import { useState } from "react";
 import { useAnalyticsFilters } from "../../app/FilterProvider";
 import type { MonitorRoute } from "../../app/hashRoute";
@@ -30,7 +30,6 @@ export function DashboardShell({ active = "overview", title = "pageTitle", subti
       <Brand />
       <NavGroup title={t("monitorCenter")} group="monitor" active={active} t={t} />
       <NavGroup title={t("diagnostics")} group="diagnostics" active={active} t={t} />
-      <div className="sidebar-status"><ShieldCheck size={18} /><div>{t("privateAccess")}<span><i />{t("liveWriting")}</span><small>{t("listener")}</small></div></div>
     </aside>
     <main className="monitor-main">
       <header className="monitor-topbar">
@@ -50,7 +49,7 @@ export function DashboardShell({ active = "overview", title = "pageTitle", subti
       <GlobalFilters />
       <div className="monitor-content">{children}</div>
     </main>
-    {menuOpen && <div className="mobile-drawer" role="dialog" aria-modal="true"><div className="drawer-head"><Brand compact /><button type="button" aria-label={t("close")} onClick={() => setMenuOpen(false)}><X /></button></div><NavGroup title={t("monitorCenter")} group="monitor" active={active} t={t} /><NavGroup title={t("diagnostics")} group="diagnostics" active={active} t={t} /><div className="drawer-status">{t("privateAccess")}</div></div>}
+    {menuOpen && <div className="mobile-drawer" role="dialog" aria-modal="true"><div className="drawer-head"><Brand compact /><button type="button" aria-label={t("close")} onClick={() => setMenuOpen(false)}><X /></button></div><NavGroup title={t("monitorCenter")} group="monitor" active={active} t={t} /><NavGroup title={t("diagnostics")} group="diagnostics" active={active} t={t} /></div>}
     <nav className="mobile-bottom-nav" data-testid="mobile-bottom-nav" aria-label={t("monitorCenter")}>{nav.slice(0, 4).map((item) => <NavLink key={item.route} item={item} active={active} t={t} />)}</nav>
   </div>;
 }
