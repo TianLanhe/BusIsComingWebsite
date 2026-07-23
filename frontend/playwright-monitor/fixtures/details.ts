@@ -21,8 +21,6 @@ export const detailEnvelopes = {
       { key: "placeQueryVisitors", value: 260, previousValue: null, delta: null, deltaRate: null },
       { key: "routeQueryRequests", value: 200, previousValue: 180, delta: 20, deltaRate: .111 },
       { key: "routeQueryVisitors", value: 180, previousValue: 180, delta: 0, deltaRate: 0 },
-      { key: "successfulPlaceVisitors", value: 260, previousValue: null, delta: null, deltaRate: null },
-      { key: "successfulRouteVisitors", value: 180, previousValue: null, delta: null, deltaRate: null },
     ],
     series: Array.from({ length: 12 }, (_, index) => ({
       bucketStart: `2026-07-${String(index + 9).padStart(2, "0")}T00:00:00+08:00`,

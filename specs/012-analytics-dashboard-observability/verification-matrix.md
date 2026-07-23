@@ -157,25 +157,28 @@ npx playwright test --config playwright.monitor.config.ts --reporter=line
 |---|---|---|---|
 | 事件四卡 | 当前与上一等长周期使用完整筛选范围；分页不能改变卡片 | `SummarizeEvents` 复用 SQLite event query builder；应用层清空 cursor/limit 后分别聚合当前、上一周期并以 `summaryMetrics` 返回。应用、SQLite、HTTP 和 React 测试覆盖 visitor header、过滤条件、零基线、无上期与翻页隔离。 | 通过 |
 | 失败语义 | 失败增加为不利，变化不只依赖颜色 | `EventsPage` 使用 `MetricCard` 的 `lower_is_better`；箭头、带符号值与状态文字同时呈现。 | 通过 |
-| 流量六卡与趋势 | 主页/地点/路线 PV+UV；地点/路线 PV 含失败；趋势仍只显示主页 PV、主页 UV、成功路线 UV | `trafficMetricValues` 分别维护全量查询 UV 与既有成功 Visitor 集合；`TrafficPage` 顶部为六卡，`TrafficChart` 未改动既有三条序列。 | 通过 |
-| 1440×1200 | 六卡同一行、趋势与漏斗可读 | `business-v13-desktop.png`：六卡完整显示，并保留三条趋势图例。 | 通过 |
-| 390×844 | 两列卡片、无页面横向溢出、移动底栏可用 | `business-v13-mobile.png`：六卡两列重排；Playwright 断言 `document.scrollWidth === innerWidth`。 | 通过 |
+| 流量六卡与趋势 | Traffic API `metrics` 恰好为主页/地点/路线 PV+UV 六 key；地点/路线 PV 含失败；趋势仍只显示主页 PV、主页 UV、成功路线 UV | `trafficMetricValues` 只映射六项公开指标；成功 Visitor 仅保留于 `TrafficSeriesPoint` 和漏斗。OpenAPI min/max=6、TypeScript union、fixture 和契约测试均拒绝旧 successful metric key。 | 通过 |
+| 事件比较、分页与开关 | 七种 comparison state、失败增加为不利；真实下一页只改表行；compare 可关闭 | `EventsPage.test.tsx` 逐一渲染 increased/decreased/unchanged/zero-baseline/no-previous/no-current/disabled，并断言失败卡 worse/better；`business-metrics.spec.ts` 以与 Go `EncodeEventCursor` 相同的 16-byte raw-base64url cursor 请求第二页，契约测试校验固定向量和解码字段。第 1 页为 limit=50 的 50 项、total=51，第 2 页为 1 项且 `nextCursor=null`，断言摘要不变、表行从 route 改为 homepage、范围为 `51–51 / 51`，关闭 compare 后显示 disabled 文案。 | 通过 |
+| 三语桌面与手机 | `zh-Hans`、`zh-Hant`、`en` 均须验证事件、流量和无横向溢出；英文桌面须为六列 | `business-metrics.spec.ts` 在 1440 与 390 对每种语言运行；保存 `business-events-{locale}-{desktop|mobile}.png` 与 `business-traffic-{locale}-{desktop|mobile}.png` 共 12 张。每组合断言 `scrollWidth === innerWidth`，桌面 `gridTemplateColumns` 为 6、手机为 2。 | 通过 |
 
 Figma 差异记录：`89:1310` 的 Business & Event Metrics 画板用于核对六卡层级、对比状态和桌面/手机栅格；示例数值不会作为运行时数据回退。移动端沿用既有固定底栏，长内容在其下方保持安全底部留白，不引入页面横向滚动。
 
 执行命令：
 
 ```text
-go test -race ./...
+go -C backend test -race ./...
 # passed
 
 npm --prefix frontend test
-# 42 files, 178 tests passed
+# 42 files, 186 tests passed
 
 npm --prefix frontend run openapi:lint
 npm --prefix frontend run openapi:bundle
 # passed
 
-npm --prefix frontend run test:e2e:monitor -- playwright-monitor/investigation.spec.ts --reporter=line
-# desktop/mobile 共 6 tests passed；含事件同期/分页与流量六卡流程
+npm --prefix frontend run test:e2e:monitor -- playwright-monitor/business-metrics.spec.ts --reporter=line
+# desktop/mobile 共 4 tests passed；含 EventCursor 二进制契约，以及三语事件分页、compare 开关与流量六卡
+
+npm --prefix frontend run test:e2e:monitor -- --reporter=line
+# 33 passed, 1 skipped
 ```

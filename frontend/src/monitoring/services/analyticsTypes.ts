@@ -56,7 +56,7 @@ export interface Metric<TKey extends string = string> {
   deltaRate: number | null;
 }
 
-export type TrafficMetricKey = "pv" | "uv" | "placeQueryRequests" | "placeQueryVisitors" | "routeQueryRequests" | "routeQueryVisitors" | "successfulPlaceVisitors" | "successfulRouteVisitors";
+export type TrafficMetricKey = "pv" | "uv" | "placeQueryRequests" | "placeQueryVisitors" | "routeQueryRequests" | "routeQueryVisitors";
 export type EventSummaryMetricKey = "totalCount" | "successCount" | "failureCount" | "uniqueVisitors";
 
 export interface TrafficSeriesPoint {

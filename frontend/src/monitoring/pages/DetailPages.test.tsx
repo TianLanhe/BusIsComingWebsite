@@ -41,8 +41,6 @@ describe("detail workspaces", () => {
       { key: "placeQueryVisitors", value: 4, previousValue: null, delta: null, deltaRate: null },
       { key: "routeQueryRequests", value: 5, previousValue: null, delta: null, deltaRate: null },
       { key: "routeQueryVisitors", value: 3, previousValue: null, delta: null, deltaRate: null },
-      { key: "successfulPlaceVisitors", value: 4, previousValue: null, delta: null, deltaRate: null },
-      { key: "successfulRouteVisitors", value: 3, previousValue: null, delta: null, deltaRate: null },
     ];
     data.series = [{ bucketStart: meta.from, bucketEnd: meta.to, pv: 10, uv: 5, successfulPlaceVisitors: 4, successfulRouteVisitors: 3 }];
     renderDetail(<TrafficPage loadTraffic={async () => data} />);

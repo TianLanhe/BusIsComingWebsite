@@ -69,7 +69,7 @@ func (usecase *QueryDetails) Traffic(ctx context.Context, query domain.Analytics
 	}
 	return TrafficData{
 		Meta:    metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()),
-		Metrics: buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"pv", "uv", "placeQueryRequests", "placeQueryVisitors", "routeQueryRequests", "routeQueryVisitors", "successfulPlaceVisitors", "successfulRouteVisitors"}, previousAvailable),
+		Metrics: buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"pv", "uv", "placeQueryRequests", "placeQueryVisitors", "routeQueryRequests", "routeQueryVisitors"}, previousAvailable),
 		Series:  current.trafficSeries, TrialFunnel: current.trialFunnel, Heatmap: trafficHeatmap(currentScope.traffic, query.From, query.To),
 		Locales: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.Locale) }),
 		Devices: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.DeviceType) }),
@@ -325,7 +325,7 @@ func queryState(rawCount, filteredCount int) domain.QueryState {
 }
 
 func trafficMetricValues(events []domain.AnalyticsEvent) map[string]float64 {
-	pageVisitors, placeVisitors, routeVisitors := map[string]struct{}{}, map[string]struct{}{}, map[string]struct{}{}
+	pageVisitors := map[string]struct{}{}
 	placeAllVisitors, routeAllVisitors := map[string]struct{}{}, map[string]struct{}{}
 	var pv, placeRequests, routeRequests int64
 	for _, event := range events {
@@ -336,18 +336,12 @@ func trafficMetricValues(events []domain.AnalyticsEvent) map[string]float64 {
 		case domain.EventPlaceQuery:
 			placeRequests++
 			placeAllVisitors[event.VisitorID] = struct{}{}
-			if event.Outcome == domain.OutcomeSuccess {
-				placeVisitors[event.VisitorID] = struct{}{}
-			}
 		case domain.EventRouteQuery:
 			routeRequests++
 			routeAllVisitors[event.VisitorID] = struct{}{}
-			if event.Outcome == domain.OutcomeSuccess {
-				routeVisitors[event.VisitorID] = struct{}{}
-			}
 		}
 	}
-	return map[string]float64{"pv": float64(pv), "uv": float64(len(pageVisitors)), "successfulPlaceVisitors": float64(len(placeVisitors)), "successfulRouteVisitors": float64(len(routeVisitors)), "placeQueryRequests": float64(placeRequests), "placeQueryVisitors": float64(len(placeAllVisitors)), "routeQueryRequests": float64(routeRequests), "routeQueryVisitors": float64(len(routeAllVisitors))}
+	return map[string]float64{"pv": float64(pv), "uv": float64(len(pageVisitors)), "placeQueryRequests": float64(placeRequests), "placeQueryVisitors": float64(len(placeAllVisitors)), "routeQueryRequests": float64(routeRequests), "routeQueryVisitors": float64(len(routeAllVisitors))}
 }
 
 func eventSummaryMetrics(current, previous EventRangeSummary, compare bool, state domain.QueryState, previousAvailable bool) []domain.Metric {

@@ -80,9 +80,13 @@ describe("012 monitoring OpenAPI contract", () => {
     expect(summaryMetrics?.minItems).toBe(4);
     expect(summaryMetrics?.maxItems).toBe(4);
     expect(trafficMetrics?.items?.$ref).toBe("#/components/schemas/Metric");
+    expect(trafficMetrics?.minItems).toBe(6);
+    expect(trafficMetrics?.maxItems).toBe(6);
     for (const key of ["pv", "uv", "placeQueryRequests", "placeQueryVisitors", "routeQueryRequests", "routeQueryVisitors"]) {
       expect(trafficMetrics?.description).toContain(`\`${key}\``);
     }
+    expect(trafficMetrics?.description).not.toContain("successfulPlaceVisitors");
+    expect(trafficMetrics?.description).not.toContain("successfulRouteVisitors");
     expect(schemas.PercentileComparison.required).toEqual(["currentMs", "previousMs", "deltaMs", "deltaRate"]);
     expect(schemas.SLISeriesPoint.required).toEqual(["bucketStart", "bucketEnd", "eventType", "successfulPV", "totalPV", "successRate"]);
     expect(schemas.PerformanceData.required).toContain("sliSeries");

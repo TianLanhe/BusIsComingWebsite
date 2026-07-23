@@ -1027,10 +1027,12 @@ components:
           $ref: '#/components/schemas/AnalyticsMeta'
         metrics:
           type: array
+          minItems: 6
+          maxItems: 6
           description: |
-            至少包含 `pv`、`uv`、`placeQueryRequests`、`placeQueryVisitors`、
+            按 `pv`、`uv`、`placeQueryRequests`、`placeQueryVisitors`、
             `routeQueryRequests`、`routeQueryVisitors` 六个稳定 key；地点和路线请求数包含成功
-            与失败。既有成功试查 Visitor key 继续保留。
+            与失败。成功地点/路线 Visitor 只存在于趋势和漏斗，不属于本数组。
           items:
             $ref: '#/components/schemas/Metric'
         series:

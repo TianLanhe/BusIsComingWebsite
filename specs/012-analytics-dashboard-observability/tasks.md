@@ -156,7 +156,7 @@ Visitor 的 fixture 验证六卡及趋势口径。
 - [X] T052 [US3] 增加 EventListData.summaryMetrics 和独立 SummarizeEvents port，保持当前 summary/pageInfo 字段，路径：`backend/internal/analytics/application/dto.go`、`backend/internal/analytics/application/ports.go`
 - [X] T053 [US3] 复用时间、事件、结果、语言、设备、来源、平台、版本和 Visitor header 条件实现不带 cursor/limit 的摘要查询，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`、`backend/internal/analytics/infrastructure/sqlite/query_events_visitor.go`
 - [X] T054 [US3] 编排 events 当前/上一摘要并构造四个 Metric；用中文注释说明分页隔离与无样本语义，路径：`backend/internal/analytics/application/query_details.go`
-- [X] T055 [US3] 扩展 trafficMetricValues 返回 placeQueryVisitors/routeQueryVisitors，同时保留成功 Visitor 和趋势口径，路径：`backend/internal/analytics/application/query_details.go`
+- [X] T055 [US3] 扩展 trafficMetricValues 返回 placeQueryVisitors/routeQueryVisitors，公开 `metrics` 严格限定主页/地点/路线 PV+UV 六项；成功 Visitor 仅保留给趋势和漏斗，路径：`backend/internal/analytics/application/query_details.go`
 - [X] T056 [US3] 允许 events 消费既有 compare 参数并保持 cursor/header/error/no-store 行为，路径：`backend/internal/analytics/interfaces/http/query_parser.go`、`backend/internal/analytics/interfaces/http/detail_handlers.go`
 
 ### 用户故事 3 的前端实现
@@ -166,7 +166,7 @@ Visitor 的 fixture 验证六卡及趋势口径。
 - [X] T059 [US3] 将 TrafficPage 顶部改为主页/地点/路线六卡，保留主页 PV、主页 UV、成功路线 UV 三序列，路径：`frontend/src/monitoring/pages/TrafficPage.tsx`
 - [X] T060 [P] [US3] 补齐筛选结果/成功/失败/独立访客和六项 PV/UV 的三语自然文案与匿名浏览器说明，路径：`frontend/src/monitoring/content/copy.ts`
 - [X] T061 [US3] 实现事件四卡与流量六卡的 1440 六列、390 两列/单列和比较状态样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/responsive.css`
-- [X] T062 [US3] 运行 US3 Go/Vitest/Playwright 并保存事件/流量三语双端证据，对照 Figma `89:1310` Business & Event Metrics 画板记录结果，路径：`frontend/playwright-monitor/__screenshots__/business-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/business-v13-mobile.png`、`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T062 [US3] 运行 US3 Go/Vitest/完整 Playwright，并保存事件/流量 `zh-Hans`、`zh-Hant`、`en` 的桌面/手机证据，对照 Figma `89:1310` Business & Event Metrics 画板记录结果，路径：`frontend/playwright-monitor/__screenshots__/business-{events,traffic}-{locale}-{desktop,mobile}.png`、`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 **检查点**：US3 可独立区分事件量和独立 Visitor 变化，分页与趋势口径均可信。
 

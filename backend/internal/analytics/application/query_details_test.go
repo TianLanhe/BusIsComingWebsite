@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -265,8 +266,32 @@ func TestTrafficMetricValuesCountFailedPlaceAndRouteVisitors(t *testing.T) {
 	}
 	events[2].Outcome, events[4].Outcome = domain.OutcomeFailure, domain.OutcomeFailure
 	values := trafficMetricValues(events)
-	if values["placeQueryRequests"] != 3 || values["placeQueryVisitors"] != 2 || values["routeQueryRequests"] != 2 || values["routeQueryVisitors"] != 2 || values["successfulPlaceVisitors"] != 1 || values["successfulRouteVisitors"] != 1 {
+	if values["placeQueryRequests"] != 3 || values["placeQueryVisitors"] != 2 || values["routeQueryRequests"] != 2 || values["routeQueryVisitors"] != 2 || len(values) != 6 {
 		t.Fatalf("PV must include failures and UV must deduplicate complete range: %#v", values)
+	}
+}
+
+func TestQueryDetailsTrafficExposesExactlySixPublicCardMetrics(t *testing.T) {
+	from := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	events := []domain.AnalyticsEvent{
+		detailTestEvent(1, "abcdefghijklmnopqrstuv", domain.EventPageView, from),
+		detailTestEvent(2, "abcdefghijklmnopqrstuv", domain.EventPlaceQuery, from.Add(time.Minute)),
+		detailTestEvent(3, "0123456789abcdefghijkl", domain.EventRouteQuery, from.Add(2*time.Minute)),
+	}
+	result, err := NewQueryDetails(&detailsStoreStub{events: events}, nil, ClockFunc(func() time.Time { return from }), nil).Traffic(context.Background(), domain.AnalyticsQuery{From: from, To: from.Add(time.Hour), Granularity: domain.GranularityHour})
+	if err != nil {
+		t.Fatal(err)
+	}
+	keys := make([]string, len(result.Metrics))
+	for index, metric := range result.Metrics {
+		keys[index] = metric.Key
+	}
+	want := []string{"pv", "uv", "placeQueryRequests", "placeQueryVisitors", "routeQueryRequests", "routeQueryVisitors"}
+	if !reflect.DeepEqual(keys, want) {
+		t.Fatalf("public traffic metrics = %#v, want %#v", keys, want)
+	}
+	if result.Series[0].SuccessfulPlaceVisitors != 1 || result.Series[0].SuccessfulRouteVisitors != 1 || len(result.TrialFunnel.Stages) == 0 {
+		t.Fatalf("success-only visitors must remain available to trend/funnel: %#v %#v", result.Series, result.TrialFunnel)
 	}
 }
 
