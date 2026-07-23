@@ -241,4 +241,12 @@ npm --prefix frontend run test:e2e:monitor -- --reporter=line
 | Supervisor panic 可观测性 | `supervisor_test.go` 区分 panic 与普通 serve error；`listener_logger_test.go` 断言 listener、reason、errorKind、context、stackHash 存在且 panic 原文不写日志 | 通过 |
 | Visitor 隐私文案 | `copy.test.ts` 分别断言三语的公开 HttpOnly Cookie 与私有 `X-Analytics-Visitor-ID` header-only 调查边界 | 通过 |
 | DDD 依赖方向 | `tracking_ports.go` 定义 application ports；`architecture_test.go` 解析 HTTP adapter imports 并拒绝 classification/signing concrete dependency | 通过 |
-| 视觉尺寸 | `sips`：`business-traffic-zh-Hant-mobile.png` 为 390×2731；E2E 12/12 通过后恢复既有截图 | 通过 |
+| 视觉尺寸 | `sips`：`business-traffic-zh-Hant-mobile.png` 为 390×2764；最终 HEAD 已更新并提交 48 张当前 E2E 截图基线 | 通过 |
+
+### 最终 Minor 收敛复验
+
+| 审查项 | 证据 | 结果 |
+|---|---|---|
+| 日期预设标签 | `DateRangeControl.test.tsx` 覆盖默认 preset 的本地化“近 7 天”与切换为自定义完整日期 | 通过 |
+| 事件完整范围摘要 | `StoredEventPage` 删除 `Summary`，SQLite `ListEvents` 只读取分页项；application `SummarizeEvents` 保持唯一完整范围摘要来源 | 通过 |
+| 最终回归与视觉 | 百万行 P95 全小于 1 秒；Go/race、Vitest 42 files/197 tests、build、OpenAPI lint/bundle、diff check 通过；最终 E2E 37 passed/1 skipped，仅更新 48 张当前截图并复核三组导航 | 通过 |

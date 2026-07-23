@@ -50,7 +50,6 @@ type EventSummaryRequest struct {
 
 type StoredEventPage struct {
 	Items   []domain.AnalyticsEvent
-	Summary EventRangeSummary
 	HasMore bool
 }
 

@@ -4,6 +4,12 @@ import { DateRangeControl } from "./DateRangeControl";
 import "../../styles/dashboard.css";
 
 describe("DateRangeControl", () => {
+  it("uses the localized preset name until a custom range is applied", () => {
+    const { rerender } = render(<DateRangeControl locale="zh-Hans" appliedRange={{ startDate: "2026-07-18", endDate: "2026-07-24" }} presetDays={7} onCommit={vi.fn()} />);
+    expect(screen.getByRole("button", { name: /近 7 天/ })).toBeInTheDocument();
+    rerender(<DateRangeControl locale="zh-Hans" appliedRange={{ startDate: "2026-07-01", endDate: "2026-07-24" }} onCommit={vi.fn()} />);
+    expect(screen.getByRole("button", { name: /2026\/07\/01/ })).toBeInTheDocument();
+  });
   afterEach(() => {
     delete (HTMLInputElement.prototype as { showPicker?: () => void }).showPicker;
   });

@@ -11,7 +11,7 @@ interface AppliedRange {
   endDate: string;
 }
 
-export function DateRangeControl({ locale, appliedRange, onCommit, now = () => new Date() }: { locale: MonitoringLocale; appliedRange: AppliedRange; onCommit: (startDate: string, endDate: string) => void; now?: () => Date }) {
+export function DateRangeControl({ locale, appliedRange, presetDays, onCommit, now = () => new Date() }: { locale: MonitoringLocale; appliedRange: AppliedRange; presetDays?: 7 | 30 | 90; onCommit: (startDate: string, endDate: string) => void; now?: () => Date }) {
   const [flow, setFlow] = useState<CustomDateFlow>(cancelCustomDateFlow);
   const root = useRef<HTMLDivElement>(null);
   const startInput = useRef<HTMLInputElement>(null);
@@ -65,7 +65,7 @@ export function DateRangeControl({ locale, appliedRange, onCommit, now = () => n
     if (next.commit) onCommit(next.commit.startDate, next.commit.endDate);
   };
 
-  const triggerLabel = formatTriggerLabel(flow, appliedRange, t);
+  const triggerLabel = formatTriggerLabel(flow, appliedRange, presetDays, t);
   return <div ref={root} className={`date-range-control ${active ? "is-open" : ""}`}>
     <button type="button" className="monitor-control date-range-trigger" aria-label={`${t("customRange")}：${triggerLabel}`} aria-expanded={active} onClick={chooseCustom}>
       <CalendarDays size={15} /><span>{triggerLabel}</span><ChevronDown size={14} />
@@ -87,10 +87,10 @@ function formatAppliedRange({ startDate, endDate }: AppliedRange) {
   return `${startDate.replace(/-/g, "/")} – ${endDate.replace(/-/g, "/")}`;
 }
 
-function formatTriggerLabel(flow: CustomDateFlow, appliedRange: AppliedRange, t: (key: Parameters<typeof monitoringCopy>[1]) => string) {
+function formatTriggerLabel(flow: CustomDateFlow, appliedRange: AppliedRange, presetDays: 7 | 30 | 90 | undefined, t: (key: Parameters<typeof monitoringCopy>[1]) => string) {
   if (flow.step === "selecting_start") return t("dateStepStart");
   if (flow.step === "selecting_end") return `${flow.draftStartDate?.replace(/-/g, "/")} – ${t("dateStepEnd")}`;
-  return formatAppliedRange(appliedRange);
+  return presetDays ? t(presetDays === 7 ? "range7" : presetDays === 30 ? "range30" : "range90") : formatAppliedRange(appliedRange);
 }
 
 const dateErrorKey = { invalid: "dateInvalid", future: "dateFuture", order: "dateOrder" } as const;

@@ -87,7 +87,7 @@ test("keeps event cards stable across a real cursor page, supports comparison on
   }
 });
 
-// Mirrors backend/internal/analytics/application.EncodeEventCursor: big-endian Unix milliseconds + event ID, raw base64url.
+// 与后端 EncodeEventCursor 一致：大端 Unix 毫秒加事件 ID，再用 raw base64url 编码。
 function encodeEventCursor(occurredAt: string, eventID: number): string {
   const bytes = new Uint8Array(16);
   const view = new DataView(bytes.buffer);

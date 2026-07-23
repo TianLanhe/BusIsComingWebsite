@@ -92,7 +92,7 @@ func (store *detailsStoreStub) SummarizeEvents(_ context.Context, request EventS
 	if request.Query.Cursor != "" || request.Query.Limit != 0 {
 		return EventRangeSummary{}, errors.New("summary must not receive pagination")
 	}
-	return store.listResult.Summary, nil
+	return EventRangeSummary{}, nil
 }
 func (store *detailsStoreStub) LoadVisitorEvents(context.Context, string) ([]domain.AnalyticsEvent, error) {
 	return store.visitorEvents, nil
@@ -161,7 +161,7 @@ func TestEventCursorRoundTripKeepsSameMillisecondStableID(t *testing.T) {
 func TestQueryDetailsEventsDefaultsTo50AndAcceptsMaximum100(t *testing.T) {
 	from := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
 	for _, limit := range []int{0, 100} {
-		store := &detailsStoreStub{listResult: StoredEventPage{Items: []domain.AnalyticsEvent{}, Summary: EventRangeSummary{}}}
+		store := &detailsStoreStub{listResult: StoredEventPage{Items: []domain.AnalyticsEvent{}}}
 		usecase := NewQueryDetails(store, nil, ClockFunc(time.Now), nil)
 		_, err := usecase.Events(context.Background(), domain.AnalyticsQuery{From: from, To: from.Add(time.Hour), Granularity: domain.GranularityHour, Limit: limit}, "")
 		if err != nil {
@@ -179,11 +179,7 @@ func TestQueryDetailsEventsDefaultsTo50AndAcceptsMaximum100(t *testing.T) {
 
 func TestQueryDetailsEventsReturnsFullRangeSummaryIndependentOfCursor(t *testing.T) {
 	from := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
-	store := &detailsStoreStub{listResult: StoredEventPage{
-		Items:   []domain.AnalyticsEvent{detailTestEvent(4, "abcdefghijklmnopqrstuv", domain.EventPageView, from.Add(4*time.Minute))},
-		Summary: EventRangeSummary{TotalCount: 9, SuccessCount: 7, FailureCount: 2, UniqueVisitors: 3},
-		HasMore: true,
-	}}
+	store := &summaryStoreStub{detailsStoreStub: detailsStoreStub{listResult: StoredEventPage{Items: []domain.AnalyticsEvent{detailTestEvent(4, "abcdefghijklmnopqrstuv", domain.EventPageView, from.Add(4*time.Minute))}, HasMore: true}}, summaries: map[time.Time]EventRangeSummary{from: {TotalCount: 9, SuccessCount: 7, FailureCount: 2, UniqueVisitors: 3}}}
 	result, err := NewQueryDetails(store, nil, ClockFunc(time.Now), nil).Events(context.Background(), domain.AnalyticsQuery{
 		From: from, To: from.Add(time.Hour), Granularity: domain.GranularityHour, Limit: 1,
 		Cursor: EncodeEventCursor(domain.EventCursor{OccurredAt: from.Add(5 * time.Minute), EventID: 5}),
@@ -191,7 +187,7 @@ func TestQueryDetailsEventsReturnsFullRangeSummaryIndependentOfCursor(t *testing
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.Summary != store.listResult.Summary || result.PageInfo.TotalCount != result.Summary.TotalCount {
+	if result.Summary.TotalCount != 9 || result.PageInfo.TotalCount != result.Summary.TotalCount {
 		t.Fatalf("summary/page total mismatch: %#v", result)
 	}
 }
@@ -201,7 +197,7 @@ func TestQueryDetailsEventsBuildsComparisonMetricsFromCompleteRanges(t *testing.
 	to := from.Add(24 * time.Hour)
 	current := EventRangeSummary{TotalCount: 9, SuccessCount: 6, FailureCount: 3, UniqueVisitors: 4}
 	previous := EventRangeSummary{TotalCount: 4, SuccessCount: 4, FailureCount: 0, UniqueVisitors: 2}
-	store := &summaryStoreStub{detailsStoreStub: detailsStoreStub{listResult: StoredEventPage{Summary: current}}, summaries: map[time.Time]EventRangeSummary{from: current, from.Add(-24 * time.Hour): previous}}
+	store := &summaryStoreStub{detailsStoreStub: detailsStoreStub{listResult: StoredEventPage{}}, summaries: map[time.Time]EventRangeSummary{from: current, from.Add(-24 * time.Hour): previous}}
 	result, err := NewQueryDetails(store, nil, ClockFunc(func() time.Time { return to }), nil).Events(context.Background(), domain.AnalyticsQuery{From: from, To: to, Granularity: domain.GranularityDay, Compare: true, Limit: 1, Cursor: EncodeEventCursor(domain.EventCursor{OccurredAt: to, EventID: 10})}, "abcdefghijklmnopqrstuv")
 	if err != nil {
 		t.Fatal(err)

@@ -32,7 +32,7 @@ export function DashboardShell({ active = "overview", title = "pageTitle", subti
         <div className="mobile-brand-row"><Brand compact /><button type="button" aria-label={t("mobileMenu")} onClick={() => setMenuOpen(true)}><Menu /></button></div>
         <div className="title-block"><p>{t("brandEyebrow")}</p><h1>{titleText ?? t(title)}</h1><span>{subtitleText ?? t(subtitle)}</span></div>
         <div className="topbar-controls">
-          <DateRangeControl locale={locale} appliedRange={{ startDate: filters.resolvedRange.displayStartDate, endDate: filters.resolvedRange.displayEndDate }} onCommit={(startDate, endDate) => { filters.setCustomRange(startDate, endDate); }} />
+          <DateRangeControl locale={locale} appliedRange={{ startDate: filters.resolvedRange.displayStartDate, endDate: filters.resolvedRange.displayEndDate }} presetDays={filters.selection.kind === "preset" ? filters.selection.presetDays ?? undefined : undefined} onCommit={(startDate, endDate) => { filters.setCustomRange(startDate, endDate); }} />
           <label className="monitor-control"><BarChart3 size={15} /><select value={filters.query.granularity} onChange={(event) => filters.setGranularity(event.target.value as typeof filters.query.granularity)} aria-label={t("granularity")}><option value="hour">{t("hourly")}</option><option value="day">{t("daily")}</option><option value="week">{t("weekly")}</option><option value="month">{t("monthly")}</option></select></label>
           <MonitoringLanguageSwitcher />
           <button type="button" className="monitor-control primary" onClick={filters.refresh}><RefreshCw size={15} className={refreshing ? "spin" : ""} />{t("refresh")}</button>
