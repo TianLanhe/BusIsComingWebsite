@@ -21,7 +21,7 @@
 
 | 问题 | 证据 | 结果 |
 |---|---|---|
-| compare=false 却携带同期数值 | `analyticsFixtures.test.ts` 验证启用比较的 meta 有完整上一周期，禁用比较的 summary、traffic、performance 与 endpoint 分位比较字段全部为空 | 通过 |
+| compare=false 却携带同期数值 | `analyticsFixtures.test.ts` 验证启用比较的 meta 有完整上一周期；禁用比较时 summary、traffic、performance 的上一期/变化字段为空，endpoint 分位保留 currentMs 并清空 previous/delta | 通过 |
 | DTO key 没有绑定 | `analyticsTypes.contract.test.ts` 通过 `@ts-expect-error` 和 `build:monitor` 验证 EventListData 与 TrafficData 拒绝未文档化 key，同时保留两个既有 successful Visitor key | 通过 |
 | OpenAPI 字段断言不足 | `analyticsContract.test.ts` 逐项验证六个 traffic key、summaryMetrics min/max=4、ProcessStatus uptimeMs、SQLite/process/listener required 和 nullable union | 通过 |
 | zero baseline 的反向语义 | `comparisonState.test.ts` 验证 `zero_baseline + lower_is_better => worse` | 通过 |

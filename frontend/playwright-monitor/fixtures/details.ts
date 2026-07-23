@@ -3,7 +3,7 @@ const noComparisonMeta = { ...meta, compare: false, comparisonFrom: null, compar
 const event = { eventId: "99", occurredAt: "2026-07-21T00:12:00Z", visitorId: "abcdefghijklmnopqrstuv", eventType: "route_query", outcome: "success", httpStatus: 200, statusClass: "2xx", failureCategory: null, durationMs: 420, locale: "zh-Hant", deviceType: "mobile", sourceType: "direct", download: null };
 const envelope = <T>(data: T) => ({ requestId: "fixture-details", data, error: null });
 const withoutComparison = <T extends { previousValue: number | null; delta: number | null; deltaRate: number | null }>(metric: T) => ({ ...metric, previousValue: null, delta: null, deltaRate: null });
-const withoutPercentileComparison = () => ({ currentMs: null, previousMs: null, deltaMs: null, deltaRate: null });
+const withoutPercentileComparison = (currentMs: number | null) => ({ currentMs, previousMs: null, deltaMs: null, deltaRate: null });
 export const detailEnvelopes = {
   "/api/analytics/events": envelope({ meta, summary: { totalCount: 2, successCount: 2, failureCount: 0, uniqueVisitors: 1 }, summaryMetrics: [
     { key: "totalCount", value: 2, previousValue: 0, delta: 2, deltaRate: null },
@@ -58,7 +58,8 @@ export const detailEnvelopes = {
 export const detailNoComparisonEnvelopes = {
   "/api/analytics/events": envelope({ ...detailEnvelopes["/api/analytics/events"].data, meta: noComparisonMeta, summaryMetrics: detailEnvelopes["/api/analytics/events"].data.summaryMetrics.map(withoutComparison) }),
   "/api/analytics/traffic": envelope({ ...detailEnvelopes["/api/analytics/traffic"].data, meta: noComparisonMeta, metrics: detailEnvelopes["/api/analytics/traffic"].data.metrics.map(withoutComparison) }),
-  "/api/analytics/performance": envelope({ ...detailEnvelopes["/api/analytics/performance"].data, meta: noComparisonMeta, metrics: detailEnvelopes["/api/analytics/performance"].data.metrics.map(withoutComparison), endpoints: detailEnvelopes["/api/analytics/performance"].data.endpoints.map((endpoint) => ({ ...endpoint, p50Comparison: withoutPercentileComparison(), p95Comparison: withoutPercentileComparison() })) }),
+  // compare=false 只移除上一期与变化；当前分位仍反映当前 operation 是否有样本。
+  "/api/analytics/performance": envelope({ ...detailEnvelopes["/api/analytics/performance"].data, meta: noComparisonMeta, metrics: detailEnvelopes["/api/analytics/performance"].data.metrics.map(withoutComparison), endpoints: detailEnvelopes["/api/analytics/performance"].data.endpoints.map((endpoint) => ({ ...endpoint, p50Comparison: withoutPercentileComparison(endpoint.p50Ms), p95Comparison: withoutPercentileComparison(endpoint.p95Ms) })) }),
 };
 
 export const systemFailureEnvelope = {

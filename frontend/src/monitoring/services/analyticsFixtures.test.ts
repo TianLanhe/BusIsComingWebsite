@@ -11,7 +11,7 @@ type ComparableMetric = {
 type EventsFixture = { meta: AnalyticsMeta; summaryMetrics: ComparableMetric[] };
 type MetricsFixture = { meta: AnalyticsMeta; metrics: ComparableMetric[] };
 type PercentileComparisonFixture = { currentMs: number | null; previousMs: number | null; deltaMs: number | null; deltaRate: number | null };
-type PerformanceFixture = MetricsFixture & { endpoints: Array<{ p50Comparison: PercentileComparisonFixture; p95Comparison: PercentileComparisonFixture }> };
+type PerformanceFixture = MetricsFixture & { endpoints: Array<{ p50Ms: number | null; p95Ms: number | null; p50Comparison: PercentileComparisonFixture; p95Comparison: PercentileComparisonFixture }> };
 
 function expectComparisonDisabled(metrics: ComparableMetric[]) {
   for (const metric of metrics) {
@@ -46,8 +46,8 @@ describe("monitoring detail fixtures", () => {
     expectComparisonDisabled(traffic.metrics);
     expectComparisonDisabled(performance.metrics);
     for (const endpoint of performance.endpoints) {
-      for (const comparison of [endpoint.p50Comparison, endpoint.p95Comparison]) {
-        expect(comparison.currentMs).toBeNull();
+      for (const [currentMs, comparison] of [[endpoint.p50Ms, endpoint.p50Comparison], [endpoint.p95Ms, endpoint.p95Comparison]] as const) {
+        expect(comparison.currentMs).toBe(currentMs);
         expect(comparison.previousMs).toBeNull();
         expect(comparison.deltaMs).toBeNull();
         expect(comparison.deltaRate).toBeNull();
