@@ -26,7 +26,7 @@ describe("DownloadSegmentedButton", () => {
     expect(heroDownload).toHaveAttribute("href", "/api/downloads/android/latest");
     expect(heroDownload).toHaveAttribute("download", "BusIsComing.apk");
     expect(heroDownload).not.toHaveAttribute("href", "#download");
-    expect(screen.getByText(/Android APK 1.0/)).toBeInTheDocument();
+    expect(screen.getByText(/version and size are temporarily unavailable/)).toBeInTheDocument();
     expect(screen.getByText(/iPhone is not supported yet/)).toBeInTheDocument();
   });
 
@@ -35,7 +35,7 @@ describe("DownloadSegmentedButton", () => {
 
     expect(screen.getByTestId("download-segmented-button")).toHaveAttribute("data-state", "android-ready");
     expect(screen.getByRole("button", { name: /Download Android APK/ })).toBeInTheDocument();
-    expect(screen.getByText(/About 4.8 MB/)).toBeInTheDocument();
+    expect(screen.getByText(/Version and size are temporarily unavailable/)).toBeInTheDocument();
     expect(screen.getByText(/iPhone is not supported yet/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^iPhone$/ })).not.toBeInTheDocument();
   });

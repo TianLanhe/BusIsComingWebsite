@@ -131,7 +131,7 @@ test("online query selects places, shows loading, renders route cards, and updat
     fullPage: false,
   });
 
-  await page.getByRole("button", { name: "简" }).click();
+  await page.getByTitle("简体中文").click();
   await expect(page.getByText(/仍显示上次成功查询结果|Still showing the last successful results/)).toBeVisible();
   await page.locator("#online-query").evaluate((element) => element.scrollIntoView({ block: "start" }));
   await page.screenshot({

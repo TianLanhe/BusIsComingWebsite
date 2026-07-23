@@ -23,16 +23,9 @@ func (l *JSONLogger) Info(event domain.QueryLogEvent) {
 	}
 	entry := map[string]any{
 		"ts":          time.Now().UTC().Format(time.RFC3339Nano),
-		"requestId":   event.RequestID,
 		"operationId": event.OperationID,
 		"stage":       event.Stage,
 		"language":    event.Language,
-	}
-	if event.OriginName != "" {
-		entry["originName"] = event.OriginName
-	}
-	if event.DestinationName != "" {
-		entry["destinationName"] = event.DestinationName
 	}
 	if event.ErrorCode != "" {
 		entry["errorCode"] = event.ErrorCode
@@ -61,11 +54,14 @@ func (l *JSONLogger) Info(event domain.QueryLogEvent) {
 func sanitizeFields(fields map[string]any) map[string]any {
 	sanitized := make(map[string]any)
 	for key, value := range fields {
-		if isSensitiveKey(key) {
-			sanitized[key] = "[redacted]"
+		if key != "mode" && key != "reason" {
 			continue
 		}
-		sanitized[key] = value
+		text, ok := value.(string)
+		if !ok || len(text) > 64 || isSensitiveKey(key) {
+			continue
+		}
+		sanitized[key] = text
 	}
 	return sanitized
 }

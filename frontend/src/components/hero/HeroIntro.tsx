@@ -1,12 +1,14 @@
 import { Bell, Bookmark, Clock3, Search } from "lucide-react";
 import { homepageContent } from "../../content/homepageContent";
 import { useI18n } from "../i18n/I18nProvider";
+import { heroAPKMetadataText, useDownloadMetadata } from "../download/DownloadMetadataProvider";
 import styles from "./HeroIntro.module.css";
 
 const bulletIcons = [Bookmark, Clock3, Bell];
 
 export function HeroIntro() {
-  const { text } = useI18n();
+  const { locale, text } = useI18n();
+  const metadataState = useDownloadMetadata();
 
   return (
     <div className={styles.intro}>
@@ -42,7 +44,7 @@ export function HeroIntro() {
         </a>
       </div>
       <p className={styles.downloadMeta}>
-        <span>{text(homepageContent.hero.apkMeta)}</span>
+        <span>{metadataState.status === "ready" ? heroAPKMetadataText(metadataState.metadata, locale) : text(homepageContent.hero.apkMeta)}</span>
         <span>{text(homepageContent.hero.iphoneStatus)}</span>
       </p>
     </div>

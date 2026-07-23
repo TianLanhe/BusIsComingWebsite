@@ -1,0 +1,1352 @@
+openapi: 3.1.0
+info:
+  title: BusIsComing 匿名访问统计监控 API
+  version: 2026-07-21
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+  description: |
+    仅供服务器本机私有 Dashboard 查询匿名事件明细和按请求聚合结果。
+    本 API 固定绑定 loopback，通过 SSH 隧道访问；不得注册到公开 Gin engine、Caddy 或公网路由。
+    所有聚合均从允许字段的事件明细即时计算，不保存汇总结果。
+servers:
+  - url: http://127.0.0.1:18081
+    description: 仅服务器本机可访问的私有监听器
+security: []
+tags:
+  - name: 总览
+    description: 核心指标、趋势、漏斗、事件构成与摘要
+  - name: 流量与试查
+    description: 主页流量、路线试查和分类分布
+  - name: 下载分析
+    description: 下载请求、成功响应、平台和版本
+  - name: 事件与访客
+    description: 游标分页明细和匿名访客时间线
+  - name: 失败与性能
+    description: 脱敏失败类别及响应时间分位值
+  - name: 系统状态
+    description: SQLite、写入丢弃和私有监听器状态
+x-private-access:
+  bindAddress: 127.0.0.1:18081
+  publicProxy: forbidden
+  accessMethod: SSH local port forwarding
+  cors: disabled
+x-contract-locations:
+  feature: specs/010-website-analytics/contracts/analytics-monitoring-api.openapi.yaml
+  sharedPrimary: shared/contracts/openapi/analytics-monitoring-api.openapi.yaml
+paths:
+  /api/analytics/overview:
+    get:
+      tags: [总览]
+      operationId: getAnalyticsOverview
+      summary: 查询匿名访问统计总览
+      description: |
+        返回总览指标卡、PV/UV 趋势、试查与下载漏斗、事件构成、响应时间摘要和下载分布。
+        `compare=true` 时，上一周期为紧邻当前范围之前的等长时间范围。
+      parameters:
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - $ref: "#/components/parameters/Granularity"
+        - $ref: "#/components/parameters/Compare"
+        - $ref: "#/components/parameters/Locales"
+        - $ref: "#/components/parameters/DeviceTypes"
+        - $ref: "#/components/parameters/SourceTypes"
+        - $ref: "#/components/parameters/Outcomes"
+        - $ref: "#/components/parameters/Platforms"
+        - $ref: "#/components/parameters/VersionNames"
+        - $ref: "#/components/parameters/VersionCodes"
+      responses:
+        "200":
+          description: 总览查询成功；`meta.state` 区分有数据、无数据和筛选无结果
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverviewEnvelope"
+        "400":
+          $ref: "#/components/responses/InvalidFilter"
+        "500":
+          $ref: "#/components/responses/QueryFailed"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /api/analytics/traffic:
+    get:
+      tags: [流量与试查]
+      operationId: getAnalyticsTraffic
+      summary: 查询主页流量与路线试查分析
+      description: 返回流量趋势、试查漏斗、小时热力图以及语言、设备和来源分布。
+      parameters:
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - $ref: "#/components/parameters/Granularity"
+        - $ref: "#/components/parameters/Compare"
+        - $ref: "#/components/parameters/Locales"
+        - $ref: "#/components/parameters/DeviceTypes"
+        - $ref: "#/components/parameters/SourceTypes"
+        - $ref: "#/components/parameters/Outcomes"
+      responses:
+        "200":
+          description: 流量与试查分析查询成功
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrafficEnvelope"
+        "400":
+          $ref: "#/components/responses/InvalidFilter"
+        "500":
+          $ref: "#/components/responses/QueryFailed"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /api/analytics/downloads:
+    get:
+      tags: [下载分析]
+      operationId: getAnalyticsDownloads
+      summary: 查询安装包下载分析
+      description: |
+        返回下载请求、成功响应、独立访客、成功率、主页到下载漏斗、平台/版本及失败分类。
+        所有文案必须表达为下载请求或成功响应，不得表达为安装完成。
+      parameters:
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - $ref: "#/components/parameters/Granularity"
+        - $ref: "#/components/parameters/Compare"
+        - $ref: "#/components/parameters/Locales"
+        - $ref: "#/components/parameters/DeviceTypes"
+        - $ref: "#/components/parameters/SourceTypes"
+        - $ref: "#/components/parameters/Outcomes"
+        - $ref: "#/components/parameters/Platforms"
+        - $ref: "#/components/parameters/VersionNames"
+        - $ref: "#/components/parameters/VersionCodes"
+      responses:
+        "200":
+          description: 下载分析查询成功
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadsEnvelope"
+        "400":
+          $ref: "#/components/responses/InvalidFilter"
+        "500":
+          $ref: "#/components/responses/QueryFailed"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /api/analytics/events:
+    get:
+      tags: [事件与访客]
+      operationId: listAnalyticsEvents
+      summary: 游标分页查询匿名事件明细
+      description: |
+        按 `(occurredAt DESC,eventId DESC)` 返回允许字段。完整 visitor ID 精确筛选只能通过
+        `X-Analytics-Visitor-ID` header；不得提供导出、删除、编辑或无上限历史下载。
+      parameters:
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - $ref: "#/components/parameters/Locales"
+        - $ref: "#/components/parameters/DeviceTypes"
+        - $ref: "#/components/parameters/SourceTypes"
+        - $ref: "#/components/parameters/Outcomes"
+        - $ref: "#/components/parameters/Platforms"
+        - $ref: "#/components/parameters/VersionNames"
+        - $ref: "#/components/parameters/VersionCodes"
+        - $ref: "#/components/parameters/EventTypes"
+        - $ref: "#/components/parameters/VisitorIdOptional"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 事件明细查询成功
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventListEnvelope"
+        "400":
+          $ref: "#/components/responses/InvalidFilterOrCursor"
+        "500":
+          $ref: "#/components/responses/QueryFailed"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /api/analytics/visitor:
+    get:
+      tags: [事件与访客]
+      operationId: getAnalyticsVisitor
+      summary: 精确查询匿名访客摘要和会话时间线
+      description: |
+        visitor ID 是私有监控资源的精确检索条件，但仍不进入 path、query 或 body，只通过
+        `X-Analytics-Visitor-ID` header 传递。时间线按 30 分钟无活动边界派生会话。
+      parameters:
+        - $ref: "#/components/parameters/VisitorIdRequired"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 匿名访客及时间线查询成功
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorEnvelope"
+        "400":
+          $ref: "#/components/responses/InvalidFilterOrCursor"
+        "404":
+          $ref: "#/components/responses/VisitorNotFound"
+        "500":
+          $ref: "#/components/responses/QueryFailed"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /api/analytics/performance:
+    get:
+      tags: [失败与性能]
+      operationId: getAnalyticsPerformance
+      summary: 查询失败分类与公开接口性能
+      description: 返回四类公开统计入口的请求量、成功率、P50/P95、趋势和受控失败类别。
+      parameters:
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - $ref: "#/components/parameters/Granularity"
+        - $ref: "#/components/parameters/Compare"
+        - $ref: "#/components/parameters/Locales"
+        - $ref: "#/components/parameters/DeviceTypes"
+        - $ref: "#/components/parameters/SourceTypes"
+        - $ref: "#/components/parameters/Outcomes"
+        - $ref: "#/components/parameters/EventTypes"
+      responses:
+        "200":
+          description: 失败与性能分析查询成功
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceEnvelope"
+        "400":
+          $ref: "#/components/responses/InvalidFilter"
+        "500":
+          $ref: "#/components/responses/QueryFailed"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /api/analytics/system:
+    get:
+      tags: [系统状态]
+      operationId: getAnalyticsSystemStatus
+      summary: 查询匿名统计系统状态
+      description: |
+        返回数据库、最后成功写入、进程启动以来的丢弃数量和私有监听器状态。
+        即使数据库不可用，本接口仍返回 200 和 `database.state=unavailable`，以便 Dashboard
+        解释公开主页、试查和下载不受影响。
+      responses:
+        "200":
+          description: 系统状态查询成功；数据库状态可能为不可用
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemEnvelope"
+        "400":
+          description: 请求包含无法接受的格式或参数
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/NoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                invalidRequest:
+                  summary: 系统状态请求无效
+                  value:
+                    requestId: req_analytics_system_01
+                    data: null
+                    error:
+                      code: ANALYTICS_INVALID_FILTER
+                      message: 系统状态请求格式无效。
+        "500":
+          $ref: "#/components/responses/QueryFailed"
+components:
+  parameters:
+    From:
+      name: from
+      in: query
+      required: true
+      description: 查询范围开始时间（含），RFC 3339
+      schema:
+        type: string
+        format: date-time
+      example: "2026-06-21T00:00:00+08:00"
+    To:
+      name: to
+      in: query
+      required: true
+      description: 查询范围结束时间（不含），必须晚于 `from`
+      schema:
+        type: string
+        format: date-time
+      example: "2026-07-21T00:00:00+08:00"
+    Granularity:
+      name: granularity
+      in: query
+      required: false
+      description: 趋势分桶粒度；未提供时由服务端按范围选择合理默认值
+      schema:
+        $ref: "#/components/schemas/Granularity"
+    Compare:
+      name: compare
+      in: query
+      required: false
+      description: 是否返回紧邻当前范围之前的等长周期比较
+      schema:
+        type: boolean
+        default: true
+    Locales:
+      name: locale
+      in: query
+      required: false
+      description: 一个或多个语言筛选；重复 query key 表示多选
+      style: form
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/components/schemas/Locale"
+    DeviceTypes:
+      name: device
+      in: query
+      required: false
+      description: 一个或多个设备粗分类
+      style: form
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/components/schemas/DeviceType"
+    SourceTypes:
+      name: source
+      in: query
+      required: false
+      description: 一个或多个来源粗分类
+      style: form
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/components/schemas/SourceType"
+    Outcomes:
+      name: outcome
+      in: query
+      required: false
+      description: 一个或多个请求结果
+      style: form
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/components/schemas/Outcome"
+    Platforms:
+      name: platform
+      in: query
+      required: false
+      description: 下载平台筛选；只影响下载相关指标和图表
+      style: form
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/components/schemas/Platform"
+    VersionNames:
+      name: versionName
+      in: query
+      required: false
+      description: 下载 versionName 筛选；只影响下载相关指标和图表
+      style: form
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          minLength: 1
+          maxLength: 64
+    VersionCodes:
+      name: versionCode
+      in: query
+      required: false
+      description: 下载 versionCode 筛选；只影响下载相关指标和图表
+      style: form
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          type: integer
+          minimum: 1
+    EventTypes:
+      name: eventType
+      in: query
+      required: false
+      description: 一个或多个事件类型
+      style: form
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: "#/components/schemas/EventType"
+    VisitorIdOptional:
+      name: X-Analytics-Visitor-ID
+      in: header
+      required: false
+      description: 完整匿名 visitor ID 精确筛选；不得记录到请求日志
+      schema:
+        $ref: "#/components/schemas/VisitorId"
+    VisitorIdRequired:
+      name: X-Analytics-Visitor-ID
+      in: header
+      required: true
+      description: 完整匿名 visitor ID 精确检索；不得记录到请求日志
+      schema:
+        $ref: "#/components/schemas/VisitorId"
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: 每页最大项目数
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      description: 服务端返回的 opaque keyset cursor；客户端不得解析或拼装
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 512
+  headers:
+    NoStore:
+      description: 私有监控结果和错误均不得由浏览器或中间层缓存
+      schema:
+        type: string
+        const: no-store
+        example: no-store
+  responses:
+    InvalidFilter:
+      description: 时间范围、粒度或有限枚举筛选无效
+      headers:
+        Cache-Control:
+          $ref: "#/components/headers/NoStore"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            invalidRange:
+              summary: 时间范围无效
+              value:
+                requestId: req_analytics_01
+                data: null
+                error:
+                  code: ANALYTICS_INVALID_FILTER
+                  message: 查询时间范围或筛选条件无效。
+    InvalidFilterOrCursor:
+      description: 筛选条件、visitor ID 或游标无效
+      headers:
+        Cache-Control:
+          $ref: "#/components/headers/NoStore"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            invalidCursor:
+              summary: 游标无效
+              value:
+                requestId: req_analytics_02
+                data: null
+                error:
+                  code: ANALYTICS_INVALID_CURSOR
+                  message: 分页游标无效或已经过期。
+    VisitorNotFound:
+      description: 未找到精确匹配的匿名 visitor
+      headers:
+        Cache-Control:
+          $ref: "#/components/headers/NoStore"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            notFound:
+              summary: 匿名 visitor 不存在
+              value:
+                requestId: req_analytics_03
+                data: null
+                error:
+                  code: ANALYTICS_VISITOR_NOT_FOUND
+                  message: 未找到该匿名 visitor 的统计明细。
+    QueryFailed:
+      description: 监控查询发生受控内部错误
+      headers:
+        Cache-Control:
+          $ref: "#/components/headers/NoStore"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            failed:
+              summary: 查询失败
+              value:
+                requestId: req_analytics_04
+                data: null
+                error:
+                  code: ANALYTICS_QUERY_FAILED
+                  message: 匿名统计查询暂时失败。
+    StorageUnavailable:
+      description: SQLite 监控存储不可用；公开业务不受影响
+      headers:
+        Cache-Control:
+          $ref: "#/components/headers/NoStore"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          examples:
+            unavailable:
+              summary: 监控数据库不可用
+              value:
+                requestId: req_analytics_05
+                data: null
+                error:
+                  code: ANALYTICS_STORAGE_UNAVAILABLE
+                  message: 匿名统计数据库暂时不可用，公开网站功能不受影响。
+  schemas:
+    Granularity:
+      type: string
+      enum: [hour, day, week, month]
+    Locale:
+      type: string
+      enum: [zh-Hant, zh-Hans, en, unknown]
+    DeviceType:
+      type: string
+      enum: [desktop, mobile, tablet, other]
+    SourceType:
+      type: string
+      enum: [direct, search, referral, internal, unknown]
+    Outcome:
+      type: string
+      enum: [success, failure]
+    Platform:
+      type: string
+      enum: [android, ios, other]
+    EventType:
+      type: string
+      enum: [page_view, place_query, route_query, download_request]
+    StatusClass:
+      type: string
+      enum: [2xx, 3xx, 4xx, 5xx, aborted, unknown]
+    FailureCategory:
+      type: string
+      enum:
+        - invalid_request
+        - invalid_token
+        - same_place
+        - rate_limited
+        - not_found
+        - integrity_mismatch
+        - external_timeout
+        - external_unavailable
+        - client_aborted
+        - internal
+        - unknown
+    VisitorId:
+      type: string
+      pattern: "^[A-Za-z0-9_-]{22}$"
+      description: 128-bit 随机匿名 visitor ID；不是完整 Cookie 值
+      example: 5YH0yHJKp5H9D8L3wqQ9xA
+    QueryState:
+      type: string
+      enum: [ready, no_data, no_results]
+    AppliedFilters:
+      type: object
+      required:
+        - locale
+        - device
+        - source
+        - outcome
+        - platform
+        - versionName
+        - versionCode
+        - eventType
+      properties:
+        locale:
+          type: array
+          items:
+            $ref: "#/components/schemas/Locale"
+        device:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeviceType"
+        source:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceType"
+        outcome:
+          type: array
+          items:
+            $ref: "#/components/schemas/Outcome"
+        platform:
+          type: array
+          items:
+            $ref: "#/components/schemas/Platform"
+        versionName:
+          type: array
+          items:
+            type: string
+        versionCode:
+          type: array
+          items:
+            type: integer
+        eventType:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventType"
+      additionalProperties: false
+    AnalyticsMeta:
+      type: object
+      required:
+        - from
+        - to
+        - timezone
+        - granularity
+        - compare
+        - comparisonFrom
+        - comparisonTo
+        - appliedFilters
+        - generatedAt
+        - state
+      properties:
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          const: Asia/Hong_Kong
+        granularity:
+          $ref: "#/components/schemas/Granularity"
+        compare:
+          type: boolean
+        comparisonFrom:
+          type: [string, "null"]
+          format: date-time
+        comparisonTo:
+          type: [string, "null"]
+          format: date-time
+        appliedFilters:
+          $ref: "#/components/schemas/AppliedFilters"
+        generatedAt:
+          type: string
+          format: date-time
+        state:
+          $ref: "#/components/schemas/QueryState"
+      additionalProperties: false
+    Metric:
+      type: object
+      required: [key, value, previousValue, delta, deltaRate]
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: [number, "null"]
+        previousValue:
+          type: [number, "null"]
+        delta:
+          type: [number, "null"]
+        deltaRate:
+          type: [number, "null"]
+          description: 上一周期为 0 或未比较时为空
+      additionalProperties: false
+    TrafficSeriesPoint:
+      type: object
+      required: [bucketStart, bucketEnd, pv, uv, successfulPlaceVisitors, successfulRouteVisitors]
+      properties:
+        bucketStart:
+          type: string
+          format: date-time
+        bucketEnd:
+          type: string
+          format: date-time
+        pv:
+          type: integer
+          minimum: 0
+        uv:
+          type: integer
+          minimum: 0
+        successfulPlaceVisitors:
+          type: integer
+          minimum: 0
+        successfulRouteVisitors:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    DownloadSeriesPoint:
+      type: object
+      required: [bucketStart, bucketEnd, requests, successfulResponses, uv]
+      properties:
+        bucketStart:
+          type: string
+          format: date-time
+        bucketEnd:
+          type: string
+          format: date-time
+        requests:
+          type: integer
+          minimum: 0
+        successfulResponses:
+          type: integer
+          minimum: 0
+        uv:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    FunnelStage:
+      type: object
+      required: [key, uniqueVisitors, fromPreviousRate, fromFirstRate]
+      properties:
+        key:
+          type: string
+          enum: [homepage, successful_place_query, successful_route_query, successful_download_response]
+        uniqueVisitors:
+          type: integer
+          minimum: 0
+        fromPreviousRate:
+          type: [number, "null"]
+          minimum: 0
+          maximum: 1
+        fromFirstRate:
+          type: [number, "null"]
+          minimum: 0
+          maximum: 1
+      additionalProperties: false
+    Funnel:
+      type: object
+      required: [key, sessionGapMinutes, stages]
+      properties:
+        key:
+          type: string
+          enum: [trial, download]
+        sessionGapMinutes:
+          type: integer
+          const: 30
+        stages:
+          type: array
+          minItems: 2
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/FunnelStage"
+      additionalProperties: false
+    DistributionPoint:
+      type: object
+      required: [key, count, ratio]
+      properties:
+        key:
+          type: string
+          minLength: 1
+        count:
+          type: integer
+          minimum: 0
+        ratio:
+          type: [number, "null"]
+          minimum: 0
+          maximum: 1
+      additionalProperties: false
+    LatencySummary:
+      type: object
+      required: [requestCount, p50Ms, p95Ms]
+      properties:
+        requestCount:
+          type: integer
+          minimum: 0
+        p50Ms:
+          type: [integer, "null"]
+          minimum: 0
+        p95Ms:
+          type: [integer, "null"]
+          minimum: 0
+      additionalProperties: false
+    HeatmapCell:
+      type: object
+      required: [weekday, hour, eventCount, uv]
+      properties:
+        weekday:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: ISO weekday，1 为星期一
+        hour:
+          type: integer
+          minimum: 0
+          maximum: 23
+        eventCount:
+          type: integer
+          minimum: 0
+        uv:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    OverviewData:
+      type: object
+      required:
+        - meta
+        - metrics
+        - trafficSeries
+        - trialFunnel
+        - downloadFunnel
+        - eventComposition
+        - latency
+        - downloadPlatforms
+        - downloadVersions
+      properties:
+        meta:
+          $ref: "#/components/schemas/AnalyticsMeta"
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Metric"
+        trafficSeries:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrafficSeriesPoint"
+        trialFunnel:
+          $ref: "#/components/schemas/Funnel"
+        downloadFunnel:
+          $ref: "#/components/schemas/Funnel"
+        eventComposition:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+        latency:
+          $ref: "#/components/schemas/LatencySummary"
+        downloadPlatforms:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+        downloadVersions:
+          type: array
+          items:
+            $ref: "#/components/schemas/VersionDistribution"
+      additionalProperties: false
+    TrafficData:
+      type: object
+      required:
+        - meta
+        - metrics
+        - series
+        - trialFunnel
+        - heatmap
+        - locales
+        - devices
+        - sources
+      properties:
+        meta:
+          $ref: "#/components/schemas/AnalyticsMeta"
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Metric"
+        series:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrafficSeriesPoint"
+        trialFunnel:
+          $ref: "#/components/schemas/Funnel"
+        heatmap:
+          type: array
+          items:
+            $ref: "#/components/schemas/HeatmapCell"
+        locales:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+      additionalProperties: false
+    VersionDistribution:
+      type: object
+      required: [platform, versionName, versionCode, requestCount, successfulResponses, uv, sizeBytes]
+      properties:
+        platform:
+          $ref: "#/components/schemas/Platform"
+        versionName:
+          type: string
+          minLength: 1
+        versionCode:
+          type: integer
+          minimum: 1
+        requestCount:
+          type: integer
+          minimum: 0
+        successfulResponses:
+          type: integer
+          minimum: 0
+        uv:
+          type: integer
+          minimum: 0
+        sizeBytes:
+          type: integer
+          minimum: 1
+      additionalProperties: false
+    DownloadsData:
+      type: object
+      required: [meta, metrics, series, downloadFunnel, platforms, versions, failures]
+      properties:
+        meta:
+          $ref: "#/components/schemas/AnalyticsMeta"
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Metric"
+        series:
+          type: array
+          items:
+            $ref: "#/components/schemas/DownloadSeriesPoint"
+        downloadFunnel:
+          $ref: "#/components/schemas/Funnel"
+        platforms:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/VersionDistribution"
+        failures:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+      additionalProperties: false
+    DownloadAttribution:
+      type: object
+      required: [platform, versionName, versionCode, sizeBytes]
+      properties:
+        platform:
+          $ref: "#/components/schemas/Platform"
+        versionName:
+          type: [string, "null"]
+          maxLength: 64
+        versionCode:
+          type: [integer, "null"]
+          minimum: 1
+        sizeBytes:
+          type: [integer, "null"]
+          minimum: 1
+      additionalProperties: false
+    EventDetail:
+      type: object
+      required:
+        - eventId
+        - occurredAt
+        - visitorId
+        - eventType
+        - outcome
+        - httpStatus
+        - statusClass
+        - failureCategory
+        - durationMs
+        - locale
+        - deviceType
+        - sourceType
+        - download
+      properties:
+        eventId:
+          type: string
+          pattern: "^[0-9]+$"
+        occurredAt:
+          type: string
+          format: date-time
+        visitorId:
+          $ref: "#/components/schemas/VisitorId"
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        outcome:
+          $ref: "#/components/schemas/Outcome"
+        httpStatus:
+          type: [integer, "null"]
+          minimum: 100
+          maximum: 599
+        statusClass:
+          $ref: "#/components/schemas/StatusClass"
+        failureCategory:
+          oneOf:
+            - $ref: "#/components/schemas/FailureCategory"
+            - type: "null"
+        durationMs:
+          type: integer
+          minimum: 0
+        locale:
+          $ref: "#/components/schemas/Locale"
+        deviceType:
+          $ref: "#/components/schemas/DeviceType"
+        sourceType:
+          $ref: "#/components/schemas/SourceType"
+        download:
+          oneOf:
+            - $ref: "#/components/schemas/DownloadAttribution"
+            - type: "null"
+      additionalProperties: false
+    PageInfo:
+      type: object
+      required: [limit, nextCursor, hasMore, totalCount]
+      properties:
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        nextCursor:
+          type: [string, "null"]
+        hasMore:
+          type: boolean
+        totalCount:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    EventListData:
+      type: object
+      required: [meta, items, pageInfo]
+      properties:
+        meta:
+          $ref: "#/components/schemas/AnalyticsMeta"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventDetail"
+        pageInfo:
+          $ref: "#/components/schemas/PageInfo"
+      additionalProperties: false
+    VisitorSummary:
+      type: object
+      required:
+        - visitorId
+        - firstSeenAt
+        - lastSeenAt
+        - eventCount
+        - sessionCount
+        - commonLocale
+        - commonDeviceType
+        - commonSourceType
+      properties:
+        visitorId:
+          $ref: "#/components/schemas/VisitorId"
+        firstSeenAt:
+          type: string
+          format: date-time
+        lastSeenAt:
+          type: string
+          format: date-time
+        eventCount:
+          type: integer
+          minimum: 1
+        sessionCount:
+          type: integer
+          minimum: 1
+        commonLocale:
+          $ref: "#/components/schemas/Locale"
+        commonDeviceType:
+          $ref: "#/components/schemas/DeviceType"
+        commonSourceType:
+          $ref: "#/components/schemas/SourceType"
+      additionalProperties: false
+    DerivedSession:
+      type: object
+      required: [ordinal, startedAt, endedAt, durationMs, eventCount, events]
+      properties:
+        ordinal:
+          type: integer
+          minimum: 1
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+        durationMs:
+          type: integer
+          minimum: 0
+        eventCount:
+          type: integer
+          minimum: 1
+        events:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/EventDetail"
+      additionalProperties: false
+    VisitorData:
+      type: object
+      required: [generatedAt, timezone, visitor, sessions, pageInfo]
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          const: Asia/Hong_Kong
+        visitor:
+          $ref: "#/components/schemas/VisitorSummary"
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/DerivedSession"
+        pageInfo:
+          $ref: "#/components/schemas/PageInfo"
+      additionalProperties: false
+    EndpointPerformance:
+      type: object
+      required: [operationId, eventType, requestCount, successRate, p50Ms, p95Ms]
+      properties:
+        operationId:
+          type: string
+          enum:
+            - getLatestAndroidApkMetadata
+            - queryRoutePlaces
+            - queryRouteOptions
+            - downloadLatestAndroidApk
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        requestCount:
+          type: integer
+          minimum: 0
+        successRate:
+          type: [number, "null"]
+          minimum: 0
+          maximum: 1
+        p50Ms:
+          type: [integer, "null"]
+          minimum: 0
+        p95Ms:
+          type: [integer, "null"]
+          minimum: 0
+      additionalProperties: false
+    LatencySeriesPoint:
+      type: object
+      required: [bucketStart, bucketEnd, eventType, requestCount, p50Ms, p95Ms]
+      properties:
+        bucketStart:
+          type: string
+          format: date-time
+        bucketEnd:
+          type: string
+          format: date-time
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        requestCount:
+          type: integer
+          minimum: 0
+        p50Ms:
+          type: [integer, "null"]
+          minimum: 0
+        p95Ms:
+          type: [integer, "null"]
+          minimum: 0
+      additionalProperties: false
+    PerformanceData:
+      type: object
+      required: [meta, metrics, endpoints, latencySeries, failures]
+      properties:
+        meta:
+          $ref: "#/components/schemas/AnalyticsMeta"
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Metric"
+        endpoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndpointPerformance"
+        latencySeries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LatencySeriesPoint"
+        failures:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistributionPoint"
+      additionalProperties: false
+    DatabaseStatus:
+      type: object
+      required: [state, rowCount, sizeBytes, lastSuccessfulWriteAt]
+      properties:
+        state:
+          type: string
+          enum: [available, degraded, unavailable]
+        rowCount:
+          type: [integer, "null"]
+          minimum: 0
+        sizeBytes:
+          type: [integer, "null"]
+          minimum: 0
+        lastSuccessfulWriteAt:
+          type: [string, "null"]
+          format: date-time
+      additionalProperties: false
+    ProcessStatus:
+      type: object
+      required: [startedAt, droppedSinceStart]
+      properties:
+        startedAt:
+          type: string
+          format: date-time
+        droppedSinceStart:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    PrivateListenerStatus:
+      type: object
+      required: [state, bindAddress, publicProxy]
+      properties:
+        state:
+          type: string
+          enum: [starting, available, unavailable, stopped]
+        bindAddress:
+          type: string
+          const: 127.0.0.1:18081
+        publicProxy:
+          type: boolean
+          const: false
+      additionalProperties: false
+    SystemData:
+      type: object
+      required: [generatedAt, database, process, privateListener]
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        database:
+          $ref: "#/components/schemas/DatabaseStatus"
+        process:
+          $ref: "#/components/schemas/ProcessStatus"
+        privateListener:
+          $ref: "#/components/schemas/PrivateListenerStatus"
+      additionalProperties: false
+    AnalyticsError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - ANALYTICS_INVALID_FILTER
+            - ANALYTICS_INVALID_CURSOR
+            - ANALYTICS_VISITOR_NOT_FOUND
+            - ANALYTICS_STORAGE_UNAVAILABLE
+            - ANALYTICS_QUERY_FAILED
+        message:
+          type: string
+          minLength: 1
+          description: 不含 SQL、文件路径、visitor ID 或受禁请求数据的安全说明
+      additionalProperties: false
+    ErrorEnvelope:
+      type: object
+      required: [requestId, data, error]
+      properties:
+        requestId:
+          type: string
+          minLength: 1
+        data:
+          type: "null"
+        error:
+          $ref: "#/components/schemas/AnalyticsError"
+      additionalProperties: false
+    OverviewEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelopeBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/OverviewData"
+    TrafficEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelopeBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/TrafficData"
+    DownloadsEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelopeBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/DownloadsData"
+    EventListEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelopeBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/EventListData"
+    VisitorEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelopeBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/VisitorData"
+    PerformanceEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelopeBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/PerformanceData"
+    SystemEnvelope:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelopeBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/SystemData"
+    SuccessEnvelopeBase:
+      type: object
+      required: [requestId, data, error]
+      properties:
+        requestId:
+          type: string
+          minLength: 1
+        data:
+          description: 具体 operation 的成功数据
+        error:
+          type: "null"
+      additionalProperties: false

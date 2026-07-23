@@ -282,23 +282,14 @@ func (s *Service) logResultWithCache(requestID, operation string, language domai
 	})
 }
 
-func (s *Service) logRouteResult(requestID, operation string, language domain.Language, origin, destination domain.PlaceTokenPayload, count int, start time.Time, cacheHit bool) {
-	originLat, originLon := origin.Lat, origin.Lon
-	destinationLat, destinationLon := destination.Lat, destination.Lon
+func (s *Service) logRouteResult(_ string, operation string, language domain.Language, _, _ domain.PlaceTokenPayload, count int, start time.Time, cacheHit bool) {
 	s.logger.Info(domain.QueryLogEvent{
-		RequestID:       requestID,
-		OperationID:     operation,
-		Stage:           "result",
-		Language:        language,
-		OriginName:      origin.Name,
-		OriginLat:       &originLat,
-		OriginLon:       &originLon,
-		DestinationName: destination.Name,
-		DestinationLat:  &destinationLat,
-		DestinationLon:  &destinationLon,
-		DurationMs:      s.clock().Sub(start).Milliseconds(),
-		ResultCount:     &count,
-		CacheHit:        &cacheHit,
+		OperationID: operation,
+		Stage:       "result",
+		Language:    language,
+		DurationMs:  s.clock().Sub(start).Milliseconds(),
+		ResultCount: &count,
+		CacheHit:    &cacheHit,
 	})
 }
 
@@ -313,22 +304,13 @@ func (s *Service) logError(requestID, operation string, language domain.Language
 	})
 }
 
-func (s *Service) logRouteError(requestID, operation string, language domain.Language, origin, destination domain.PlaceTokenPayload, code domain.ErrorCode, start time.Time) {
-	originLat, originLon := origin.Lat, origin.Lon
-	destinationLat, destinationLon := destination.Lat, destination.Lon
+func (s *Service) logRouteError(_ string, operation string, language domain.Language, _, _ domain.PlaceTokenPayload, code domain.ErrorCode, start time.Time) {
 	s.logger.Info(domain.QueryLogEvent{
-		RequestID:       requestID,
-		OperationID:     operation,
-		Stage:           "error",
-		Language:        language,
-		OriginName:      origin.Name,
-		OriginLat:       &originLat,
-		OriginLon:       &originLon,
-		DestinationName: destination.Name,
-		DestinationLat:  &destinationLat,
-		DestinationLon:  &destinationLon,
-		DurationMs:      s.clock().Sub(start).Milliseconds(),
-		ErrorCode:       string(code),
+		OperationID: operation,
+		Stage:       "error",
+		Language:    language,
+		DurationMs:  s.clock().Sub(start).Milliseconds(),
+		ErrorCode:   string(code),
 	})
 }
 

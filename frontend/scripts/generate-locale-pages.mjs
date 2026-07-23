@@ -37,6 +37,9 @@ const privacyFallbackContent = {
         paragraphs: [
           "BusIsComing 不設帳戶系統，不要求你註冊或登入，也不建立姓名、電話、電郵或其他可識別身份的帳戶資料。",
           "我們不為廣告追蹤收集資料，不出售資料，也不把你的查詢內容用作建立廣告受眾。",
+          "網站使用由伺服器簽發、有效期一年的隨機匿名訪客標識計算 PV 和 UV，並長期保留首頁瀏覽、地點試查、路線試查和安裝包下載的最小統計明細；UV 不等同自然人數。",
+          "匿名統計始終啟用且不提供退出控制。我們不記錄 IP、完整 User-Agent 或 Referrer、Cookie 原文、URL、body、起點、目的地、座標或查詢內容；已知機械人不形成統計明細。",
+          "統計只在私有監控頁即時計算，不設統計資料備份或自動刪除流程，因此資料可因儲存故障而遺失。",
         ],
       },
       {
@@ -95,6 +98,9 @@ const privacyFallbackContent = {
         paragraphs: [
           "BusIsComing 不设账号系统，不要求你注册或登录，也不建立姓名、电话、邮箱或其他可识别身份的账号资料。",
           "我们不为广告追踪收集资料，不出售资料，也不把你的查询内容用于建立广告受众。",
+          "网站使用由服务器签发、有效期一年的随机匿名访客标识计算 PV 和 UV，并长期保留首页浏览、地点试查、路线试查和安装包下载的最小统计明细；UV 不等同自然人数。",
+          "匿名统计始终启用且不提供退出控制。我们不记录 IP、完整 User-Agent 或 Referrer、Cookie 原文、URL、body、起点、目的地、坐标或查询内容；已知机器人不形成统计明细。",
+          "统计只在私有监控页即时计算，不设统计数据备份或自动删除流程，因此数据可因存储故障而丢失。",
         ],
       },
       {
@@ -153,6 +159,9 @@ const privacyFallbackContent = {
         paragraphs: [
           "BusIsComing does not provide an account system, does not ask you to sign up or log in, and does not create account records such as your name, phone number, email address, or other identity details.",
           "We do not collect data for ad tracking, do not sell data, and do not use your lookup activity to build advertising audiences.",
+          "The website uses a random anonymous visitor identifier issued for one year to calculate PV and UV, and retains the minimum details for homepage views, place trials, route trials, and package downloads long term. UV does not count people.",
+          "Anonymous analytics is always enabled and does not provide an opt-out. We do not record IP, full User-Agent or Referrer values, raw cookies, URLs, bodies, origins, destinations, coordinates, or query content; known bots create no analytics detail.",
+          "Aggregates are calculated on demand in a private monitoring page. There is no analytics backup or automatic deletion process, so storage failures may lose the data.",
         ],
       },
       {
@@ -297,7 +306,7 @@ ${paragraphs}${bullets}
         <p>${escapeHtmlText(content.lead)}</p>
         <dl>
           <dt>${escapeHtmlText(content.lastUpdatedLabel)}</dt>
-          <dd>2026-06-30</dd>
+          <dd>2026-07-22</dd>
           <dt>${escapeHtmlText(content.contactLabel)}</dt>
           <dd><a href="mailto:hezhenyu966@gmail.com">hezhenyu966@gmail.com</a></dd>
         </dl>

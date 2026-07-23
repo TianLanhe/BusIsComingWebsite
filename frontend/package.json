@@ -5,23 +5,34 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "tsc --noEmit -p tsconfig.json && vite build && node scripts/generate-locale-pages.mjs",
+    "dev:monitor": "vite --config vite.monitor.config.ts",
+    "build": "npm run build:public && npm run build:monitor",
+    "build:public": "tsc --noEmit -p tsconfig.json && vite build && node scripts/generate-locale-pages.mjs",
+    "build:monitor": "tsc --noEmit -p tsconfig.json && vite build --config vite.monitor.config.ts",
     "sanitize:screenshots": "node scripts/sanitize-homepage-screenshots.mjs",
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "openapi:lint": "redocly lint ../shared/contracts/openapi/download-api.openapi.yaml",
-    "openapi:bundle": "redocly bundle ../shared/contracts/openapi/download-api.openapi.yaml -o ../shared/contracts/openapi/download-api.bundle.yaml",
+    "test:e2e:monitor": "playwright test --config playwright.monitor.config.ts",
+    "openapi:feature:lint": "redocly lint ../specs/010-website-analytics/contracts/download-api.openapi.yaml ../specs/010-website-analytics/contracts/route-query-api.openapi.yaml ../specs/010-website-analytics/contracts/analytics-monitoring-api.openapi.yaml",
+    "openapi:shared:lint": "redocly lint ../shared/contracts/openapi/download-api.openapi.yaml ../shared/contracts/openapi/route-query-api.openapi.yaml ../shared/contracts/openapi/analytics-monitoring-api.openapi.yaml",
+    "openapi:lint": "npm run openapi:feature:lint && npm run openapi:shared:lint",
+    "openapi:feature:bundle": "redocly bundle ../specs/010-website-analytics/contracts/download-api.openapi.yaml -o /tmp/busiscoming-feature-download.bundle.yaml && redocly bundle ../specs/010-website-analytics/contracts/route-query-api.openapi.yaml -o /tmp/busiscoming-feature-routes.bundle.yaml && redocly bundle ../specs/010-website-analytics/contracts/analytics-monitoring-api.openapi.yaml -o /tmp/busiscoming-feature-analytics.bundle.yaml",
+    "openapi:bundle": "npm run openapi:feature:bundle && redocly bundle ../shared/contracts/openapi/download-api.openapi.yaml -o ../shared/contracts/openapi/download-api.bundle.yaml && redocly bundle ../shared/contracts/openapi/route-query-api.openapi.yaml -o ../shared/contracts/openapi/route-query-api.bundle.yaml && redocly bundle ../shared/contracts/openapi/analytics-monitoring-api.openapi.yaml -o ../shared/contracts/openapi/analytics-monitoring-api.bundle.yaml",
     "openapi:docs": "mkdir -p ../shared/contracts/openapi/docs && for f in ../shared/contracts/openapi/*.openapi.yaml; do name=$(basename \"$f\" .openapi.yaml); redocly build-docs \"$f\" -o \"../shared/contracts/openapi/docs/${name}.html\"; done",
     "openapi:routes:lint": "redocly lint ../shared/contracts/openapi/route-query-api.openapi.yaml",
     "openapi:routes:bundle": "redocly bundle ../shared/contracts/openapi/route-query-api.openapi.yaml -o ../shared/contracts/openapi/route-query-api.bundle.yaml",
+    "openapi:analytics:lint": "redocly lint ../shared/contracts/openapi/analytics-monitoring-api.openapi.yaml",
+    "openapi:analytics:bundle": "redocly bundle ../shared/contracts/openapi/analytics-monitoring-api.openapi.yaml -o ../shared/contracts/openapi/analytics-monitoring-api.bundle.yaml",
     "preview": "vite preview --host 0.0.0.0",
     "preview:http": "vite preview --host 0.0.0.0 --port ${FRONTEND_HTTP_PORT:-80}"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-is": "18.3.1",
+    "recharts": "3.10.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",

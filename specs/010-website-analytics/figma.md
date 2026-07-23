@@ -1,0 +1,87 @@
+# Figma 设计追溯：BusIsComing Pulse v1.1
+
+**设计版本**：`Pulse v1.1 · 2026-07-22`
+
+**确认日期**：2026-07-22
+
+**状态**：01–10 与 11–13 两批共 13 张画板均已由用户确认导入权威文件
+
+## 权威文件与导入锚点
+
+- Figma 文件：[BusIsComing Website Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)
+- 01–10 导入锚点：[节点 63:2118](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=63-2118&t=qpAv4G6q8c045NWj-0)
+- 11–13 补充导入锚点：[节点 67:672](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=67-672&t=pXavKmVnFOvABrsi-0)
+- 目标页面名称：`Website Analytics / v1`
+- File key：`LAm6RjzFuFHsHFlcipx8pU`
+- 导入方式：本地高保真 HTML → `html.to.design` 类插件 → 现有 Figma 文件
+
+Figma MCP 仍受 Starter 套餐调用额度限制，无法读取两个锚点下的子画板结构。用户已明确确认
+01–10 与 11–13 均完成导入，并分别提供真实锚点 `63:2118` 与 `67:672`。本文以这两个锚点记录
+导入事实，以已验证的 HTML、manifest 和截图维持逐画板映射，不推测或虚构未机器读取的子节点 ID。
+
+## 关键画板映射
+
+导入源：[README](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/README.md) · [manifest](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/manifest.json) · [tokens](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/tokens.json)
+
+| 序号 | 逻辑画板名称 | 视口 | 主要内容 |
+|------|--------------|------|----------|
+| 01 | `Pulse / Desktop Overview` | 1440×1200 | 指标卡、PV/UV 折线、试查漏斗、下载漏斗、事件构成、P95、版本摘要 |
+| 02 | `Pulse / Traffic & Trial` | 1440×1200 | 流量趋势、双漏斗、小时热力图、语言/设备/来源分布 |
+| 03 | `Pulse / Downloads` | 1440×1200 | 下载趋势、UV、成功率、平台预留、版本表、失败分布 |
+| 04 | `Pulse / Event Details` | 1440×1200 | 筛选器、隐私边界提示、分页事件表、截断 Visitor ID |
+| 05 | `Pulse / Anonymous Visitor` | 1440×1200 | 完整 ID 搜索/复制、摘要、分类、30 分钟会话时间线 |
+| 06 | `Pulse / Failures & Performance` | 1440×1200 | 成功率、失败类型、P50/P95 趋势、端点性能表 |
+| 07 | `Pulse / System` | 1440×1200 | 数据库、最后写入、dropped count、私有监听器、隔离与降级路径 |
+| 08 | `Pulse / Mobile Overview` | 390×1640 | 移动指标、紧凑趋势、漏斗、健康状态、下载摘要、底部导航 |
+| 09 | `Pulse / Loading Empty Error States` | 1440×1000 | Loading、无数据、无筛选结果、数据库不可用 |
+| 10 | `Homepage / APK Metadata States` | 1200×760 | 元数据成功、元数据不可用、下载入口始终可用 |
+| 11 | `Pulse / Mobile Investigation` | 390×1640 | 紧凑筛选、key-value 事件、精确 visitor 搜索、复制反馈、纵向时间线、分页 |
+| 12 | `Homepage / Mobile APK Metadata States` | 390×1200 | ready/unavailable、本地化版本与大小、稳定下载入口 |
+| 13 | `Pulse / Query Failure State` | 1440×1000 | 普通可重试失败、筛选保留、手动重试、DB 不可用语义对照 |
+
+## 交互与状态说明
+
+- **全局时间范围**：默认近 30 天，允许小时、日、周、月、自定义范围，并可比较上一等长周期。
+- **全局筛选**：语言、设备、来源、结果、平台、版本；筛选条件在当前工作区内保持。
+- **刷新**：总览每 60 秒自动刷新并显示最近更新时间；详细调查页面只在用户主动刷新时更新。
+- **图表**：折线、分布和漏斗支持悬停查看当前时间点或阶段明细；无数据时不渲染误导性零值走势。
+- **事件明细**：分页浏览，不提供导出、删除、编辑或全量历史下载；Visitor ID 默认截断。
+- **访客详情**：允许完整 ID 精确搜索与复制，展示首次/最后出现、事件/会话计数和有序时间线。
+- **移动端**：把高密度侧栏和多列表格收敛为关键指标、纵向卡片与底部导航；详细调查使用紧凑筛选、key-value 事件卡、精确 visitor 操作、纵向时间线和可达分页，不缩放桌面表格。
+- **普通查询失败**：保留当前筛选和调查上下文，只允许维护者手动重试；与监控数据库不可用的状态、说明和健康信息清晰分开。
+- **数据库不可用**：监控页显示明确错误与业务不受影响说明；不可把监控失败渲染成公开业务失败。
+- **APK 元数据不可用**：显示版本与大小暂时不可用，无手动重试或硬编码回退，下载按钮保持可用。
+
+## 三语与示例数据边界
+
+- 所有新增文案需独立提供 `zh-Hant`、`zh-Hans`、`en`；设计稿以简体中文呈现信息架构，不代表只实现简体中文。
+- `zh-Hant` 需使用香港产品与交通语境；英文需自然克制，不能逐句机械翻译。
+- Figma/HTML 中的 PV、UV、版本、大小、时间和错误数量均为布局示例，不是产品事实。
+- 当前仓库样例包事实为 `versionName=1.0`、`versionCode=1`、约 `5.3 MB`；运行时必须始终展示接口返回的当前值，不能把任一设计示例硬编码为回退值。
+
+## 验证记录
+
+- 导入源 HTML、JavaScript、manifest 和 token JSON 已通过语法检查。
+- 13 张画板均以 manifest 指定尺寸完成无头浏览器渲染；11–13 的页面尺寸分别精确为 390×1640、390×1200、1440×1000，且无横向溢出。
+- 桌面总览、流量与试查、下载、事件明细、匿名访客、失败与性能、系统状态、移动总览、全局状态、APK 状态及三张 v1.1 补充画板均完成逐屏视觉检查。
+- v1.1 补充截图：[移动详细调查](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-investigation.png) · [移动 APK](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/mobile-apk.png) · [普通查询失败](../../docs/superpowers/prototypes/2026-07-20-analytics-dashboard-figma-import/screenshots/query-failure.png)。
+- 用户于 2026-07-21 确认 01–10 已导入 Figma，并提供锚点 `63:2118`；于 2026-07-22 确认 11–13 已补充导入，并提供锚点 `67:672`。
+- 由于 Figma Starter MCP 额度限制，两个锚点下的子画板结构尚未机器复核；后续若额度恢复，可在 implement 阶段补充只读截图与精确子画板链接，不改变本规格行为定义或当前导入完成状态。
+
+## 实施视觉对照（2026-07-22）
+
+实施继续只引用用户提供的真实锚点 `63:2118`、`67:672`，没有为未机器读取的子画板补写节点 ID。
+Playwright 固定 mock 已生成七个工作区 × 三语 × 桌面/手机共 42 张视口截图，以及五类状态 ×
+桌面/手机共 10 张状态截图，均位于 `frontend/playwright-monitor/__screenshots__/`。
+
+| 对照范围 | 实施证据 | 对照结果与有意差异 |
+|----------|----------|--------------------|
+| 01–07 桌面工作区 | `workspace-*-*-desktop.png`（1440×1200） | 保留 240px 深色侧栏、顶栏筛选、卡片层级与品牌色；实际接口为空数组时显示“—”和空图，不复制设计示例数值。 |
+| 08 移动总览 | `workspace-overview-*-mobile.png`（390×844） | 保留两列 KPI、纵向卡片和底部导航；长页面通过滚动访问，视口证据不把 1640px 原型强行缩入 844px。 |
+| 09 与 13 状态 | `state-*-desktop.png`（1440×1000）、`state-*-mobile.png`（390×1640） | loading/no data/no results/普通失败/DB unavailable 分离；实施把保留筛选直接展开在失败状态上方，较原型更便于验证当前上下文。 |
+| 10 与 12 APK 状态 | `frontend/playwright/__screenshots__/apk-metadata-*.png` | 运行时版本和大小来自 metadata API；失败不回退设计示例值，下载入口保持可达。 |
+| 11 移动调查 | `investigation-mobile.png`（390×844）及 `workspace-events/visitor-*-mobile.png` | 保留事件卡、精确 ID、复制反馈与会话时间线；调查步骤分为事件页和访客页，避免在一个超长页面重复信息。 |
+
+人工抽查了普通查询失败桌面/手机、繁中流量手机、英文系统桌面、总览和调查证据。颜色、间距、
+圆角、阴影与 `tokens.json` 一致；实施额外加入可访问数据表、非颜色唯一编码、44px 手机触摸目标、
+清晰焦点和 reduced-motion，这些属于可访问性增强，不改变 Figma 的信息架构。

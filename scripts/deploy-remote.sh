@@ -342,12 +342,14 @@ ensure_directories() {
     mkdir -p \
       "${ROOT}/releases" \
       "${ROOT}/shared/downloads" \
+      "${ROOT}/shared/analytics" \
       "${ROOT}/shared/env" \
       "${ROOT}/shared/deploy" \
       "${ROOT}/.deploy-tmp"
     chmod 0755 "${ROOT}" "${ROOT}/releases"
     chmod 0750 \
       "${ROOT}/shared/downloads" \
+      "${ROOT}/shared/analytics" \
       "${ROOT}/shared/env" \
       "${ROOT}/shared/deploy"
     chmod 0700 "${ROOT}/.deploy-tmp"
@@ -357,7 +359,7 @@ ensure_directories() {
   install -d -o root -g busiscoming -m 0755 \
     "${ROOT}" "${ROOT}/releases"
   install -d -o root -g busiscoming -m 0750 \
-    "${ROOT}/shared/downloads" "${ROOT}/shared/env"
+    "${ROOT}/shared/downloads" "${ROOT}/shared/analytics" "${ROOT}/shared/env"
   install -d -o root -g root -m 0750 "${ROOT}/shared/deploy"
   install -d -o root -g root -m 0700 "${ROOT}/.deploy-tmp"
 }
@@ -398,31 +400,56 @@ install_caddy_if_missing() {
 ensure_backend_env() {
   local env_file="${ROOT}/shared/env/backend.env"
   local candidate="${env_file}.new.$$"
-  local secret
+  local route_secret
+  local analytics_secret
 
   if [[ -e "${env_file}" || -L "${env_file}" ]]; then
     [[ -f "${env_file}" && ! -L "${env_file}" ]] ||
       die "Backend environment path is unsafe: ${env_file}"
-    return 0
+    cp -p "${env_file}" "${candidate}"
+  else
+    : > "${candidate}"
   fi
 
   if [[ "${TEST_MODE}" -eq 1 ]]; then
-    secret="test-only-secret"
+    route_secret="test-only-secret"
+    analytics_secret="test-only-analytics-secret-0123456789"
   else
-    secret="$(openssl rand -hex 32)"
+    route_secret="$(openssl rand -hex 32)"
+    analytics_secret="$(openssl rand -hex 32)"
   fi
-  {
-    printf 'BUS_HTTP_HOST=127.0.0.1\n'
-    printf 'PORT=8080\n'
-    printf 'BUS_DOWNLOAD_ROOT=%s/shared/downloads/android\n' "${ROOT}"
-    printf 'GIN_MODE=release\n'
-    printf 'ROUTE_QUERY_TOKEN_SECRET=%s\n' "${secret}"
-  } > "${candidate}"
+  append_env_default "${candidate}" BUS_HTTP_HOST 127.0.0.1
+  append_env_default "${candidate}" PORT 8080
+  append_env_default "${candidate}" BUS_DOWNLOAD_ROOT "${ROOT}/shared/downloads/android"
+  append_env_default "${candidate}" GIN_MODE release
+  append_env_default "${candidate}" ROUTE_QUERY_TOKEN_SECRET "${route_secret}"
+  append_env_default "${candidate}" BUS_ANALYTICS_DB_PATH "${ROOT}/shared/analytics/analytics.sqlite"
+  append_env_default "${candidate}" BUS_ANALYTICS_UI_ROOT "${ROOT}/current/frontend/dist-monitor"
+  append_env_default "${candidate}" BUS_ANALYTICS_PRIVATE_PORT 18081
+  append_env_default "${candidate}" BUS_ANALYTICS_VISITOR_SECRET "${analytics_secret}"
+  append_env_default "${candidate}" ANALYTICS_WRITE_TIMEOUT_MS 50
   chmod 0640 "${candidate}"
   if [[ "${TEST_MODE}" -ne 1 ]]; then
     chown root:busiscoming "${candidate}"
   fi
   mv -f "${candidate}" "${env_file}"
+}
+
+append_env_default() {
+  local file="$1"
+  local key="$2"
+  local value="$3"
+  local count
+
+  count="$(grep -c "^${key}=" "${file}" || true)"
+  [[ "${count}" -le 1 ]] || die "Backend environment has duplicate ${key} entries"
+  if [[ "${count}" -eq 1 ]]; then
+    return 0
+  fi
+  if [[ -s "${file}" && "$(tail -c 1 "${file}" | od -An -tuC | tr -d ' ')" != "10" ]]; then
+    printf '\n' >> "${file}"
+  fi
+  printf '%s=%s\n' "${key}" "${value}" >> "${file}"
 }
 
 render_systemd_service() {
@@ -450,7 +477,8 @@ render_systemd_service() {
     printf 'NoNewPrivileges=true\n'
     printf 'PrivateTmp=true\n'
     printf 'ProtectHome=true\n'
-    printf 'ProtectSystem=strict\n\n'
+    printf 'ProtectSystem=strict\n'
+    printf 'ReadWritePaths=%s/shared/analytics\n\n' "${ROOT}"
     printf '[Install]\n'
     printf 'WantedBy=multi-user.target\n'
   } > "${candidate}"
@@ -670,12 +698,17 @@ verify_release_manifest() {
   local path
   local frontend_count=0
   local actual_frontend_count
+  local monitor_count=0
+  local actual_monitor_count
 
   [[ -f "${manifest}" && ! -L "${manifest}" ]] ||
     die "Release manifest is missing or unsafe"
   [[ -f "${release}/frontend/dist/index.html" &&
     ! -L "${release}/frontend/dist/index.html" ]] ||
     die "Release frontend index is missing or unsafe"
+  [[ -f "${release}/frontend/dist-monitor/index.html" &&
+    ! -L "${release}/frontend/dist-monitor/index.html" ]] ||
+    die "Release monitor index is missing or unsafe"
   [[ -f "${backend}" && ! -L "${backend}" ]] ||
     die "Release backend binary is missing or unsafe"
 
@@ -708,15 +741,34 @@ verify_release_manifest() {
         printf '%s  %s\n' "${hash}" "${path}" >> "${checksum_file}"
         frontend_count=$((frontend_count + 1))
         ;;
+      [A-Fa-f0-9]*"  frontend/dist-monitor/"*)
+        hash="${line%%  *}"
+        path="${line#*  }"
+        [[ "${hash}" =~ ^[A-Fa-f0-9]{64}$ ]] ||
+          die "Release manifest has an invalid monitor checksum"
+        archive_entry_is_safe "${path}" ||
+          die "Release manifest contains an unsafe monitor path"
+        [[ -f "${release}/${path}" && ! -L "${release}/${path}" ]] ||
+          die "Release manifest references a missing monitor file"
+        printf '%s  %s\n' "${hash}" "${path}" >> "${checksum_file}"
+        monitor_count=$((monitor_count + 1))
+        ;;
     esac
   done < "${manifest}"
   [[ "${frontend_count}" -gt 0 ]] ||
     die "Release manifest has no frontend checksums"
+  [[ "${monitor_count}" -gt 0 ]] ||
+    die "Release manifest has no monitor checksums"
   actual_frontend_count="$(
     find "${release}/frontend/dist" -type f | wc -l | tr -d ' '
   )"
   [[ "${frontend_count}" == "${actual_frontend_count}" ]] ||
     die "Release manifest does not cover every frontend file"
+  actual_monitor_count="$(
+    find "${release}/frontend/dist-monitor" -type f | wc -l | tr -d ' '
+  )"
+  [[ "${monitor_count}" == "${actual_monitor_count}" ]] ||
+    die "Release manifest does not cover every monitor file"
   verify_sha_file "${release}" "$(basename "${checksum_file}")" >/dev/null ||
     die "Release frontend checksum mismatch"
   rm -f "${checksum_file}"
@@ -730,6 +782,7 @@ normalize_release_permissions() {
   fi
   find "${release}" -type d -exec chmod 0755 {} +
   find "${release}/frontend/dist" -type f -exec chmod 0644 {} +
+  find "${release}/frontend/dist-monitor" -type f -exec chmod 0644 {} +
   chmod 0644 "${release}/release-manifest.txt"
   chmod 0755 "${release}/backend/busiscoming-server"
 }
@@ -935,6 +988,7 @@ verify_active_release() {
   local bare_result
   local bare_code
   local redirect_url
+  local analytics_port
 
   systemctl_command="$(deployment_command_path systemctl)"
   curl_command="$(deployment_command_path curl)"
@@ -957,6 +1011,12 @@ verify_active_release() {
   if [[ "${local_attempt}" -gt "${local_max_attempts}" ]]; then
     printf 'Local backend health check failed\n' >&2
     return 1
+  fi
+
+  analytics_port="$(backend_env_value BUS_ANALYTICS_PRIVATE_PORT 18081)"
+  if ! "${curl_command}" --fail --silent --show-error --max-time 5 \
+    "http://127.0.0.1:${analytics_port}/api/analytics/system" >/dev/null; then
+    printf 'Warning: private analytics is degraded; public release remains healthy\n' >&2
   fi
 
   if [[ "${TEST_MODE}" -eq 1 ]]; then
@@ -1005,6 +1065,33 @@ verify_active_release() {
     printf 'Bare domain redirected to an unexpected location\n' >&2
     return 1
   fi
+}
+
+backend_env_value() {
+  local key="$1"
+  local fallback="$2"
+  local env_file="${ROOT}/shared/env/backend.env"
+  local value
+  local count
+
+  if [[ ! -f "${env_file}" || -L "${env_file}" ]]; then
+    printf '%s\n' "${fallback}"
+    return 0
+  fi
+  count="$(grep -c "^${key}=" "${env_file}" || true)"
+  [[ "${count}" -le 1 ]] || die "Backend environment has duplicate ${key} entries"
+  if [[ "${count}" -eq 0 ]]; then
+    printf '%s\n' "${fallback}"
+    return 0
+  fi
+  value="$(sed -n "s/^${key}=//p" "${env_file}")"
+  case "${key}" in
+    BUS_ANALYTICS_PRIVATE_PORT)
+      [[ "${value}" =~ ^[0-9]+$ && "${value}" -ge 1 && "${value}" -le 65535 ]] ||
+        die "Backend environment has invalid ${key}"
+      ;;
+  esac
+  printf '%s\n' "${value}"
 }
 
 write_deploy_config() {

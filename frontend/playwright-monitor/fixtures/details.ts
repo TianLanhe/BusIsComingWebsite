@@ -1,0 +1,11 @@
+const meta = { from: "2026-06-21T00:00:00+08:00", to: "2026-07-21T00:00:00+08:00", timezone: "Asia/Hong_Kong", granularity: "day", compare: false, comparisonFrom: null, comparisonTo: null, appliedFilters: { locale: [], device: [], source: [], outcome: [], platform: [], versionName: [], versionCode: [], eventType: [] }, generatedAt: "2026-07-21T01:16:42Z", state: "ready" };
+const event = { eventId: "99", occurredAt: "2026-07-21T00:12:00Z", visitorId: "abcdefghijklmnopqrstuv", eventType: "route_query", outcome: "success", httpStatus: 200, statusClass: "2xx", failureCategory: null, durationMs: 420, locale: "zh-Hant", deviceType: "mobile", sourceType: "direct", download: null };
+const envelope = (data: unknown) => ({ requestId: "fixture-details", data, error: null });
+export const detailEnvelopes = {
+  "/api/analytics/events": envelope({ meta, items: [event, { ...event, eventId: "98", eventType: "place_query", durationMs: 180 }], pageInfo: { limit: 50, nextCursor: null, hasMore: false, totalCount: 2 } }),
+  "/api/analytics/visitor": envelope({ generatedAt: meta.generatedAt, timezone: "Asia/Hong_Kong", visitor: { visitorId: event.visitorId, firstSeenAt: meta.from, lastSeenAt: meta.to, eventCount: 2, sessionCount: 1, commonLocale: "zh-Hant", commonDeviceType: "mobile", commonSourceType: "direct" }, sessions: [{ ordinal: 1, startedAt: meta.from, endedAt: meta.to, durationMs: 420, eventCount: 2, events: [event] }], pageInfo: { limit: 50, nextCursor: null, hasMore: false, totalCount: 2 } }),
+  "/api/analytics/traffic": envelope({ meta, metrics: [], series: [], trialFunnel: { key: "trial", sessionGapMinutes: 30, stages: [] }, heatmap: [], locales: [], devices: [], sources: [] }),
+  "/api/analytics/downloads": envelope({ meta, metrics: [], series: [], downloadFunnel: { key: "download", sessionGapMinutes: 30, stages: [] }, platforms: [], versions: [], failures: [] }),
+  "/api/analytics/performance": envelope({ meta, metrics: [], endpoints: [], latencySeries: [], failures: [] }),
+  "/api/analytics/system": envelope({ generatedAt: meta.generatedAt, database: { state: "available", rowCount: 2, sizeBytes: 4096, lastSuccessfulWriteAt: meta.generatedAt }, process: { startedAt: meta.from, droppedSinceStart: 0 }, privateListener: { state: "available", bindAddress: "127.0.0.1:18081", publicProxy: false } }),
+};

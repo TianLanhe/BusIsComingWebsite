@@ -1,0 +1,20 @@
+import { Database, Radio, ServerCog } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useAnalyticsFilters } from "../app/FilterProvider";
+import { useMonitoringI18n } from "../app/MonitoringI18nProvider";
+import { DashboardShell } from "../components/layout/DashboardShell";
+import { QueryState } from "../components/states/QueryState";
+import { monitoringCopy } from "../content/copy";
+import { detailText } from "../content/types";
+import { AnalyticsClientError } from "../services/analyticsClient";
+import { fetchSystem } from "../services/analyticsDetailsClient";
+import type { SystemData } from "../services/analyticsTypes";
+
+export function SystemPage({ loadSystem = fetchSystem }: { loadSystem?: (signal?: AbortSignal) => Promise<SystemData> }) {
+  const { locale } = useMonitoringI18n(); const filters = useAnalyticsFilters(); const [data, setData] = useState<SystemData | null>(null); const [error, setError] = useState<AnalyticsClientError | null>(null); const [loading, setLoading] = useState(true);
+  useEffect(() => { const controller = new AbortController(); let active = true; setLoading(true); void loadSystem(controller.signal).then((result) => { if (active) { setData(result); setError(null); setLoading(false); } }).catch((caught) => { if (active && !(caught instanceof DOMException && caught.name === "AbortError")) { setError(caught instanceof AnalyticsClientError ? caught : new AnalyticsClientError("ANALYTICS_QUERY_FAILED", 0)); setLoading(false); } }); return () => { active = false; controller.abort(); }; }, [filters.refreshVersion, loadSystem]);
+  return <DashboardShell active="system" title="system" subtitleText={detailText(locale, "systemSubtitle")} generatedAt={data?.generatedAt}>{loading ? <QueryState kind="loading" title={monitoringCopy(locale, "loadingTitle")} body={monitoringCopy(locale, "loadingBody")} /> : error ? <QueryState kind="query_failed" title={monitoringCopy(locale, "queryFailedTitle")} body={monitoringCopy(locale, "queryFailedBody")} /> : data && <section className="system-grid"><SystemCard icon={Database} title={detailText(locale, "systemDatabase")} state={data.database.state} locale={locale}><Stat label={detailText(locale, "rowCount")} value={data.database.rowCount == null ? "—" : new Intl.NumberFormat(locale).format(data.database.rowCount)} /><Stat label={detailText(locale, "databaseSize")} value={data.database.sizeBytes == null ? "—" : new Intl.NumberFormat(locale, { style: "unit", unit: "megabyte", maximumFractionDigits: 2 }).format(data.database.sizeBytes / 1_000_000)} /></SystemCard><SystemCard icon={ServerCog} title={detailText(locale, "systemProcess")} state={data.database.state} locale={locale}><Stat label={detailText(locale, "dropped")} value={new Intl.NumberFormat(locale).format(data.process.droppedSinceStart)} /><Stat label="Started" value={new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(data.process.startedAt))} /></SystemCard><SystemCard icon={Radio} title={detailText(locale, "systemListener")} state={data.privateListener.state} locale={locale}><Stat label="Bind" value={data.privateListener.bindAddress} /><Stat label={detailText(locale, "publicProxy")} value={data.privateListener.publicProxy ? "On" : detailText(locale, "noPublicProxy")} /></SystemCard></section>}</DashboardShell>;
+}
+
+function SystemCard({ icon: Icon, title, state, locale, children }: { icon: typeof Database; title: string; state: string; locale: "zh-Hans" | "zh-Hant" | "en"; children: React.ReactNode }) { const label = state === "available" ? detailText(locale, "healthy") : state === "degraded" ? detailText(locale, "degraded") : detailText(locale, "unavailable"); return <article className="dashboard-card system-detail-card"><header><span><Icon /></span><div><h2>{title}</h2><p className={`system-state ${state}`}><i />{label}</p></div></header><dl>{children}</dl></article>; }
+function Stat({ label, value }: { label: string; value: string }) { return <><dt>{label}</dt><dd>{value}</dd></>; }

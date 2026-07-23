@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import path from "node:path";
 
 test("iPhone state never triggers an APK download", async ({ page }, testInfo) => {
-  await page.goto("/");
+  await page.goto("/en/");
 
   await expect(page.locator("#hero").getByText(/iPhone 暫未支援|iPhone is not supported yet/)).toBeVisible();
   await expect(page.locator("#hero").getByRole("button", { name: /iPhone/ })).toHaveCount(0);
@@ -15,16 +15,16 @@ test("iPhone state never triggers an APK download", async ({ page }, testInfo) =
 });
 
 test("download state survives language switching", async ({ page }, testInfo) => {
-  await page.goto("/");
+  await page.goto("/en/");
 
   await page.getByTitle("English").click();
-  await expect(page.locator("#download").getByText("Version 1.0 · About 4.8 MB")).toBeVisible();
+  await expect(page.locator("#download").getByText(/^Version .+ · .+ MB$/)).toBeVisible();
 
   await page.getByTitle("简体中文").click();
-  await expect(page.locator("#download").getByText("版本 1.0 · 约 4.8 MB")).toBeVisible();
+  await expect(page.locator("#download").getByText(/^版本 .+ · .+ MB$/)).toBeVisible();
 
   await page.getByTitle("繁體中文").click();
-  await expect(page.locator("#download").getByText("版本 1.0 · 約 4.8 MB")).toBeVisible();
+  await expect(page.locator("#download").getByText(/^版本 .+ · .+ MB$/)).toBeVisible();
 
   if (testInfo.project.name === "desktop-1440") {
     await page.locator("#download").scrollIntoViewIfNeeded();

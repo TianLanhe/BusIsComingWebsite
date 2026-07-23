@@ -3,10 +3,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 
-const expectedSha256 = "93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470";
-
 test("Android download returns the current BusIsComing APK", async ({ page }, testInfo) => {
-  await page.goto("/");
+  await page.goto("/en/");
 
   const beforeScrollY = await page.evaluate(() => window.scrollY);
   const androidLink = page.locator("#hero").getByRole("link", { name: /Download Android APK|下載 Android APK|下载 Android APK/ });
@@ -27,9 +25,13 @@ test("Android download returns the current BusIsComing APK", async ({ page }, te
 
   const file = await readFile(downloadPath);
   const sha256 = createHash("sha256").update(file).digest("hex");
+  const manifest = JSON.parse(await readFile(path.resolve("..", "backend", "downloads", "android", "current.json"), "utf8")) as {
+    sizeBytes: number;
+    sha256: string;
+  };
 
   expect(download.suggestedFilename()).toBe("BusIsComing.apk");
   expect(afterScrollY).toBe(beforeScrollY);
-  expect(file.byteLength).toBe(5_009_547);
-  expect(sha256).toBe(expectedSha256);
+  expect(file.byteLength).toBe(manifest.sizeBytes);
+  expect(sha256).toBe(manifest.sha256);
 });

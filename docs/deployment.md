@@ -17,7 +17,8 @@ ssh root@<server-ip>
 - DNS：默认 `direct` 模式要求 `www.busiscoming.com` 和 `busiscoming.com` 的 A 记录都
   包含同一服务器 IP。若域名由 Cloudflare 等代理托管，使用 `proxied` 模式，只要求两
   个域名有 A 记录，不要求解析结果等于源站 IP。
-- 公网端口：22、80、443 需要可访问；后端只监听 `127.0.0.1:8080`。
+- 公网端口：22、80、443 需要可访问；公开后端只监听 `127.0.0.1:8080`，监控端固定只监听
+  `127.0.0.1:18081`。
 - 本机工具：`bash`、`ssh`、`scp`、`tar`、`git`、`npm`、`node`、`go`、`shasum`、
   `dig`、`file`、`mktemp`。
 - 服务器运行用户：脚本会创建非 root 的 `busiscoming` 系统用户运行后端服务。
@@ -136,6 +137,10 @@ export BUS_DEPLOY_KEEP=3
 ├── releases/
 ├── shared/
 │   ├── deploy/config.env
+│   ├── analytics/
+│   │   ├── analytics.sqlite
+│   │   ├── analytics.sqlite-wal
+│   │   └── analytics.sqlite-shm
 │   ├── downloads/android/
 │   └── env/backend.env
 └── .deploy-tmp/
@@ -145,6 +150,48 @@ Caddy 配置写入 `/etc/caddy/Caddyfile`，后端 systemd unit 写入
 `/etc/systemd/system/busiscoming-backend.service`。
 生产环境根路径 `/` 会永久重定向到 `/zh-hant/`，三语首页入口分别由
 `/zh-hant/`、`/zh-hans/` 和 `/en/` 的静态 `index.html` 提供。
+
+每个不可变 release 同时包含 `frontend/dist`（公网主页）和 `frontend/dist-monitor`（私有
+Dashboard），release manifest 会分别覆盖两套文件的 checksum。Caddy 只以 `frontend/dist`
+作为静态根，不配置 `18081`、`dist-monitor`、`/api/analytics/*` 或访问日志；因此监控 HTML/API
+不会经 80/443 暴露。`frontend/dist-monitor` 随代码 release 切换，而 SQLite/WAL/SHM 始终位于
+`shared/analytics`，不会进入 release，也不会被 switch、rollback 或旧 release 清理触碰。
+
+## 私有监控访问与隔离
+
+监控端口不在 UFW 或云安全组放行。维护者先建立 SSH 隧道：
+
+```bash
+ssh -N -L 18081:127.0.0.1:18081 root@<server-ip>
+```
+
+再在本机打开 `http://127.0.0.1:18081/`。若本机 18081 已占用，可只修改本地端口：
+
+```bash
+ssh -N -L 18082:127.0.0.1:18081 root@<server-ip>
+```
+
+然后打开 `http://127.0.0.1:18082/`。不得为方便访问新增 Caddy 路由、开放 18081，或把私有
+bundle 复制到公网静态目录。可在服务器用 `ss -ltnp | grep 18081` 检查监听地址必须是
+`127.0.0.1:18081`，不能是 `0.0.0.0`、`[::]` 或公网地址。
+
+systemd 继续使用 `ProtectSystem=strict`，并且只增加
+`ReadWritePaths=/opt/busiscoming/shared/analytics`。目录属主/组为 `root:busiscoming`、模式 0750；
+后端环境文件会补齐下列缺失项，但绝不覆盖已存在的值：
+
+- `BUS_ANALYTICS_DB_PATH=/opt/busiscoming/shared/analytics/analytics.sqlite`
+- `BUS_ANALYTICS_UI_ROOT=/opt/busiscoming/current/frontend/dist-monitor`
+- `BUS_ANALYTICS_PRIVATE_PORT=18081`
+- `BUS_ANALYTICS_VISITOR_SECRET=<独立随机 secret>`
+- `ANALYTICS_WRITE_TIMEOUT_MS=50`
+
+Visitor secret 与 `ROUTE_QUERY_TOKEN_SECRET` 独立生成。环境文件和 secret 不进入 release、代码库或
+公开日志。
+
+统计数据只有 `shared/analytics` 这一份，不配置备份、恢复点、跨机复制或自动删除；数据长期保留，
+但允许因磁盘/主机故障丢失。部署脚本不会复制、回滚或清理 SQLite/WAL/SHM。监控 listener、
+Dashboard 或数据库不可用只记录 degraded warning，不得让公开 `/healthz`、主页、巴士试查或 APK
+下载发布失败；公开服务自身或 HTTPS 健康失败仍按原流程回滚代码 release。
 
 ## 故障处理
 
@@ -156,6 +203,8 @@ Caddy 配置写入 `/etc/caddy/Caddyfile`，后端 systemd unit 写入
 - 后端或 HTTPS 健康检查失败：脚本会恢复旧 `current/previous`，并保留失败 release
   目录用于排查。主域名 HTTPS 健康检查接受 `200` 或 `301`；裸域名必须永久重定向到
   主域名。
+- 私有监控健康失败：部署输出 degraded warning，但只要公开健康检查通过就继续；通过 SSH
+  隧道检查 `/api/analytics/system`、`shared/analytics` 权限和后端日志，禁止临时开放公网端口。
 - 并发部署：远端使用锁，同一时间只允许一个修改型命令运行。
 
 不要把服务器环境文件、token、`ROUTE_QUERY_TOKEN_SECRET` 或完整第三方响应贴到公开日志。

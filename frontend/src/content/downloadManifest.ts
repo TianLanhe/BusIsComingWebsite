@@ -13,9 +13,9 @@ export const downloadManifest: DownloadManifest = {
         en: "Android",
       },
       description: {
-        "zh-Hant": "APK 1.0 · 約 4.8 MB",
-        "zh-Hans": "可下载 APK 1.0",
-        en: "APK 1.0 available",
+        "zh-Hant": "現行 Android 安裝包",
+        "zh-Hans": "当前 Android 安装包",
+        en: "Current Android package",
       },
       actionLabel: {
         "zh-Hant": "下載 Android APK",
@@ -24,21 +24,7 @@ export const downloadManifest: DownloadManifest = {
       },
       downloadUrl: "/api/downloads/android/latest",
       disabledReason: null,
-      artifact: {
-        appName: "BusIsComing",
-        applicationId: "com.example.busiscoming",
-        versionName: "1.0",
-        versionCode: 1,
-        fileName: "BusIsComing.apk",
-        sizeBytes: 5009547,
-        sizeLabel: {
-          "zh-Hant": "約 4.8 MB",
-          "zh-Hans": "约 4.8 MB",
-          en: "About 4.8 MB",
-        },
-        sha256: "93e7930ee9e6b9cc05819bab895153ad985707bdcfff3e6bead60065acf07470",
-        lastUpdated: "2026-06-16",
-      },
+      artifact: null,
     },
     ios: {
       platform: "ios",

@@ -29,7 +29,7 @@ for (const privacyPage of privacyPages) {
     await page.goto(privacyPage.path);
 
     await expect(page.getByRole("heading", { level: 1, name: privacyPage.title })).toBeVisible();
-    await expect(page.getByText("2026-06-30")).toBeVisible();
+    await expect(page.getByText("2026-07-22")).toBeVisible();
     await expect(page.getByText("hezhenyu966@gmail.com").first()).toBeVisible();
     await expect(page.getByText(/Citybus|城巴/).first()).toBeVisible();
     await expect(page.getByText("Google Geocoding API").first()).toBeVisible();
