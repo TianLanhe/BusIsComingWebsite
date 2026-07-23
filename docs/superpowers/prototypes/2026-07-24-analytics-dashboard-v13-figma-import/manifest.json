@@ -1,0 +1,49 @@
+{
+  "name": "BusIsComing Pulse v1.3 Analytics Observability",
+  "version": "2026-07-24",
+  "figmaFileKey": "LAm6RjzFuFHsHFlcipx8pU",
+  "targetPage": "Website Analytics / v1",
+  "baseUrl": "http://127.0.0.1:59338/index.html?screen=",
+  "frames": [
+    {
+      "screen": "date-tooltip",
+      "frameName": "18 Pulse v1.3 / Date Range & Single Tooltip / 1440",
+      "width": 1440,
+      "height": 1000,
+      "x": 0,
+      "y": 7440
+    },
+    {
+      "screen": "stability",
+      "frameName": "19 Pulse v1.3 / Stability & SLI / 1440",
+      "width": 1440,
+      "height": 1200,
+      "x": 1520,
+      "y": 7440
+    },
+    {
+      "screen": "business",
+      "frameName": "20 Pulse v1.3 / Business & Event Metrics / 1440",
+      "width": 1440,
+      "height": 1000,
+      "x": 3040,
+      "y": 7440
+    },
+    {
+      "screen": "details",
+      "frameName": "21 Pulse v1.3 / System & Visitor Details / 1440",
+      "width": 1440,
+      "height": 1200,
+      "x": 4560,
+      "y": 7440
+    },
+    {
+      "screen": "mobile",
+      "frameName": "22 Pulse v1.3 / Mobile Observability / 390",
+      "width": 390,
+      "height": 1800,
+      "x": 6080,
+      "y": 7440
+    }
+  ]
+}

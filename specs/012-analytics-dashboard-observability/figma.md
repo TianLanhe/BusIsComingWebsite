@@ -2,7 +2,8 @@
 
 **设计版本**：`BusIsComing Pulse v1.3 · Analytics Observability · 2026-07-24`
 
-**状态**：交互与信息架构已由用户确认；v1.3 本地导入包和真实 Figma 锚点须在进入 plan 前完成
+**状态**：交互与信息架构已由用户确认；v1.3 本地导入包已完成并通过截图校验，等待用户导入并
+回填真实 Figma 锚点后进入 plan
 
 ## 权威文件与既有锚点
 
@@ -26,6 +27,9 @@ ID。用户已确认继续采用 HTML 导出包 + import plugin 的方式。
 失败时的回退值。
 
 ## v1.3 待导入画板
+
+导入包、manifest、使用说明和校验截图见
+[BusIsComing Pulse v1.3 Figma 导入包](../../docs/superpowers/prototypes/2026-07-24-analytics-dashboard-v13-figma-import/README.md)。
 
 | 序号 | 逻辑画板名称 | Viewport | 覆盖内容 |
 |------|--------------|----------|----------|
@@ -82,9 +86,9 @@ ID。用户已确认继续采用 HTML 导出包 + import plugin 的方式。
 
 进入 `/speckit-plan` 前必须：
 
-1. 生成包含 18–22 画板的 v1.3 HTML 导入包、manifest、README 和截图。
-2. 用户通过 import plugin 导入既有 `Website Analytics / v1` 页面。
-3. 用户提供真实 v1.3 批次或画板节点链接。
-4. 本文件回填真实节点并将状态改为“已导入”。
+1. [x] 生成包含 18–22 画板的 v1.3 HTML 导入包、manifest、README 和截图。
+2. [ ] 用户通过 import plugin 导入既有 `Website Analytics / v1` 页面。
+3. [ ] 用户提供真实 v1.3 批次或画板节点链接。
+4. [ ] 本文件回填真实节点并将状态改为“已导入”。
 
 未完成上述步骤时，规格内容仍可评审，但不得进入计划阶段。
