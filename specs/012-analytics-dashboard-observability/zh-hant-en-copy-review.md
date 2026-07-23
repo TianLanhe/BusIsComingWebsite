@@ -20,7 +20,7 @@
 | `dateStartFuture` | 開始日期不可遲於香港今日。 | The start date cannot be after today in Hong Kong. | 明确时区边界；日期控件在 390px 下换行但不截断。 |
 | `comparisonZeroBaseline` | 上期為零，顯示絕對變化 | Previous period was zero; showing absolute change | 说明零基线，不以百分比伪造趋势；指标卡在 390px 下可换行。 |
 | `storageUnavailableBody` | 匿名監控數據目前無法讀取，公開網站、巴士路線試查及 APK 下載不受影響。 | Monitoring data cannot be read right now. The public site, route trial, and APK download remain available. | 解释 fail-open，未泄露内部故障；错误状态在桌面和手机均完整可读。 |
-| `visitorTransport` | Visitor ID 只經 HttpOnly Cookie 傳送，不會放入 query 或 body；亦不會記錄 IP。 | Visitor ID is carried only in an HttpOnly cookie, never in the query or body; IP is not recorded. | 明确隐私承诺；未将 header、Cookie 或 IP 值显示给用户。 |
+| `visitorTransport` | 公開採集使用 HttpOnly Cookie 識別匿名瀏覽器；私有訪客調查只經 `X-Analytics-Visitor-ID` header 查詢。 | Public collection uses an HttpOnly cookie; private visitor investigation uses the `X-Analytics-Visitor-ID` header only. | 明确两个边界：私有 ID 不进 query/body/log，且不显示 Cookie、header 或 IP 值。 |
 | `latencyZeroBaseline` | 上期為零，只顯示絕對變化 | Previous period was zero; absolute change shown | 保留时延单位和比较语义；端点比较卡在窄屏容器内局部滚动。 |
 
 ## 截断与一致性检查

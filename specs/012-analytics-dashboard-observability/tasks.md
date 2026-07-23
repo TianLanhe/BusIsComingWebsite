@@ -260,6 +260,8 @@ Visitor 的 fixture 验证六卡及趋势口径。
 - [X] T098 执行 `specs/012-analytics-dashboard-observability/quickstart.md` 全流程和部署脚本测试，确认一个 Go 进程双监听、两个生产前端产物、private 不公网暴露及原子升级/整体回滚，路径：`scripts/tests/deploy_test.sh`、`specs/012-analytics-dashboard-observability/verification-results.md`
 - [X] T099 运行 `git diff --check`、任务格式/需求追踪和提交范围检查，确认不暂存用户现有 APK/current.json 改动，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
+审查修复（2026-07-24）：T095 补齐 supervisor goroutine 的 `panic_recovered`/`panic`、listener、`listener_serve` 上下文及 stack hash 脱敏证据，并保持普通 `serve_failed`/`serve_error` 不被误标；同时将 tracking HTTP adapter 改为 application ports 注入，新增 AST 依赖守卫。T096 继续只记录七个私有 operation、四类事件、一张事实表与匿名/公网隔离审计；T089 修正公开 HttpOnly Cookie 与私有 `X-Analytics-Visitor-ID` header 调查边界；T094 重新核实长页截图为 390×2731。所有修复均已通过本阶段全量回归。
+
 ---
 
 ## 依赖与执行顺序

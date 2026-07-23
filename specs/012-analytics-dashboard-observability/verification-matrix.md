@@ -233,3 +233,12 @@ npm --prefix frontend run test:e2e:monitor -- --reporter=line
 | SC-012 | 1,000,000 行实际读模型 P95 均小于 1 秒，无新增 migration | 通过 |
 
 完整命令、P95、截图尺寸、Figma 差异、部署拓扑及提交范围见 `verification-results.md`。
+
+### 最终审查修复复验
+
+| 审查项 | 证据 | 结果 |
+|---|---|---|
+| Supervisor panic 可观测性 | `supervisor_test.go` 区分 panic 与普通 serve error；`listener_logger_test.go` 断言 listener、reason、errorKind、context、stackHash 存在且 panic 原文不写日志 | 通过 |
+| Visitor 隐私文案 | `copy.test.ts` 分别断言三语的公开 HttpOnly Cookie 与私有 `X-Analytics-Visitor-ID` header-only 调查边界 | 通过 |
+| DDD 依赖方向 | `tracking_ports.go` 定义 application ports；`architecture_test.go` 解析 HTTP adapter imports 并拒绝 classification/signing concrete dependency | 通过 |
+| 视觉尺寸 | `sips`：`business-traffic-zh-Hant-mobile.png` 为 390×2731；E2E 12/12 通过后恢复既有截图 | 通过 |

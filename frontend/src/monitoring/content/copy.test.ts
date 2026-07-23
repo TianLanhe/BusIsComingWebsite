@@ -32,6 +32,18 @@ describe("monitoring copy completeness", () => {
     }
   });
 
+  it("distinguishes public HttpOnly collection from private header-only visitor investigation", () => {
+    const expectations = {
+      "zh-Hant": [/公開.*HttpOnly Cookie/, /私有.*X-Analytics-Visitor-ID.*header/, /query 或 body 或日誌/],
+      "zh-Hans": [/公开.*HttpOnly Cookie/, /私有.*X-Analytics-Visitor-ID.*header/, /query、body 或日志/],
+      en: [/public.*HttpOnly cookie/i, /private.*X-Analytics-Visitor-ID header/i, /query, body, or logs/i],
+    } as const;
+    for (const locale of locales) {
+      const text = monitoringCopyCatalog[locale].visitorTransport;
+      for (const expected of expectations[locale]) expect(text).toMatch(expected);
+    }
+  });
+
   it("covers every remediation state in all three languages", () => {
     const overviewKeys = [
       "customRange", "startDate", "endDate", "applyRange", "dateInvalid", "dateFuture", "dateOrder",

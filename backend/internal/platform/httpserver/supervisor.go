@@ -2,9 +2,12 @@ package httpserver
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"time"
 )
 
@@ -23,9 +26,12 @@ const (
 )
 
 type ServerReport struct {
-	Name   string
-	State  ListenerState
-	Reason string
+	Name      string
+	State     ListenerState
+	Reason    string
+	ErrorKind string
+	Context   string
+	StackHash string
 }
 
 type ManagedServer struct {
@@ -36,8 +42,10 @@ type ManagedServer struct {
 }
 
 type serverExit struct {
-	server ManagedServer
-	err    error
+	server    ManagedServer
+	err       error
+	errorKind string
+	stackHash string
 }
 
 type Supervisor struct {
@@ -73,11 +81,11 @@ func (supervisor *Supervisor) Run(ctx context.Context) error {
 					continue
 				}
 			} else {
-				reason := "serve_failed"
-				if errors.Is(result.err, ErrServerPanicked) {
-					reason = "panic_recovered"
+				reason, errorKind := "serve_failed", "serve_error"
+				if result.errorKind == "panic" || errors.Is(result.err, ErrServerPanicked) {
+					reason, errorKind = "panic_recovered", "panic"
 				}
-				supervisor.report(ServerReport{Name: result.server.Name, State: ListenerUnavailable, Reason: reason})
+				supervisor.report(ServerReport{Name: result.server.Name, State: ListenerUnavailable, Reason: reason, ErrorKind: errorKind, Context: "listener_serve", StackHash: result.stackHash})
 				if !result.server.Required {
 					continue
 				}
@@ -89,10 +97,13 @@ func (supervisor *Supervisor) Run(ctx context.Context) error {
 }
 
 func safeServe(server ManagedServer, exits chan<- serverExit) {
-	result := serverExit{server: server}
+	result := serverExit{server: server, errorKind: "serve_error"}
 	defer func() {
 		if recover() != nil {
 			result.err = ErrServerPanicked
+			result.errorKind = "panic"
+			stackDigest := sha256.Sum256(debug.Stack())
+			result.stackHash = hex.EncodeToString(stackDigest[:8])
 		}
 		exits <- result
 	}()

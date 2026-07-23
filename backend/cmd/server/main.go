@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -65,10 +66,14 @@ func run(ctx context.Context) error {
 	if analyticsStore != nil && writeConfig.Enabled && len(visitorSecret) >= 32 {
 		recorder := analyticsapp.NewRecordEvent(analyticsStore, writeConfig.Timeout, health)
 		trackingMiddleware = analyticshttp.NewTrackingMiddleware(analyticshttp.TrackingConfig{
-			Signer:     analyticssigning.NewVisitorCookieSigner(visitorSecret, now, rand.Reader),
-			Classifier: classification.NewClassifier(),
-			Recorder:   recorder,
-			Clock:      now,
+			Signer:            analyticssigning.NewVisitorCookieSigner(visitorSecret, now, rand.Reader),
+			Classifier:        classification.NewClassifier(),
+			VisitorCookieName: analyticssigning.VisitorCookieName,
+			VisitorCookie: func(credential analyticsapp.VisitorCredential, current time.Time) *http.Cookie {
+				return analyticssigning.VisitorCookie(credential.Value, credential.ExpiresAt, current)
+			},
+			Recorder: recorder,
+			Clock:    now,
 		})
 	} else if analyticsStore != nil && writeConfig.Enabled {
 		health.SetDatabaseState(analyticsapp.DatabaseDegraded, analyticsapp.ReasonInvalidVisitorSecret)
@@ -115,7 +120,7 @@ func run(ctx context.Context) error {
 		if report.Name == "private" {
 			privateListenerState.Store(string(report.State))
 		}
-		writeControlledEvent(os.Stderr, "listener_"+report.Name, string(report.State))
+		writeListenerReport(os.Stderr, report)
 	})
 	return supervisor.Run(ctx)
 }
@@ -165,6 +170,20 @@ func noOpAnalyticsMiddleware() gin.HandlerFunc {
 
 func writeControlledEvent(output *os.File, event, state string) {
 	_ = json.NewEncoder(output).Encode(map[string]string{"event": event, "state": state})
+}
+
+// writeListenerReport 只记录受控分类和 stack 摘要，避免把 panic 原文或连接错误中的敏感内容写入日志。
+func writeListenerReport(output io.Writer, report platformhttp.ServerReport) {
+	fields := map[string]string{
+		"event":     "listener_state",
+		"listener":  report.Name,
+		"state":     string(report.State),
+		"reason":    report.Reason,
+		"errorKind": report.ErrorKind,
+		"context":   report.Context,
+		"stackHash": report.StackHash,
+	}
+	_ = json.NewEncoder(output).Encode(fields)
 }
 
 func getenv(key string, fallback string) string {
