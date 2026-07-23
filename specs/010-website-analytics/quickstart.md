@@ -354,8 +354,9 @@ bash scripts/tests/deploy_test.sh
 
 - release manifest 分别覆盖 `frontend/dist/**`、`frontend/dist-monitor/**` 和后端二进制；任一私有
   bundle 缺失或 checksum 不符都在发布前失败。
-- `/opt/busiscoming/shared/analytics` 属主为运行用户、模式 0750；systemd 只增加该目录的
-  `ReadWritePaths`，已有 env 补齐 DB path、private port、UI root 和独立 secret 而不覆盖旧值。
+- `/opt/busiscoming/shared/analytics` 属主/组为 `root:busiscoming`、模式 0770，使运行用户可创建
+  SQLite/WAL/SHM；systemd 只增加该目录的 `ReadWritePaths`，已有 env 补齐 DB path、private port、
+  UI root 和独立 secret 而不覆盖旧值。
 - `analytics.sqlite/-wal/-shm` 不进入 release，不被 switch、rollback 或 release cleanup 触碰。
 - Caddyfile 不含 `18081`、`dist-monitor`、monitor route 或 `log`；公网 `/api/analytics/*` 和监控
   HTML 成功访问次数为 0。

@@ -1,6 +1,6 @@
 ---
 name: busiscoming-website-deploy
-description: Deploy, verify, troubleshoot, or maintain the BusIsComming Website production deployment that uses scripts/deploy.sh and scripts/deploy-remote.sh. Use when working on this repository's SSH/Caddy/systemd deployment, Cloudflare proxied DNS deployment, production health checks, release switching, rollback, deployment logs, APK upload boundary, or build failures surfaced by the deploy script.
+description: Deploy, verify, troubleshoot, or maintain the BusIsComming Website production deployment that uses scripts/deploy.sh and scripts/deploy-remote.sh. Use when working on this repository's SSH/Caddy/systemd deployment, Cloudflare proxied DNS deployment, production or private analytics health checks, loopback SSH tunnel access, release switching, rollback, deployment logs, APK upload boundary, or build failures surfaced by the deploy script.
 ---
 
 # BusIsComming Website Deploy
@@ -45,7 +45,8 @@ curl -sS --max-time 15 --output /dev/null --write-out '%{http_code} %{redirect_u
 curl -sS --max-time 15 --output /dev/null --write-out '%{http_code} %{redirect_url}\n' https://<bare-domain>/
 ```
 
-Report the active version, backend/Caddy status, `main HTTPS`, `bare URL`, and any warnings from local build or remote activation.
+Report the active version, backend/Caddy status, `main HTTPS`, `bare URL`, private
+analytics degradation when present, and any warnings from local build or remote activation.
 
 ## Script Maintenance
 

@@ -176,7 +176,8 @@ bundle 复制到公网静态目录。可在服务器用 `ss -ltnp | grep 18081` 
 `127.0.0.1:18081`，不能是 `0.0.0.0`、`[::]` 或公网地址。
 
 systemd 继续使用 `ProtectSystem=strict`，并且只增加
-`ReadWritePaths=/opt/busiscoming/shared/analytics`。目录属主/组为 `root:busiscoming`、模式 0750；
+`ReadWritePaths=/opt/busiscoming/shared/analytics`。目录属主/组为 `root:busiscoming`、模式 0770，
+使 `busiscoming` 服务组可以创建 SQLite 数据库及 WAL/SHM 文件，同时拒绝其他用户访问；
 后端环境文件会补齐下列缺失项，但绝不覆盖已存在的值：
 
 - `BUS_ANALYTICS_DB_PATH=/opt/busiscoming/shared/analytics/analytics.sqlite`
@@ -204,7 +205,8 @@ Dashboard 或数据库不可用只记录 degraded warning，不得让公开 `/he
   目录用于排查。主域名 HTTPS 健康检查接受 `200` 或 `301`；裸域名必须永久重定向到
   主域名。
 - 私有监控健康失败：部署输出 degraded warning，但只要公开健康检查通过就继续；通过 SSH
-  隧道检查 `/api/analytics/system`、`shared/analytics` 权限和后端日志，禁止临时开放公网端口。
+  隧道检查 `/api/analytics/system`、后端日志，以及 `shared/analytics` 是否为
+  `root:busiscoming`、模式 `0770` 并允许 `busiscoming` 用户写入；禁止临时开放公网端口。
 - 并发部署：远端使用锁，同一时间只允许一个修改型命令运行。
 
 不要把服务器环境文件、token、`ROUTE_QUERY_TOKEN_SECRET` 或完整第三方响应贴到公开日志。

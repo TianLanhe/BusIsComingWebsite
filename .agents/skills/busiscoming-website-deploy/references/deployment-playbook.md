@@ -59,6 +59,17 @@ Inspect the current dependency versions and local config before proposing a fix.
 - `Public HTTPS health check failed`: check public `www` and bare-domain curl results. Do not bypass with origin-only checks.
 - `Job for caddy.service failed`: inspect `systemctl status caddy --no-pager -l` and `journalctl -u caddy -n 160 --no-pager`.
 - `Local backend health check failed`: inspect `systemctl status busiscoming-backend --no-pager -l` and backend journal logs.
+- `Warning: private analytics is degraded`: treat a `200` Dashboard HTML response as
+  insufficient because its API may still be unavailable. Through the SSH tunnel, check
+  `/api/analytics/system`, then inspect only the private listener, backend logs, analytics
+  directory metadata, service-user write access, and SQLite/WAL/SHM presence. The expected
+  analytics directory is `root:busiscoming` with mode `0770`; systemd
+  `ReadWritePaths` permits the path but does not grant Unix write permission. An
+  `analytics_store=open_failed` event with no database files and failed service-user write
+  access points to a directory ownership or mode defect.
+- Fix repeatable permission defects in `scripts/deploy-remote.sh`, its deployment tests, and
+  `docs/deployment.md`, then redeploy through `scripts/deploy.sh`. Do not make the directory
+  world-writable, expose the private port, or leave an undocumented one-off server change.
 - Firewall profile warnings are not necessarily fatal if the services are active and public health passes. Verify service state and public health before deciding whether deployment completed.
 - Stale remote deploy config, such as an old unsupported key: do not `cat` the whole config. Check only the exact key and remove only the offending line after confirming it is safe. Keep examples generic and avoid real paths or values.
 

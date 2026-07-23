@@ -349,9 +349,9 @@ ensure_directories() {
     chmod 0755 "${ROOT}" "${ROOT}/releases"
     chmod 0750 \
       "${ROOT}/shared/downloads" \
-      "${ROOT}/shared/analytics" \
       "${ROOT}/shared/env" \
       "${ROOT}/shared/deploy"
+    chmod 0770 "${ROOT}/shared/analytics"
     chmod 0700 "${ROOT}/.deploy-tmp"
     return 0
   fi
@@ -359,7 +359,10 @@ ensure_directories() {
   install -d -o root -g busiscoming -m 0755 \
     "${ROOT}" "${ROOT}/releases"
   install -d -o root -g busiscoming -m 0750 \
-    "${ROOT}/shared/downloads" "${ROOT}/shared/analytics" "${ROOT}/shared/env"
+    "${ROOT}/shared/downloads" "${ROOT}/shared/env"
+  # SQLite 需要服务组在目录内创建数据库及 WAL/SHM 文件，其他用户仍不得访问。
+  install -d -o root -g busiscoming -m 0770 \
+    "${ROOT}/shared/analytics"
   install -d -o root -g root -m 0750 "${ROOT}/shared/deploy"
   install -d -o root -g root -m 0700 "${ROOT}/.deploy-tmp"
 }

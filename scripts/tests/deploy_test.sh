@@ -2263,7 +2263,7 @@ test_remote_renders_systemd_caddy_and_environment() {
   grep -F "ANALYTICS_WRITE_TIMEOUT_MS=50" "${env_file}" >/dev/null
 
   [ -d "${temp}/opt/busiscoming/shared/analytics" ] || return 1
-  assert_equals "$(file_mode "${temp}/opt/busiscoming/shared/analytics")" "750" || return 1
+  assert_equals "$(file_mode "${temp}/opt/busiscoming/shared/analytics")" "770" || return 1
 
   grep -F "User=busiscoming" "${service_file}" >/dev/null
   grep -F \
@@ -2301,6 +2301,34 @@ test_remote_renders_systemd_caddy_and_environment() {
       --domain www.busiscoming.com \
       --bare-domain busiscoming.com
   assert_equals "$(cat "${env_file}")" "${original_env}" || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_production_directories_make_analytics_group_writable() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  output="$(
+    BUS_DEPLOY_TEST_MODE=0 bash -c '
+      set -euo pipefail
+      source "$1"
+      ROOT="$2"
+      TEST_MODE=0
+      install() {
+        printf "install|%s\n" "$*"
+      }
+      ensure_directories
+    ' _ "${REMOTE_SCRIPT}" "${temp}"
+  )" || return 1
+
+  assert_contains "${output}" \
+    "install|-d -o root -g busiscoming -m 0770 ${temp}/shared/analytics" ||
+    return 1
+  assert_contains "${output}" \
+    "install|-d -o root -g busiscoming -m 0750 ${temp}/shared/downloads ${temp}/shared/env" ||
+    return 1
 
   rm -rf "${temp}"
 }
@@ -3066,6 +3094,7 @@ run_test "remote status skips public checks without configuration" test_remote_s
 run_test "remote status fails required service and health checks" test_remote_status_fails_required_checks
 run_test "remote production status runs checks and fails closed" test_remote_production_status_runs_checks_and_fails_closed
 run_test "remote renders systemd Caddy and backend environment" test_remote_renders_systemd_caddy_and_environment
+run_test "remote production directories make analytics group-writable" test_remote_production_directories_make_analytics_group_writable
 run_test "remote fills missing analytics env values without overwriting existing values" test_remote_environment_fills_missing_analytics_values_without_overwriting_existing_values
 run_test "remote render-config is test-only and validates domains" test_remote_render_config_is_test_only_and_validates_domains
 run_test "remote restores Caddy config after reload failure" test_remote_caddy_config_restores_previous_file_on_reload_failure
