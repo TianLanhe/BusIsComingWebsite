@@ -34,4 +34,5 @@
   .endpoint-grid { grid-template-columns: 1fr 1fr; }
   .endpoint-grid article { min-height: 138px; }
   .system-detail-card { min-height: 205px; }
+  .system-fact { min-height: 88px; padding: 12px; }
 }

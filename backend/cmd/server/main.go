@@ -89,9 +89,13 @@ func run(ctx context.Context) error {
 	if analyticsStore != nil {
 		overviewQuery = analyticsapp.NewQueryOverview(analyticsStore, analyticsapp.ClockFunc(now))
 	}
-	detailsQuery := analyticsapp.NewQueryDetails(analyticsStore, health, analyticsapp.ClockFunc(now), analyticsapp.ListenerStateFunc(func() string {
+	privateAddress, err := configuredPrivateServerAddress()
+	if err != nil {
+		return err
+	}
+	detailsQuery := analyticsapp.NewQueryDetailsWithBindAddress(analyticsStore, health, analyticsapp.ClockFunc(now), analyticsapp.ListenerStateFunc(func() string {
 		return privateListenerState.Load().(string)
-	}))
+	}), privateAddress)
 	analyticshttp.RegisterPrivateRoutes(privateEngine, overviewQuery, detailsQuery, getenv("BUS_ANALYTICS_UI_ROOT", "../frontend/dist-monitor"))
 
 	publicServer := &http.Server{
@@ -100,7 +104,7 @@ func run(ctx context.Context) error {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	privateServer := &http.Server{
-		Addr:              privateServerAddress(),
+		Addr:              privateAddress,
 		Handler:           privateEngine,
 		ReadHeaderTimeout: 10 * time.Second,
 	}

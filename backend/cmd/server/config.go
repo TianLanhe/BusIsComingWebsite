@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"net"
 	"strconv"
 	"time"
 
@@ -31,5 +33,21 @@ func publicServerAddress() string {
 }
 
 func privateServerAddress() string {
-	return "127.0.0.1:" + getenv("BUS_ANALYTICS_PRIVATE_PORT", "18081")
+	address, err := configuredPrivateServerAddress()
+	if err != nil {
+		return ""
+	}
+	return address
+}
+
+func configuredPrivateServerAddress() (string, error) {
+	host := getenv("BUS_ANALYTICS_PRIVATE_HOST", "127.0.0.1")
+	if host != "127.0.0.1" || !net.ParseIP(host).IsLoopback() {
+		return "", fmt.Errorf("analytics private listener must use 127.0.0.1")
+	}
+	port, err := strconv.Atoi(getenv("BUS_ANALYTICS_PRIVATE_PORT", "18081"))
+	if err != nil || port < 1 || port > 65535 {
+		return "", fmt.Errorf("analytics private listener port is invalid")
+	}
+	return host + ":" + strconv.Itoa(port), nil
 }

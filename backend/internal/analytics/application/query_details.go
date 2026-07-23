@@ -23,10 +23,16 @@ type QueryDetails struct {
 	health   RuntimeHealthReader
 	clock    Clock
 	listener ListenerStateReader
+	bindAddress string
 }
 
 func NewQueryDetails(store DetailsStore, health RuntimeHealthReader, clock Clock, listener ListenerStateReader) *QueryDetails {
-	return &QueryDetails{store: store, health: health, clock: clock, listener: listener}
+	return NewQueryDetailsWithBindAddress(store, health, clock, listener, "")
+}
+
+// NewQueryDetailsWithBindAddress 由 composition root 注入实际监听地址，应用层不推断端口。
+func NewQueryDetailsWithBindAddress(store DetailsStore, health RuntimeHealthReader, clock Clock, listener ListenerStateReader, bindAddress string) *QueryDetails {
+	return &QueryDetails{store: store, health: health, clock: clock, listener: listener, bindAddress: bindAddress}
 }
 
 func EncodeEventCursor(cursor domain.EventCursor) string {
@@ -255,29 +261,56 @@ func (usecase *QueryDetails) Performance(ctx context.Context, query domain.Analy
 }
 
 func (usecase *QueryDetails) System(ctx context.Context) SystemData {
-	snapshot := RuntimeHealthSnapshot{DatabaseState: DatabaseUnavailable, ProcessStartedAt: usecase.now()}
+	now := usecase.now()
+	todayStart, tomorrowStart, todayLocalDate := hongKongDay(now)
+	snapshot := RuntimeHealthSnapshot{DatabaseState: DatabaseUnavailable}
 	if usecase.health != nil {
 		snapshot = usecase.health.Snapshot()
 	}
-	database := DatabaseStatus{State: snapshot.DatabaseState, LastSuccessfulWriteAt: snapshot.LastSuccessfulWriteAt}
+	database := DatabaseStatus{State: snapshot.DatabaseState, TodayLocalDate: todayLocalDate, LastSuccessfulWriteAt: snapshot.LastSuccessfulWriteAt}
+	sqlite := SQLiteRuntimeStatus{}
 	if usecase.store != nil {
-		storage, err := usecase.store.ReadStorageSnapshot(ctx)
+		storage, err := usecase.store.ReadStorageSnapshot(ctx, todayStart, tomorrowStart)
 		if err != nil {
 			database.State = DatabaseUnavailable
 		} else {
-			database.RowCount, database.SizeBytes = storage.DatabaseRowCount, storage.DatabaseSizeBytes
+			database.RowCount, database.TodayRowCount, database.SizeBytes = storage.DatabaseRowCount, storage.DatabaseTodayRowCount, storage.DatabaseSizeBytes
+			sqlite = SQLiteRuntimeStatus{Version: storage.SQLiteVersion, JournalMode: storage.SQLiteJournalMode, SchemaVersion: storage.SQLiteSchemaVersion}
+			if database.State == DatabaseAvailable && (database.RowCount == nil || database.TodayRowCount == nil || database.SizeBytes == nil || sqlite.Version == nil || sqlite.JournalMode == nil || sqlite.SchemaVersion == nil) {
+				database.State = DatabaseDegraded
+			}
 		}
 	}
-	listenerState := "starting"
+	var listenerState *string
 	if usecase.listener != nil {
-		listenerState = usecase.listener.State()
+		state := usecase.listener.State()
+		listenerState = &state
 	}
+	var startedAt *time.Time
+	var uptimeMS *int64
+	var dropped *uint64
+	if usecase.health != nil && !snapshot.ProcessStartedAt.IsZero() {
+		started := snapshot.ProcessStartedAt.UTC()
+		startedAt, dropped = &started, uint64Pointer(snapshot.DroppedSinceStart)
+		if !now.Before(started) { uptime := now.Sub(started).Milliseconds(); uptimeMS = &uptime }
+	}
+	var bindAddress *string
+	if usecase.bindAddress != "" { address := usecase.bindAddress; bindAddress = &address }
 	return SystemData{
-		GeneratedAt: usecase.now(), Database: database,
-		Process:         ProcessStatus{StartedAt: snapshot.ProcessStartedAt, DroppedSinceStart: snapshot.DroppedSinceStart},
-		PrivateListener: PrivateListenerStatus{State: listenerState, BindAddress: "127.0.0.1:18081", PublicProxy: false},
+		GeneratedAt: now, Database: database, SQLite: sqlite,
+		Process:         ProcessStatus{StartedAt: startedAt, UptimeMS: uptimeMS, DroppedSinceStart: dropped},
+		PrivateListener: PrivateListenerStatus{State: listenerState, BindAddress: bindAddress, PublicProxy: false},
 	}
 }
+
+func hongKongDay(now time.Time) (time.Time, time.Time, string) {
+	location := time.FixedZone("Asia/Hong_Kong", 8*60*60)
+	local := now.In(location)
+	start := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, location)
+	return start, start.AddDate(0, 0, 1), local.Format("2006-01-02")
+}
+
+func uint64Pointer(value uint64) *uint64 { return &value }
 
 func (usecase *QueryDetails) loadEvents(ctx context.Context, from, to time.Time) ([]domain.AnalyticsEvent, error) {
 	if usecase.store == nil {

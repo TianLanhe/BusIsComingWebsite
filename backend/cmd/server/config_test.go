@@ -57,3 +57,15 @@ func TestServerAddresses(t *testing.T) {
 		t.Fatalf("private listener must remain loopback: %q", got)
 	}
 }
+
+func TestConfiguredPrivateServerAddressRejectsNonLoopback(t *testing.T) {
+	t.Setenv("BUS_ANALYTICS_PRIVATE_HOST", "0.0.0.0")
+	if _, err := configuredPrivateServerAddress(); err == nil {
+		t.Fatal("private listener must reject non-loopback hosts")
+	}
+	t.Setenv("BUS_ANALYTICS_PRIVATE_HOST", "127.0.0.1")
+	t.Setenv("BUS_ANALYTICS_PRIVATE_PORT", "19081")
+	if address, err := configuredPrivateServerAddress(); err != nil || address != "127.0.0.1:19081" {
+		t.Fatalf("actual configured loopback address was not preserved: %q %v", address, err)
+	}
+}

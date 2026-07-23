@@ -23,8 +23,12 @@ type VisitorResult struct {
 }
 
 type SystemStorageSnapshot struct {
-	DatabaseRowCount  *int64
-	DatabaseSizeBytes *int64
+	DatabaseRowCount      *int64
+	DatabaseTodayRowCount *int64
+	DatabaseSizeBytes     *int64
+	SQLiteVersion          *string
+	SQLiteJournalMode      *string
+	SQLiteSchemaVersion    *string
 }
 
 type HeatmapCell struct {
@@ -186,24 +190,34 @@ type PerformanceData struct {
 type DatabaseStatus struct {
 	State                 DatabaseState `json:"state"`
 	RowCount              *int64        `json:"rowCount"`
+	TodayLocalDate        string        `json:"todayLocalDate"`
+	TodayRowCount         *int64        `json:"todayRowCount"`
 	SizeBytes             *int64        `json:"sizeBytes"`
 	LastSuccessfulWriteAt *time.Time    `json:"lastSuccessfulWriteAt"`
 }
 
+type SQLiteRuntimeStatus struct {
+	Version       *string `json:"version"`
+	JournalMode   *string `json:"journalMode"`
+	SchemaVersion *string `json:"schemaVersion"`
+}
+
 type ProcessStatus struct {
-	StartedAt         time.Time `json:"startedAt"`
-	DroppedSinceStart uint64    `json:"droppedSinceStart"`
+	StartedAt         *time.Time `json:"startedAt"`
+	UptimeMS          *int64     `json:"uptimeMs"`
+	DroppedSinceStart *uint64    `json:"droppedSinceStart"`
 }
 
 type PrivateListenerStatus struct {
-	State       string `json:"state"`
-	BindAddress string `json:"bindAddress"`
+	State       *string `json:"state"`
+	BindAddress *string `json:"bindAddress"`
 	PublicProxy bool   `json:"publicProxy"`
 }
 
 type SystemData struct {
 	GeneratedAt     time.Time             `json:"generatedAt"`
 	Database        DatabaseStatus        `json:"database"`
+	SQLite          SQLiteRuntimeStatus   `json:"sqlite"`
 	Process         ProcessStatus         `json:"process"`
 	PrivateListener PrivateListenerStatus `json:"privateListener"`
 }

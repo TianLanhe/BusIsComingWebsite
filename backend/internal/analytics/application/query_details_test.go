@@ -71,6 +71,7 @@ type detailsStoreStub struct {
 	eventsByFrom  map[time.Time][]domain.AnalyticsEvent
 	listResult    StoredEventPage
 	visitorEvents []domain.AnalyticsEvent
+	systemSnapshot SystemStorageSnapshot
 	lastRequest   EventListRequest
 }
 
@@ -96,8 +97,28 @@ func (store *detailsStoreStub) SummarizeEvents(_ context.Context, request EventS
 func (store *detailsStoreStub) LoadVisitorEvents(context.Context, string) ([]domain.AnalyticsEvent, error) {
 	return store.visitorEvents, nil
 }
-func (store *detailsStoreStub) ReadStorageSnapshot(context.Context) (SystemStorageSnapshot, error) {
-	return SystemStorageSnapshot{}, nil
+func (store *detailsStoreStub) ReadStorageSnapshot(context.Context, time.Time, time.Time) (SystemStorageSnapshot, error) {
+	return store.systemSnapshot, nil
+}
+
+func TestSystemUsesOneHongKongClockAndKeepsIndependentFacts(t *testing.T) {
+	now := time.Date(2026, 7, 24, 16, 30, 0, 0, time.UTC)
+	total, today, size := int64(9), int64(3), int64(4096)
+	version, journal, schema := "3.50.4", "wal", "001"
+	store := &detailsStoreStub{systemSnapshot: SystemStorageSnapshot{DatabaseRowCount: &total, DatabaseTodayRowCount: &today, DatabaseSizeBytes: &size, SQLiteVersion: &version, SQLiteJournalMode: &journal, SQLiteSchemaVersion: &schema}}
+	health := NewRuntimeHealth(now.Add(-time.Hour))
+	result := NewQueryDetailsWithBindAddress(store, health, ClockFunc(func() time.Time { return now }), ListenerStateFunc(func() string { return "available" }), "127.0.0.1:19081").System(context.Background())
+	encoded, err := json.Marshal(result)
+	if err != nil { t.Fatal(err) }
+	var value map[string]any
+	if err := json.Unmarshal(encoded, &value); err != nil { t.Fatal(err) }
+	database := value["database"].(map[string]any)
+	if database["todayLocalDate"] != "2026-07-25" || database["todayRowCount"] == nil {
+		t.Fatalf("expected Hong Kong daily snapshot, got %s", encoded)
+	}
+	if value["sqlite"] == nil || value["process"].(map[string]any)["uptimeMs"] != float64(time.Hour.Milliseconds()) {
+		t.Fatalf("expected runtime facts from the same injected clock, got %s", encoded)
+	}
 }
 
 func TestEventCursorRoundTripKeepsSameMillisecondStableID(t *testing.T) {

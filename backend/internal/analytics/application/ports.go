@@ -59,7 +59,7 @@ type DetailsStore interface {
 	ListEvents(context.Context, EventListRequest) (StoredEventPage, error)
 	SummarizeEvents(context.Context, EventSummaryRequest) (EventRangeSummary, error)
 	LoadVisitorEvents(context.Context, string) ([]domain.AnalyticsEvent, error)
-	ReadStorageSnapshot(context.Context) (SystemStorageSnapshot, error)
+	ReadStorageSnapshot(context.Context, time.Time, time.Time) (SystemStorageSnapshot, error)
 }
 
 type ListenerStateReader interface {

@@ -1,17 +1,18 @@
-import type { DetailCopyKey } from "../content/types";
+export type SystemFactGroup = "storage" | "sqlite" | "service";
 
-export type SystemFactGroup = "storage" | "isolation";
+export type SystemFactKey =
+  | "rowCount" | "todayRowCount" | "databaseSize" | "lastSuccessfulWrite"
+  | "sqliteVersion" | "journalMode" | "schemaVersion"
+  | "processStarted" | "processUptime" | "dropped" | "listenerState" | "listenerAddress";
 
-export interface SystemFact {
-  id: "retention" | "backup" | "detail-only" | "write-queue";
-  group: SystemFactGroup;
-  copyKey: DetailCopyKey;
-}
+export interface SystemFactDefinition { key: SystemFactKey; group: SystemFactGroup; }
 
-// 这些是部署与产品决策，不是从运行时接口推断出的健康状态。
-export const SYSTEM_FACTS: readonly SystemFact[] = [
-  { id: "retention", group: "storage", copyKey: "retentionLongTerm" },
-  { id: "backup", group: "storage", copyKey: "backupDisabled" },
-  { id: "detail-only", group: "storage", copyKey: "detailOnlyStorage" },
-  { id: "write-queue", group: "isolation", copyKey: "writeQueueDisabled" },
+// 只列出 API 的十二项动态事实；固定隐私规则 publicProxy=false 不伪装成探测结果。
+export const SYSTEM_FACTS: readonly SystemFactDefinition[] = [
+  { key: "rowCount", group: "storage" }, { key: "todayRowCount", group: "storage" },
+  { key: "databaseSize", group: "storage" }, { key: "lastSuccessfulWrite", group: "storage" },
+  { key: "sqliteVersion", group: "sqlite" }, { key: "journalMode", group: "sqlite" },
+  { key: "schemaVersion", group: "sqlite" }, { key: "processStarted", group: "service" },
+  { key: "processUptime", group: "service" }, { key: "dropped", group: "service" },
+  { key: "listenerState", group: "service" }, { key: "listenerAddress", group: "service" },
 ] as const;

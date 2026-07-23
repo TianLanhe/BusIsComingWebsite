@@ -22,6 +22,7 @@ type detailsQueryStub struct {
 	events      analyticsapp.EventListData
 	visitor     analyticsapp.VisitorData
 	performance analyticsapp.PerformanceData
+	system      analyticsapp.SystemData
 }
 
 func (stub detailsQueryStub) Traffic(context.Context, domain.AnalyticsQuery) (analyticsapp.TrafficData, error) {
@@ -92,7 +93,7 @@ func (stub detailsQueryStub) Performance(context.Context, domain.AnalyticsQuery)
 	return stub.performance, stub.err
 }
 func (stub detailsQueryStub) System(context.Context) analyticsapp.SystemData {
-	return analyticsapp.SystemData{}
+	return stub.system
 }
 
 func TestPrivateHandlersRegisterSixReadOnlyOperationsWithNoStore(t *testing.T) {
@@ -111,6 +112,27 @@ func TestPrivateHandlersRegisterSixReadOnlyOperationsWithNoStore(t *testing.T) {
 	engine.ServeHTTP(system, httptest.NewRequest(http.MethodGet, "/api/analytics/system", nil))
 	if system.Code != http.StatusOK || !strings.Contains(system.Body.String(), `"data"`) {
 		t.Fatalf("system: %d %s", system.Code, system.Body.String())
+	}
+}
+
+func TestSystemResponseKeepsNoStoreAndOnlyExposesNullableRuntimeFacts(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	engine := platformhttp.NewPrivateEngine(&bytes.Buffer{})
+	journal := "wal"
+	state, address := "available", "127.0.0.1:19081"
+	RegisterPrivateRoutes(engine, nil, detailsQueryStub{system: analyticsapp.SystemData{
+		Database: analyticsapp.DatabaseStatus{State: analyticsapp.DatabaseDegraded, TodayLocalDate: "2026-07-25"},
+		SQLite: analyticsapp.SQLiteRuntimeStatus{JournalMode: &journal},
+		PrivateListener: analyticsapp.PrivateListenerStatus{State: &state, BindAddress: &address, PublicProxy: false},
+	}}, "")
+	response := httptest.NewRecorder()
+	engine.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/analytics/system", nil))
+	body := response.Body.String()
+	if response.Code != http.StatusOK || response.Header().Get("Cache-Control") != "no-store" || !strings.Contains(body, `"todayLocalDate":"2026-07-25"`) || !strings.Contains(body, `"journalMode":"wal"`) || !strings.Contains(body, `"bindAddress":"127.0.0.1:19081"`) {
+		t.Fatalf("system response lost contract fields: %d %s", response.Code, body)
+	}
+	for _, forbidden := range []string{"analytics.sqlite", "SELECT ", "internal error", "visitorId", "publicProxy\":true"} {
+		if strings.Contains(body, forbidden) { t.Fatalf("system response leaked %q: %s", forbidden, body) }
 	}
 }
 

@@ -182,3 +182,30 @@ npm --prefix frontend run test:e2e:monitor -- playwright-monitor/business-metric
 npm --prefix frontend run test:e2e:monitor -- --reporter=line
 # 33 passed, 1 skipped
 ```
+
+## US4 技术运行状态（T063–T078，2026-07-24）
+
+| 对照区块 | Figma `89:1310` / 契约要求 | 实现与证据 | 结果 |
+|---|---|---|---|
+| SQLite 明细与运行库 | 总数、香港今日数、文件大小、最近成功写入；SQLite 版本、Journal Mode、Schema 版本 | SQLite adapter 以总数为存储可达性边界，并独立读取香港自然日、file stat、SQLite runtime 与 migration；任何单项失败返回 null 且不输出路径、SQL 或底层错误。 | 通过 |
+| 服务运行信息 | 进程启动、运行时长、Dropped、监听器状态和实际 loopback 地址；`publicProxy=false` 不作为事实卡 | application 以同一次注入 clock 生成香港日期、generatedAt 与 uptime；composition root 将经验证的实际 `127.0.0.1:<port>` 注入，拒绝非 loopback 配置。 | 通过 |
+| 12 项页面与局部无数据 | 仅保留 SQLite 明细、SQLite 运行信息、服务运行信息；恰好 12 项动态事实，任何空字段仅局部显示无数据 | `SystemPage.test.tsx` 断言 12 项、三块和删除重复区块；Playwright 使 Journal Mode/监听地址为空，确认其余事实如 SQLite version 保留。 | 通过 |
+| 三语与双端视觉 | `zh-Hans`、`zh-Hant`、`en`，1440 与 390，无全页横向溢出 | `system-v13-{zh-Hans,zh-Hant,en}-{desktop,mobile}.png` 与 `system-v13-{desktop,mobile}.png`；对照 Figma System & Visitor Details 画板，三段式卡片在手机两列重排。 | 通过 |
+| HTTP、隐私与回归 | 单一 system endpoint、no-store、既有 envelope、无数据库路径/SQL/内部错误/访客数据 | HTTP 单测覆盖 nullable 运行字段、`Cache-Control: no-store` 与禁止项；`go test ./...` 运行既有隐私哨兵；OpenAPI shared lint 通过。 | 通过 |
+
+执行命令：
+
+```text
+go -C backend test ./...
+# passed
+
+npm --prefix frontend test
+# 42 files, 187 tests passed
+
+npm --prefix frontend run build:monitor
+npm --prefix frontend run openapi:analytics:lint
+# passed；build 仅保留既有 bundle-size warning
+
+npm --prefix frontend run test:e2e:monitor -- --reporter=line
+# 35 passed, 1 skipped
+```

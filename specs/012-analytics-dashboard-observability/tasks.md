@@ -182,31 +182,31 @@ Visitor 的 fixture 验证六卡及趋势口径。
 
 ### 用户故事 4 的后端测试
 
-- [ ] T063 [P] [US4] 为香港今日边界、总数/今日数、文件大小、sqlite_version、journal_mode、schema version 和字段级失败编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system_test.go`
-- [ ] T064 [P] [US4] 为 SystemData.sqlite、进程三字段、监听器 state/bindAddress、数据库 degraded/null、同一次 clock 和已成功字段保留编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
-- [ ] T065 [P] [US4] 为可配置 private port 注入实际 bindAddress、只允许 loopback 和默认 18081 编写先失败 server 测试，路径：`backend/cmd/server/config_test.go`、`backend/cmd/server/private_listener_integration_test.go`
-- [ ] T066 [P] [US4] 为 system 新字段、SQLite/进程/监听器单字段 null、no-store、无 query 参数和隐私禁止项零命中编写先失败 HTTP 测试；仅允许契约规定的 loopback bindAddress，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
+- [X] T063 [P] [US4] 为香港今日边界、总数/今日数、文件大小、sqlite_version、journal_mode、schema version 和字段级失败编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system_test.go`
+- [X] T064 [P] [US4] 为 SystemData.sqlite、进程三字段、监听器 state/bindAddress、数据库 degraded/null、同一次 clock 和已成功字段保留编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [X] T065 [P] [US4] 为可配置 private port 注入实际 bindAddress、只允许 loopback 和默认 18081 编写先失败 server 测试，路径：`backend/cmd/server/config_test.go`、`backend/cmd/server/private_listener_integration_test.go`
+- [X] T066 [P] [US4] 为 system 新字段、SQLite/进程/监听器单字段 null、no-store、无 query 参数和隐私禁止项零命中编写先失败 HTTP 测试；仅允许契约规定的 loopback bindAddress，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
 
 ### 用户故事 4 的前端测试
 
-- [ ] T067 [P] [US4] 为唯一 SQLite 明细区块、SQLite runtime、进程/监听器、删除重复区块和字段级无数据编写先失败页面测试，路径：`frontend/src/monitoring/pages/SystemPage.test.tsx`
-- [ ] T068 [US4] 编写全部可用与每类单字段缺失的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/investigation.spec.ts`、`frontend/playwright-monitor/states.spec.ts`
+- [X] T067 [P] [US4] 为唯一 SQLite 明细区块、SQLite runtime、进程/监听器、删除重复区块和字段级无数据编写先失败页面测试，路径：`frontend/src/monitoring/pages/SystemPage.test.tsx`
+- [X] T068 [US4] 编写全部可用与每类单字段缺失的先失败桌面/手机 E2E，路径：`frontend/playwright-monitor/investigation.spec.ts`、`frontend/playwright-monitor/states.spec.ts`
 
 ### 用户故事 4 的后端实现
 
-- [ ] T069 [US4] 扩展 SystemStorageSnapshot、DatabaseStatus、SQLiteRuntimeStatus、ProcessStatus 和 listener port，路径：`backend/internal/analytics/application/dto.go`、`backend/internal/analytics/application/ports.go`
-- [ ] T070 [US4] 实现香港今日 COUNT、SQLite runtime 三项和文件 stat 的独立 probes；局部失败返回 null/降级并用中文注释说明脱敏边界，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system.go`
-- [ ] T071 [US4] 用同一次 clock 组装 todayLocalDate/uptimeMs 和字段级 system 响应，SQLite、进程或监听器单项失败均返回 null，不以 panic 或整页错误处理，路径：`backend/internal/analytics/application/query_details.go`
-- [ ] T072 [US4] 从 server config/composition 注入实际 loopback bindAddress，移除应用层硬编码端口，路径：`backend/cmd/server/config.go`、`backend/cmd/server/main.go`
-- [ ] T073 [US4] 保持 system route/error envelope 不变并映射 012 读模型，路径：`backend/internal/analytics/interfaces/http/detail_handlers.go`
+- [X] T069 [US4] 扩展 SystemStorageSnapshot、DatabaseStatus、SQLiteRuntimeStatus、ProcessStatus 和 listener port，路径：`backend/internal/analytics/application/dto.go`、`backend/internal/analytics/application/ports.go`
+- [X] T070 [US4] 实现香港今日 COUNT、SQLite runtime 三项和文件 stat 的独立 probes；局部失败返回 null/降级并用中文注释说明脱敏边界，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system.go`
+- [X] T071 [US4] 用同一次 clock 组装 todayLocalDate/uptimeMs 和字段级 system 响应，SQLite、进程或监听器单项失败均返回 null，不以 panic 或整页错误处理，路径：`backend/internal/analytics/application/query_details.go`
+- [X] T072 [US4] 从 server config/composition 注入实际 loopback bindAddress，移除应用层硬编码端口，路径：`backend/cmd/server/config.go`、`backend/cmd/server/main.go`
+- [X] T073 [US4] 保持 system route/error envelope 不变并映射 012 读模型，路径：`backend/internal/analytics/interfaces/http/detail_handlers.go`
 
 ### 用户故事 4 的前端实现
 
-- [ ] T074 [US4] 更新 System client/type 解析 SQLite runtime、进程、监听器和全部用户可见字段级 null，路径：`frontend/src/monitoring/services/analyticsTypes.ts`、`frontend/src/monitoring/services/analyticsDetailsClient.ts`
-- [ ] T075 [US4] 重构 SystemPage 只保留 SQLite 明细、SQLite 运行信息和服务运行信息，删除重复存储/隔离区块，路径：`frontend/src/monitoring/pages/SystemPage.tsx`、`frontend/src/monitoring/model/systemFacts.ts`
-- [ ] T076 [P] [US4] 补齐今日明细、运行库、Journal Mode、Schema、运行时长、监听器和局部无数据三语文案，路径：`frontend/src/monitoring/content/copy.ts`
-- [ ] T077 [US4] 实现 system 12 项桌面/手机布局和局部无数据样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
-- [ ] T078 [US4] 运行 US4 Go/Vitest/Playwright/隐私测试并保存三语双端与局部降级证据，对照 Figma `89:1310` System & Visitor Details 画板记录结果，路径：`frontend/playwright-monitor/__screenshots__/system-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/system-v13-mobile.png`、`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T074 [US4] 更新 System client/type 解析 SQLite runtime、进程、监听器和全部用户可见字段级 null，路径：`frontend/src/monitoring/services/analyticsTypes.ts`、`frontend/src/monitoring/services/analyticsDetailsClient.ts`
+- [X] T075 [US4] 重构 SystemPage 只保留 SQLite 明细、SQLite 运行信息和服务运行信息，删除重复存储/隔离区块，路径：`frontend/src/monitoring/pages/SystemPage.tsx`、`frontend/src/monitoring/model/systemFacts.ts`
+- [X] T076 [P] [US4] 补齐今日明细、运行库、Journal Mode、Schema、运行时长、监听器和局部无数据三语文案，路径：`frontend/src/monitoring/content/copy.ts`
+- [X] T077 [US4] 实现 system 12 项桌面/手机布局和局部无数据样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
+- [X] T078 [US4] 运行 US4 Go/Vitest/Playwright/隐私测试并保存三语双端与局部降级证据，对照 Figma `89:1310` System & Visitor Details 画板记录结果，路径：`frontend/playwright-monitor/__screenshots__/system-v13-desktop.png`、`frontend/playwright-monitor/__screenshots__/system-v13-mobile.png`、`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 **检查点**：US4 可独立判断数据仍在写入及 SQLite/进程/listener 状态，任何局部失败不清空整页。
 

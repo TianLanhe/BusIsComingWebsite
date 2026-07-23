@@ -16,7 +16,7 @@ export const detailCopy = {
     itemRange: "第 {start}–{end} 条，共 {total} 条", pagePosition: "第 {page} 页", eventComposition: "事件类型构成", commonPlatform: "常见下载平台", noPlatformData: "暂无下载平台数据",
     backToEvents: "返回事件明细", copyFailed: "复制失败，请手动复制", configurationFact: "配置事实", runtimeStatus: "运行状态", storageOverview: "存储概况", isolationFallback: "隔离与降级路径",
     retentionLongTerm: "匿名事件明细长期保留", backupDisabled: "未启用备份，统计数据允许丢失", writeQueueDisabled: "未启用写入队列，每次同步尝试一次", detailOnlyStorage: "只保存事件明细，查询时即时聚合", droppedUnavailable: "Dropped 暂不可用",
-    sqliteVersion: "SQLite 版本", journalMode: "Journal Mode", schemaVersion: "Schema 版本", todayRowCount: "香港今日明细", processUptime: "进程运行时长", visitorPreferences: "访客偏好",
+    sqliteVersion: "SQLite 版本", journalMode: "Journal Mode", schemaVersion: "Schema 版本", todayRowCount: "香港今日明细", processUptime: "进程运行时长", sqliteRuntime: "SQLite 运行信息", serviceRuntime: "服务运行信息", noData: "无数据", visitorPreferences: "访客偏好",
   },
   "zh-Hant": {
     trafficSubtitle: "主頁瀏覽、地點試查及巴士路線查詢的時段與來源分析", downloadsSubtitle: "下載請求、成功回應、平台及版本表現", eventsSubtitle: "唯讀匿名事件明細及穩定游標分頁", visitorSubtitle: "使用完整匿名 ID 調查工作階段路徑", performanceSubtitle: "公開統計入口的成功率、分位值及受控失敗", systemSubtitle: "本機統計儲存、寫入及私人監聽器健康狀態",
@@ -29,7 +29,7 @@ export const detailCopy = {
     itemRange: "第 {start}–{end} 項，共 {total} 項", pagePosition: "第 {page} 頁", eventComposition: "事件類型構成", commonPlatform: "常用下載平台", noPlatformData: "暫無下載平台數據",
     backToEvents: "返回事件明細", copyFailed: "複製失敗，請手動複製", configurationFact: "配置事實", runtimeStatus: "運行狀態", storageOverview: "儲存概況", isolationFallback: "隔離與降級路徑",
     retentionLongTerm: "匿名事件明細長期保留", backupDisabled: "未啟用備份，統計數據可接受遺失", writeQueueDisabled: "未啟用寫入佇列，每次同步嘗試一次", detailOnlyStorage: "只儲存事件明細，查詢時即時聚合", droppedUnavailable: "Dropped 暫時無法讀取",
-    sqliteVersion: "SQLite 版本", journalMode: "Journal Mode", schemaVersion: "Schema 版本", todayRowCount: "香港今日明細", processUptime: "程序運行時間", visitorPreferences: "訪客偏好",
+    sqliteVersion: "SQLite 版本", journalMode: "Journal Mode", schemaVersion: "Schema 版本", todayRowCount: "香港今日明細", processUptime: "程序運行時間", sqliteRuntime: "SQLite 運行資訊", serviceRuntime: "服務運行資訊", noData: "暫無資料", visitorPreferences: "訪客偏好",
   },
   en: {
     trafficSubtitle: "Time and source analysis for homepage visits and route trials", downloadsSubtitle: "Download requests, successful responses, platforms, and versions", eventsSubtitle: "Read-only anonymous events with stable cursor pagination", visitorSubtitle: "Investigate session paths with an exact anonymous ID", performanceSubtitle: "Success rates, percentiles, and controlled failures for public entry points", systemSubtitle: "Local event storage, write health, and private listener status",
@@ -42,7 +42,7 @@ export const detailCopy = {
     itemRange: "Items {start}–{end} of {total}", pagePosition: "Page {page}", eventComposition: "Event mix", commonPlatform: "Common download platform", noPlatformData: "No download platform data",
     backToEvents: "Back to event detail", copyFailed: "Copy failed; copy the ID manually", configurationFact: "Configuration fact", runtimeStatus: "Runtime status", storageOverview: "Storage overview", isolationFallback: "Isolation & fallback",
     retentionLongTerm: "Anonymous event details are retained long term", backupDisabled: "Backups are disabled; analytics data may be lost", writeQueueDisabled: "No write queue; each event gets one synchronous attempt", detailOnlyStorage: "Only event details are stored; aggregations run at query time", droppedUnavailable: "Dropped count unavailable",
-    sqliteVersion: "SQLite version", journalMode: "Journal mode", schemaVersion: "Schema version", todayRowCount: "Hong Kong events today", processUptime: "Process uptime", visitorPreferences: "Visitor preferences",
+    sqliteVersion: "SQLite version", journalMode: "Journal mode", schemaVersion: "Schema version", todayRowCount: "Hong Kong events today", processUptime: "Process uptime", sqliteRuntime: "SQLite runtime", serviceRuntime: "Service runtime", noData: "No data", visitorPreferences: "Visitor preferences",
   },
 } satisfies LocalizedDetailCopy;
 

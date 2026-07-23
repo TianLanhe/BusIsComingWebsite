@@ -25,6 +25,32 @@ test("keeps stability data visible when the Dropped auxiliary request fails", as
   await page.screenshot({ path, fullPage: true });
 });
 
+test("shows twelve system facts and degrades individual missing probes", async ({ page }, testInfo) => {
+  await page.goto("/#system");
+  await expect(page.locator("[data-testid='system-fact']")).toHaveCount(12);
+  await expect(page.getByText(testInfo.project.name.includes("mobile") ? "SQLite 明細儲存" : "SQLite 明细存储")).toBeVisible();
+  const viewport = testInfo.project.name.includes("mobile") ? "mobile" : "desktop";
+  for (const locale of ["zh-Hans", "zh-Hant", "en"] as const) {
+    await page.getByLabel(/语言|語言|Language/).selectOption(locale);
+    await expect(page.locator("[data-testid='system-fact']")).toHaveCount(12);
+    await page.screenshot({ path: `playwright-monitor/__screenshots__/system-v13-${locale}-${viewport}.png`, fullPage: true });
+  }
+  await page.unroute("**/api/analytics/**");
+  await page.route("**/api/analytics/system", async (route) => {
+    const body = structuredClone(detailEnvelopes["/api/analytics/system"]);
+    body.data.database.todayRowCount = 2;
+    body.data.process.uptimeMs = 60_000;
+    body.data.sqlite.journalMode = null;
+    body.data.privateListener.bindAddress = null;
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
+  });
+  await page.reload();
+  await expect(page.locator("[data-testid='system-fact']")).toHaveCount(12);
+  await expect(page.getByText(testInfo.project.name.includes("mobile") ? "暫無資料" : "无数据")).toHaveCount(2);
+  await expect(page.getByText("3.50.4")).toBeVisible();
+  await page.screenshot({ path: `playwright-monitor/__screenshots__/system-v13-${viewport}.png`, fullPage: true });
+});
+
 test("preserves custom range, filters, language, visitor and workspace context through an investigation", async ({ page }, testInfo) => {
   await page.goto("/#overview");
   const simplified = testInfo.project.name.includes("desktop");

@@ -30,7 +30,7 @@ func TestPerformanceAndSystemSummariesAreSafe(t *testing.T) {
 	}
 	health := analyticsapp.NewRuntimeHealth(base)
 	health.RecordSuccessfulWrite(base.Add(time.Minute))
-	usecase := analyticsapp.NewQueryDetails(store, health, analyticsapp.ClockFunc(func() time.Time { return base.Add(time.Hour) }), analyticsapp.ListenerStateFunc(func() string { return "available" }))
+	usecase := analyticsapp.NewQueryDetailsWithBindAddress(store, health, analyticsapp.ClockFunc(func() time.Time { return base.Add(time.Hour) }), analyticsapp.ListenerStateFunc(func() string { return "available" }), "127.0.0.1:18081")
 	performance, err := usecase.Performance(context.Background(), domain.AnalyticsQuery{From: base, To: base.Add(time.Hour), Granularity: domain.GranularityHour})
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +39,7 @@ func TestPerformanceAndSystemSummariesAreSafe(t *testing.T) {
 		t.Fatalf("unexpected performance: %#v", performance)
 	}
 	system := usecase.System(context.Background())
-	if system.Database.State != analyticsapp.DatabaseAvailable || system.Database.RowCount == nil || *system.Database.RowCount != 2 || system.PrivateListener.BindAddress != "127.0.0.1:18081" {
+	if system.Database.State != analyticsapp.DatabaseAvailable || system.Database.RowCount == nil || *system.Database.RowCount != 2 || system.PrivateListener.BindAddress == nil || *system.PrivateListener.BindAddress != "127.0.0.1:18081" {
 		t.Fatalf("unsafe system summary: %#v", system)
 	}
 }
