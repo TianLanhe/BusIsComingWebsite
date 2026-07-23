@@ -10,12 +10,21 @@
 | 任务 | 验证 | 结果 |
 |---|---|---|
 | T004 | 本矩阵覆盖 FR/SC 与验证层 | 通过 |
-| T005 | `analyticsContract.test.ts`：7 个 operationId、012 schema、shared 字节同步 | 通过；012 YAML 原已存在的 schema 为回归断言 |
-| T006 | `analytics.ts`、`details.ts`：当前/上期、零基线、无样本、SLI 空桶、单字段 null、六卡、无平台 | 通过 |
+| T005 | `analyticsContract.test.ts`：7 个 operationId、012 schema、shared 字节同步；summaryMetrics 4 项边界、六个流量 key、SQLite/process/listener 可空字段与 required | 通过；012 YAML 原已存在的 schema 为回归断言 |
+| T006 | `analytics.ts`、`details.ts`：当前/上期、零基线、无样本、SLI 空桶、单字段 null、六卡、无平台；compare=true 同期 meta 与 compare=false 全空比较 fixture 分离 | 通过 |
 | T007 | `copy.test.ts`：三语新增 key 完整性 | 通过 |
 | T008/T011 | `comparisonState.test.ts`：七状态、方向与好坏策略分离 | 通过 |
 | T009/T012 | `build:monitor`：TypeScript 契约与 `MetricCard` props | 通过；保留既有 bundle 大小提示 |
 | T013 | Redocly lint/bundle、聚焦 Vitest、monitor build | 通过 |
+
+## 阶段审查修复（2026-07-24）
+
+| 问题 | 证据 | 结果 |
+|---|---|---|
+| compare=false 却携带同期数值 | `analyticsFixtures.test.ts` 验证启用比较的 meta 有完整上一周期，禁用比较的 summary、traffic、performance 与 endpoint 分位比较字段全部为空 | 通过 |
+| DTO key 没有绑定 | `analyticsTypes.contract.test.ts` 通过 `@ts-expect-error` 和 `build:monitor` 验证 EventListData 与 TrafficData 拒绝未文档化 key，同时保留两个既有 successful Visitor key | 通过 |
+| OpenAPI 字段断言不足 | `analyticsContract.test.ts` 逐项验证六个 traffic key、summaryMetrics min/max=4、ProcessStatus uptimeMs、SQLite/process/listener required 和 nullable union | 通过 |
+| zero baseline 的反向语义 | `comparisonState.test.ts` 验证 `zero_baseline + lower_is_better => worse` | 通过 |
 
 ## 需求到验证层映射
 

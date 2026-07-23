@@ -48,15 +48,15 @@ export interface AnalyticsMeta {
   state: QueryState;
 }
 
-export interface Metric {
-  key: string;
+export interface Metric<TKey extends string = string> {
+  key: TKey;
   value: number | null;
   previousValue: number | null;
   delta: number | null;
   deltaRate: number | null;
 }
 
-export type TrafficMetricKey = "pv" | "uv" | "placeQueryRequests" | "placeQueryVisitors" | "routeQueryRequests" | "routeQueryVisitors";
+export type TrafficMetricKey = "pv" | "uv" | "placeQueryRequests" | "placeQueryVisitors" | "routeQueryRequests" | "routeQueryVisitors" | "successfulPlaceVisitors" | "successfulRouteVisitors";
 export type EventSummaryMetricKey = "totalCount" | "successCount" | "failureCount" | "uniqueVisitors";
 
 export interface TrafficSeriesPoint {
@@ -129,13 +129,13 @@ export interface AnalyticsEnvelope<T> {
 
 export interface HeatmapCell { localDate: string; bucketStart: string; bucketEnd: string; eventCount: number; uv: number }
 export interface DownloadSeriesPoint { bucketStart: string; bucketEnd: string; requests: number; successfulResponses: number; uv: number }
-export interface TrafficData { meta: AnalyticsMeta; metrics: Metric[]; series: TrafficSeriesPoint[]; trialFunnel: Funnel; heatmap: HeatmapCell[]; locales: DistributionPoint[]; devices: DistributionPoint[]; sources: DistributionPoint[] }
+export interface TrafficData { meta: AnalyticsMeta; metrics: Metric<TrafficMetricKey>[]; series: TrafficSeriesPoint[]; trialFunnel: Funnel; heatmap: HeatmapCell[]; locales: DistributionPoint[]; devices: DistributionPoint[]; sources: DistributionPoint[] }
 export interface DownloadsData { meta: AnalyticsMeta; metrics: Metric[]; series: DownloadSeriesPoint[]; downloadFunnel: Funnel; platforms: DistributionPoint[]; versions: VersionDistribution[]; failures: DistributionPoint[] }
 export type StatusClass = "2xx" | "3xx" | "4xx" | "5xx" | "aborted" | "unknown";
 export interface EventDetail { eventId: string; occurredAt: string; visitorId: string; eventType: EventType; outcome: Outcome; httpStatus: number | null; statusClass: StatusClass; failureCategory: string | null; durationMs: number; locale: AnalyticsLocale; deviceType: DeviceType; sourceType: SourceType; download: { platform: Platform; versionName: string | null; versionCode: number | null; sizeBytes: number | null } | null }
 export interface PageInfo { limit: number; nextCursor: string | null; hasMore: boolean; totalCount: number }
 export interface EventRangeSummary { totalCount: number; successCount: number; failureCount: number; uniqueVisitors: number }
-export interface EventListData { meta: AnalyticsMeta; summary: EventRangeSummary; summaryMetrics: Metric[]; items: EventDetail[]; pageInfo: PageInfo }
+export interface EventListData { meta: AnalyticsMeta; summary: EventRangeSummary; summaryMetrics: Metric<EventSummaryMetricKey>[]; items: EventDetail[]; pageInfo: PageInfo }
 export interface VisitorSummary { visitorId: string; firstSeenAt: string; lastSeenAt: string; eventCount: number; sessionCount: number; commonLocale: AnalyticsLocale; commonDeviceType: DeviceType; commonSourceType: SourceType; eventComposition: DistributionPoint[]; commonPlatform: Platform | null }
 export interface DerivedSession { ordinal: number; startedAt: string; endedAt: string; durationMs: number; eventCount: number; events: EventDetail[] }
 export interface VisitorData { generatedAt: string; timezone: "Asia/Hong_Kong"; visitor: VisitorSummary; sessions: DerivedSession[]; pageInfo: PageInfo }

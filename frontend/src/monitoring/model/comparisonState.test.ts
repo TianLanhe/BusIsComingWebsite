@@ -15,6 +15,7 @@ describe("deriveComparisonState", () => {
   it("keeps change direction separate from lower-is-better presentation", () => {
     expect(deriveComparisonState(metric(), true, "neutral")).toMatchObject({ viewState: "increased", direction: "up", outcome: "neutral" });
     expect(deriveComparisonState(metric(), true, "lower_is_better")).toMatchObject({ viewState: "increased", direction: "up", outcome: "worse" });
+    expect(deriveComparisonState(metric({ previousValue: 0, delta: 100, deltaRate: null }), true, "lower_is_better")).toMatchObject({ viewState: "zero_baseline", direction: "up", outcome: "worse" });
     expect(deriveComparisonState(metric({ value: 60, delta: -20, deltaRate: -0.25 }), true, "lower_is_better")).toMatchObject({ viewState: "decreased", direction: "down", outcome: "better" });
   });
 

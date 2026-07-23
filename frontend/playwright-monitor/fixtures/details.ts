@@ -1,6 +1,9 @@
-const meta = { from: "2026-06-21T00:00:00+08:00", to: "2026-07-21T00:00:00+08:00", timezone: "Asia/Hong_Kong", granularity: "day", compare: false, comparisonFrom: null, comparisonTo: null, appliedFilters: { locale: [], device: [], source: [], outcome: [], platform: [], versionName: [], versionCode: [], eventType: [] }, generatedAt: "2026-07-21T01:16:42Z", state: "ready" };
+const meta = { from: "2026-06-21T00:00:00+08:00", to: "2026-07-21T00:00:00+08:00", timezone: "Asia/Hong_Kong", granularity: "day", compare: true, comparisonFrom: "2026-05-22T00:00:00+08:00", comparisonTo: "2026-06-21T00:00:00+08:00", appliedFilters: { locale: [], device: [], source: [], outcome: [], platform: [], versionName: [], versionCode: [], eventType: [] }, generatedAt: "2026-07-21T01:16:42Z", state: "ready" };
+const noComparisonMeta = { ...meta, compare: false, comparisonFrom: null, comparisonTo: null };
 const event = { eventId: "99", occurredAt: "2026-07-21T00:12:00Z", visitorId: "abcdefghijklmnopqrstuv", eventType: "route_query", outcome: "success", httpStatus: 200, statusClass: "2xx", failureCategory: null, durationMs: 420, locale: "zh-Hant", deviceType: "mobile", sourceType: "direct", download: null };
-const envelope = (data: unknown) => ({ requestId: "fixture-details", data, error: null });
+const envelope = <T>(data: T) => ({ requestId: "fixture-details", data, error: null });
+const withoutComparison = <T extends { previousValue: number | null; delta: number | null; deltaRate: number | null }>(metric: T) => ({ ...metric, previousValue: null, delta: null, deltaRate: null });
+const withoutPercentileComparison = () => ({ currentMs: null, previousMs: null, deltaMs: null, deltaRate: null });
 export const detailEnvelopes = {
   "/api/analytics/events": envelope({ meta, summary: { totalCount: 2, successCount: 2, failureCount: 0, uniqueVisitors: 1 }, summaryMetrics: [
     { key: "totalCount", value: 2, previousValue: 0, delta: 2, deltaRate: null },
@@ -50,6 +53,12 @@ export const detailEnvelopes = {
     failures: [{ key: "external_timeout", count: 11, ratio: .55 }, { key: "external_unavailable", count: 6, ratio: .3 }, { key: "invalid_request", count: 3, ratio: .15 }],
   }),
   "/api/analytics/system": envelope({ generatedAt: meta.generatedAt, database: { state: "available", rowCount: 2, todayLocalDate: "2026-07-21", todayRowCount: null, sizeBytes: 4096, lastSuccessfulWriteAt: meta.generatedAt }, sqlite: { version: "3.50.4", journalMode: "wal", schemaVersion: "001" }, process: { startedAt: meta.from, uptimeMs: null, droppedSinceStart: 0 }, privateListener: { state: "available", bindAddress: "127.0.0.1:18081", publicProxy: false } }),
+};
+
+export const detailNoComparisonEnvelopes = {
+  "/api/analytics/events": envelope({ ...detailEnvelopes["/api/analytics/events"].data, meta: noComparisonMeta, summaryMetrics: detailEnvelopes["/api/analytics/events"].data.summaryMetrics.map(withoutComparison) }),
+  "/api/analytics/traffic": envelope({ ...detailEnvelopes["/api/analytics/traffic"].data, meta: noComparisonMeta, metrics: detailEnvelopes["/api/analytics/traffic"].data.metrics.map(withoutComparison) }),
+  "/api/analytics/performance": envelope({ ...detailEnvelopes["/api/analytics/performance"].data, meta: noComparisonMeta, metrics: detailEnvelopes["/api/analytics/performance"].data.metrics.map(withoutComparison), endpoints: detailEnvelopes["/api/analytics/performance"].data.endpoints.map((endpoint) => ({ ...endpoint, p50Comparison: withoutPercentileComparison(), p95Comparison: withoutPercentileComparison() })) }),
 };
 
 export const systemFailureEnvelope = {
