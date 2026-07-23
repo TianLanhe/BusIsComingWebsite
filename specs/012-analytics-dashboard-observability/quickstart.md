@@ -117,7 +117,7 @@ npm --prefix frontend run test:unit -- --run \
 必须覆盖：
 
 - 香港跨日今日数量、SQLite runtime probes、实际 private bind address。
-- 单字段 probe 失败时保留其他值。
+- SQLite、进程或监听器的单个用户可见字段缺失时保留其他值；`publicProxy=false` 始终存在。
 - 访客四卡顺序、语言/平台/装置、无下载平台和并列稳定。
 - 三组导航和七页在三语中可达。
 
@@ -245,7 +245,8 @@ go -C backend test \
 
 预期：
 
-- 响应/日志没有 IP、Visitor header 全值、数据库路径、密钥、query/body 或内部错误。
+- 响应/日志没有客户端或事件来源 IP、Visitor header 全值、数据库路径、密钥、query/body 或
+  内部错误；system 响应中唯一允许的 IP 字面量是当前配置注入的 `127.0.0.1:<port>`。
 - 私有 engine 保持 loopback，Caddy/public engine 不暴露 monitor/API。
 - panic recovery 和 request logger 仍有效。
 - 私有统计或 system probe 失败不改变主页、试查和下载响应。

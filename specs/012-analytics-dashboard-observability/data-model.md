@@ -191,15 +191,16 @@ Performance 响应继续在每个 `LatencySeriesPoint` 同时携带 `p50Ms/p95Ms
 
 | 字段 | 类型 | 规则 |
 |------|------|------|
-| `process.startedAt` | date-time | 进程启动时刻 |
-| `process.uptimeMs` | non-negative integer | 同一次 server clock 计算 |
-| `process.droppedSinceStart` | non-negative integer | 进程启动以来 |
-| `privateListener.state` | enum | 既有 listener state |
-| `privateListener.bindAddress` | loopback host:port | 从实际 composition 配置注入 |
+| `process.startedAt` | date-time \| null | 进程启动时刻；无法取得时为空 |
+| `process.uptimeMs` | non-negative integer \| null | 同一次 server clock 计算；无法取得时为空 |
+| `process.droppedSinceStart` | non-negative integer \| null | 进程启动以来；无法取得时为空 |
+| `privateListener.state` | enum \| null | 既有 listener state；无法取得时为空 |
+| `privateListener.bindAddress` | loopback host:port \| null | 从实际 composition 配置注入；无法取得时为空 |
 | `privateListener.publicProxy` | false | 固定隐私事实 |
 
-单项探测失败时对应值为 null，已成功字段保留。模型禁止数据库路径、SQL、内部错误、客户端地址、
-Visitor ID 或请求内容。
+单项探测或运行字段不可取得时对应值为 null，已成功字段保留。模型禁止数据库路径、SQL、内部
+错误、客户端地址、Visitor ID 或请求内容；`bindAddress` 是唯一允许的服务地址，且必须匹配
+`127.0.0.1:<port>`。
 
 ## 11. VisitorPreferenceView（前端重排）
 

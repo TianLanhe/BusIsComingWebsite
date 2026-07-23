@@ -139,8 +139,9 @@ Tooltip，只渲染自定义无障碍 Tooltip。两种提示共用时间、序�
 
 **决策**：`DatabaseStatus` 增加香港当前日期/今日明细数，新增独立 `SQLiteRuntimeStatus`
 承载 SQLite 版本、Journal Mode、Schema 版本；`ProcessStatus` 增加 `uptimeMs`。SQLite adapter
-独立探测各项并以 nullable 字段表示局部不可用；只有存储整体不可访问时才使用 unavailable。
-监听地址由私有服务 composition root 注入实际 loopback 配置，不继续硬编码端口。
+独立探测各项并以 nullable 字段表示局部不可用；进程和监听器的用户可见运行字段也允许逐项
+nullable。只有存储整体不可访问时才使用 unavailable。监听地址由私有服务 composition root
+注入实际 loopback 配置，不继续硬编码端口；固定隐私事实 `publicProxy=false` 始终必填。
 
 **理由**：这些信息属于既有系统工作区，不需要新端点。字段级空值能避免一个 PRAGMA 或文件
 stat 失败清空整页；响应不需要也不应包含数据库路径或内部错误。

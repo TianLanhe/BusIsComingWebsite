@@ -46,8 +46,9 @@ Testing Library、Playwright monitor 双 viewport、Redocly CLI 2、OpenAPI/隐�
 秒内完成；合法自定义结束日期选定后 1 秒内完成范围同步；P50/P95 本地切换 1 秒内更新；图表
 任意时刻最多一个 Tooltip；监控变更对公开主页、试查和下载新增失败为 0
 
-**约束**：不记录或返回 IP、完整 Cookie/UA/Referrer、查询词、地点、坐标、请求 URL/body、
-设备指纹、数据库路径、密钥或内部错误；不新增 endpoint、event type、表、goroutine、外部
+**约束**：不记录或返回客户端/事件来源 IP、完整 Cookie/UA/Referrer、查询词、地点、坐标、请求
+URL/body、设备指纹、数据库路径、密钥或内部错误；系统状态只允许返回契约规定并由当前配置注入
+的 `127.0.0.1:<port>` loopback 监听地址。不得新增 endpoint、event type、表、goroutine、外部
 服务、缓存、队列、后台聚合、备份、清理、导出、删除或编辑；不以 0、旧缓存或 Figma 示例掩盖
 缺失；监控 bundle 当前已超过 Vite 默认 500kB 提示线，本功能不得再引入大型依赖
 
@@ -86,7 +87,7 @@ lint/bundle，并生成 `shared/contracts/openapi/docs/analytics-monitoring-api.
 - `application`：编排当前/上期事件摘要、流量六指标、端点分位比较、SLI、香港今日和 system
   组合读模型；定义 storage/runtime/listener ports。
 - `infrastructure/sqlite`：复用 query builder 完成完整范围摘要、今日数量、SQLite version、
-  journal mode、schema version 和文件大小；每个 system 探测字段允许局部缺失，不暴露路径。
+  journal mode、schema version 和文件大小；每个 SQLite 探测字段允许局部缺失，不暴露路径。
 - `interfaces/http`：保持七条 route/operationId，只解析现有 query/header、映射 DTO/envelope/
   错误；events 恢复 compare 参数，不在 handler 计算统计。
 - `cmd/server`：把实际 private loopback address 注入 listener 读模型；不再在应用层硬编码端口。
@@ -96,8 +97,8 @@ lint/bundle，并生成 `shared/contracts/openapi/docs/analytics-monitoring-api.
 探测通过 context/error/nullable field 表达，不以 panic 控制业务；public/private engine 继续
 使用 request logger、analytics middleware 和 recovery。日志只允许 request ID、route template、
 operationId、status、duration、bounded context 和受控错误类型，不记录 Visitor ID header、
-IP、query/body、数据库路径、密钥或原始错误。私有查询与单个 system 字段失败不得改变公开业务
-响应。
+客户端/事件来源 IP、query/body、数据库路径、密钥或原始错误。响应中仅 system 读模型可包含
+契约规定的 loopback 监听地址；私有查询与单个 system 字段失败不得改变公开业务响应。
 
 **代码注释与可读性**：用中文注释解释日期草稿/已应用状态、`showPicker` 用户激活限制、Tooltip
 最近输入互斥、比较零基线/缺失、失败与时延反向好坏、SLI null/0、events 摘要与分页共用筛选、

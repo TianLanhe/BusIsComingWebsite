@@ -1414,28 +1414,33 @@ components:
       required: [startedAt, uptimeMs, droppedSinceStart]
       properties:
         startedAt:
-          type: string
+          type: [string, "null"]
           format: date-time
+          description: 进程启动时刻；运行字段无法取得时为空
         uptimeMs:
-          type: integer
+          type: [integer, "null"]
           minimum: 0
-          description: 以同一次服务端生成时刻计算的进程运行毫秒数
+          description: 以同一次服务端生成时刻计算的进程运行毫秒数；无法取得时为空
         droppedSinceStart:
-          type: integer
+          type: [integer, "null"]
           minimum: 0
+          description: 进程启动以来丢弃的事件数；无法取得时为空
       additionalProperties: false
     PrivateListenerStatus:
       type: object
       required: [state, bindAddress, publicProxy]
       properties:
         state:
-          type: string
-          enum: [starting, available, unavailable, stopped]
+          type: [string, "null"]
+          enum: [starting, available, unavailable, stopped, null]
+          description: 私有监听器状态；运行字段无法取得时为空
         bindAddress:
-          type: string
+          type: [string, "null"]
           pattern: "^127\\.0\\.0\\.1:[0-9]{1,5}$"
           example: 127.0.0.1:18081
-          description: 服务实际使用的 loopback 监听地址；端口来自当前进程配置
+          description: |
+            服务实际使用的 loopback 监听地址，端口来自当前进程配置；无法取得时为空。
+            这是隐私哨兵唯一允许的 IP 字面量，不是客户端或事件来源网络标识。
         publicProxy:
           type: boolean
           const: false

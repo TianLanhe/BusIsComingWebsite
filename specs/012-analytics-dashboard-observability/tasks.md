@@ -19,7 +19,7 @@
 **目的**：把实现工具链切到 012 权威契约，并建立可追踪验证入口。
 
 - [ ] T001 将 analytics feature lint/bundle 路径从 011 切换到 012，保留 download/route 既有契约命令，路径：`frontend/package.json`
-- [ ] T002 [P] 将 analytics OpenAPI 契约测试的 featurePath、标题和新增 schema 断言切换到 012，路径：`frontend/src/monitoring/services/analyticsContract.test.ts`
+- [ ] T002 [P] 将 analytics OpenAPI 契约测试的 featurePath 和标题切换到 012，保留既有 operation 基线断言；新增 schema 断言统一由 T005 编写，路径：`frontend/src/monitoring/services/analyticsContract.test.ts`
 - [ ] T003 将 `specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml` 单向同步到 `shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`，不得反向修改 feature 权威源
 - [ ] T004 [P] 建立 FR/SC→OpenAPI/Go/Vitest/Playwright/Figma/人工检查的验证矩阵，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
@@ -93,7 +93,7 @@
 ### 用户故事 2 的后端测试
 
 - [ ] T028 [P] [US2] 为 SLI 四事件稳定顺序、无请求 null、全失败 0% 和单次遍历分桶编写先失败领域/应用测试，路径：`backend/internal/analytics/domain/aggregation_test.go`、`backend/internal/analytics/application/query_details_test.go`
-- [ ] T029 [P] [US2] 为端点 P50/P95 当前/上期、持平、零基线、无当前、无上期和 compare=false 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [ ] T029 [US2] 在 T028 完成后，为端点 P50/P95 当前/上期、持平、零基线、无当前、无上期和 compare=false 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
 - [ ] T030 [P] [US2] 为 PerformanceData 新字段、null 语义、no-store、既有错误 envelope 和 operationId 编写先失败 handler 测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`
 
 ### 用户故事 2 的前端测试
@@ -135,8 +135,8 @@ Visitor 的 fixture 验证六卡及趋势口径。
 
 - [ ] T045 [P] [US3] 为 events 当前/上一 summaryMetrics 共用全部筛选、Visitor header、cursor/limit 不影响摘要和无上期 null 编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
 - [ ] T046 [P] [US3] 为 SummarizeEvents 复用 query builder、COUNT DISTINCT、当前/上一范围和 query plan 编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_events_visitor_test.go`
-- [ ] T047 [P] [US3] 为地点/路线 PV 包含失败、各自 UV 完整范围去重和既有成功 Visitor key 不变编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
-- [ ] T048 [P] [US3] 为 events compare 参数解析、summaryMetrics 响应和七路由不变编写先失败 HTTP 测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/query_parser.go`
+- [ ] T047 [US3] 在 T045 完成后，为地点/路线 PV 包含失败、各自 UV 完整范围去重和既有成功 Visitor key 不变编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [ ] T048 [P] [US3] 为 events compare 参数解析、summaryMetrics 响应和七路由不变编写先失败 HTTP 测试；新建 parser 测试文件，不在测试阶段修改生产 parser，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/query_parser_test.go`
 
 ### 用户故事 3 的前端测试
 
@@ -176,9 +176,9 @@ Visitor 的 fixture 验证六卡及趋势口径。
 ### 用户故事 4 的后端测试
 
 - [ ] T063 [P] [US4] 为香港今日边界、总数/今日数、文件大小、sqlite_version、journal_mode、schema version 和字段级失败编写先失败 SQLite 测试，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system_test.go`
-- [ ] T064 [P] [US4] 为 SystemData.sqlite、uptimeMs、数据库 degraded/null、同一次 clock 和已成功字段保留编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
+- [ ] T064 [P] [US4] 为 SystemData.sqlite、进程三字段、监听器 state/bindAddress、数据库 degraded/null、同一次 clock 和已成功字段保留编写先失败应用测试，路径：`backend/internal/analytics/application/query_details_test.go`
 - [ ] T065 [P] [US4] 为可配置 private port 注入实际 bindAddress、只允许 loopback 和默认 18081 编写先失败 server 测试，路径：`backend/cmd/server/config_test.go`、`backend/cmd/server/private_listener_integration_test.go`
-- [ ] T066 [P] [US4] 为 system 新字段、单字段 null、no-store、无 query 参数和隐私零命中编写先失败 HTTP 测试，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
+- [ ] T066 [P] [US4] 为 system 新字段、SQLite/进程/监听器单字段 null、no-store、无 query 参数和隐私禁止项零命中编写先失败 HTTP 测试；仅允许契约规定的 loopback bindAddress，路径：`backend/internal/analytics/interfaces/http/private_handlers_test.go`、`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`
 
 ### 用户故事 4 的前端测试
 
@@ -189,13 +189,13 @@ Visitor 的 fixture 验证六卡及趋势口径。
 
 - [ ] T069 [US4] 扩展 SystemStorageSnapshot、DatabaseStatus、SQLiteRuntimeStatus、ProcessStatus 和 listener port，路径：`backend/internal/analytics/application/dto.go`、`backend/internal/analytics/application/ports.go`
 - [ ] T070 [US4] 实现香港今日 COUNT、SQLite runtime 三项和文件 stat 的独立 probes；局部失败返回 null/降级并用中文注释说明脱敏边界，路径：`backend/internal/analytics/infrastructure/sqlite/query_performance_system.go`
-- [ ] T071 [US4] 用同一次 clock 组装 todayLocalDate/uptimeMs 和字段级 system 响应，不以 panic 或整页错误处理单项失败，路径：`backend/internal/analytics/application/query_details.go`
+- [ ] T071 [US4] 用同一次 clock 组装 todayLocalDate/uptimeMs 和字段级 system 响应，SQLite、进程或监听器单项失败均返回 null，不以 panic 或整页错误处理，路径：`backend/internal/analytics/application/query_details.go`
 - [ ] T072 [US4] 从 server config/composition 注入实际 loopback bindAddress，移除应用层硬编码端口，路径：`backend/cmd/server/config.go`、`backend/cmd/server/main.go`
 - [ ] T073 [US4] 保持 system route/error envelope 不变并映射 012 读模型，路径：`backend/internal/analytics/interfaces/http/detail_handlers.go`
 
 ### 用户故事 4 的前端实现
 
-- [ ] T074 [US4] 更新 System client/type 解析 SQLite runtime、uptime 和字段级 null，路径：`frontend/src/monitoring/services/analyticsTypes.ts`、`frontend/src/monitoring/services/analyticsDetailsClient.ts`
+- [ ] T074 [US4] 更新 System client/type 解析 SQLite runtime、进程、监听器和全部用户可见字段级 null，路径：`frontend/src/monitoring/services/analyticsTypes.ts`、`frontend/src/monitoring/services/analyticsDetailsClient.ts`
 - [ ] T075 [US4] 重构 SystemPage 只保留 SQLite 明细、SQLite 运行信息和服务运行信息，删除重复存储/隔离区块，路径：`frontend/src/monitoring/pages/SystemPage.tsx`、`frontend/src/monitoring/model/systemFacts.ts`
 - [ ] T076 [P] [US4] 补齐今日明细、运行库、Journal Mode、Schema、运行时长、监听器和局部无数据三语文案，路径：`frontend/src/monitoring/content/copy.ts`
 - [ ] T077 [US4] 实现 system 12 项桌面/手机布局和局部无数据样式，路径：`frontend/src/monitoring/styles/dashboard.css`、`frontend/src/monitoring/styles/mobile-components.css`、`frontend/src/monitoring/styles/responsive.css`
@@ -241,7 +241,7 @@ Visitor 的 fixture 验证六卡及趋势口径。
 - [ ] T090 [P] 扩展显式 1,000,000 行 fixture 和 query plan，覆盖 events 当前/上一摘要、流量六卡、performance 当前/上一+SLI、system 今日数量和 visitor，路径：`backend/internal/analytics/infrastructure/sqlite/performance_test.go`
 - [ ] T091 根据 T090 证据优先优化查询；只有仍不达标时才另行评审前向普通索引 migration，绝不修改 001 或新增汇总表/缓存/队列，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`、`backend/internal/analytics/infrastructure/sqlite/migrations/`
 - [ ] T092 [P] 运行全量 Go、race、HTTP recovery/request logger、隐私 sentinel 和公开 fail-open 测试，记录实际结果，路径：`specs/012-analytics-dashboard-observability/verification-results.md`
-- [ ] T093 [P] 运行全量 Vitest、TypeScript、public/monitor build，确认无新大型依赖且 dist/dist-monitor 继续物理隔离，路径：`specs/012-analytics-dashboard-observability/verification-results.md`
+- [ ] T093 在 T092 写入结果后运行全量 Vitest、TypeScript、public/monitor build，确认无新大型依赖且 dist/dist-monitor 继续物理隔离并追加实际结果，路径：`specs/012-analytics-dashboard-observability/verification-results.md`
 - [ ] T094 运行 monitor Playwright 的 1440×1200/390×844、三语七页、日期、Tooltip、比较、SLI、system 和 visitor 场景，确认截图尺寸并汇总结果，路径：`frontend/playwright-monitor/__screenshots__/`、`specs/012-analytics-dashboard-observability/verification-results.md`
 - [ ] T095 审计 analytics DDD 依赖方向、无业务 panic、无新 goroutine、双 engine recovery/logger、受控错误和脱敏日志，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
 - [ ] T096 审计七个私有 operation、四类事件、一张事实表及匿名字段集合不增加，且无公网监控、路径/密钥/客户端标识/请求内容泄露，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`、`specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml`
@@ -291,18 +291,21 @@ flowchart LR
 ### 并行机会
 
 - **US1**：T014–T017 修改不同测试文件可并行；T019/T020 与 T023 在模型接口稳定后可并行。
-- **US2**：T028–T032 可并行写后端/前端测试；T034–T037 与 T038–T042 可在契约稳定后分层并行。
-- **US3**：events summary、traffic metrics 和前端两页测试可并行；T054/T055 同文件须顺序执行。
+- **US2**：T028 可与 T030–T032 并行，T029 因共用 `query_details_test.go` 在 T028 后执行；
+  T034–T037 与 T038–T042 可在契约稳定后分层并行。
+- **US3**：T045 可与 T046、T048–T050 并行，T047 因共用 `query_details_test.go` 在 T045 后执行；
+  T054/T055 同文件须顺序执行。
 - **US4**：SQLite probes、application DTO、server config 和前端测试可并行，T071 最后组装。
 - **US5**：visitor 页面与导航测试/实现可并行，copy/styles 在组件结构稳定后收敛。
-- **阶段 8**：OpenAPI、文案、性能、Go 和前端验证可并行，T097–T099 最终汇总。
+- **阶段 8**：OpenAPI、文案、性能和 T092 Go 验证可在不同产物上并行；T093 与 T092 共用结果
+  文件，须在 T092 后追加，T094–T099 再按编号完成汇总。
 
 ### 每个用户故事的并行示例
 
 ```text
 US1: T014 dateRangeFlow test || T015 DateRangeControl test || T017 TimeSeriesChart test
-US2: T028 SLI tests || T029 endpoint comparison tests || T031 PerformancePage tests
-US3: T045 events comparison tests || T047 traffic UV tests || T049 EventsPage tests
+US2: T028 SLI tests || T030 handler tests || T031 PerformancePage tests
+US3: T045 events comparison tests || T046 SQLite tests || T048 HTTP tests || T049 EventsPage tests
 US4: T063 SQLite probes tests || T064 application tests || T067 SystemPage tests
 US5: T079 visitor backend regression || T080 VisitorPage tests || T081 navigation tests
 ```
