@@ -220,3 +220,16 @@ npm --prefix frontend run test:e2e:monitor -- --reporter=line
 ```
 
 审查修复补充：SQLite 的 `row`、`today`、`size`、`version`、`journal`、`schema` 六个 probe 逐一注入失败，均验证其他事实仍可返回；`processStartedAt` 缺失时仍返回 Dropped。私有 host 接受 `127.0.0.1`、`localhost`、`::1` 与 IPv4-mapped loopback，统一规范化为 API 返回的实际 `127.0.0.1:19081`；拒绝 `127.0.0.1x`、通配地址、非 loopback 与畸形 host。System E2E 默认 fixture 覆盖 12 项全部可用，另覆盖局部缺失；页面以 B/KB/MB 与 zh-Hans 的秒/分钟/小时、zh-Hant 的秒/分鐘/小時、en 的 s/min/h 自适应显示，正数 1–499ms 显示为 `<1` 单位，并移除了壳层的静态监听器状态。
+
+## 最终跨切面验证（T088–T099，2026-07-24）
+
+| 范围 | 最终证据 | 结果 |
+|---|---|---|
+| FR-001–010、SC-001/002 | 日期、单一 Tooltip、1440/390 Playwright | 通过 |
+| FR-011–027、SC-003–006 | events/traffic/performance/SLI Go、Vitest、E2E 和 100 万行基线 | 通过 |
+| FR-028–032、FR-049–053、SC-010/011/013 | 三组七页、三语审校、响应式、Figma 对照 | 通过 |
+| FR-033–048、SC-007–009 | system/visitor 读模型、隐私和局部降级 | 通过 |
+| FR-054–058、SC-014 | 012 feature/shared byte identity、Redocly、DDD/隔离/脱敏审计 | 通过 |
+| SC-012 | 1,000,000 行实际读模型 P95 均小于 1 秒，无新增 migration | 通过 |
+
+完整命令、P95、截图尺寸、Figma 差异、部署拓扑及提交范围见 `verification-results.md`。

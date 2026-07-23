@@ -247,18 +247,18 @@ Visitor 的 fixture 验证六卡及趋势口径。
 
 **目的**：完成契约、三语、性能、隐私、稳健性、视觉和部署全链路验证。
 
-- [ ] T088 再次把 012 feature OpenAPI 单向同步到 shared，运行 feature/shared lint、bundle、字节一致性和中文 API UI 检查，路径：`shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`、`shared/contracts/openapi/analytics-monitoring-api.bundle.yaml`、`shared/contracts/openapi/docs/analytics-monitoring-api.html`
-- [ ] T089 [P] 完成新增三语文案的香港繁中、自然克制英文、非机械直译和长文本截断审校，路径：`specs/012-analytics-dashboard-observability/zh-hant-en-copy-review.md`
-- [ ] T090 [P] 扩展显式 1,000,000 行 fixture 和 query plan，覆盖 events 当前/上一摘要、流量六卡、performance 当前/上一+SLI、system 今日数量和 visitor，路径：`backend/internal/analytics/infrastructure/sqlite/performance_test.go`
-- [ ] T091 根据 T090 证据优先优化查询；只有仍不达标时才另行评审前向普通索引 migration，绝不修改 001 或新增汇总表/缓存/队列，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`、`backend/internal/analytics/infrastructure/sqlite/migrations/`
-- [ ] T092 [P] 运行全量 Go、race、HTTP recovery/request logger、隐私 sentinel 和公开 fail-open 测试，记录实际结果，路径：`specs/012-analytics-dashboard-observability/verification-results.md`
-- [ ] T093 在 T092 写入结果后运行全量 Vitest、TypeScript、public/monitor build，确认无新大型依赖且 dist/dist-monitor 继续物理隔离并追加实际结果，路径：`specs/012-analytics-dashboard-observability/verification-results.md`
-- [ ] T094 运行 monitor Playwright 的 1440×1200/390×844、三语七页、日期、Tooltip、比较、SLI、system 和 visitor 场景，确认截图尺寸并汇总结果，路径：`frontend/playwright-monitor/__screenshots__/`、`specs/012-analytics-dashboard-observability/verification-results.md`
-- [ ] T095 审计 analytics DDD 依赖方向、无业务 panic、无新 goroutine、双 engine recovery/logger、受控错误和脱敏日志，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
-- [ ] T096 审计七个私有 operation、四类事件、一张事实表及匿名字段集合不增加，且无公网监控、路径/密钥/客户端标识/请求内容泄露，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`、`specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml`
-- [ ] T097 对照 Figma v1.3 `89:1310`、五张导入截图和最终三语双端截图记录逐区块一致性、有意差异及示例值非回退，路径：`specs/012-analytics-dashboard-observability/figma.md`、`specs/012-analytics-dashboard-observability/verification-results.md`
-- [ ] T098 执行 `specs/012-analytics-dashboard-observability/quickstart.md` 全流程和部署脚本测试，确认一个 Go 进程双监听、两个生产前端产物、private 不公网暴露及原子升级/整体回滚，路径：`scripts/tests/deploy_test.sh`、`specs/012-analytics-dashboard-observability/verification-results.md`
-- [ ] T099 运行 `git diff --check`、任务格式/需求追踪和提交范围检查，确认不暂存用户现有 APK/current.json 改动，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
+- [X] T088 再次把 012 feature OpenAPI 单向同步到 shared，运行 feature/shared lint、bundle、字节一致性和中文 API UI 检查，路径：`shared/contracts/openapi/analytics-monitoring-api.openapi.yaml`、`shared/contracts/openapi/analytics-monitoring-api.bundle.yaml`、`shared/contracts/openapi/docs/analytics-monitoring-api.html`
+- [X] T089 [P] 完成新增三语文案的香港繁中、自然克制英文、非机械直译和长文本截断审校，路径：`specs/012-analytics-dashboard-observability/zh-hant-en-copy-review.md`
+- [X] T090 [P] 扩展显式 1,000,000 行 fixture 和 query plan，覆盖 events 当前/上一摘要、流量六卡、performance 当前/上一+SLI、system 今日数量和 visitor，路径：`backend/internal/analytics/infrastructure/sqlite/performance_test.go`
+- [X] T091 根据 T090 证据优先优化查询；只有仍不达标时才另行评审前向普通索引 migration，绝不修改 001 或新增汇总表/缓存/队列，路径：`backend/internal/analytics/infrastructure/sqlite/query_builder.go`、`backend/internal/analytics/infrastructure/sqlite/migrations/`
+- [X] T092 [P] 运行全量 Go、race、HTTP recovery/request logger、隐私 sentinel 和公开 fail-open 测试，记录实际结果，路径：`specs/012-analytics-dashboard-observability/verification-results.md`
+- [X] T093 在 T092 写入结果后运行全量 Vitest、TypeScript、public/monitor build，确认无新大型依赖且 dist/dist-monitor 继续物理隔离并追加实际结果，路径：`specs/012-analytics-dashboard-observability/verification-results.md`
+- [X] T094 运行 monitor Playwright 的 1440×1200/390×844、三语七页、日期、Tooltip、比较、SLI、system 和 visitor 场景，确认截图尺寸并汇总结果，路径：`frontend/playwright-monitor/__screenshots__/`、`specs/012-analytics-dashboard-observability/verification-results.md`
+- [X] T095 审计 analytics DDD 依赖方向、无业务 panic、无新 goroutine、双 engine recovery/logger、受控错误和脱敏日志，路径：`backend/internal/analytics/`、`backend/internal/platform/httpserver/`、`backend/cmd/server/`
+- [X] T096 审计七个私有 operation、四类事件、一张事实表及匿名字段集合不增加，且无公网监控、路径/密钥/客户端标识/请求内容泄露，路径：`backend/internal/analytics/interfaces/http/privacy_sentinel_test.go`、`specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml`
+- [X] T097 对照 Figma v1.3 `89:1310`、五张导入截图和最终三语双端截图记录逐区块一致性、有意差异及示例值非回退，路径：`specs/012-analytics-dashboard-observability/figma.md`、`specs/012-analytics-dashboard-observability/verification-results.md`
+- [X] T098 执行 `specs/012-analytics-dashboard-observability/quickstart.md` 全流程和部署脚本测试，确认一个 Go 进程双监听、两个生产前端产物、private 不公网暴露及原子升级/整体回滚，路径：`scripts/tests/deploy_test.sh`、`specs/012-analytics-dashboard-observability/verification-results.md`
+- [X] T099 运行 `git diff --check`、任务格式/需求追踪和提交范围检查，确认不暂存用户现有 APK/current.json 改动，路径：`specs/012-analytics-dashboard-observability/verification-matrix.md`
 
 ---
 

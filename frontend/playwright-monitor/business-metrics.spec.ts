@@ -70,10 +70,12 @@ test("keeps event cards stable across a real cursor page, supports comparison on
     await expect(summary).toContainText(copy.comparisonOff);
     await page.locator(".global-filters summary").click();
 
-    const trafficLink = testInfo.project.name.includes("desktop")
-      ? page.getByTestId("desktop-sidebar").getByRole("link", { name: copy.traffic })
-      : page.getByTestId("mobile-bottom-nav").getByRole("link", { name: copy.traffic });
-    await trafficLink.click();
+    if (testInfo.project.name.includes("desktop")) {
+      await page.getByTestId("desktop-sidebar").getByRole("link", { name: copy.traffic }).click();
+    } else {
+      await page.getByRole("button", { name: /打开导航|開啟導覽|Open navigation/ }).click();
+      await page.getByRole("dialog").getByRole("link", { name: copy.traffic }).click();
+    }
     const cards = page.locator(".detail-metrics");
     await expect(cards.getByTestId("metric-card")).toHaveCount(6);
     for (const label of copy.cards) await expect(cards).toContainText(label);

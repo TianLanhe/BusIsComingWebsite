@@ -154,10 +154,12 @@ test("compares complete event ranges across pages and shows six traffic cards wi
   await expect(page.locator(".event-summary-grid")).toContainText(labels.failed);
   await expect(page.locator(".event-summary-grid")).toContainText(labels.comparison);
   await expect(page.getByRole("button", { name: traditional ? "下一頁" : "下一页" })).toBeDisabled();
-  const trafficLink = testInfo.project.name.includes("desktop")
-    ? page.getByTestId("desktop-sidebar").getByRole("link", { name: labels.traffic })
-    : page.getByTestId("mobile-bottom-nav").getByRole("link", { name: labels.traffic });
-  await trafficLink.click();
+  if (testInfo.project.name.includes("desktop")) {
+    await page.getByTestId("desktop-sidebar").getByRole("link", { name: labels.traffic }).click();
+  } else {
+    await page.getByRole("button", { name: /打开导航|開啟導覽|Open navigation/ }).click();
+    await page.getByRole("dialog").getByRole("link", { name: labels.traffic }).click();
+  }
   await expect(page.getByRole("heading", { name: labels.traffic })).toBeVisible();
   for (const label of [labels.homepagePv, labels.homepageUv, labels.placePv, labels.placeUv, labels.routePv, labels.routeUv]) {
     await expect(page.locator(".detail-metrics")).toContainText(label);

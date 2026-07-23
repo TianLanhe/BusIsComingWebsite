@@ -33,6 +33,12 @@ func TestMillionRowCommonQueriesUseIndexesAndFinishWithinOneSecond(t *testing.T)
 	insertMillionAnalyticsEvents(t, store.db, base)
 	to := base.AddDate(0, 0, 1000)
 	from := to.AddDate(0, 0, -30)
+	// 这些调用和 Dashboard 的七个私有读模型保持同一路径，避免只测底层 SQL
+	// 而遗漏当前/上一周期、SLI、访客摘要或香港今日计数的实际成本。
+	details := analyticsapp.NewQueryDetails(store, nil, analyticsapp.ClockFunc(func() time.Time {
+		return to.Add(-12 * time.Hour)
+	}), nil)
+	query := domain.AnalyticsQuery{From: from, To: to, Granularity: domain.GranularityDay, Compare: true}
 
 	overviewBuilder := newEventQueryBuilder(from, to)
 	overviewSQL, overviewArgs := overviewBuilder.selectSQL("ASC")
@@ -66,23 +72,42 @@ func TestMillionRowCommonQueriesUseIndexesAndFinishWithinOneSecond(t *testing.T)
 		return queryErr
 	})
 
-	assertP95FinishesWithinOneSecond(t, "带多维筛选的事件摘要", func() error {
-		_, queryErr := store.ListEvents(ctx, analyticsapp.EventListRequest{
-			Query: domain.AnalyticsQuery{
-				From: from, To: to, Granularity: domain.GranularityDay,
-				EventTypes: []domain.EventType{domain.EventRouteQuery},
-				Locales:    []domain.Locale{domain.LocaleZhHant},
-				Outcomes:   []domain.Outcome{domain.OutcomeSuccess},
-			},
-			Limit: 50,
-		})
+	assertP95FinishesWithinOneSecond(t, "事件当前与上一周期摘要", func() error {
+		data, queryErr := details.Events(ctx, query, "")
+		if queryErr == nil && len(data.SummaryMetrics) != 4 {
+			return fmt.Errorf("event summary metric count = %d, want 4", len(data.SummaryMetrics))
+		}
 		return queryErr
 	})
 
-	assertP95FinishesWithinOneSecond(t, "单 visitor 时间线", func() error {
-		events, queryErr := store.LoadVisitorEvents(ctx, millionRowVisitorID(17))
-		if queryErr == nil && len(events) == 0 {
-			return fmt.Errorf("visitor timeline is unexpectedly empty")
+	assertP95FinishesWithinOneSecond(t, "流量六项指标", func() error {
+		data, queryErr := details.Traffic(ctx, query)
+		if queryErr == nil && len(data.Metrics) != 6 {
+			return fmt.Errorf("traffic metric count = %d, want 6", len(data.Metrics))
+		}
+		return queryErr
+	})
+
+	assertP95FinishesWithinOneSecond(t, "性能当前上一周期与SLI", func() error {
+		data, queryErr := details.Performance(ctx, query)
+		if queryErr == nil && (len(data.Endpoints) != 4 || len(data.SLISeries) == 0) {
+			return fmt.Errorf("performance endpoints=%d sli points=%d, want 4 and non-empty", len(data.Endpoints), len(data.SLISeries))
+		}
+		return queryErr
+	})
+
+	assertP95FinishesWithinOneSecond(t, "香港今日数量与系统快照", func() error {
+		data := details.System(ctx)
+		if data.Database.TodayRowCount == nil || *data.Database.TodayRowCount == 0 {
+			return fmt.Errorf("today row count is missing or zero")
+		}
+		return nil
+	})
+
+	assertP95FinishesWithinOneSecond(t, "单 visitor 完整历史与时间线", func() error {
+		data, queryErr := details.Visitor(ctx, millionRowVisitorID(17), 50, "")
+		if queryErr == nil && (data.Visitor.EventCount == 0 || len(data.Sessions) == 0) {
+			return fmt.Errorf("visitor history or sessions are unexpectedly empty")
 		}
 		return queryErr
 	})
