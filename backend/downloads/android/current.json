@@ -3,17 +3,17 @@
   "appName": "BusIsComing",
   "applicationId": "com.golink.busiscoming",
   "versionName": "1.0",
-  "versionCode": 8,
+  "versionCode": 9,
   "fileName": "BusIsComing.apk",
   "relativePath": "BusIsComing.apk",
   "sourcePath": "/Users/hezhenyu/.codex/worktrees/1ef8/BusIsComming/app/release/app-release.apk",
-  "sizeBytes": 5889267,
+  "sizeBytes": 5892655,
   "sizeLabel": {
     "zh-Hant": "約 5.6 MB",
     "zh-Hans": "约 5.6 MB",
     "en": "About 5.6 MB"
   },
-  "sha256": "ffb3213fc8b5cd67fd76d8e064bdb315f87ac931af48c0db3db009279d8ea9d2",
-  "lastUpdated": "2026-07-24",
+  "sha256": "d47524d50e7c2c4f26e947ca8aa82ab6ce05bebb6cbdfcca2fdb850f9460f67d",
+  "lastUpdated": "2026-07-25",
   "status": "available"
 }
