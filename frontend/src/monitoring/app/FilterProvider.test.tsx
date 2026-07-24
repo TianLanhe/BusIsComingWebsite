@@ -27,7 +27,7 @@ describe("FilterProvider", () => {
 
     instant = new Date("2026-07-23T00:31:00+08:00");
     fireEvent.click(screen.getByText("refresh"));
-    expect(screen.getByTestId("query")).toHaveTextContent("2026-07-23T00:31:00+08:00");
+    expect(screen.getByTestId("query")).toHaveTextContent("2026-07-24T00:00:00+08:00");
     expect(screen.getByTestId("selection")).toHaveTextContent('"presetDays":7');
     expect(screen.getByTestId("query")).toHaveTextContent("failure");
   });

@@ -35,10 +35,10 @@ selecting_end
 
 沿用 `frontend/src/monitoring/model/dateRange.ts`：
 
-- 预设为 7/30/90 个香港自然日，包含今天。
+- 预设为 1/7/30/90 个香港自然日，包含今天。
 - 自定义开始与结束日期都包含。
-- 请求范围是半开 `[from,to)`；历史结束日的 `to` 为下一日香港 00:00，结束日为今天时使用本次
-  求值 instant。
+- 请求范围是半开 `[from,to)`；结束日语义包含至 23:59:59 及其小数部分，`to` 统一使用
+  结束日下一日香港 00:00。
 - `startDate <= endDate <= hongKongToday`。
 - 上一周期为紧邻当前范围之前的等长区间。
 

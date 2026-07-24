@@ -125,6 +125,29 @@ func TestQueryOverviewKeepsMissingPreviousPopulationNullAndRealZeroComparable(t 
 	}
 }
 
+func TestDistributionByVersionMergesPackageSizeChangesIntoOneVisibleVersion(t *testing.T) {
+	base := time.Date(2026, time.July, 1, 0, 0, 0, 0, time.UTC)
+	events := []domain.AnalyticsEvent{
+		overviewDownload(1, "abcdefghijklmnopqrstuv", domain.PlatformAndroid, "1.1", 4, base),
+		overviewDownload(2, "0123456789abcdefghijkl", domain.PlatformAndroid, "1.1", 4, base.Add(time.Hour)),
+		overviewDownload(3, "abcdefghijklmnopqrstuv", domain.PlatformAndroid, "1.1", 4, base.Add(2*time.Hour)),
+	}
+	events[0].Download.SizeBytes = 5_000_000
+	events[1].Download.SizeBytes = 5_100_000
+	events[2].Download.SizeBytes = 5_200_000
+
+	got := distributionByVersion(events)
+	if len(got) != 1 {
+		t.Fatalf("same visible version must be one row, got %#v", got)
+	}
+	if got[0].RequestCount != 3 || got[0].SuccessfulResponses != 3 || got[0].UV != 2 {
+		t.Fatalf("version counters were not merged: %#v", got[0])
+	}
+	if got[0].SizeBytes != 5_200_000 {
+		t.Fatalf("latest package size = %d, want 5200000", got[0].SizeBytes)
+	}
+}
+
 func findMetric(metrics []domain.Metric, key string) domain.Metric {
 	for _, metric := range metrics {
 		if metric.Key == key {

@@ -19,8 +19,9 @@ test("keeps cancellation out of the query, applies a cross-year range once, and 
   await expect(page.getByTestId("chart-point").first()).toBeVisible();
   const initialQueryCount = queryCount;
 
-  const trigger = page.getByRole("button", { name: /自定义日期/ });
+  const trigger = page.getByRole("button", { name: /日期范围/ });
   await trigger.click();
+  await page.getByRole("button", { name: "自定义日期", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "日期范围" });
   await expect(dialog).toContainText("第 1 步：选择开始日期");
   await dialog.getByLabel("开始日期").fill("2026-07-24");
@@ -30,6 +31,7 @@ test("keeps cancellation out of the query, applies a cross-year range once, and 
   expect(queryCount).toBe(initialQueryCount);
 
   await trigger.click();
+  await page.getByRole("button", { name: "自定义日期", exact: true }).click();
   await dialog.getByLabel("开始日期").fill("2026-07-23");
   await dialog.getByLabel("结束日期").fill("2026-07-22");
   await expect(page.getByRole("alert")).toContainText("开始日期不能晚于结束日期");
@@ -38,6 +40,7 @@ test("keeps cancellation out of the query, applies a cross-year range once, and 
   expect(queryCount).toBe(initialQueryCount);
 
   await trigger.click();
+  await page.getByRole("button", { name: "自定义日期", exact: true }).click();
   await dialog.getByLabel("开始日期").fill("2025-12-31");
   await dialog.getByLabel("结束日期").fill("2026-01-02");
   await expect(trigger).toHaveAccessibleName(/2025\/12\/31 – 2026\/01\/02/);
@@ -69,8 +72,9 @@ test("uses visible inline date inputs after a persistent showPicker failure with
   await expect(page.getByTestId("chart-point").first()).toBeVisible();
   const initialQueryCount = queryCount;
 
-  const trigger = page.getByRole("button", { name: /自定义日期/ });
+  const trigger = page.getByRole("button", { name: /日期范围/ });
   await trigger.click();
+  await page.getByRole("button", { name: "自定义日期", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "日期范围" });
   const start = dialog.getByLabel("开始日期");
   const end = dialog.getByLabel("结束日期");

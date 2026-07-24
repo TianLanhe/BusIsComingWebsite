@@ -1,8 +1,9 @@
 import { Filter, SlidersHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAnalyticsFilters } from "../../app/FilterProvider";
 import { useMonitoringI18n } from "../../app/MonitoringI18nProvider";
 import { monitoringCopy } from "../../content/copy";
+import type { PresetDays } from "../../model/dateRange";
 import type { AnalyticsLocale, DeviceType, EventType, Outcome, Platform, SourceType } from "../../services/analyticsTypes";
 
 export function GlobalFilters() {
@@ -12,39 +13,84 @@ export function GlobalFilters() {
   const [startDate, setStartDate] = useState(filters.resolvedRange.displayStartDate);
   const [endDate, setEndDate] = useState(filters.resolvedRange.displayEndDate);
   const [dateError, setDateError] = useState<"dateInvalid" | "dateFuture" | "dateOrder" | null>(null);
+  const [editingCustom, setEditingCustom] = useState(false);
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDetailsElement>(null);
+  const startInput = useRef<HTMLInputElement>(null);
+  const endInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setStartDate(filters.resolvedRange.displayStartDate);
     setEndDate(filters.resolvedRange.displayEndDate);
-  }, [filters.resolvedRange.displayEndDate, filters.resolvedRange.displayStartDate]);
+    if (filters.selection.kind === "preset") setEditingCustom(false);
+  }, [filters.resolvedRange.displayEndDate, filters.resolvedRange.displayStartDate, filters.selection.kind]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onMouseDown = (event: MouseEvent) => {
+      if (event.target instanceof Node && !root.current?.contains(event.target)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   const applyCustomRange = () => {
     const error = filters.setCustomRange(startDate, endDate);
     setDateError(error ? ({ invalid: "dateInvalid", future: "dateFuture", order: "dateOrder" } as const)[error.code] : null);
+    if (!error) setEditingCustom(false);
   };
 
-  const applyPreset = (days: 7 | 30 | 90) => {
+  const applyPreset = (days: PresetDays) => {
     setDateError(null);
+    setEditingCustom(false);
     filters.setRangeDays(days);
   };
 
-  return <details className="global-filters">
-    <summary><SlidersHorizontal size={15} />{t("filters")}<span className="filter-count">{activeCount(filters.query)}</span></summary>
+  const showDatePicker = (input: HTMLInputElement) => {
+    try {
+      input.showPicker?.();
+    } catch {
+      input.focus();
+    }
+  };
+
+  return <details ref={root} className="global-filters" open={open}>
+    <summary onClick={(event) => { event.preventDefault(); setOpen((current) => !current); }}><SlidersHorizontal size={15} />{t("filters")}<span className="filter-count">{activeCount(filters.query)}</span></summary>
     <div className="filter-panel">
       <fieldset className="filter-group date-range-group">
         <legend>{t("dateRange")}</legend>
         <div className="date-presets">
-          {([7, 30, 90] as const).map((days) => <button
+          {([1, 7, 30, 90] as const).map((days) => <button
             type="button"
             key={days}
             className={filters.selection.kind === "preset" && filters.selection.presetDays === days ? "active" : ""}
             aria-pressed={filters.selection.kind === "preset" && filters.selection.presetDays === days}
             onClick={() => applyPreset(days)}
-          >{t(days === 7 ? "range7" : days === 30 ? "range30" : "range90")}</button>)}
+          >{t(days === 1 ? "range1" : days === 7 ? "range7" : days === 30 ? "range30" : "range90")}</button>)}
+          <button
+            type="button"
+            className={filters.selection.kind === "custom" || editingCustom ? "active" : ""}
+            aria-pressed={filters.selection.kind === "custom" || editingCustom}
+            onClick={() => {
+              setEditingCustom(true);
+              setDateError(null);
+              if (startInput.current) showDatePicker(startInput.current);
+            }}
+          >{t("customRange")}</button>
         </div>
         <div className="custom-date-fields">
-          <label>{t("startDate")}<input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
-          <label>{t("endDate")}<input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
+          <label>{t("startDate")}<input ref={startInput} type="date" value={startDate} onClick={(event) => { setEditingCustom(true); showDatePicker(event.currentTarget); }} onChange={(event) => {
+            setStartDate(event.target.value);
+            if (event.target.value && endInput.current) showDatePicker(endInput.current);
+          }} /></label>
+          <label>{t("endDate")}<input ref={endInput} type="date" value={endDate} min={startDate || undefined} onClick={(event) => { setEditingCustom(true); showDatePicker(event.currentTarget); }} onChange={(event) => setEndDate(event.target.value)} /></label>
           <button type="button" className="apply-date" onClick={applyCustomRange}>{t("applyRange")}</button>
         </div>
         {dateError && <p className="date-range-error" role="alert">{t(dateError)}</p>}

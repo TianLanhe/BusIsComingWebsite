@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CartesianGrid, Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
 import { monitoringCopy } from "../../content/copy";
 import { AccessibleChartFrame } from "./AccessibleChartFrame";
 
@@ -63,7 +63,6 @@ export function TimeSeriesChart({ title, data, series, locale, emptyLabel }: {
           <CartesianGrid stroke="#dce8ea" strokeDasharray="3 5" vertical={false} />
           <XAxis dataKey="bucketStart" tickFormatter={(value) => formatTime(String(value), locale)} minTickGap={28} tick={{ fontSize: 12, fill: "#62747b" }} />
           <YAxis tickFormatter={(value) => formatAxisValue(Number(value), series[0]?.unit, locale)} width={54} tick={{ fontSize: 12, fill: "#62747b" }} />
-          <Tooltip active={interaction.mode === "pointer"} defaultIndex={interaction.index ?? 0} cursor={{ stroke: "#82979b", strokeDasharray: "3 3" }} content={<MouseTooltip series={series} locale={locale} />} />
           {active && <ReferenceLine x={active.bucketStart} stroke="#82979b" strokeDasharray="3 3" />}
           {series.map((item) => <Line
             key={item.key}
@@ -80,7 +79,7 @@ export function TimeSeriesChart({ title, data, series, locale, emptyLabel }: {
           />)}
         </LineChart>
       </div>
-      {interaction.mode === "keyboard" && active && <div className="chart-keyboard-tooltip" role="status">
+      {active && <div className={interaction.mode === "keyboard" ? "chart-keyboard-tooltip" : "chart-tooltip chart-pointer-tooltip"} role={interaction.mode === "keyboard" ? "status" : undefined}>
         <strong>{formatTime(String(active.bucketStart), locale, true)}</strong>
         {series.map((item) => <span key={item.key}><i style={{ background: item.color }} />{item.label}<b>{formatValue(active[item.key], item.unit, locale)}</b></span>)}
       </div>}
@@ -95,8 +94,6 @@ function FocusableDot(props: Record<string, unknown> & { definition: TimeSeriesD
   if (!Number.isFinite(cx) || !Number.isFinite(cy)) return <g />;
   const common = {
     fill: props.definition.color,
-    stroke: "#fff",
-    strokeWidth: 2,
     tabIndex: 0,
     role: "button",
     "data-testid": "chart-point",
@@ -105,26 +102,15 @@ function FocusableDot(props: Record<string, unknown> & { definition: TimeSeriesD
     onBlur: props.onBlur,
     onMouseEnter: () => props.onPointerActivate(index),
   };
-  if (props.definition.pointShape === "square") return <rect {...common} x={cx - 4} y={cy - 4} width={8} height={8} rx={1} />;
-  if (props.definition.pointShape === "diamond") return <rect {...common} x={cx - 4} y={cy - 4} width={8} height={8} transform={`rotate(45 ${cx} ${cy})`} />;
-  return <circle {...common} cx={cx} cy={cy} r={4} />;
-}
-
-function MouseTooltip({ active, payload, label, series, locale }: {
-  active?: boolean;
-  payload?: Array<{ dataKey?: string; value?: number | null }>;
-  label?: string;
-  series: TimeSeriesDefinition[];
-  locale: string;
-}) {
-  if (!active || !payload?.length) return null;
-  return <div className="chart-tooltip">
-    <strong>{formatTime(String(label), locale, true)}</strong>
-    {series.map((item) => {
-      const value = payload.find((entry) => entry.dataKey === item.key)?.value;
-      return <span key={item.key}><i style={{ background: item.color }} />{item.label}<b>{formatValue(value, item.unit, locale)}</b></span>;
-    })}
-  </div>;
+  const visible = { fill: props.definition.color, stroke: "#fff", strokeWidth: 2, pointerEvents: "none" as const };
+  return <g {...common}>
+    <circle cx={cx} cy={cy} r={12} fill="transparent" stroke="none" />
+    {props.definition.pointShape === "square"
+      ? <rect {...visible} x={cx - 4} y={cy - 4} width={8} height={8} rx={1} />
+      : props.definition.pointShape === "diamond"
+        ? <rect {...visible} x={cx - 4} y={cy - 4} width={8} height={8} transform={`rotate(45 ${cx} ${cy})`} />
+        : <circle {...visible} cx={cx} cy={cy} r={4} />}
+  </g>;
 }
 
 function formatValue(value: unknown, unit: TimeSeriesDefinition["unit"], locale: string) {

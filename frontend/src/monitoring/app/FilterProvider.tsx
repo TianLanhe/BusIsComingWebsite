@@ -53,7 +53,7 @@ export function FilterProvider({ children, now = () => new Date() }: { children:
   }), [compare, device, eventType, granularity, locale, outcome, platform, resolvedRange.from, resolvedRange.to, source]);
 
   const setRangeDays = useCallback((days: number) => {
-    if (days !== 7 && days !== 30 && days !== 90) return;
+    if (days !== 1 && days !== 7 && days !== 30 && days !== 90) return;
     setSelection({ kind: "preset", presetDays: days as PresetDays, startDate: null, endDate: null });
     setClockAnchor(now());
   }, [now]);

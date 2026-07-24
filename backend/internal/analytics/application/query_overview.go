@@ -316,19 +316,21 @@ func distributionByVersion(events []domain.AnalyticsEvent) []domain.VersionDistr
 		platform domain.Platform
 		name     string
 		code     int64
-		size     int64
 	}
 	type accumulator struct {
 		requests int64
 		success  int64
 		visitors map[string]struct{}
+		size     int64
+		latest   time.Time
+		latestID int64
 	}
 	values := make(map[key]*accumulator)
 	for _, event := range events {
 		if event.Download == nil || event.Download.VersionName == "" || event.Download.VersionCode <= 0 || event.Download.SizeBytes <= 0 {
 			continue
 		}
-		itemKey := key{event.Download.Platform, event.Download.VersionName, event.Download.VersionCode, event.Download.SizeBytes}
+		itemKey := key{event.Download.Platform, event.Download.VersionName, event.Download.VersionCode}
 		item := values[itemKey]
 		if item == nil {
 			item = &accumulator{visitors: make(map[string]struct{})}
@@ -339,6 +341,11 @@ func distributionByVersion(events []domain.AnalyticsEvent) []domain.VersionDistr
 			item.success++
 		}
 		item.visitors[event.VisitorID] = struct{}{}
+		if item.latest.IsZero() || event.OccurredAt.After(item.latest) || (event.OccurredAt.Equal(item.latest) && event.EventID > item.latestID) {
+			item.latest = event.OccurredAt
+			item.latestID = event.EventID
+			item.size = event.Download.SizeBytes
+		}
 	}
 	keys := make([]key, 0, len(values))
 	for itemKey := range values {
@@ -358,7 +365,7 @@ func distributionByVersion(events []domain.AnalyticsEvent) []domain.VersionDistr
 		item := values[itemKey]
 		result = append(result, domain.VersionDistribution{
 			Platform: itemKey.platform, VersionName: itemKey.name, VersionCode: itemKey.code,
-			RequestCount: item.requests, SuccessfulResponses: item.success, UV: int64(len(item.visitors)), SizeBytes: itemKey.size,
+			RequestCount: item.requests, SuccessfulResponses: item.success, UV: int64(len(item.visitors)), SizeBytes: item.size,
 		})
 	}
 	return result
