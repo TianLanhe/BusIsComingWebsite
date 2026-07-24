@@ -78,10 +78,6 @@ func TestEventSummaryUsesFullFilteredRangeAndIgnoresCursor(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := analyticsapp.EventRangeSummary{TotalCount: 4, SuccessCount: 3, FailureCount: 1, UniqueVisitors: 2}
-	if first.Summary != want || second.Summary != want {
-		t.Fatalf("cursor changed full-range summary: first=%#v second=%#v", first.Summary, second.Summary)
-	}
 	if len(first.Items) != 2 || len(second.Items) != 2 {
 		t.Fatalf("unexpected pages: %d %d", len(first.Items), len(second.Items))
 	}
@@ -97,6 +93,39 @@ func TestEventSummaryQueryPlanUsesTimeIndex(t *testing.T) {
 	builder := newEventQueryBuilder(base, base.Add(24*time.Hour))
 	query, args := builder.summarySQL()
 	assertQueryPlanUsesIndex(t, store.db, query, args, "idx_analytics_events_time")
+}
+
+func TestSummarizeEventsKeepsFiltersAndDistinctVisitorsWithoutPagination(t *testing.T) {
+	store, err := Open(context.Background(), filepath.Join(t.TempDir(), "analytics.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+	base := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	first, second := "abcdefghijklmnopqrstuv", "0123456789abcdefghijkl"
+	for id, event := range []domain.AnalyticsEvent{
+		overviewFixtureEvent(1, first, domain.EventRouteQuery, base),
+		overviewFixtureEvent(2, first, domain.EventRouteQuery, base.Add(time.Minute)),
+		overviewFixtureEvent(3, second, domain.EventRouteQuery, base.Add(2*time.Minute)),
+		overviewFixtureEvent(4, second, domain.EventPageView, base.Add(3*time.Minute)),
+	} {
+		if id == 2 {
+			status := 503
+			category := domain.FailureInternal
+			event.Outcome, event.HTTPStatus, event.StatusClass, event.FailureCategory = domain.OutcomeFailure, &status, domain.Status5xx, &category
+		}
+		if err := store.WriteEvent(context.Background(), event); err != nil {
+			t.Fatal(err)
+		}
+	}
+	query := domain.AnalyticsQuery{From: base, To: base.Add(time.Hour), Granularity: domain.GranularityHour, EventTypes: []domain.EventType{domain.EventRouteQuery}, Cursor: "must-not-be-used", Limit: 1}
+	summary, err := store.SummarizeEvents(context.Background(), analyticsapp.EventSummaryRequest{Query: query})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if summary != (analyticsapp.EventRangeSummary{TotalCount: 3, SuccessCount: 2, FailureCount: 1, UniqueVisitors: 2}) {
+		t.Fatalf("unexpected summary: %#v", summary)
+	}
 }
 
 func TestVisitorSummaryAndThirtyMinuteBoundary(t *testing.T) {

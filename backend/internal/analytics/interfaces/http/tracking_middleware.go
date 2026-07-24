@@ -4,9 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	analyticsapp "busiscoming-website/backend/internal/analytics/application"
 	"busiscoming-website/backend/internal/analytics/domain"
-	"busiscoming-website/backend/internal/analytics/infrastructure/classification"
-	"busiscoming-website/backend/internal/analytics/infrastructure/signing"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,16 +15,18 @@ const (
 )
 
 type TrackingConfig struct {
-	Signer     *signing.VisitorCookieSigner
-	Classifier *classification.Classifier
-	Recorder   EventRecorder
-	Clock      func() time.Time
+	Signer            analyticsapp.VisitorSigner
+	Classifier        analyticsapp.EventClassifier
+	VisitorCookieName string
+	VisitorCookie     func(analyticsapp.VisitorCredential, time.Time) *http.Cookie
+	Recorder          EventRecorder
+	Clock             func() time.Time
 }
 
 func NewTrackingMiddleware(config TrackingConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		eventType, tracked := trackedEventType(c.Request.Method, c.Request.URL.Path)
-		if !tracked || config.Signer == nil || config.Classifier == nil || config.Recorder == nil || config.Clock == nil {
+		if !tracked || config.Signer == nil || config.Classifier == nil || config.VisitorCookieName == "" || config.VisitorCookie == nil || config.Recorder == nil || config.Clock == nil {
 			c.Next()
 			return
 		}
@@ -41,14 +42,14 @@ func NewTrackingMiddleware(config TrackingConfig) gin.HandlerFunc {
 			return
 		}
 
-		rawCookie, _ := c.Cookie(signing.VisitorCookieName)
+		rawCookie, _ := c.Cookie(config.VisitorCookieName)
 		credential, err := config.Signer.Resolve(rawCookie)
 		if err != nil {
 			c.Next()
 			return
 		}
 		if !credential.Reused {
-			http.SetCookie(c.Writer, signing.VisitorCookie(credential.Value, credential.ExpiresAt, config.Clock().UTC()))
+			http.SetCookie(c.Writer, config.VisitorCookie(credential, config.Clock().UTC()))
 		}
 		startedAt := config.Clock().UTC().Truncate(time.Millisecond)
 		observation(c)

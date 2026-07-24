@@ -17,7 +17,7 @@ test("overview matches the approved desktop and mobile interaction contract", as
 
   if (testInfo.project.name.includes("desktop")) {
     await expect(page.locator("[data-testid=desktop-sidebar]")).toBeVisible();
-    await expect(page.locator(".sidebar-status")).toContainText("仅通过 SSH 隧道访问");
+    await expect(page.locator(".sidebar-status")).toHaveCount(0);
     await expect(page.locator("[data-testid=metric-card]")).toHaveCount(6);
     await page.screenshot({ path: "playwright-monitor/__screenshots__/overview-desktop.png", fullPage: true });
   } else {

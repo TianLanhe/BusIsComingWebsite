@@ -23,8 +23,12 @@ type VisitorResult struct {
 }
 
 type SystemStorageSnapshot struct {
-	DatabaseRowCount  *int64
-	DatabaseSizeBytes *int64
+	DatabaseRowCount      *int64
+	DatabaseTodayRowCount *int64
+	DatabaseSizeBytes     *int64
+	SQLiteVersion          *string
+	SQLiteJournalMode      *string
+	SQLiteSchemaVersion    *string
 }
 
 type HeatmapCell struct {
@@ -101,10 +105,11 @@ type EventRangeSummary struct {
 }
 
 type EventListData struct {
-	Meta     AnalyticsMeta     `json:"meta"`
-	Summary  EventRangeSummary `json:"summary"`
-	Items    []EventDetail     `json:"items"`
-	PageInfo PageInfo          `json:"pageInfo"`
+	Meta           AnalyticsMeta     `json:"meta"`
+	Summary        EventRangeSummary `json:"summary"`
+	SummaryMetrics []domain.Metric   `json:"summaryMetrics"`
+	Items          []EventDetail     `json:"items"`
+	PageInfo       PageInfo          `json:"pageInfo"`
 }
 
 type VisitorSummaryData struct {
@@ -138,12 +143,30 @@ type VisitorData struct {
 }
 
 type EndpointPerformance struct {
-	OperationID  string           `json:"operationId"`
+	OperationID   string               `json:"operationId"`
+	EventType     domain.EventType     `json:"eventType"`
+	RequestCount  int64                `json:"requestCount"`
+	SuccessRate   *float64             `json:"successRate"`
+	P50MS         *int64               `json:"p50Ms"`
+	P95MS         *int64               `json:"p95Ms"`
+	P50Comparison PercentileComparison `json:"p50Comparison"`
+	P95Comparison PercentileComparison `json:"p95Comparison"`
+}
+
+type PercentileComparison struct {
+	CurrentMS  *int64   `json:"currentMs"`
+	PreviousMS *int64   `json:"previousMs"`
+	DeltaMS    *int64   `json:"deltaMs"`
+	DeltaRate  *float64 `json:"deltaRate"`
+}
+
+type SLISeriesPoint struct {
+	BucketStart  time.Time        `json:"bucketStart"`
+	BucketEnd    time.Time        `json:"bucketEnd"`
 	EventType    domain.EventType `json:"eventType"`
-	RequestCount int64            `json:"requestCount"`
+	SuccessfulPV int64            `json:"successfulPV"`
+	TotalPV      int64            `json:"totalPV"`
 	SuccessRate  *float64         `json:"successRate"`
-	P50MS        *int64           `json:"p50Ms"`
-	P95MS        *int64           `json:"p95Ms"`
 }
 
 type LatencySeriesPoint struct {
@@ -160,30 +183,41 @@ type PerformanceData struct {
 	Metrics       []domain.Metric           `json:"metrics"`
 	Endpoints     []EndpointPerformance     `json:"endpoints"`
 	LatencySeries []LatencySeriesPoint      `json:"latencySeries"`
+	SLISeries     []SLISeriesPoint          `json:"sliSeries"`
 	Failures      []domain.DistributionItem `json:"failures"`
 }
 
 type DatabaseStatus struct {
 	State                 DatabaseState `json:"state"`
 	RowCount              *int64        `json:"rowCount"`
+	TodayLocalDate        string        `json:"todayLocalDate"`
+	TodayRowCount         *int64        `json:"todayRowCount"`
 	SizeBytes             *int64        `json:"sizeBytes"`
 	LastSuccessfulWriteAt *time.Time    `json:"lastSuccessfulWriteAt"`
 }
 
+type SQLiteRuntimeStatus struct {
+	Version       *string `json:"version"`
+	JournalMode   *string `json:"journalMode"`
+	SchemaVersion *string `json:"schemaVersion"`
+}
+
 type ProcessStatus struct {
-	StartedAt         time.Time `json:"startedAt"`
-	DroppedSinceStart uint64    `json:"droppedSinceStart"`
+	StartedAt         *time.Time `json:"startedAt"`
+	UptimeMS          *int64     `json:"uptimeMs"`
+	DroppedSinceStart *uint64    `json:"droppedSinceStart"`
 }
 
 type PrivateListenerStatus struct {
-	State       string `json:"state"`
-	BindAddress string `json:"bindAddress"`
+	State       *string `json:"state"`
+	BindAddress *string `json:"bindAddress"`
 	PublicProxy bool   `json:"publicProxy"`
 }
 
 type SystemData struct {
 	GeneratedAt     time.Time             `json:"generatedAt"`
 	Database        DatabaseStatus        `json:"database"`
+	SQLite          SQLiteRuntimeStatus   `json:"sqlite"`
 	Process         ProcessStatus         `json:"process"`
 	PrivateListener PrivateListenerStatus `json:"privateListener"`
 }

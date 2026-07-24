@@ -78,6 +78,15 @@ type LatencyPercentile struct {
 	P95 *int64 `json:"p95"`
 }
 
+type SLISeriesPoint struct {
+	BucketStart  time.Time
+	BucketEnd    time.Time
+	EventType    EventType
+	SuccessfulPV int64
+	TotalPV      int64
+	SuccessRate  *float64
+}
+
 type VisitorSummary struct {
 	VisitorID    string     `json:"visitorId"`
 	FirstSeenAt  time.Time  `json:"firstSeenAt"`

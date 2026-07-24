@@ -83,6 +83,36 @@ func TestNearestRankPercentiles(t *testing.T) {
 	}
 }
 
+func TestSLISeriesUsesHongKongBucketsAndStableFourEventOrder(t *testing.T) {
+	location := time.FixedZone("Asia/Hong_Kong", 8*60*60)
+	start := time.Date(2026, time.July, 20, 0, 0, 0, 0, location)
+	buckets := TimeBuckets(start, start.Add(48*time.Hour), GranularityDay, location)
+	events := []AnalyticsEvent{
+		aggregationEvent(1, "abcdefghijklmnopqrstuv", EventPageView, OutcomeSuccess, start.Add(time.Hour)),
+		aggregationEvent(2, "abcdefghijklmnopqrstuv", EventPlaceQuery, OutcomeFailure, start.Add(2*time.Hour)),
+		aggregationEvent(3, "abcdefghijklmnopqrstuv", EventRouteQuery, OutcomeSuccess, start.Add(26*time.Hour)),
+	}
+	points := SLISeries(events, buckets, location)
+	if len(points) != 8 {
+		t.Fatalf("points=%d", len(points))
+	}
+	want := []EventType{EventPageView, EventPlaceQuery, EventRouteQuery, EventDownloadRequest, EventPageView, EventPlaceQuery, EventRouteQuery, EventDownloadRequest}
+	for index, eventType := range want {
+		if points[index].EventType != eventType {
+			t.Fatalf("point[%d]=%s", index, points[index].EventType)
+		}
+	}
+	if points[0].SuccessfulPV != 1 || points[0].TotalPV != 1 || points[0].SuccessRate == nil || *points[0].SuccessRate != 1 {
+		t.Fatalf("success point=%#v", points[0])
+	}
+	if points[1].SuccessfulPV != 0 || points[1].TotalPV != 1 || points[1].SuccessRate == nil || *points[1].SuccessRate != 0 {
+		t.Fatalf("failed point=%#v", points[1])
+	}
+	if points[3].TotalPV != 0 || points[3].SuccessRate != nil {
+		t.Fatalf("empty point=%#v", points[3])
+	}
+}
+
 func aggregationEvent(id int64, visitor string, eventType EventType, outcome Outcome, occurredAt time.Time) AnalyticsEvent {
 	status := 200
 	return AnalyticsEvent{EventID: id, VisitorID: visitor, EventType: eventType, Outcome: outcome, HTTPStatus: &status, StatusClass: Status2xx, OccurredAt: occurredAt.UTC(), DurationMS: 10, Locale: LocaleZhHant, DeviceType: DeviceMobile, SourceType: SourceDirect}

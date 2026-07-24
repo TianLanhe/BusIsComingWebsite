@@ -1,16 +1,19 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { monitoringCopy } from "../../content/copy";
-import { deriveComparisonState } from "../../model/comparisonState";
+import { deriveComparisonState, type ComparisonPresentation } from "../../model/comparisonState";
 import type { Metric } from "../../services/analyticsTypes";
 
-export function MetricCard({ label, metric, locale, format, compareEnabled = true }: {
+type MetricValueFormat = "count" | "percent" | "durationMs" | "decimal";
+
+export function MetricCard({ label, metric, locale, format = "count", compareEnabled = true, presentation = "neutral" }: {
   label: string;
   metric?: Metric;
   locale: string;
-  format?: "number" | "decimal" | "percent";
+  format?: MetricValueFormat;
   compareEnabled?: boolean;
+  presentation?: ComparisonPresentation;
 }) {
-  const state = deriveComparisonState(metric, compareEnabled);
+  const state = deriveComparisonState(metric, compareEnabled, presentation);
   const formatted = formatMetric(metric?.value ?? null, locale, format);
   const long = formatted.replace(/\s/g, "").length >= 8;
   const text = (key: Parameters<typeof monitoringCopy>[1]) => monitoringCopy(locale as "zh-Hans" | "zh-Hant" | "en", key);
@@ -18,24 +21,28 @@ export function MetricCard({ label, metric, locale, format, compareEnabled = tru
   return <article className="dashboard-card metric-card" data-testid="metric-card">
     <div className="metric-label"><span>{label}</span></div>
     <strong className={`metric-value ${long ? "long" : ""}`}>{formatted}</strong>
-    <div className={`metric-comparison ${state.kind}`}>
-      {state.kind === "positive" && <><ArrowUpRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta, locale)}</b><span>{text("compared")}</span></>}
-      {state.kind === "negative" && <><ArrowDownRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta, locale)}</b><span>{text("compared")}</span></>}
-      {state.kind === "unchanged" && <><Minus aria-hidden="true" /><b>0%</b><span>{text("comparisonUnchanged")}</span></>}
-      {state.kind === "no_comparison_data" && <span>{text("comparisonMissing")}</span>}
-      {state.kind === "comparison_off" && <span>{text("comparisonOff")}</span>}
-      {state.kind === "current_missing" && <span>{text("currentMissing")}</span>}
+    <div className={`metric-comparison ${state.viewState} ${state.outcome}`}>
+      {state.viewState === "zero_baseline" && <><ArrowUpRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta ?? 0, locale, format)}</b><span>{text("comparisonZeroBaseline")}</span></>}
+      {state.direction === "up" && state.viewState !== "zero_baseline" && <><ArrowUpRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta ?? 0, locale, format)}</b><span>{text("compared")}</span></>}
+      {state.direction === "down" && state.viewState !== "zero_baseline" && <><ArrowDownRight aria-hidden="true" /><b>{formatChange(state.deltaRate, state.delta ?? 0, locale, format)}</b><span>{text("compared")}</span></>}
+      {state.viewState === "unchanged" && <><Minus aria-hidden="true" /><b>{formatMetric(state.delta, locale, format)}</b><span>{text("comparisonUnchanged")}</span></>}
+      {state.viewState === "no_previous" && <span>{text("comparisonMissing")}</span>}
+      {state.viewState === "disabled" && <span>{text("comparisonOff")}</span>}
+      {state.viewState === "no_current" && <span>{text("currentMissing")}</span>}
     </div>
   </article>;
 }
 
-function formatMetric(value: number | null, locale: string, format: "number" | "decimal" | "percent" = "number") {
+function formatMetric(value: number | null, locale: string, format: MetricValueFormat = "count") {
   if (value == null) return "—";
   if (format === "percent") return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(value);
+  if (format === "durationMs") return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(value)} ms`;
   return new Intl.NumberFormat(locale, { maximumFractionDigits: format === "decimal" ? 2 : 0 }).format(value);
 }
 
-function formatChange(rate: number | null, delta: number, locale: string) {
+function formatChange(rate: number | null, delta: number, locale: string, format: MetricValueFormat) {
+  // 时延的百分比不如毫秒差值直观，且零基线时绝不能展示无穷百分比。
+  if (format === "durationMs") return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0, signDisplay: "always" }).format(delta)} ms`;
   if (rate != null) return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1, signDisplay: "always" }).format(rate);
   return new Intl.NumberFormat(locale, { maximumFractionDigits: 2, signDisplay: "always" }).format(delta);
 }

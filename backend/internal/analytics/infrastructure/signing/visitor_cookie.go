@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	analyticsapp "busiscoming-website/backend/internal/analytics/application"
 )
 
 const (
@@ -21,13 +23,7 @@ const (
 
 var encodedVisitorPattern = regexp.MustCompile(`^[A-Za-z0-9_-]{22}$`)
 
-type VisitorCredential struct {
-	VisitorID string
-	IssuedAt  time.Time
-	ExpiresAt time.Time
-	Value     string
-	Reused    bool
-}
+type VisitorCredential = analyticsapp.VisitorCredential
 
 type VisitorCookieSigner struct {
 	secret []byte

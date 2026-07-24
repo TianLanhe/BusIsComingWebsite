@@ -1,20 +1,18 @@
-import { Activity, BarChart3, Clock3, Database, Download, Gauge, LayoutDashboard, Menu, RefreshCw, Route, Search, ShieldCheck, Users, X } from "lucide-react";
+import { Activity, BarChart3, Database, Download, Gauge, LayoutDashboard, Menu, RefreshCw, Route, Search, Users, X } from "lucide-react";
 import { useState } from "react";
 import { useAnalyticsFilters } from "../../app/FilterProvider";
 import type { MonitorRoute } from "../../app/hashRoute";
 import { useMonitoringI18n } from "../../app/MonitoringI18nProvider";
 import { monitoringCopy, type CopyKey } from "../../content/copy";
 import { GlobalFilters } from "../filters/GlobalFilters";
+import { DateRangeControl } from "../filters/DateRangeControl";
 import { MonitoringLanguageSwitcher } from "./MonitoringLanguageSwitcher";
 
-const nav: { route: MonitorRoute; label: CopyKey; icon: typeof Activity; group: "monitor" | "diagnostics" }[] = [
-  { route: "overview", label: "overview", icon: LayoutDashboard, group: "monitor" },
-  { route: "traffic", label: "traffic", icon: Route, group: "monitor" },
-  { route: "downloads", label: "downloads", icon: Download, group: "monitor" },
-  { route: "events", label: "events", icon: Search, group: "diagnostics" },
-  { route: "visitor", label: "visitor", icon: Users, group: "diagnostics" },
-  { route: "performance", label: "performance", icon: Gauge, group: "diagnostics" },
-  { route: "system", label: "system", icon: Database, group: "diagnostics" },
+type NavigationGroup = "business" | "technical" | "details";
+const navGroups: { key: NavigationGroup; label: CopyKey; items: { route: MonitorRoute; label: CopyKey; icon: typeof Activity }[] }[] = [
+  { key: "business", label: "businessMonitoring", items: [{ route: "overview", label: "overview", icon: LayoutDashboard }, { route: "traffic", label: "traffic", icon: Route }, { route: "downloads", label: "downloads", icon: Download }] },
+  { key: "technical", label: "technicalMonitoring", items: [{ route: "performance", label: "performance", icon: Gauge }, { route: "system", label: "system", icon: Database }] },
+  { key: "details", label: "dataDetails", items: [{ route: "events", label: "events", icon: Search }, { route: "visitor", label: "visitor", icon: Users }] },
 ];
 
 export function DashboardShell({ active = "overview", title = "pageTitle", subtitle = "pageSubtitle", titleText, subtitleText, generatedAt, refreshing = false, children }: {
@@ -27,16 +25,14 @@ export function DashboardShell({ active = "overview", title = "pageTitle", subti
   return <div className="monitor-shell">
     <aside className="monitor-sidebar" data-testid="desktop-sidebar">
       <Brand />
-      <NavGroup title={t("monitorCenter")} group="monitor" active={active} t={t} />
-      <NavGroup title={t("diagnostics")} group="diagnostics" active={active} t={t} />
-      <div className="sidebar-status"><ShieldCheck size={18} /><div>{t("privateAccess")}<span><i />{t("liveWriting")}</span><small>{t("listener")}</small></div></div>
+      {navGroups.map((group) => <NavGroup key={group.key} group={group} active={active} t={t} />)}
     </aside>
     <main className="monitor-main">
       <header className="monitor-topbar">
         <div className="mobile-brand-row"><Brand compact /><button type="button" aria-label={t("mobileMenu")} onClick={() => setMenuOpen(true)}><Menu /></button></div>
         <div className="title-block"><p>{t("brandEyebrow")}</p><h1>{titleText ?? t(title)}</h1><span>{subtitleText ?? t(subtitle)}</span></div>
         <div className="topbar-controls">
-          <label className="monitor-control"><Clock3 size={15} /><select value={filters.selection.kind === "preset" ? filters.selection.presetDays ?? 30 : "custom"} onChange={(event) => { if (event.target.value !== "custom") filters.setRangeDays(Number(event.target.value)); }} aria-label={t("dateRange")}><option value={7}>{t("range7")}</option><option value={30}>{t("range30")}</option><option value={90}>{t("range90")}</option><option value="custom">{t("customRange")}</option></select></label>
+          <DateRangeControl locale={locale} appliedRange={{ startDate: filters.resolvedRange.displayStartDate, endDate: filters.resolvedRange.displayEndDate }} presetDays={filters.selection.kind === "preset" ? filters.selection.presetDays ?? undefined : undefined} onCommit={(startDate, endDate) => { filters.setCustomRange(startDate, endDate); }} />
           <label className="monitor-control"><BarChart3 size={15} /><select value={filters.query.granularity} onChange={(event) => filters.setGranularity(event.target.value as typeof filters.query.granularity)} aria-label={t("granularity")}><option value="hour">{t("hourly")}</option><option value="day">{t("daily")}</option><option value="week">{t("weekly")}</option><option value="month">{t("monthly")}</option></select></label>
           <MonitoringLanguageSwitcher />
           <button type="button" className="monitor-control primary" onClick={filters.refresh}><RefreshCw size={15} className={refreshing ? "spin" : ""} />{t("refresh")}</button>
@@ -49,8 +45,8 @@ export function DashboardShell({ active = "overview", title = "pageTitle", subti
       <GlobalFilters />
       <div className="monitor-content">{children}</div>
     </main>
-    {menuOpen && <div className="mobile-drawer" role="dialog" aria-modal="true"><div className="drawer-head"><Brand compact /><button type="button" aria-label={t("close")} onClick={() => setMenuOpen(false)}><X /></button></div><NavGroup title={t("monitorCenter")} group="monitor" active={active} t={t} /><NavGroup title={t("diagnostics")} group="diagnostics" active={active} t={t} /><div className="drawer-status">{t("privateAccess")}</div></div>}
-    <nav className="mobile-bottom-nav" data-testid="mobile-bottom-nav" aria-label={t("monitorCenter")}>{nav.slice(0, 4).map((item) => <NavLink key={item.route} item={item} active={active} t={t} />)}</nav>
+    {menuOpen && <div className="mobile-drawer" role="dialog" aria-modal="true"><div className="drawer-head"><Brand compact /><button type="button" aria-label={t("close")} onClick={() => setMenuOpen(false)}><X /></button></div>{navGroups.map((group) => <NavGroup key={group.key} group={group} active={active} t={t} />)}</div>}
+    <nav className="mobile-bottom-nav" data-testid="mobile-bottom-nav" aria-label={t("monitorCenter")}>{navGroups.map((group) => <GroupLink key={group.key} group={group} active={active} t={t} />)}</nav>
   </div>;
 }
 
@@ -58,13 +54,20 @@ function Brand({ compact = false }: { compact?: boolean }) {
   return <div className={`monitor-brand ${compact ? "compact" : ""}`}><span className="brand-mark">B</span><span><b>BusIsComing</b><small>Pulse</small></span></div>;
 }
 
-function NavGroup({ title, group, active, t }: { title: string; group: "monitor" | "diagnostics"; active: MonitorRoute; t: (key: CopyKey) => string }) {
-  return <nav className="nav-group" aria-label={title}><p>{title}</p>{nav.filter((item) => item.group === group).map((item) => <NavLink key={item.route} item={item} active={active} t={t} />)}</nav>;
+function NavGroup({ group, active, t }: { group: typeof navGroups[number]; active: MonitorRoute; t: (key: CopyKey) => string }) {
+  return <nav className="nav-group" aria-label={t(group.label)}><p>{t(group.label)}</p>{group.items.map((item) => <NavLink key={item.route} item={item} active={active} t={t} />)}</nav>;
 }
 
-function NavLink({ item, active, t }: { item: typeof nav[number]; active: MonitorRoute; t: (key: CopyKey) => string }) {
+function NavLink({ item, active, t }: { item: typeof navGroups[number]["items"][number]; active: MonitorRoute; t: (key: CopyKey) => string }) {
   const Icon = item.icon;
   return <a href={`#${item.route}`} className={active === item.route ? "active" : ""} aria-current={active === item.route ? "page" : undefined}><Icon size={17} /><span>{t(item.label)}</span></a>;
+}
+
+function GroupLink({ group, active, t }: { group: typeof navGroups[number]; active: MonitorRoute; t: (key: CopyKey) => string }) {
+  const item = group.items[0];
+  const Icon = item.icon;
+  const selected = group.items.some((candidate) => candidate.route === active);
+  return <a href={`#${item.route}`} className={selected ? "active" : ""} aria-current={selected ? "page" : undefined}><Icon size={17} /><span>{t(group.label)}</span></a>;
 }
 
 function formatTime(value: string, locale: string) {

@@ -19,14 +19,20 @@ var (
 )
 
 type QueryDetails struct {
-	store    DetailsStore
-	health   RuntimeHealthReader
-	clock    Clock
-	listener ListenerStateReader
+	store       DetailsStore
+	health      RuntimeHealthReader
+	clock       Clock
+	listener    ListenerStateReader
+	bindAddress string
 }
 
 func NewQueryDetails(store DetailsStore, health RuntimeHealthReader, clock Clock, listener ListenerStateReader) *QueryDetails {
-	return &QueryDetails{store: store, health: health, clock: clock, listener: listener}
+	return NewQueryDetailsWithBindAddress(store, health, clock, listener, "")
+}
+
+// NewQueryDetailsWithBindAddress 由 composition root 注入实际监听地址，应用层不推断端口。
+func NewQueryDetailsWithBindAddress(store DetailsStore, health RuntimeHealthReader, clock Clock, listener ListenerStateReader, bindAddress string) *QueryDetails {
+	return &QueryDetails{store: store, health: health, clock: clock, listener: listener, bindAddress: bindAddress}
 }
 
 func EncodeEventCursor(cursor domain.EventCursor) string {
@@ -69,7 +75,7 @@ func (usecase *QueryDetails) Traffic(ctx context.Context, query domain.Analytics
 	}
 	return TrafficData{
 		Meta:    metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()),
-		Metrics: buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"pv", "uv", "successfulPlaceVisitors", "successfulRouteVisitors", "placeQueryRequests", "routeQueryRequests"}, previousAvailable),
+		Metrics: buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"pv", "uv", "placeQueryRequests", "placeQueryVisitors", "routeQueryRequests", "routeQueryVisitors"}, previousAvailable),
 		Series:  current.trafficSeries, TrialFunnel: current.trialFunnel, Heatmap: trafficHeatmap(currentScope.traffic, query.From, query.To),
 		Locales: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.Locale) }),
 		Devices: visitorDistribution(currentScope.traffic, func(event domain.AnalyticsEvent) string { return string(event.DeviceType) }),
@@ -129,21 +135,43 @@ func (usecase *QueryDetails) Events(ctx context.Context, query domain.AnalyticsQ
 	if usecase.store == nil {
 		return EventListData{}, ErrStorageUnavailable
 	}
+	// 摘要在完整筛选范围上独立计算；分页只影响下方明细，不能改变四张指标卡。
+	summaryQuery := query
+	summaryQuery.Cursor, summaryQuery.Limit = "", 0
+	summary, err := usecase.store.SummarizeEvents(ctx, EventSummaryRequest{Query: summaryQuery, VisitorID: visitorID})
+	if err != nil {
+		return EventListData{}, fmt.Errorf("%w: summarize events", ErrStorageUnavailable)
+	}
 	page, err := usecase.store.ListEvents(ctx, EventListRequest{Query: query, VisitorID: visitorID, Cursor: cursor, Limit: limit})
 	if err != nil {
 		return EventListData{}, fmt.Errorf("%w: list events", ErrStorageUnavailable)
 	}
 	state := domain.QueryReady
-	if page.Summary.TotalCount == 0 {
+	if summary.TotalCount == 0 {
 		if hasEventFilters(query) || visitorID != "" {
 			state = domain.QueryNoResults
 		} else {
 			state = domain.QueryNoData
 		}
 	}
+	var previous EventRangeSummary
+	previousAvailable := false
+	var comparisonFrom, comparisonTo *time.Time
+	if query.Compare {
+		from, to := domain.PreviousRange(query.From, query.To)
+		previousQuery := summaryQuery
+		previousQuery.From, previousQuery.To = from, to
+		previous, err = usecase.store.SummarizeEvents(ctx, EventSummaryRequest{Query: previousQuery, VisitorID: visitorID})
+		if err != nil {
+			return EventListData{}, fmt.Errorf("%w: summarize previous events", ErrStorageUnavailable)
+		}
+		previousAvailable = previous.TotalCount > 0
+		comparisonFrom, comparisonTo = &from, &to
+	}
 	return EventListData{
-		Meta: metaFor(query, state, nil, nil, usecase.now()), Summary: page.Summary, Items: eventDetails(page.Items),
-		PageInfo: pageInfo(limit, page.Summary.TotalCount, page.HasMore, page.Items),
+		Meta: metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()), Summary: summary,
+		SummaryMetrics: eventSummaryMetrics(summary, previous, query.Compare, state, previousAvailable), Items: eventDetails(page.Items),
+		PageInfo: pageInfo(limit, summary.TotalCount, page.HasMore, page.Items),
 	}, nil
 }
 
@@ -192,6 +220,7 @@ func (usecase *QueryDetails) Visitor(ctx context.Context, visitorID string, limi
 	}
 	return VisitorData{
 		GeneratedAt: usecase.now(), Timezone: "Asia/Hong_Kong",
+		// 摘要从完整历史派生；时间线只能返回当前 cursor 页面，避免私有接口隐式无上限返回。
 		Visitor: visitorSummary(events, int64(len(allSessions))), Sessions: selectedSessions(allSessions, selected),
 		PageInfo: pageInfo(limit, int64(len(events)), hasMore, descending),
 	}, nil
@@ -208,44 +237,90 @@ func (usecase *QueryDetails) Performance(ctx context.Context, query domain.Analy
 	scoped := scopeEvents(raw, query)
 	state := queryState(len(raw), len(scoped.combined))
 	currentValues := performanceMetricValues(scoped.combined)
-	previousValues, previousAvailable, comparisonFrom, comparisonTo, err := usecase.comparisonValues(ctx, query, func(events scopedOverviewEvents) (map[string]float64, bool) {
-		return performanceMetricValues(events.combined), len(events.combined) > 0
-	})
-	if err != nil {
-		return PerformanceData{}, err
+	previousValues := map[string]float64{}
+	var previous scopedOverviewEvents
+	var previousAvailable bool
+	var comparisonFrom, comparisonTo *time.Time
+	if query.Compare {
+		from, to := domain.PreviousRange(query.From, query.To)
+		previousRaw, loadErr := usecase.loadEvents(ctx, from, to)
+		if loadErr != nil {
+			return PerformanceData{}, loadErr
+		}
+		previous = scopeEvents(previousRaw, query)
+		previousAvailable = len(previous.combined) > 0
+		previousValues = performanceMetricValues(previous.combined)
+		comparisonFrom, comparisonTo = &from, &to
 	}
 	return PerformanceData{
 		Meta:      metaFor(query, state, comparisonFrom, comparisonTo, usecase.now()),
 		Metrics:   buildMetricsForKeys(currentValues, previousValues, query.Compare, state, []string{"requestCount", "requestSuccessRate", "p50Ms", "p95Ms"}, previousAvailable),
-		Endpoints: endpointPerformance(scoped.combined), LatencySeries: latencySeries(scoped.combined, query.From, query.To, query.Granularity, state == domain.QueryReady),
-		Failures: failureDistribution(scoped.combined),
+		Endpoints: endpointPerformance(scoped.combined, previous.combined, query.Compare), LatencySeries: latencySeries(scoped.combined, query.From, query.To, query.Granularity, state == domain.QueryReady),
+		SLISeries: sliSeries(scoped.combined, query.From, query.To, query.Granularity, state == domain.QueryReady),
+		Failures:  failureDistribution(scoped.combined),
 	}, nil
 }
 
 func (usecase *QueryDetails) System(ctx context.Context) SystemData {
-	snapshot := RuntimeHealthSnapshot{DatabaseState: DatabaseUnavailable, ProcessStartedAt: usecase.now()}
+	now := usecase.now()
+	todayStart, tomorrowStart, todayLocalDate := hongKongDay(now)
+	snapshot := RuntimeHealthSnapshot{DatabaseState: DatabaseUnavailable}
 	if usecase.health != nil {
 		snapshot = usecase.health.Snapshot()
 	}
-	database := DatabaseStatus{State: snapshot.DatabaseState, LastSuccessfulWriteAt: snapshot.LastSuccessfulWriteAt}
+	database := DatabaseStatus{State: snapshot.DatabaseState, TodayLocalDate: todayLocalDate, LastSuccessfulWriteAt: snapshot.LastSuccessfulWriteAt}
+	sqlite := SQLiteRuntimeStatus{}
 	if usecase.store != nil {
-		storage, err := usecase.store.ReadStorageSnapshot(ctx)
+		storage, err := usecase.store.ReadStorageSnapshot(ctx, todayStart, tomorrowStart)
 		if err != nil {
 			database.State = DatabaseUnavailable
 		} else {
-			database.RowCount, database.SizeBytes = storage.DatabaseRowCount, storage.DatabaseSizeBytes
+			database.RowCount, database.TodayRowCount, database.SizeBytes = storage.DatabaseRowCount, storage.DatabaseTodayRowCount, storage.DatabaseSizeBytes
+			sqlite = SQLiteRuntimeStatus{Version: storage.SQLiteVersion, JournalMode: storage.SQLiteJournalMode, SchemaVersion: storage.SQLiteSchemaVersion}
+			if database.State == DatabaseAvailable && (database.RowCount == nil || database.TodayRowCount == nil || database.SizeBytes == nil || sqlite.Version == nil || sqlite.JournalMode == nil || sqlite.SchemaVersion == nil) {
+				database.State = DatabaseDegraded
+			}
 		}
 	}
-	listenerState := "starting"
+	var listenerState *string
 	if usecase.listener != nil {
-		listenerState = usecase.listener.State()
+		state := usecase.listener.State()
+		listenerState = &state
+	}
+	var startedAt *time.Time
+	var uptimeMS *int64
+	var dropped *uint64
+	if usecase.health != nil {
+		dropped = uint64Pointer(snapshot.DroppedSinceStart)
+	}
+	if !snapshot.ProcessStartedAt.IsZero() {
+		started := snapshot.ProcessStartedAt.UTC()
+		startedAt = &started
+		if !now.Before(started) {
+			uptime := now.Sub(started).Milliseconds()
+			uptimeMS = &uptime
+		}
+	}
+	var bindAddress *string
+	if usecase.bindAddress != "" {
+		address := usecase.bindAddress
+		bindAddress = &address
 	}
 	return SystemData{
-		GeneratedAt: usecase.now(), Database: database,
-		Process:         ProcessStatus{StartedAt: snapshot.ProcessStartedAt, DroppedSinceStart: snapshot.DroppedSinceStart},
-		PrivateListener: PrivateListenerStatus{State: listenerState, BindAddress: "127.0.0.1:18081", PublicProxy: false},
+		GeneratedAt: now, Database: database, SQLite: sqlite,
+		Process:         ProcessStatus{StartedAt: startedAt, UptimeMS: uptimeMS, DroppedSinceStart: dropped},
+		PrivateListener: PrivateListenerStatus{State: listenerState, BindAddress: bindAddress, PublicProxy: false},
 	}
 }
+
+func hongKongDay(now time.Time) (time.Time, time.Time, string) {
+	location := time.FixedZone("Asia/Hong_Kong", 8*60*60)
+	local := now.In(location)
+	start := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, location)
+	return start, start.AddDate(0, 0, 1), local.Format("2006-01-02")
+}
+
+func uint64Pointer(value uint64) *uint64 { return &value }
 
 func (usecase *QueryDetails) loadEvents(ctx context.Context, from, to time.Time) ([]domain.AnalyticsEvent, error) {
 	if usecase.store == nil {
@@ -293,7 +368,8 @@ func queryState(rawCount, filteredCount int) domain.QueryState {
 }
 
 func trafficMetricValues(events []domain.AnalyticsEvent) map[string]float64 {
-	pageVisitors, placeVisitors, routeVisitors := map[string]struct{}{}, map[string]struct{}{}, map[string]struct{}{}
+	pageVisitors := map[string]struct{}{}
+	placeAllVisitors, routeAllVisitors := map[string]struct{}{}, map[string]struct{}{}
 	var pv, placeRequests, routeRequests int64
 	for _, event := range events {
 		switch event.EventType {
@@ -302,17 +378,19 @@ func trafficMetricValues(events []domain.AnalyticsEvent) map[string]float64 {
 			pageVisitors[event.VisitorID] = struct{}{}
 		case domain.EventPlaceQuery:
 			placeRequests++
-			if event.Outcome == domain.OutcomeSuccess {
-				placeVisitors[event.VisitorID] = struct{}{}
-			}
+			placeAllVisitors[event.VisitorID] = struct{}{}
 		case domain.EventRouteQuery:
 			routeRequests++
-			if event.Outcome == domain.OutcomeSuccess {
-				routeVisitors[event.VisitorID] = struct{}{}
-			}
+			routeAllVisitors[event.VisitorID] = struct{}{}
 		}
 	}
-	return map[string]float64{"pv": float64(pv), "uv": float64(len(pageVisitors)), "successfulPlaceVisitors": float64(len(placeVisitors)), "successfulRouteVisitors": float64(len(routeVisitors)), "placeQueryRequests": float64(placeRequests), "routeQueryRequests": float64(routeRequests)}
+	return map[string]float64{"pv": float64(pv), "uv": float64(len(pageVisitors)), "placeQueryRequests": float64(placeRequests), "placeQueryVisitors": float64(len(placeAllVisitors)), "routeQueryRequests": float64(routeRequests), "routeQueryVisitors": float64(len(routeAllVisitors))}
+}
+
+func eventSummaryMetrics(current, previous EventRangeSummary, compare bool, state domain.QueryState, previousAvailable bool) []domain.Metric {
+	currentValues := map[string]float64{"totalCount": float64(current.TotalCount), "successCount": float64(current.SuccessCount), "failureCount": float64(current.FailureCount), "uniqueVisitors": float64(current.UniqueVisitors)}
+	previousValues := map[string]float64{"totalCount": float64(previous.TotalCount), "successCount": float64(previous.SuccessCount), "failureCount": float64(previous.FailureCount), "uniqueVisitors": float64(previous.UniqueVisitors)}
+	return buildMetricsForKeys(currentValues, previousValues, compare, state, []string{"totalCount", "successCount", "failureCount", "uniqueVisitors"}, previousAvailable)
 }
 
 func downloadMetricValues(events []domain.AnalyticsEvent) map[string]float64 {
@@ -454,7 +532,7 @@ func failureDistribution(events []domain.AnalyticsEvent) []domain.DistributionIt
 	return distributions(counts)
 }
 
-func endpointPerformance(events []domain.AnalyticsEvent) []EndpointPerformance {
+func endpointPerformance(events []domain.AnalyticsEvent, previousEvents []domain.AnalyticsEvent, compare bool) []EndpointPerformance {
 	definitions := []struct {
 		operation string
 		eventType domain.EventType
@@ -475,7 +553,33 @@ func endpointPerformance(events []domain.AnalyticsEvent) []EndpointPerformance {
 				successes++
 			}
 		}
-		result = append(result, EndpointPerformance{OperationID: definition.operation, EventType: definition.eventType, RequestCount: int64(len(selected)), SuccessRate: ratioFloat(successes, int64(len(selected))), P50MS: domain.NearestRank(durations, .5), P95MS: domain.NearestRank(durations, .95)})
+		previousDurations := make([]int64, 0)
+		for _, event := range previousEvents {
+			if event.EventType == definition.eventType {
+				previousDurations = append(previousDurations, event.DurationMS)
+			}
+		}
+		p50, p95 := domain.NearestRank(durations, .5), domain.NearestRank(durations, .95)
+		result = append(result, EndpointPerformance{OperationID: definition.operation, EventType: definition.eventType, RequestCount: int64(len(selected)), SuccessRate: ratioFloat(successes, int64(len(selected))), P50MS: p50, P95MS: p95,
+			P50Comparison: percentileComparison(p50, domain.NearestRank(previousDurations, .5), compare), P95Comparison: percentileComparison(p95, domain.NearestRank(previousDurations, .95), compare)})
+	}
+	return result
+}
+
+func percentileComparison(current, previous *int64, compare bool) PercentileComparison {
+	result := PercentileComparison{CurrentMS: current}
+	if !compare {
+		return result
+	}
+	result.PreviousMS = previous
+	if current == nil || previous == nil {
+		return result
+	}
+	delta := *current - *previous
+	result.DeltaMS = &delta
+	if *previous != 0 {
+		rate := float64(delta) / float64(*previous)
+		result.DeltaRate = &rate
 	}
 	return result
 }
@@ -499,6 +603,19 @@ func latencySeries(events []domain.AnalyticsEvent, from, to time.Time, granulari
 			}
 			result = append(result, LatencySeriesPoint{BucketStart: bucket.Start, BucketEnd: bucket.End, EventType: eventType, RequestCount: int64(len(durations)), P50MS: domain.NearestRank(durations, .5), P95MS: domain.NearestRank(durations, .95)})
 		}
+	}
+	return result
+}
+
+func sliSeries(events []domain.AnalyticsEvent, from, to time.Time, granularity domain.Granularity, include bool) []SLISeriesPoint {
+	if !include {
+		return []SLISeriesPoint{}
+	}
+	location, _ := time.LoadLocation("Asia/Hong_Kong")
+	domainPoints := domain.SLISeries(events, domain.TimeBuckets(from, to, granularity, location), location)
+	result := make([]SLISeriesPoint, 0, len(domainPoints))
+	for _, point := range domainPoints {
+		result = append(result, SLISeriesPoint{BucketStart: point.BucketStart, BucketEnd: point.BucketEnd, EventType: point.EventType, SuccessfulPV: point.SuccessfulPV, TotalPV: point.TotalPV, SuccessRate: point.SuccessRate})
 	}
 	return result
 }
@@ -593,7 +710,8 @@ func selectedSessions(sessions []domain.DerivedSession, selected map[int64]struc
 		if len(events) == 0 {
 			continue
 		}
-		result = append(result, SessionDetail{Ordinal: session.Ordinal, StartedAt: events[0].OccurredAt, EndedAt: events[len(events)-1].OccurredAt, DurationMS: events[len(events)-1].OccurredAt.Sub(events[0].OccurredAt).Milliseconds(), EventCount: len(events), Events: eventDetails(events)})
+		// 会话元数据描述完整历史会话，cursor 只裁剪其中可见的事件明细。
+		result = append(result, SessionDetail{Ordinal: session.Ordinal, StartedAt: session.StartedAt, EndedAt: session.EndedAt, DurationMS: session.EndedAt.Sub(session.StartedAt).Milliseconds(), EventCount: len(session.Events), Events: eventDetails(events)})
 	}
 	return result
 }

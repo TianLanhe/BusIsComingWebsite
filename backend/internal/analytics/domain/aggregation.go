@@ -3,6 +3,7 @@ package domain
 import (
 	"math"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -160,6 +161,54 @@ func NearestRank(values []int64, percentile float64) *int64 {
 	index := int(math.Ceil(percentile*float64(len(ordered)))) - 1
 	value := ordered[index]
 	return &value
+}
+
+// SLISuccessRate 保留「没有请求」与「所有请求失败」两个不同的领域事实：前者
+// 没有可计算的比率，后者则是实际的 0%。调用方据此避免把空桶画成失败。
+func SLISuccessRate(successfulPV, totalPV int64) *float64 {
+	if totalPV == 0 {
+		return nil
+	}
+	value := float64(successfulPV) / float64(totalPV)
+	return &value
+}
+
+// SLISeries 在领域层一次完成香港时间桶、固定事件顺序与空桶语义，应用层只负责 DTO 映射。
+func SLISeries(events []AnalyticsEvent, buckets []TimeBucket, location *time.Location) []SLISeriesPoint {
+	types := []EventType{EventPageView, EventPlaceQuery, EventRouteQuery, EventDownloadRequest}
+	type counts struct{ successful, total int64 }
+	grouped := make(map[string]*counts, len(buckets)*len(types))
+	key := func(bucket int, eventType EventType) string { return strconv.Itoa(bucket) + ":" + string(eventType) }
+	for _, event := range events {
+		at := event.OccurredAt.In(location)
+		for index, bucket := range buckets {
+			if at.Before(bucket.Start) || !at.Before(bucket.End) {
+				continue
+			}
+			item := grouped[key(index, event.EventType)]
+			if item == nil {
+				item = &counts{}
+				grouped[key(index, event.EventType)] = item
+			}
+			item.total++
+			if event.Outcome == OutcomeSuccess {
+				item.successful++
+			}
+			break
+		}
+	}
+	result := make([]SLISeriesPoint, 0, len(buckets)*len(types))
+	for index, bucket := range buckets {
+		for _, eventType := range types {
+			item := grouped[key(index, eventType)]
+			var successful, total int64
+			if item != nil {
+				successful, total = item.successful, item.total
+			}
+			result = append(result, SLISeriesPoint{BucketStart: bucket.Start, BucketEnd: bucket.End, EventType: eventType, SuccessfulPV: successful, TotalPV: total, SuccessRate: SLISuccessRate(successful, total)})
+		}
+	}
+	return result
 }
 
 func ratio(numerator, denominator int64) *float64 {

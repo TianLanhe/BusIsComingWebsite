@@ -9,6 +9,7 @@ function Probe() {
     <output data-testid="selection">{JSON.stringify(filters.selection)}</output>
     <button onClick={() => filters.setRangeDays(7)}>seven</button>
     <button onClick={() => filters.setCustomRange("2026-07-01", "2026-07-02")}>history</button>
+    <button onClick={() => filters.setCustomRange("2025-12-31", "2026-01-02")}>cross-year</button>
     <button onClick={() => filters.toggleOutcome("failure")}>failure</button>
     <button onClick={filters.refresh}>refresh</button>
   </>;
@@ -40,5 +41,15 @@ describe("FilterProvider", () => {
     instant = new Date("2026-07-24T09:00:00+08:00");
     fireEvent.click(screen.getByText("refresh"));
     expect(screen.getByTestId("query").textContent).toBe(before);
+  });
+
+  it("applies one valid cross-year custom selection and rejects an illegal range without changing it", () => {
+    render(<FilterProvider now={() => new Date("2026-07-24T12:00:00+08:00")}><Probe /></FilterProvider>);
+    fireEvent.click(screen.getByText("cross-year"));
+    expect(screen.getByTestId("selection")).toHaveTextContent('"startDate":"2025-12-31"');
+    expect(screen.getByTestId("selection")).toHaveTextContent('"endDate":"2026-01-02"');
+
+    fireEvent.click(screen.getByText("history"));
+    expect(screen.getByTestId("selection")).toHaveTextContent('"startDate":"2026-07-01"');
   });
 });

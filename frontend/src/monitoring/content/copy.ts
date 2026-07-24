@@ -1,7 +1,7 @@
 import type { MonitoringLocale } from "../app/MonitoringI18nProvider";
 
 const zhHans = {
-  overview: "总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "匿名访客", performance: "失败与性能", system: "系统状态",
+  overview: "总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "访客明细", performance: "稳定性 & 时延", system: "系统状态",
   monitorCenter: "监控中心", diagnostics: "数据与诊断", privateAccess: "仅通过 SSH 隧道访问", liveWriting: "数据正常写入", listener: "监听 127.0.0.1:18081",
   pageTitle: "监控总览", pageSubtitle: "主页访问、路线试查与安装包下载的统一视图", brandEyebrow: "BusIsComing Pulse",
   refresh: "刷新数据", range7: "近 7 天", range30: "近 30 天", range90: "近 90 天", hourly: "按小时", daily: "按日", weekly: "按周", monthly: "按月",
@@ -15,21 +15,24 @@ const zhHans = {
   loadingTitle: "正在载入匿名统计", loadingBody: "正在从本机私有统计存储即时计算总览。", noDataTitle: "所选时间范围暂无统计数据", noDataBody: "调整日期范围后再查看；公开网站功能不受影响。",
   noResultsTitle: "当前筛选条件没有结果", noResultsBody: "已保留全部筛选条件，可放宽一个或多个维度。", queryFailedTitle: "统计查询暂时失败", queryFailedBody: "筛选条件已保留。可稍后重试，错误详情不会显示在页面中。",
   storageUnavailableTitle: "统计数据库暂时不可用", storageUnavailableBody: "匿名监控数据当前无法读取，公开网站、路线试查与 APK 下载不受影响。", retry: "重试查询",
-  navSoon: "该工作区将在后续实现阶段接入。", mobileMenu: "打开导航", close: "关闭", chartSummary: "访问趋势数据表摘要", visitorTransport: "Visitor ID 仅由 HttpOnly Cookie 携带，不进入 query 或 body；不记录 IP。",
-  customRange: "自定义日期", startDate: "开始日期", endDate: "结束日期", applyRange: "应用日期",
-  dateInvalid: "请输入有效的香港日历日期。", dateFuture: "结束日期不能晚于香港今天。", dateOrder: "开始日期不能晚于结束日期。",
+  navSoon: "该工作区将在后续实现阶段接入。", mobileMenu: "打开导航", close: "关闭", chartSummary: "访问趋势数据表摘要", visitorTransport: "公开采集使用 HttpOnly Cookie 标识匿名浏览器；私有访客调查仅通过 X-Analytics-Visitor-ID header 查询，不进入 query、body 或日志；不记录 IP。",
+  customRange: "自定义日期", startDate: "开始日期", endDate: "结束日期", applyRange: "应用日期", chooseEndDate: "选择结束日期", cancel: "取消",
+  dateInvalid: "请输入有效的香港日历日期。", dateStartFuture: "开始日期不能晚于香港今天。", dateFuture: "结束日期不能晚于香港今天。", dateOrder: "开始日期不能晚于结束日期。",
   comparisonUnchanged: "较上期持平", comparisonMissing: "暂无同期数据", comparisonOff: "未启用同期比较", currentMissing: "暂无当前数据",
   successfulPlaceUV: "成功地点查询 UV", successfulRouteUV: "成功路线查询 UV", anonymousUvNote: "UV 按匿名独立浏览器标识去重，不代表自然人。",
   chartLegend: "图例", chartXAxis: "香港时间", chartYAxis: "数值", chartTooltip: "时间点明细", chartEmpty: "当前范围没有可绘制的数据",
   heatmapEvents: "事件总数", heatmapUv: "独立浏览器 UV", heatmapLess: "少", heatmapMore: "多",
   latencyByEvent: "各事件响应时间", noSuccessfulSamples: "暂无成功样本",
   apkMetadata: "APK 元数据", downloadResponseLatency: "下载响应",
+  businessMonitoring: "业务监控", technicalMonitoring: "技术监控", dataDetails: "数据明细", dateStepStart: "第 1 步：选择开始日期", dateStepEnd: "第 2 步：选择结束日期",
+  comparisonIncreased: "较上期增加", comparisonDecreased: "较上期减少", comparisonZeroBaseline: "上期为零，显示绝对变化", p95: "P95", sli: "实际成功率 SLI", sliFormula: "成功 PV / 总 PV", latencyFaster: "较上期变快", latencySlower: "较上期变慢", latencyZeroBaseline: "上期为零，仅显示绝对变化", latencyNoCurrent: "暂无当前数据", latencyNoPrevious: "暂无同期数据", latencyUnchanged: "与上期持平", latencyComparisonOff: "未启用同期比较",
+  homepagePv: "主页浏览 PV", homepageUv: "主页浏览 UV", placeQueryPv: "地点查询 PV", placeQueryUv: "地点查询 UV", routeQueryPv: "路线查询 PV", routeQueryUv: "路线查询 UV",
 } as const;
 
 export type CopyKey = keyof typeof zhHans;
 
 const zhHant: Record<CopyKey, string> = {
-  overview: "總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "匿名訪客", performance: "失敗與效能", system: "系統狀態",
+  overview: "總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "訪客明細", performance: "穩定性及延遲", system: "系統狀態",
   monitorCenter: "監控中心", diagnostics: "數據與診斷", privateAccess: "只可經 SSH 隧道存取", liveWriting: "數據正常寫入", listener: "監聽 127.0.0.1:18081",
   pageTitle: "監控總覽", pageSubtitle: "主頁瀏覽、巴士路線試查及安裝檔下載的統一視圖", brandEyebrow: "BusIsComing Pulse",
   refresh: "更新數據", range7: "最近 7 日", range30: "最近 30 日", range90: "最近 90 日", hourly: "每小時", daily: "每日", weekly: "每週", monthly: "每月",
@@ -43,19 +46,22 @@ const zhHant: Record<CopyKey, string> = {
   loadingTitle: "正在載入匿名統計", loadingBody: "正在從本機私人統計儲存即時計算總覽。", noDataTitle: "所選時段暫無統計數據", noDataBody: "調整日期範圍後再查看；公開網站功能不受影響。",
   noResultsTitle: "目前篩選條件沒有結果", noResultsBody: "所有篩選條件已保留，可放寬一個或多個維度。", queryFailedTitle: "統計查詢暫時失敗", queryFailedBody: "篩選條件已保留。可稍後重試，錯誤詳情不會顯示在頁面。",
   storageUnavailableTitle: "統計資料庫暫時無法使用", storageUnavailableBody: "匿名監控數據目前無法讀取，公開網站、巴士路線試查及 APK 下載不受影響。", retry: "重新查詢",
-  navSoon: "此工作區將於後續實作階段接通。", mobileMenu: "開啟導覽", close: "關閉", chartSummary: "瀏覽趨勢數據表摘要", visitorTransport: "Visitor ID 只經 HttpOnly Cookie 傳送，不會放入 query 或 body；亦不會記錄 IP。",
-  customRange: "自訂日期", startDate: "開始日期", endDate: "結束日期", applyRange: "套用日期",
-  dateInvalid: "請輸入有效的香港日曆日期。", dateFuture: "結束日期不可遲於香港今日。", dateOrder: "開始日期不可遲於結束日期。",
+  navSoon: "此工作區將於後續實作階段接通。", mobileMenu: "開啟導覽", close: "關閉", chartSummary: "瀏覽趨勢數據表摘要", visitorTransport: "公開採集使用 HttpOnly Cookie 識別匿名瀏覽器；私有訪客調查只經 X-Analytics-Visitor-ID header 查詢，不會放入 query 或 body 或日誌；亦不會記錄 IP。",
+  customRange: "自訂日期", startDate: "開始日期", endDate: "結束日期", applyRange: "套用日期", chooseEndDate: "選擇結束日期", cancel: "取消",
+  dateInvalid: "請輸入有效的香港日曆日期。", dateStartFuture: "開始日期不可遲於香港今日。", dateFuture: "結束日期不可遲於香港今日。", dateOrder: "開始日期不可遲於結束日期。",
   comparisonUnchanged: "與上期持平", comparisonMissing: "暫無同期數據", comparisonOff: "未啟用同期比較", currentMissing: "暫無目前數據",
   successfulPlaceUV: "成功地點查詢 UV", successfulRouteUV: "成功路線查詢 UV", anonymousUvNote: "UV 按匿名獨立瀏覽器標識去重，並不代表自然人。",
   chartLegend: "圖例", chartXAxis: "香港時間", chartYAxis: "數值", chartTooltip: "時點明細", chartEmpty: "目前時段沒有可繪製的數據",
   heatmapEvents: "事件總數", heatmapUv: "獨立瀏覽器 UV", heatmapLess: "少", heatmapMore: "多",
   latencyByEvent: "各事件回應時間", noSuccessfulSamples: "暫無成功樣本",
   apkMetadata: "APK 元數據", downloadResponseLatency: "下載回應",
+  businessMonitoring: "業務監控", technicalMonitoring: "技術監控", dataDetails: "數據明細", dateStepStart: "第 1 步：選擇開始日期", dateStepEnd: "第 2 步：選擇結束日期",
+  comparisonIncreased: "較上期增加", comparisonDecreased: "較上期減少", comparisonZeroBaseline: "上期為零，顯示絕對變化", p95: "P95", sli: "實際成功率 SLI", sliFormula: "成功 PV / 總 PV", latencyFaster: "較上期更快", latencySlower: "較上期更慢", latencyZeroBaseline: "上期為零，只顯示絕對變化", latencyNoCurrent: "暫無目前數據", latencyNoPrevious: "暫無同期數據", latencyUnchanged: "與上期持平", latencyComparisonOff: "未啟用同期比較",
+  homepagePv: "主頁瀏覽 PV", homepageUv: "主頁瀏覽 UV", placeQueryPv: "地點查詢 PV", placeQueryUv: "地點查詢 UV", routeQueryPv: "路線查詢 PV", routeQueryUv: "路線查詢 UV",
 };
 
 const en: Record<CopyKey, string> = {
-  overview: "Overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Anonymous visitor", performance: "Failures & latency", system: "System status",
+  overview: "Overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Visitor detail", performance: "Stability & latency", system: "System status",
   monitorCenter: "Monitor", diagnostics: "Data & diagnostics", privateAccess: "SSH tunnel access only", liveWriting: "Events are being recorded", listener: "Listening on 127.0.0.1:18081",
   pageTitle: "Monitoring overview", pageSubtitle: "A unified view of homepage traffic, route trials, and package downloads", brandEyebrow: "BusIsComing Pulse",
   refresh: "Refresh", range7: "Last 7 days", range30: "Last 30 days", range90: "Last 90 days", hourly: "Hourly", daily: "Daily", weekly: "Weekly", monthly: "Monthly",
@@ -69,15 +75,18 @@ const en: Record<CopyKey, string> = {
   loadingTitle: "Loading anonymous analytics", loadingBody: "The overview is being calculated from the private local event store.", noDataTitle: "No analytics in this date range", noDataBody: "Try a different range. Public website features are unaffected.",
   noResultsTitle: "No results for these filters", noResultsBody: "Your filters are preserved. Widen one or more dimensions to continue.", queryFailedTitle: "Analytics query failed", queryFailedBody: "Your filters are preserved. Try again later; internal error details are never shown here.",
   storageUnavailableTitle: "Analytics storage is unavailable", storageUnavailableBody: "Monitoring data cannot be read right now. The public site, route trial, and APK download remain available.", retry: "Try again",
-  navSoon: "This workspace will be connected in the next implementation phase.", mobileMenu: "Open navigation", close: "Close", chartSummary: "Traffic trend data summary", visitorTransport: "Visitor ID is carried only in an HttpOnly cookie, never in the query or body; IP is not recorded.",
-  customRange: "Custom dates", startDate: "Start date", endDate: "End date", applyRange: "Apply dates",
-  dateInvalid: "Enter a valid Hong Kong calendar date.", dateFuture: "The end date cannot be after today in Hong Kong.", dateOrder: "The start date cannot be after the end date.",
+  navSoon: "This workspace will be connected in the next implementation phase.", mobileMenu: "Open navigation", close: "Close", chartSummary: "Traffic trend data summary", visitorTransport: "Public collection uses an HttpOnly cookie for an anonymous browser ID. Private visitor investigation uses the X-Analytics-Visitor-ID header only, never the query, body, or logs; IP is not recorded.",
+  customRange: "Custom dates", startDate: "Start date", endDate: "End date", applyRange: "Apply dates", chooseEndDate: "Choose end date", cancel: "Cancel",
+  dateInvalid: "Enter a valid Hong Kong calendar date.", dateStartFuture: "The start date cannot be after today in Hong Kong.", dateFuture: "The end date cannot be after today in Hong Kong.", dateOrder: "The start date cannot be after the end date.",
   comparisonUnchanged: "Unchanged from previous period", comparisonMissing: "No previous-period data", comparisonOff: "Period comparison off", currentMissing: "No current data",
   successfulPlaceUV: "Successful place-query UV", successfulRouteUV: "Successful route-query UV", anonymousUvNote: "UV deduplicates anonymous browser IDs and does not represent individual people.",
   chartLegend: "Legend", chartXAxis: "Hong Kong time", chartYAxis: "Value", chartTooltip: "Time-point detail", chartEmpty: "No chartable data in this range",
   heatmapEvents: "Events", heatmapUv: "Unique browser UV", heatmapLess: "Less", heatmapMore: "More",
   latencyByEvent: "Latency by event", noSuccessfulSamples: "No successful samples",
   apkMetadata: "APK metadata", downloadResponseLatency: "Download response",
+  businessMonitoring: "Business monitoring", technicalMonitoring: "Technical monitoring", dataDetails: "Data detail", dateStepStart: "Step 1: choose a start date", dateStepEnd: "Step 2: choose an end date",
+  comparisonIncreased: "Increased from the previous period", comparisonDecreased: "Decreased from the previous period", comparisonZeroBaseline: "Previous period was zero; showing absolute change", p95: "P95", sli: "Actual success-rate SLI", sliFormula: "Successful PV / total PV", latencyFaster: "Faster than previous period", latencySlower: "Slower than previous period", latencyZeroBaseline: "Previous period was zero; absolute change shown", latencyNoCurrent: "No current data", latencyNoPrevious: "No previous-period data", latencyUnchanged: "Unchanged from previous period", latencyComparisonOff: "Period comparison off",
+  homepagePv: "Homepage PV", homepageUv: "Homepage UV", placeQueryPv: "Place-query PV", placeQueryUv: "Place-query UV", routeQueryPv: "Route-query PV", routeQueryUv: "Route-query UV",
 };
 
 export const monitoringCopyCatalog: Record<MonitoringLocale, Record<CopyKey, string>> = { "zh-Hant": zhHant, "zh-Hans": zhHans, en };

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAnalyticsFilters } from "../app/FilterProvider";
 import { useMonitoringI18n } from "../app/MonitoringI18nProvider";
 import { DashboardShell } from "../components/layout/DashboardShell";
+import { MetricCard } from "../components/charts/MetricCard";
 import { QueryState } from "../components/states/QueryState";
 import { EventTable } from "../components/tables/EventTable";
 import { ResponsiveEventList } from "../components/tables/ResponsiveEventList";
@@ -23,7 +24,7 @@ export function EventsPage({ loadEvents = fetchEvents }: { loadEvents?: (query: 
   const [cursor, setCursor] = useState<string | undefined>();
   const [history, setHistory] = useState<(string | undefined)[]>([]);
   const [retryVersion, setRetryVersion] = useState(0);
-  const filterKey = useMemo(() => JSON.stringify({ ...filters.query, compare: false }), [filters.query]);
+  const filterKey = useMemo(() => JSON.stringify(filters.query), [filters.query]);
 
   useEffect(() => {
     setCursor(undefined);
@@ -34,7 +35,7 @@ export function EventsPage({ loadEvents = fetchEvents }: { loadEvents?: (query: 
     const controller = new AbortController();
     let active = true;
     setLoading(true);
-    void loadEvents({ ...filters.query, compare: false, limit: pageSize, cursor }, undefined, controller.signal)
+    void loadEvents({ ...filters.query, limit: pageSize, cursor }, undefined, controller.signal)
       .then((result) => {
         if (active) {
           setData(result);
@@ -75,10 +76,10 @@ export function EventsPage({ loadEvents = fetchEvents }: { loadEvents?: (query: 
   return <DashboardShell active="events" title="events" subtitleText={detailText(locale, "eventsSubtitle")} generatedAt={data?.meta.generatedAt}>
     {loading ? <QueryState kind="loading" title={monitoringCopy(locale, "loadingTitle")} body={monitoringCopy(locale, "loadingBody")} /> : error ? <QueryState kind={error.code === "ANALYTICS_STORAGE_UNAVAILABLE" ? "storage_unavailable" : "query_failed"} title={monitoringCopy(locale, error.code === "ANALYTICS_STORAGE_UNAVAILABLE" ? "storageUnavailableTitle" : "queryFailedTitle")} body={monitoringCopy(locale, "queryFailedBody")} retryLabel={monitoringCopy(locale, "retry")} onRetry={() => setRetryVersion((value) => value + 1)} /> : data && <>
       <section className="event-summary-grid" aria-label={detailText(locale, "pageSummary").replace("{count}", String(data.summary.totalCount))}>
-        <SummaryCard label={detailText(locale, "eventSummaryTotal")} value={data.summary.totalCount} locale={locale} />
-        <SummaryCard label={detailText(locale, "eventSummarySuccess")} value={data.summary.successCount} locale={locale} tone="success" />
-        <SummaryCard label={detailText(locale, "eventSummaryFailure")} value={data.summary.failureCount} locale={locale} tone="failure" />
-        <SummaryCard label={detailText(locale, "eventSummaryVisitors")} value={data.summary.uniqueVisitors} locale={locale} />
+        <MetricCard label={detailText(locale, "eventSummaryTotal")} metric={data.summaryMetrics.find((metric) => metric.key === "totalCount")} locale={locale} compareEnabled={data.meta.compare} />
+        <MetricCard label={detailText(locale, "eventSummarySuccess")} metric={data.summaryMetrics.find((metric) => metric.key === "successCount")} locale={locale} compareEnabled={data.meta.compare} />
+        <MetricCard label={detailText(locale, "eventSummaryFailure")} metric={data.summaryMetrics.find((metric) => metric.key === "failureCount")} locale={locale} compareEnabled={data.meta.compare} presentation="lower_is_better" />
+        <MetricCard label={detailText(locale, "eventSummaryVisitors")} metric={data.summaryMetrics.find((metric) => metric.key === "uniqueVisitors")} locale={locale} compareEnabled={data.meta.compare} />
       </section>
       <div className="privacy-note-detail"><ShieldCheck size={20} /><span>{detailText(locale, "privacyDetail")}</span></div>
       {data.items.length === 0 ? <QueryState kind="no_results" title={detailText(locale, "noDetailData")} body={detailText(locale, "noDetailBody")} /> : <section className="event-results dashboard-card">
@@ -89,8 +90,4 @@ export function EventsPage({ loadEvents = fetchEvents }: { loadEvents?: (query: 
       </section>}
     </>}
   </DashboardShell>;
-}
-
-function SummaryCard({ label, value, locale, tone = "neutral" }: { label: string; value: number; locale: string; tone?: "neutral" | "success" | "failure" }) {
-  return <article className={`dashboard-card event-summary-card ${tone}`}><span>{label}</span><strong>{new Intl.NumberFormat(locale).format(value)}</strong></article>;
 }

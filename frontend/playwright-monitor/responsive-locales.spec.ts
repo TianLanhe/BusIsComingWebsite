@@ -5,9 +5,14 @@ import { detailEnvelopes } from "./fixtures/details";
 const locales = ["zh-Hans", "zh-Hant", "en"] as const;
 const routes = ["overview", "traffic", "downloads", "events", "visitor", "performance", "system"] as const;
 const titles = {
-  "zh-Hans": { overview: "监控总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "匿名访客", performance: "失败与性能", system: "系统状态" },
-  "zh-Hant": { overview: "監控總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "匿名訪客", performance: "失敗與效能", system: "系統狀態" },
-  en: { overview: "Monitoring overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Anonymous visitor", performance: "Failures & latency", system: "System status" },
+  "zh-Hans": { overview: "监控总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "访客明细", performance: "稳定性 & 时延", system: "系统状态" },
+  "zh-Hant": { overview: "監控總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "訪客明細", performance: "穩定性及延遲", system: "系統狀態" },
+  en: { overview: "Monitoring overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Visitor detail", performance: "Stability & latency", system: "System status" },
+} as const;
+const navLabels = {
+  "zh-Hans": { overview: "总览", traffic: "流量与试查", downloads: "下载分析", events: "事件明细", visitor: "访客明细", performance: "稳定性 & 时延", system: "系统状态" },
+  "zh-Hant": { overview: "總覽", traffic: "流量與試查", downloads: "下載分析", events: "事件明細", visitor: "訪客明細", performance: "穩定性及延遲", system: "系統狀態" },
+  en: { overview: "Overview", traffic: "Traffic & trial", downloads: "Downloads", events: "Event detail", visitor: "Visitor detail", performance: "Stability & latency", system: "System status" },
 } as const;
 
 test.beforeEach(async ({ page }) => {
@@ -19,32 +24,42 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("keeps all workspaces, filters, and investigation context usable in three locales", async ({ page }, testInfo) => {
+test("reaches every workspace through real three-group navigation in three locales", async ({ page }, testInfo) => {
   await page.goto("/#overview");
-  await page.locator(".global-filters summary").click();
-  const outcomeGroup = page.locator(".filter-group").filter({ hasText: "结果" });
-  await outcomeGroup.getByRole("button", { name: "失败" }).click();
-  await expect(page.locator(".filter-count")).toHaveText("1");
+  const groups = { "zh-Hans": ["业务监控", "技术监控", "数据明细"], "zh-Hant": ["業務監控", "技術監控", "數據明細"], en: ["Business monitoring", "Technical monitoring", "Data detail"] } as const;
+  const mobileMenu = { "zh-Hans": "打开导航", "zh-Hant": "開啟導覽", en: "Open navigation" } as const;
 
   for (const locale of locales) {
     await page.locator(".language-control select").selectOption(locale);
+    if (testInfo.project.name.includes("desktop")) {
+      for (const group of groups[locale]) await expect(page.getByTestId("desktop-sidebar").getByRole("navigation", { name: group })).toBeVisible();
+      await expect(page.getByTestId("desktop-sidebar").getByRole("link")).toHaveCount(7);
+    } else {
+      await expect(page.getByTestId("mobile-bottom-nav").getByRole("link")).toHaveCount(3);
+      for (const group of groups[locale]) await expect(page.getByTestId("mobile-bottom-nav").getByRole("link", { name: group })).toBeVisible();
+      const targets = await page.getByTestId("mobile-bottom-nav").getByRole("link").evaluateAll((links) => links.map((link) => Math.min(link.getBoundingClientRect().width, link.getBoundingClientRect().height)));
+      expect(targets.every((target) => target >= 44)).toBeTruthy();
+      for (const route of ["overview", "performance", "events"] as const) {
+        await page.getByTestId("mobile-bottom-nav").getByRole("link", { name: groups[locale][route === "overview" ? 0 : route === "performance" ? 1 : 2] }).click();
+        await expect(page.getByRole("heading", { level: 1, name: titles[locale][route] })).toBeVisible();
+      }
+    }
     for (const route of routes) {
-      await page.evaluate((nextRoute) => { window.location.hash = nextRoute; }, route);
+      if (testInfo.project.name.includes("desktop")) {
+        await page.getByTestId("desktop-sidebar").getByRole("link", { name: navLabels[locale][route] }).click();
+      } else {
+        await page.getByRole("button", { name: mobileMenu[locale] }).click();
+        const drawer = page.getByRole("dialog");
+        await expect(drawer.getByRole("link")).toHaveCount(7);
+        await drawer.getByRole("link", { name: navLabels[locale][route] }).click();
+      }
       await expect(page.getByRole("heading", { level: 1, name: titles[locale][route] })).toBeVisible();
-      await expect(page.locator(".filter-count")).toHaveText("1");
-      const viewport = testInfo.project.name.includes("desktop") ? "desktop" : "mobile";
-      await page.screenshot({ path: `playwright-monitor/__screenshots__/workspace-${route}-${locale}-${viewport}.png`, fullPage: false });
+      const active = testInfo.project.name.includes("desktop") ? page.getByTestId("desktop-sidebar") : page.getByRole("dialog");
+      if (!testInfo.project.name.includes("desktop")) {
+        await page.getByRole("button", { name: mobileMenu[locale] }).click();
+      }
+      await expect(active.getByRole("link", { name: navLabels[locale][route] })).toHaveAttribute("aria-current", "page");
+      if (!testInfo.project.name.includes("desktop")) await page.getByRole("button", { name: /关闭|關閉|Close/ }).click();
     }
   }
-
-  await page.locator(".language-control select").selectOption("zh-Hans");
-  await page.evaluate(() => { window.location.hash = "events"; });
-  const eventSurface = testInfo.project.name.includes("desktop") ? page.locator(".event-table-wrap") : page.locator(".responsive-event-card");
-  await eventSurface.getByRole("button", { name: "查看访客" }).first().click();
-  await expect(page).toHaveURL(/#visitor$/);
-  await page.locator(".language-control select").selectOption("en");
-  await expect(page.getByRole("heading", { name: "Anonymous visitor" })).toBeVisible();
-  await expect(page.locator(".visitor-identity code")).toHaveText("abcdefghijklmnopqrstuv");
-  await expect(page.locator(".filter-count")).toHaveText("1");
-  await expect.poll(() => page.evaluate(() => localStorage.getItem("busiscoming.monitor.locale"))).toBe("en");
 });

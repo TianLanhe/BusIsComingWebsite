@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	analyticsapp "busiscoming-website/backend/internal/analytics/application"
 	"busiscoming-website/backend/internal/analytics/domain"
 	"busiscoming-website/backend/internal/analytics/infrastructure/classification"
 	"busiscoming-website/backend/internal/analytics/infrastructure/signing"
@@ -119,10 +120,14 @@ func trackedEngine(logOutput *bytes.Buffer, recorder EventRecorder) *gin.Engine 
 		bytes.NewReader(randomValues),
 	)
 	tracking := NewTrackingMiddleware(TrackingConfig{
-		Signer:     signer,
-		Classifier: classification.NewClassifier(),
-		Recorder:   recorder,
-		Clock:      func() time.Time { return now },
+		Signer:            signer,
+		Classifier:        classification.NewClassifier(),
+		VisitorCookieName: signing.VisitorCookieName,
+		VisitorCookie: func(credential analyticsapp.VisitorCredential, current time.Time) *http.Cookie {
+			return signing.VisitorCookie(credential.Value, credential.ExpiresAt, current)
+		},
+		Recorder: recorder,
+		Clock:    func() time.Time { return now },
 	})
 	return platformhttp.NewPublicEngine(logOutput, tracking)
 }

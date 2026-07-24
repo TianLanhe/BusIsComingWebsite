@@ -51,3 +51,23 @@ export const overviewWithoutComparisonEnvelope = {
       index === 2 ? { ...item, requestCount: 0, p95Ms: null } : item),
   },
 };
+
+export const overviewZeroBaselineEnvelope = {
+  ...overviewEnvelope,
+  requestId: "req-overview-zero-baseline",
+  data: {
+    ...overviewEnvelope.data,
+    metrics: overviewEnvelope.data.metrics.map((metric, index) => index === 0
+      ? { ...metric, previousValue: 0, delta: metric.value, deltaRate: null }
+      : metric),
+  },
+};
+
+export const overviewWithoutCurrentSamplesEnvelope = {
+  ...overviewEnvelope,
+  requestId: "req-overview-no-current-samples",
+  data: {
+    ...overviewEnvelope.data,
+    metrics: overviewEnvelope.data.metrics.map((metric) => ({ ...metric, value: null, previousValue: null, delta: null, deltaRate: null })),
+  },
+};

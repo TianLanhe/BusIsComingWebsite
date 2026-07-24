@@ -1,4 +1,4 @@
-import { Activity, Database, Radio, ServerCog, ShieldCheck } from "lucide-react";
+import { Database, Radio, ServerCog } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAnalyticsFilters } from "../app/FilterProvider";
 import { useMonitoringI18n } from "../app/MonitoringI18nProvider";
@@ -6,7 +6,7 @@ import { DashboardShell } from "../components/layout/DashboardShell";
 import { QueryState } from "../components/states/QueryState";
 import { monitoringCopy } from "../content/copy";
 import { detailText } from "../content/types";
-import { SYSTEM_FACTS, type SystemFactGroup } from "../model/systemFacts";
+import { SYSTEM_FACTS, type SystemFactGroup, type SystemFactKey } from "../model/systemFacts";
 import { AnalyticsClientError } from "../services/analyticsClient";
 import { fetchSystem } from "../services/analyticsDetailsClient";
 import type { SystemData } from "../services/analyticsTypes";
@@ -18,42 +18,68 @@ export function SystemPage({ loadSystem = fetchSystem }: { loadSystem?: (signal?
   const [error, setError] = useState<AnalyticsClientError | null>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const controller = new AbortController();
-    let active = true;
+    const controller = new AbortController(); let active = true;
     setLoading(true);
-    void loadSystem(controller.signal).then((result) => {
-      if (active) {
-        setData(result);
-        setError(null);
-        setLoading(false);
-      }
-    }).catch((caught) => {
-      if (active && !(caught instanceof DOMException && caught.name === "AbortError")) {
-        setError(caught instanceof AnalyticsClientError ? caught : new AnalyticsClientError("ANALYTICS_QUERY_FAILED", 0));
-        setLoading(false);
-      }
+    void loadSystem(controller.signal).then((result) => { if (active) { setData(result); setError(null); setLoading(false); } }).catch((caught) => {
+      if (active && !(caught instanceof DOMException && caught.name === "AbortError")) { setError(caught instanceof AnalyticsClientError ? caught : new AnalyticsClientError("ANALYTICS_QUERY_FAILED", 0)); setLoading(false); }
     });
     return () => { active = false; controller.abort(); };
   }, [filters.refreshVersion, loadSystem]);
 
   return <DashboardShell active="system" title="system" subtitleText={detailText(locale, "systemSubtitle")} generatedAt={data?.generatedAt}>
     {loading ? <QueryState kind="loading" title={monitoringCopy(locale, "loadingTitle")} body={monitoringCopy(locale, "loadingBody")} /> : error ? <QueryState kind="query_failed" title={monitoringCopy(locale, "queryFailedTitle")} body={monitoringCopy(locale, "queryFailedBody")} /> : data && <div className="system-workspace" data-testid="system-workspace">
-      <section className="system-section"><SectionHeading icon={Activity} title={detailText(locale, "runtimeStatus")} /><div className="system-status-grid">
-        <SystemCard icon={Database} title={detailText(locale, "systemDatabase")} state={data.database.state} locale={locale}><Stat label={detailText(locale, "rowCount")} value={formatNumber(data.database.rowCount, locale)} /></SystemCard>
-        <SystemCard icon={ShieldCheck} title={detailText(locale, "writeHealth")} state={data.database.state} locale={locale}><Stat label={detailText(locale, "lastSuccessfulWrite")} value={formatDate(data.database.lastSuccessfulWriteAt, locale)} /></SystemCard>
-        <SystemCard icon={ServerCog} title={detailText(locale, "systemProcess")} state="available" locale={locale}><Stat label={detailText(locale, "processStarted")} value={formatDate(data.process.startedAt, locale)} /><Stat label={detailText(locale, "dropped")} value={new Intl.NumberFormat(locale).format(data.process.droppedSinceStart)} /></SystemCard>
-        <SystemCard icon={Radio} title={detailText(locale, "systemListener")} state={data.privateListener.state} locale={locale}><Stat label={detailText(locale, "listenerState")} value={stateLabel(data.privateListener.state, locale)} /></SystemCard>
-      </div></section>
-      <section className="system-detail-grid"><article className="dashboard-card system-fact-panel"><SectionHeading icon={Database} title={detailText(locale, "storageOverview")} /><dl className="system-stats"><Stat label={detailText(locale, "rowCount")} value={formatNumber(data.database.rowCount, locale)} /><Stat label={detailText(locale, "databaseSize")} value={formatBytes(data.database.sizeBytes, locale)} /><Stat label={detailText(locale, "lastSuccessfulWrite")} value={formatDate(data.database.lastSuccessfulWriteAt, locale)} /></dl><FactList group="storage" locale={locale} /></article><article className="dashboard-card system-fact-panel"><SectionHeading icon={ShieldCheck} title={detailText(locale, "isolationFallback")} /><dl className="system-stats"><Stat label={detailText(locale, "listenerAddress")} value={data.privateListener.bindAddress} /><Stat label={detailText(locale, "publicProxy")} value={detailText(locale, "noPublicProxy")} /></dl><FactList group="isolation" locale={locale} /></article></section>
+      <FactGroup icon={Database} title={detailText(locale, "systemDatabase")} group="storage" data={data} locale={locale} />
+      <FactGroup icon={ServerCog} title={detailText(locale, "sqliteRuntime")} group="sqlite" data={data} locale={locale} />
+      <FactGroup icon={Radio} title={detailText(locale, "serviceRuntime")} group="service" data={data} locale={locale} />
     </div>}
   </DashboardShell>;
 }
 
-function SectionHeading({ icon: Icon, title }: { icon: typeof Database; title: string }) { return <header className="system-section-heading"><span><Icon /></span><h2>{title}</h2></header>; }
-function SystemCard({ icon: Icon, title, state, locale, children }: { icon: typeof Database; title: string; state: string; locale: "zh-Hans" | "zh-Hant" | "en"; children: React.ReactNode }) { return <article className="dashboard-card system-status-card" data-testid="dynamic-status-card"><header><span><Icon /></span><div><h3>{title}</h3><p className={`system-state ${state}`}><i />{stateLabel(state, locale)}</p></div></header><dl>{children}</dl></article>; }
-function Stat({ label, value }: { label: string; value: string }) { return <><dt>{label}</dt><dd>{value}</dd></>; }
-function FactList({ group, locale }: { group: SystemFactGroup; locale: "zh-Hans" | "zh-Hant" | "en" }) { return <ul className="system-facts">{SYSTEM_FACTS.filter((fact) => fact.group === group).map((fact) => <li key={fact.id}><span>{detailText(locale, "configurationFact")}</span><p>{detailText(locale, fact.copyKey)}</p></li>)}</ul>; }
-function stateLabel(state: string, locale: "zh-Hans" | "zh-Hant" | "en") { return state === "available" ? detailText(locale, "healthy") : state === "degraded" || state === "starting" ? detailText(locale, "degraded") : detailText(locale, "unavailable"); }
-function formatNumber(value: number | null, locale: string) { return value == null ? "—" : new Intl.NumberFormat(locale).format(value); }
-function formatBytes(value: number | null, locale: string) { return value == null ? "—" : new Intl.NumberFormat(locale, { style: "unit", unit: "megabyte", maximumFractionDigits: 2 }).format(value / 1_000_000); }
-function formatDate(value: string | null, locale: string) { return value == null ? "—" : new Intl.DateTimeFormat(locale, { timeZone: "Asia/Hong_Kong", dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
+function FactGroup({ icon: Icon, title, group, data, locale }: { icon: typeof Database; title: string; group: SystemFactGroup; data: SystemData; locale: "zh-Hans" | "zh-Hant" | "en" }) {
+  const facts = SYSTEM_FACTS.filter((fact) => fact.group === group);
+  return <section className="dashboard-card system-fact-panel"><header className="system-section-heading"><span><Icon /></span><h2>{title}</h2></header><dl className="system-facts-grid">
+    {facts.map((fact) => <Fact key={fact.key} fact={fact.key} data={data} locale={locale} />)}
+  </dl></section>;
+}
+
+function Fact({ fact, data, locale }: { fact: SystemFactKey; data: SystemData; locale: "zh-Hans" | "zh-Hant" | "en" }) {
+  const value = factValue(fact, data, locale);
+  return <div className="system-fact" data-testid="system-fact"><dt>{detailText(locale, fact)}</dt><dd className={value === null ? "no-data" : undefined}>{value ?? detailText(locale, "noData")}</dd></div>;
+}
+
+function factValue(fact: SystemFactKey, data: SystemData, locale: string): string | null {
+  switch (fact) {
+    case "rowCount": return formatNumber(data.database.rowCount, locale);
+    case "todayRowCount": { const count = formatNumber(data.database.todayRowCount, locale); return count === null ? null : `${count} · ${data.database.todayLocalDate}`; }
+    case "databaseSize": return formatBytes(data.database.sizeBytes, locale);
+    case "lastSuccessfulWrite": return formatDate(data.database.lastSuccessfulWriteAt, locale);
+    case "sqliteVersion": return data.sqlite.version;
+    case "journalMode": return data.sqlite.journalMode;
+    case "schemaVersion": return data.sqlite.schemaVersion;
+    case "processStarted": return formatDate(data.process.startedAt, locale);
+    case "processUptime": return formatDuration(data.process.uptimeMs, locale);
+    case "dropped": return formatNumber(data.process.droppedSinceStart, locale);
+    case "listenerState": return data.privateListener.state === null ? null : stateLabel(data.privateListener.state, locale);
+    case "listenerAddress": return data.privateListener.bindAddress;
+  }
+}
+
+function stateLabel(state: string, locale: string) { return state === "available" ? detailText(locale as "zh-Hans", "healthy") : state === "starting" || state === "degraded" ? detailText(locale as "zh-Hans", "degraded") : detailText(locale as "zh-Hans", "unavailable"); }
+function formatNumber(value: number | null, locale: string) { return value == null ? null : new Intl.NumberFormat(locale).format(value); }
+function formatBytes(value: number | null, locale: string) {
+  if (value == null) return null;
+  const units = ["B", "KB", "MB", "GB"];
+  let amount = value, unit = 0;
+  while (amount >= 1024 && unit < units.length - 1) { amount /= 1024; unit += 1; }
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: amount < 10 && unit > 0 ? 1 : 0 }).format(amount)} ${units[unit]}`;
+}
+function formatDate(value: string | null, locale: string) { return value == null ? null : new Intl.DateTimeFormat(locale, { timeZone: "Asia/Hong_Kong", dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
+function formatDuration(value: number | null, locale: string) {
+  if (value == null) return null;
+  const labels = locale === "en" ? ["s", "min", "h"] : locale === "zh-Hant" ? ["秒", "分鐘", "小時"] : ["秒", "分钟", "小时"];
+  if (value > 0 && value < 1000) return `<1 ${labels[0]}`;
+  let amount = value / 1000, unit = 0;
+  if (amount >= 60) { amount /= 60; unit = 1; }
+  if (amount >= 60) { amount /= 60; unit = 2; }
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: amount < 10 && unit > 0 ? 1 : 0 }).format(amount)} ${labels[unit]}`;
+}

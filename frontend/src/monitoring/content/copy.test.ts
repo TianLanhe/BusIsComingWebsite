@@ -32,6 +32,18 @@ describe("monitoring copy completeness", () => {
     }
   });
 
+  it("distinguishes public HttpOnly collection from private header-only visitor investigation", () => {
+    const expectations = {
+      "zh-Hant": [/公開.*HttpOnly Cookie/, /私有.*X-Analytics-Visitor-ID.*header/, /query 或 body 或日誌/],
+      "zh-Hans": [/公开.*HttpOnly Cookie/, /私有.*X-Analytics-Visitor-ID.*header/, /query、body 或日志/],
+      en: [/public.*HttpOnly cookie/i, /private.*X-Analytics-Visitor-ID header/i, /query, body, or logs/i],
+    } as const;
+    for (const locale of locales) {
+      const text = monitoringCopyCatalog[locale].visitorTransport;
+      for (const expected of expectations[locale]) expect(text).toMatch(expected);
+    }
+  });
+
   it("covers every remediation state in all three languages", () => {
     const overviewKeys = [
       "customRange", "startDate", "endDate", "applyRange", "dateInvalid", "dateFuture", "dateOrder",
@@ -47,6 +59,23 @@ describe("monitoring copy completeness", () => {
       "backToEvents", "copyFailed", "configurationFact", "runtimeStatus", "storageOverview",
       "isolationFallback", "retentionLongTerm", "backupDisabled", "writeQueueDisabled",
       "detailOnlyStorage", "droppedUnavailable",
+    ] as const;
+
+    for (const locale of locales) {
+      for (const key of overviewKeys) expect(monitoringCopyCatalog[locale]).toHaveProperty(key);
+      for (const key of detailKeys) expect(detailCopy[locale]).toHaveProperty(key);
+    }
+  });
+
+  it("covers the 012 navigation, date-flow, comparison, performance, traffic, system, and visitor keys", () => {
+    const overviewKeys = [
+      "businessMonitoring", "technicalMonitoring", "dataDetails", "dateStepStart", "dateStepEnd",
+      "comparisonIncreased", "comparisonDecreased", "comparisonZeroBaseline", "p50", "p95", "sli",
+      "homepagePv", "homepageUv", "placeQueryPv", "placeQueryUv", "routeQueryPv", "routeQueryUv",
+    ] as const;
+    const detailKeys = [
+      "sqliteVersion", "journalMode", "schemaVersion", "todayRowCount", "processUptime",
+      "visitorPreferences", "commonPlatform", "commonDevice", "commonLocale",
     ] as const;
 
     for (const locale of locales) {

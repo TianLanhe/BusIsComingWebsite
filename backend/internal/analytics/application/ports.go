@@ -42,17 +42,23 @@ type EventListRequest struct {
 	Limit     int
 }
 
+// EventSummaryRequest 与明细分页分离，保证 cursor 和 limit 永远不会改变指标卡口径。
+type EventSummaryRequest struct {
+	Query     domain.AnalyticsQuery
+	VisitorID string
+}
+
 type StoredEventPage struct {
 	Items   []domain.AnalyticsEvent
-	Summary EventRangeSummary
 	HasMore bool
 }
 
 type DetailsStore interface {
 	OverviewEventStore
 	ListEvents(context.Context, EventListRequest) (StoredEventPage, error)
+	SummarizeEvents(context.Context, EventSummaryRequest) (EventRangeSummary, error)
 	LoadVisitorEvents(context.Context, string) ([]domain.AnalyticsEvent, error)
-	ReadStorageSnapshot(context.Context) (SystemStorageSnapshot, error)
+	ReadStorageSnapshot(context.Context, time.Time, time.Time) (SystemStorageSnapshot, error)
 }
 
 type ListenerStateReader interface {

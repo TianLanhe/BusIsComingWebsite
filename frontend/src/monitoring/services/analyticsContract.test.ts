@@ -5,7 +5,15 @@ import { parse } from "yaml";
 
 type Schema = {
   required?: string[];
-  properties?: Record<string, { $ref?: string; items?: { $ref?: string } }>;
+  properties?: Record<string, {
+    $ref?: string;
+    items?: { $ref?: string };
+    type?: string | string[];
+    enum?: unknown[];
+    minItems?: number;
+    maxItems?: number;
+    description?: string;
+  }>;
 };
 
 type OpenApiDocument = {
@@ -14,12 +22,12 @@ type OpenApiDocument = {
   components: { schemas: Record<string, Schema> };
 };
 
-const featurePath = resolve(process.cwd(), "../specs/011-analytics-dashboard-remediation/contracts/analytics-monitoring-api.openapi.yaml");
+const featurePath = resolve(process.cwd(), "../specs/012-analytics-dashboard-observability/contracts/analytics-monitoring-api.openapi.yaml");
 const sharedPath = resolve(process.cwd(), "../shared/contracts/openapi/analytics-monitoring-api.openapi.yaml");
 const featureSource = readFileSync(featurePath, "utf8");
 const document = parse(featureSource) as OpenApiDocument;
 
-describe("011 monitoring OpenAPI contract", () => {
+describe("012 monitoring OpenAPI contract", () => {
   it("keeps the seven private operations stable", () => {
     const operations = Object.values(document.paths)
       .flatMap((path) => Object.values(path))
@@ -57,6 +65,42 @@ describe("011 monitoring OpenAPI contract", () => {
     expect(events.required).toContain("summary");
     expect(events.properties?.summary?.$ref).toBe("#/components/schemas/EventRangeSummary");
     expect(visitor.required).toEqual(expect.arrayContaining(["eventComposition", "commonPlatform"]));
+  });
+
+  it("defines the 012 event, traffic, performance, and nullable runtime additions", () => {
+    const schemas = document.components.schemas;
+    const summaryMetrics = schemas.EventListData.properties?.summaryMetrics;
+    const trafficMetrics = schemas.TrafficData.properties?.metrics;
+    const sqlite = schemas.SQLiteRuntimeStatus;
+    const process = schemas.ProcessStatus;
+    const listener = schemas.PrivateListenerStatus;
+
+    expect(schemas.EventListData.required).toEqual(expect.arrayContaining(["meta", "summary", "summaryMetrics", "items", "pageInfo"]));
+    expect(summaryMetrics?.items?.$ref).toBe("#/components/schemas/Metric");
+    expect(summaryMetrics?.minItems).toBe(4);
+    expect(summaryMetrics?.maxItems).toBe(4);
+    expect(trafficMetrics?.items?.$ref).toBe("#/components/schemas/Metric");
+    expect(trafficMetrics?.minItems).toBe(6);
+    expect(trafficMetrics?.maxItems).toBe(6);
+    for (const key of ["pv", "uv", "placeQueryRequests", "placeQueryVisitors", "routeQueryRequests", "routeQueryVisitors"]) {
+      expect(trafficMetrics?.description).toContain(`\`${key}\``);
+    }
+    expect(trafficMetrics?.description).not.toContain("successfulPlaceVisitors");
+    expect(trafficMetrics?.description).not.toContain("successfulRouteVisitors");
+    expect(schemas.PercentileComparison.required).toEqual(["currentMs", "previousMs", "deltaMs", "deltaRate"]);
+    expect(schemas.SLISeriesPoint.required).toEqual(["bucketStart", "bucketEnd", "eventType", "successfulPV", "totalPV", "successRate"]);
+    expect(schemas.PerformanceData.required).toContain("sliSeries");
+    expect(schemas.SystemData.required).toEqual(["generatedAt", "database", "sqlite", "process", "privateListener"]);
+    expect(sqlite.required).toEqual(["version", "journalMode", "schemaVersion"]);
+    expect(sqlite.properties?.version?.type).toEqual(["string", "null"]);
+    expect(sqlite.properties?.journalMode?.type).toEqual(["string", "null"]);
+    expect(process.required).toEqual(["startedAt", "uptimeMs", "droppedSinceStart"]);
+    expect(process.properties?.startedAt?.type).toEqual(["string", "null"]);
+    expect(process.properties?.uptimeMs?.type).toEqual(["integer", "null"]);
+    expect(process.properties?.droppedSinceStart?.type).toEqual(["integer", "null"]);
+    expect(listener.required).toEqual(["state", "bindAddress", "publicProxy"]);
+    expect(listener.properties?.state?.type).toEqual(["string", "null"]);
+    expect(listener.properties?.bindAddress?.type).toEqual(["string", "null"]);
   });
 
   it("keeps the shared runtime contract byte-for-byte synchronized", () => {

@@ -12,7 +12,7 @@ describe("ResponsiveEventList", () => {
     expect(screen.getByText("匿名访客")).toBeInTheDocument();
     expect(screen.getByText("耗时")).toBeInTheDocument();
     expect(screen.getByText("结果")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "查看访客" }));
+    fireEvent.click(screen.getByRole("button", { name: "查看访客明细" }));
     expect(onViewVisitor).toHaveBeenCalledWith("abcdefghijklmnopqrstuv");
   });
 });
