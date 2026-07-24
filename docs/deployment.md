@@ -18,7 +18,8 @@ ssh root@<server-ip>
   包含同一服务器 IP。若域名由 Cloudflare 等代理托管，使用 `proxied` 模式，只要求两
   个域名有 A 记录，不要求解析结果等于源站 IP。
 - 公网端口：22、80、443 需要可访问；公开后端只监听 `127.0.0.1:8080`，监控端固定只监听
-  `127.0.0.1:18081`。
+  `127.0.0.1:18081`。服务器启用 UFW 时，脚本会保留 OpenSSH，并显式放行 `80/tcp` 和
+  `443/tcp`，不依赖 Caddy 的 UFW application profile。
 - 本机工具：`bash`、`ssh`、`scp`、`tar`、`git`、`npm`、`node`、`go`、`shasum`、
   `dig`、`file`、`mktemp`。
 - 服务器运行用户：脚本会创建非 root 的 `busiscoming` 系统用户运行后端服务。
@@ -203,7 +204,9 @@ Dashboard 或数据库不可用只记录 degraded warning，不得让公开 `/he
 - Caddy reload 失败：脚本会恢复旧 Caddyfile。
 - 后端或 HTTPS 健康检查失败：脚本会恢复旧 `current/previous`，并保留失败 release
   目录用于排查。主域名 HTTPS 健康检查接受 `200` 或 `301`；裸域名必须永久重定向到
-  主域名。
+  主域名。后端启动轮询期间，CLI 会用 spinner 显示当前连接尝试；轮询结束后先输出固定的
+  `[ok]` 或 `[failed]` 结果。只有后端、主域名 HTTPS 和裸域名跳转全部验证通过，才会输出
+  `[6/6] Deployment verified`。
 - 私有监控健康失败：部署输出 degraded warning，但只要公开健康检查通过就继续；通过 SSH
   隧道检查 `/api/analytics/system`、后端日志，以及 `shared/analytics` 是否为
   `root:busiscoming`、模式 `0770` 并允许 `busiscoming` 用户写入；禁止临时开放公网端口。

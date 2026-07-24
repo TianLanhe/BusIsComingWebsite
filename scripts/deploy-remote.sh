@@ -586,7 +586,8 @@ configure_ufw() {
   case "${status}" in
     *"Status: active"*)
       ufw allow OpenSSH
-      ufw allow "Caddy Full"
+      ufw allow 80/tcp
+      ufw allow 443/tcp
       ;;
   esac
 }
@@ -980,6 +981,38 @@ deployment_command_path() {
   fi
 }
 
+local_health_progress() {
+  local frame_index="$1"
+  local attempt="$2"
+  local max_attempts="$3"
+  local frames='|/-\'
+  local frame
+
+  frame="${frames:$((frame_index % 4)):1}"
+  printf '\r%s Connecting to local backend (attempt %s/%s)...' \
+    "${frame}" "${attempt}" "${max_attempts}" >&2
+}
+
+local_health_result() {
+  local message="$1"
+
+  # 回车并清除动态行，避免 spinner 残影与最终结果或后续部署阶段混在一起。
+  printf '\r\033[K%s\n' "${message}" >&2
+}
+
+animate_local_health_retry() {
+  local attempt="$1"
+  local max_attempts="$2"
+  local frame_index=0
+
+  [[ "${TEST_MODE}" -eq 1 ]] && return 0
+  while [[ "${frame_index}" -lt 20 ]]; do
+    local_health_progress "${frame_index}" "${attempt}" "${max_attempts}"
+    sleep 0.1
+    frame_index=$((frame_index + 1))
+  done
+}
+
 verify_active_release() {
   local systemctl_command
   local curl_command
@@ -1000,21 +1033,25 @@ verify_active_release() {
   fi
   "${systemctl_command}" restart busiscoming-backend || return 1
   while [[ "${local_attempt}" -le "${local_max_attempts}" ]]; do
+    local_health_progress "$((local_attempt - 1))" \
+      "${local_attempt}" "${local_max_attempts}"
     if "${systemctl_command}" is-active --quiet busiscoming-backend &&
       "${curl_command}" --fail --silent --show-error --max-time 5 \
-        http://127.0.0.1:8080/healthz >/dev/null; then
+        http://127.0.0.1:8080/healthz >/dev/null 2>&1; then
       break
     fi
     local_attempt=$((local_attempt + 1))
-    if [[ "${local_attempt}" -le "${local_max_attempts}" &&
-      "${TEST_MODE}" -ne 1 ]]; then
-      sleep 2
+    if [[ "${local_attempt}" -le "${local_max_attempts}" ]]; then
+      animate_local_health_retry "${local_attempt}" "${local_max_attempts}"
     fi
   done
   if [[ "${local_attempt}" -gt "${local_max_attempts}" ]]; then
-    printf 'Local backend health check failed\n' >&2
+    local_health_result \
+      "[failed] Local backend health check failed after ${local_max_attempts} attempts."
     return 1
   fi
+  local_health_result \
+    "[ok] Connected to local backend (attempt ${local_attempt}/${local_max_attempts})."
 
   analytics_port="$(backend_env_value BUS_ANALYTICS_PRIVATE_PORT 18081)"
   if ! "${curl_command}" --fail --silent --show-error --max-time 5 \

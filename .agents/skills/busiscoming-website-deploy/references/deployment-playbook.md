@@ -9,7 +9,10 @@
 3. Validate APK and metadata, create release archive and checksums.
 4. Upload release, remote helper, and APK artifacts to the configured SSH target via SSH/SCP.
 5. Activate the remote release through `scripts/deploy-remote.sh`.
-6. Verify local backend health, public HTTPS main domain, and bare-domain redirect.
+6. Verify local backend health, public HTTPS main domain, and bare-domain redirect. The
+   local-backend polling line uses a spinner, then prints a fixed `[ok]` or `[failed]`
+   result; `[6/6] Deployment verified` is printed only after the remote verification
+   command succeeds.
 
 The script deploys immutable code releases, but APK replacement is a separate boundary. `switch` and `rollback` only change website code, not the APK.
 
@@ -70,7 +73,10 @@ Inspect the current dependency versions and local config before proposing a fix.
 - Fix repeatable permission defects in `scripts/deploy-remote.sh`, its deployment tests, and
   `docs/deployment.md`, then redeploy through `scripts/deploy.sh`. Do not make the directory
   world-writable, expose the private port, or leave an undocumented one-off server change.
-- Firewall profile warnings are not necessarily fatal if the services are active and public health passes. Verify service state and public health before deciding whether deployment completed.
+- When UFW is active, the remote helper allows `OpenSSH`, `80/tcp`, and `443/tcp`
+  explicitly; it must not depend on a `Caddy Full` application profile. If that profile
+  error appears, verify that the uploaded remote helper is current before rerunning the
+  normal deployment entrypoint. Never open the private analytics port.
 - Stale remote deploy config, such as an old unsupported key: do not `cat` the whole config. Check only the exact key and remove only the offending line after confirming it is safe. Keep examples generic and avoid real paths or values.
 
 ## Script changes

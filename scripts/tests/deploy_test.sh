@@ -2528,7 +2528,9 @@ EOF
       _ "${REMOTE_SCRIPT}" || return 1
   log="$(cat "${temp}/ufw.log")"
   assert_contains "${log}" "ufw|allow OpenSSH" || return 1
-  assert_contains "${log}" "ufw|allow Caddy Full" || return 1
+  assert_contains "${log}" "ufw|allow 80/tcp" || return 1
+  assert_contains "${log}" "ufw|allow 443/tcp" || return 1
+  assert_not_contains "${log}" "Caddy Full" || return 1
 
   : > "${temp}/ufw.log"
   PATH="${temp}/bin:/usr/bin:/bin" \
@@ -2628,6 +2630,7 @@ test_remote_deploy_waits_for_local_health() {
   local temp
   local current_target
   local local_checks
+  local output
 
   temp="$(mktemp -d)"
   write_release_fixture "${temp}" "v1"
@@ -2635,25 +2638,27 @@ test_remote_deploy_waits_for_local_health() {
   write_fake_deployment_commands "${temp}/bin"
   : > "${temp}/deploy.log"
 
-  PATH="${temp}/bin:/usr/bin:/bin" \
-    FAKE_DEPLOY_LOG="${temp}/deploy.log" \
-    FAKE_DEPLOY_LOCAL_FAILS=2 \
-    FAKE_DEPLOY_LOCAL_COUNT_FILE="${temp}/local-health-count" \
-    FAKE_DOMAIN="www.busiscoming.com" \
-    FAKE_BARE_DOMAIN="busiscoming.com" \
-    BUS_DEPLOY_TEST_BIN="${temp}/bin" \
-    BUS_DEPLOY_TEST_LOCAL_HEALTH_ATTEMPTS=3 \
-    BUS_DEPLOY_TEST_MODE=1 \
-    BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
-    "${REMOTE_SCRIPT}" deploy \
-      --root "${temp}/root" \
-      --domain www.busiscoming.com \
-      --bare-domain busiscoming.com \
-      --keep 3 \
-      --version v1 \
-      --archive "${temp}/release-v1.tar.gz" \
-      --archive-sha "${temp}/release-v1.tar.gz.sha256" \
-      --apk-dir "${temp}/apk" || return 1
+  output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+      FAKE_DEPLOY_LOCAL_FAILS=2 \
+      FAKE_DEPLOY_LOCAL_COUNT_FILE="${temp}/local-health-count" \
+      FAKE_DOMAIN="www.busiscoming.com" \
+      FAKE_BARE_DOMAIN="busiscoming.com" \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+      BUS_DEPLOY_TEST_LOCAL_HEALTH_ATTEMPTS=3 \
+      BUS_DEPLOY_TEST_MODE=1 \
+      BUS_DEPLOY_ETC_ROOT="${temp}/etc-root" \
+      "${REMOTE_SCRIPT}" deploy \
+        --root "${temp}/root" \
+        --domain www.busiscoming.com \
+        --bare-domain busiscoming.com \
+        --keep 3 \
+        --version v1 \
+        --archive "${temp}/release-v1.tar.gz" \
+        --archive-sha "${temp}/release-v1.tar.gz.sha256" \
+        --apk-dir "${temp}/apk" 2>&1
+  )" || return 1
 
   current_target="$(readlink "${temp}/root/current")"
   assert_equals "$(basename "${current_target}")" "v1" || return 1
@@ -2661,6 +2666,43 @@ test_remote_deploy_waits_for_local_health() {
     grep -c 'http://127.0.0.1:8080/healthz' "${temp}/deploy.log"
   )"
   assert_equals "${local_checks}" "3" || return 1
+  assert_contains "${output}" "| Connecting to local backend (attempt 1/3)..." || return 1
+  assert_contains "${output}" "/ Connecting to local backend (attempt 2/3)..." || return 1
+  assert_contains "${output}" "[ok] Connected to local backend (attempt 3/3)." || return 1
+
+  rm -rf "${temp}"
+}
+
+test_remote_deploy_reports_local_health_failure() {
+  local temp
+  local output
+
+  temp="$(mktemp -d)"
+  write_fake_deployment_commands "${temp}/bin"
+  mkdir -p "${temp}/root"
+  : > "${temp}/deploy.log"
+
+  if output="$(
+    PATH="${temp}/bin:/usr/bin:/bin" \
+      FAKE_DEPLOY_LOG="${temp}/deploy.log" \
+      FAKE_DEPLOY_LOCAL=failed \
+      BUS_DEPLOY_TEST_BIN="${temp}/bin" \
+      BUS_DEPLOY_TEST_LOCAL_HEALTH_ATTEMPTS=2 \
+      BUS_DEPLOY_TEST_MODE=1 \
+      bash -c '
+        source "$1"
+        ROOT="$2"
+        DOMAIN="www.busiscoming.com"
+        BARE_DOMAIN="busiscoming.com"
+        verify_active_release
+      ' _ "${REMOTE_SCRIPT}" "${temp}/root" 2>&1
+  )"; then
+    printf '  expected local backend health failure\n'
+    return 1
+  fi
+
+  assert_contains "${output}" "[failed] Local backend health check failed after 2 attempts." || return 1
+  assert_not_contains "${output}" "[ok] Connected to local backend" || return 1
 
   rm -rf "${temp}"
 }
@@ -3103,6 +3145,7 @@ run_test "remote deploy installs first release and APK" test_remote_deploy_insta
 run_test "remote deploy treats private analytics health as degraded" test_remote_deploy_keeps_public_release_healthy_when_private_analytics_is_degraded
 run_test "remote deploy accepts main HTTPS 301" test_remote_deploy_accepts_main_https_redirect
 run_test "remote deploy waits for local health" test_remote_deploy_waits_for_local_health
+run_test "remote deploy reports local health failure" test_remote_deploy_reports_local_health_failure
 run_test "remote deploy restores code on health failure" test_remote_deploy_restores_code_on_health_failure
 run_test "remote deploy without APK requires an existing valid APK" test_remote_deploy_without_apk_requires_existing_valid_apk
 run_test "remote deploy creates runtime user before group-owned directories" test_remote_deploy_creates_runtime_user_before_group_owned_directories
