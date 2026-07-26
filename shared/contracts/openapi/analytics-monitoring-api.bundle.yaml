@@ -1061,6 +1061,7 @@ components:
       additionalProperties: false
     VersionDistribution:
       type: object
+      description: 按平台、versionName 与 versionCode 聚合的版本表现；同一版本曾出现不同包大小时合并为一项。
       required:
         - platform
         - versionName
@@ -1090,6 +1091,7 @@ components:
         sizeBytes:
           type: integer
           minimum: 1
+          description: 该版本在查询范围内最新一条下载记录的安装包大小。
       additionalProperties: false
     DownloadsData:
       type: object

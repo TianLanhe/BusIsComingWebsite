@@ -74,7 +74,7 @@ describe("OverviewPage", () => {
     expect(loader).toHaveBeenCalledTimes(3);
   });
 
-  it("re-resolves a range containing today before the automatic request", async () => {
+  it("keeps the complete selected end day before the automatic request", async () => {
     vi.useFakeTimers();
     let instant = new Date("2026-07-21T00:30:00+08:00");
     const loader = vi.fn(async (_query: AnalyticsQuery) => readyOverview());
@@ -86,14 +86,14 @@ describe("OverviewPage", () => {
       </MonitoringI18nProvider>,
     );
     await act(async () => { await Promise.resolve(); });
-    expect(loader.mock.calls[0][0].to).toBe("2026-07-21T00:30:00+08:00");
+    expect(loader.mock.calls[0][0].to).toBe("2026-07-22T00:00:00+08:00");
 
     instant = new Date("2026-07-21T00:31:00+08:00");
     await act(async () => {
       vi.advanceTimersByTime(60_000);
       await Promise.resolve();
     });
-    expect(loader.mock.calls[1][0].to).toBe("2026-07-21T00:31:00+08:00");
+    expect(loader.mock.calls[1][0].to).toBe("2026-07-22T00:00:00+08:00");
   });
 });
 

@@ -53,6 +53,16 @@ describe("TimeSeriesChart", () => {
     expect(container.querySelector(".chart-keyboard-tooltip")).toBeNull();
   });
 
+  it("uses the hovered point index as the single source of truth for pointer tooltip content", () => {
+    const { container } = render(<TimeSeriesChart title="流量趋势" data={data} series={series} locale="zh-Hans" emptyLabel="暂无数据" />);
+    fireEvent.mouseEnter(screen.getAllByTestId("chart-point")[1]);
+
+    const tooltip = container.querySelector(".chart-tooltip");
+    expect(tooltip).toHaveTextContent("16");
+    expect(tooltip).toHaveTextContent("7");
+    expect(container.querySelectorAll(".chart-tooltip, .chart-keyboard-tooltip")).toHaveLength(1);
+  });
+
   it("clears interaction when replacement data or a non-empty visible series changes", () => {
     const { container, rerender } = render(<TimeSeriesChart title="流量趋势" data={data} series={series} locale="zh-Hans" emptyLabel="暂无数据" />);
     fireEvent.focus(screen.getAllByTestId("chart-point")[0]);

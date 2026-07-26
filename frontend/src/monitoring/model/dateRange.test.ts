@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DateRangeValidationError, resolveDateRange, type DateRangeSelection } from "./dateRange";
 
-const preset = (days: 7 | 30 | 90): DateRangeSelection => ({
+const preset = (days: 1 | 7 | 30 | 90): DateRangeSelection => ({
   kind: "preset",
   presetDays: days,
   startDate: null,
@@ -17,6 +17,7 @@ const custom = (startDate: string, endDate: string): DateRangeSelection => ({
 
 describe("resolveDateRange", () => {
   it.each([
+    [1, "2026-07-23", 1],
     [7, "2026-07-17", 7],
     [30, "2026-06-24", 30],
     [90, "2026-04-25", 90],
@@ -26,7 +27,7 @@ describe("resolveDateRange", () => {
     expect(result.displayStartDate).toBe(start);
     expect(result.displayEndDate).toBe("2026-07-23");
     expect(result.from).toBe(`${start}T00:00:00+08:00`);
-    expect(result.to).toBe("2026-07-23T00:30:00+08:00");
+    expect(result.to).toBe("2026-07-24T00:00:00+08:00");
     expect(result.dayCount).toBe(count);
     expect(result.includesToday).toBe(true);
   });
@@ -45,9 +46,9 @@ describe("resolveDateRange", () => {
     expect(result.includesToday).toBe(false);
   });
 
-  it("uses the current instant when a custom range ends today", () => {
+  it("covers the complete selected end day when a custom range ends today", () => {
     const result = resolveDateRange(custom("2026-07-22", "2026-07-23"), new Date("2026-07-23T07:08:09Z"));
-    expect(result.to).toBe("2026-07-23T15:08:09+08:00");
+    expect(result.to).toBe("2026-07-24T00:00:00+08:00");
     expect(result.includesToday).toBe(true);
   });
 

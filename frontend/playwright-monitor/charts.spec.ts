@@ -52,6 +52,20 @@ test("switches stability latency percentile locally while preserving four SLI se
   await expect(legends.nth(0)).toContainText("P95");
   await expect(legends.nth(1)).toContainText(/Homepage|主页|主頁/);
   await expect(page.locator(".filter-count")).toHaveText("0");
+  const chartGeometry = await page.locator(".performance-chart").first().evaluate((chart) => {
+    const wrapper = chart.querySelector<HTMLElement>(".recharts-wrapper");
+    const svg = chart.querySelector<SVGSVGElement>("svg");
+    return {
+      wrapperWidth: wrapper?.getBoundingClientRect().width ?? 0,
+      svgWidth: svg?.getBoundingClientRect().width ?? 0,
+      coordinateWidth: Number(svg?.getAttribute("width") ?? 0),
+    };
+  });
+  expect(chartGeometry.wrapperWidth).toBe(chartGeometry.coordinateWidth);
+  expect(chartGeometry.svgWidth).toBe(chartGeometry.coordinateWidth);
+  const exactPoint = page.locator(".performance-chart").first().getByTestId("chart-point").nth(4);
+  await exactPoint.hover();
+  await expect(page.locator(".performance-chart").first().locator(".chart-tooltip")).toContainText("136 ms");
   const before = performanceRequests;
   await page.getByRole("button", { name: "P50", exact: true }).click();
   await expect(page.getByRole("button", { name: "P50", exact: true })).toHaveAttribute("aria-pressed", "true");

@@ -37,6 +37,11 @@
 .date-range-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .date-range-fields label { display: grid; gap: 5px; color: var(--pulse-muted); font-size: var(--pulse-font-supporting); }
 .date-range-fields input { min-height: 44px; padding: 0 9px; border: 1px solid var(--pulse-border); border-radius: 8px; color: var(--pulse-text); background: white; font: inherit; }
+.date-range-fields input, .custom-date-fields input { cursor: pointer; }
+.date-range-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.date-range-options button { min-height: 44px; padding: 0 11px; border: 1px solid var(--pulse-border); border-radius: 8px; color: #526c71; background: white; cursor: pointer; font: inherit; font-size: var(--pulse-font-supporting); font-weight: 700; }
+.date-range-options button:last-child { grid-column: 1 / -1; }
+.date-range-options button.active { border-color: var(--pulse-brand); color: var(--pulse-brand); background: #e8f5f2; }
 .date-range-fallback, .date-range-cancel { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 12px; border: 1px solid var(--pulse-border); border-radius: 8px; color: var(--pulse-brand); background: #f5fbfa; cursor: pointer; font: inherit; font-size: var(--pulse-font-supporting); font-weight: 700; }
 .date-range-cancel { justify-self: end; color: #526c71; background: white; }
 .mobile-brand-row { display: none; }
@@ -108,13 +113,14 @@
 .time-series-legend i.circle::after { border-radius: 50%; }
 .time-series-legend i.diamond::after { transform: translate(-50%, -50%) rotate(45deg); }
 .time-series-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
-.time-series-scroll .recharts-wrapper { min-width: 720px; max-width: 100%; }
+.time-series-scroll .recharts-wrapper { min-width: 820px; max-width: none; }
 .chart-tooltip, .chart-keyboard-tooltip { z-index: 4; display: grid; gap: 7px; min-width: 210px; padding: 12px 14px; border: 1px solid var(--pulse-border-strong); border-radius: 10px; color: var(--pulse-text); background: rgba(255,255,255,.98); box-shadow: var(--pulse-shadow-float); font-size: var(--pulse-font-supporting); }
 .chart-tooltip strong, .chart-keyboard-tooltip strong { margin-bottom: 3px; font-size: var(--pulse-font-body); }
 .chart-tooltip span, .chart-keyboard-tooltip span { display: grid; grid-template-columns: 8px 1fr auto; gap: 8px; align-items: center; }
 .chart-tooltip span i, .chart-keyboard-tooltip span i { width: 7px; height: 7px; border-radius: 50%; }
 .chart-tooltip span b, .chart-keyboard-tooltip span b { font-size: inherit; }
 .chart-keyboard-tooltip { position: absolute; top: 54px; right: 12px; pointer-events: none; }
+.chart-pointer-tooltip { position: absolute; top: 54px; right: 12px; pointer-events: none; }
 .chart-empty { display: grid; place-items: center; min-height: 250px; color: var(--pulse-muted); font-size: var(--pulse-font-body); }
 .recharts-cartesian-axis-tick-value { font-size: var(--pulse-font-supporting); }
 [data-testid="chart-point"]:focus { outline: 3px solid rgba(39,153,168,.36); outline-offset: 3px; }

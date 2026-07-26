@@ -126,7 +126,8 @@ test("keeps applied filters, draft date step, percentile and page through a lang
     await page.getByTestId("desktop-sidebar").getByRole("link", { name: labels.performance }).click();
   }
   await page.getByRole("button", { name: "P50", exact: true }).click();
-  await page.getByRole("button", { name: /自定义日期|自訂日期/ }).click();
+  await page.getByRole("button", { name: /日期范围|日期範圍/ }).click();
+  await page.getByRole("button", { name: /自定义日期|自訂日期/, exact: true }).click();
   await page.getByRole("dialog", { name: mobile ? "日期範圍" : "日期范围" }).getByLabel(labels.start).fill("2026-07-12");
   await page.getByLabel(/语言|語言/).selectOption("en");
   await expect(page.getByRole("heading", { name: "Stability & latency" })).toBeVisible();

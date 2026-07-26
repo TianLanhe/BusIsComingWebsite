@@ -1,4 +1,4 @@
-export type PresetDays = 7 | 30 | 90;
+export type PresetDays = 1 | 7 | 30 | 90;
 
 export interface DateRangeSelection {
   kind: "preset" | "custom";
@@ -35,7 +35,7 @@ export function resolveDateRange(selection: DateRangeSelection, now: Date): Reso
   let endDate: string;
 
   if (selection.kind === "preset") {
-    if (selection.presetDays !== 7 && selection.presetDays !== 30 && selection.presetDays !== 90) {
+    if (selection.presetDays !== 1 && selection.presetDays !== 7 && selection.presetDays !== 30 && selection.presetDays !== 90) {
       throw new DateRangeValidationError("invalid");
     }
     endDate = today;
@@ -47,10 +47,9 @@ export function resolveDateRange(selection: DateRangeSelection, now: Date): Reso
     if (endDate > today) throw new DateRangeValidationError("future");
   }
 
-  const includesToday = endDate === today;
   const from = hongKongMidnight(startDate);
-  // API 使用半开区间：[from,to)。今天尚未结束，因此上界取刷新瞬间；历史日期取结束日次日 00:00。
-  const to = includesToday ? formatHongKongInstant(now) : hongKongMidnight(addCalendarDays(endDate, 1));
+  // 页面语义包含完整结束日；API 仍使用半开区间，以下一日 00:00 作为上界可覆盖结束日最后一秒及其小数部分。
+  const to = hongKongMidnight(addCalendarDays(endDate, 1));
   const duration = new Date(to).getTime() - new Date(from).getTime();
 
   return {
@@ -58,7 +57,7 @@ export function resolveDateRange(selection: DateRangeSelection, now: Date): Reso
     to,
     displayStartDate: startDate,
     displayEndDate: endDate,
-    includesToday,
+    includesToday: endDate === today,
     dayCount: calendarDistance(startDate, endDate) + 1,
     comparisonFrom: formatHongKongInstant(new Date(new Date(from).getTime() - duration)),
     comparisonTo: from,
