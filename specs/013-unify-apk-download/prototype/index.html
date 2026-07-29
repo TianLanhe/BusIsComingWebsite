@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>013 · Android APK 下载入口统一</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #17223b;
+      background: #f3f6f8;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 40px; background: #f3f6f8; }
+    main { width: min(1460px, 100%); margin: 0 auto; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    h1 { margin: 0; font-size: 34px; letter-spacing: -.03em; color: #10243e; }
+    header p { margin: 12px 0 0; color: #5f6c7b; line-height: 1.6; }
+    .version { padding: 8px 14px; border-radius: 999px; background: #ddf7f1; color: #075b55; font-weight: 700; white-space: nowrap; }
+    .flow { margin: 30px 0 18px; padding: 24px 28px; border-radius: 20px; background: #10243e; color: #fff; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .flow small { color: #9de5da; font-weight: 700; }
+    .flow strong { display: block; margin-top: 8px; font-size: 18px; }
+    .no-blob { margin: 0 0 34px; color: #9c463c; font-weight: 700; }
+    h2 { margin: 38px 0 18px; color: #10243e; font-size: 22px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+    .panel { min-width: 0; padding: 24px 26px 26px; border: 1px solid #dde3eb; border-radius: 22px; background: #fff; box-shadow: 0 10px 24px rgba(13, 28, 46, .08); }
+    .badge { display: inline-block; padding: 7px 12px; border-radius: 999px; background: #f0f2f5; color: #5e6774; font-size: 12px; font-weight: 800; letter-spacing: .04em; }
+    .ready .badge { background: #ddf7f1; color: #075b55; }
+    .checking .badge { background: #fff2cf; color: #8a5a00; }
+    .panel h3 { margin: 18px 0 8px; font-size: 21px; }
+    .rule { min-height: 44px; margin: 0 0 20px; color: #5f6c7b; font-size: 13px; line-height: 1.55; }
+    .placement { margin: 18px 0 9px; color: #697586; font-size: 12px; font-weight: 800; }
+    .cta { min-height: 76px; padding: 14px 18px; border: 1px solid #d6dce5; border-radius: 16px; background: #f5f7fa; display: grid; grid-template-columns: 12px 1fr 28px; align-items: center; gap: 14px; }
+    .ready .cta { border-color: #0b6e69; background: #0b6e69; color: #fff; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #a4adba; }
+    .checking .dot { background: #f2b84b; }
+    .ready .dot { background: #7de2d1; }
+    .cta strong, .cta small { display: block; }
+    .cta small { margin-top: 5px; color: #6b7585; }
+    .ready .cta small { color: #ddf9f4; }
+    .arrow { text-align: center; font-size: 22px; color: #9aa4b2; font-weight: 800; }
+    .ready .arrow { color: #fff; }
+    .interaction { min-height: 36px; margin: 22px 0 0; color: #697586; font-size: 12px; font-weight: 700; line-height: 1.5; }
+    .ready .interaction { color: #0b6e69; }
+    .mobile-grid .panel { max-width: 390px; }
+    .mobile-note { margin: 12px 0 0; color: #697586; font-size: 12px; }
+    .copy { margin-top: 48px; padding: 26px; border: 1px solid #dde3eb; border-radius: 22px; background: #fff; }
+    .copy h2 { margin: 0; }
+    .copy > p { color: #697586; }
+    .copy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
+    .copy-card { padding: 18px; border: 1px solid #e4e9ef; border-radius: 14px; background: #f7f9fb; }
+    .copy-card h3 { margin: 0 0 14px; color: #0b6e69; }
+    .copy-card p { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 10px; margin: 9px 0; font-size: 13px; }
+    .copy-card span { color: #697586; }
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      header, .flow { display: block; }
+      .version { display: inline-block; margin-top: 18px; }
+      .flow div + div { margin-top: 20px; }
+      .grid, .copy-grid { grid-template-columns: 1fr; }
+      .panel, .mobile-grid .panel { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>013 · Android APK 下载入口统一</h1>
+        <p>元数据负责可用性检查；确认可用后，页面顶部与页面中下部都使用浏览器原生下载。</p>
+      </div>
+      <div class="version">v1.4 · 2026-07-30</div>
+    </header>
+    <section class="flow" aria-label="交互流程">
+      <div><small>① 页面载入</small><strong>只请求一次元数据</strong></div>
+      <div><small>② 判断可用性</small><strong>检查中 / 可用 / 不可用</strong></div>
+      <div><small>③ 渲染两处入口</small><strong>同一状态、同一目标</strong></div>
+      <div><small>④ 用户点击</small><strong>浏览器原生下载 APK</strong></div>
+    </section>
+    <p class="no-blob">不读取 APK Blob · 不创建 blob: URL · 不追踪浏览器下载进度</p>
+
+    <h2>桌面端 · 1440 px</h2>
+    <section class="grid">
+      <article class="panel checking">
+        <span class="badge">CHECKING</span>
+        <h3>检查中</h3>
+        <p class="rule">检查完成前，两处入口都不可触发 APK 请求。</p>
+        <p class="placement">页面顶部</p>
+        <div class="cta"><i class="dot"></i><div><strong>正在檢查下載…</strong><small>由下載資料確認可用性</small></div><b class="arrow">—</b></div>
+        <p class="placement">页面中下部</p>
+        <div class="cta"><i class="dot"></i><div><strong>正在檢查下載…</strong><small>由下載資料確認可用性</small></div><b class="arrow">—</b></div>
+        <p class="interaction">页面载入 → 单次元数据检查 → 等待结果</p>
+      </article>
+      <article class="panel ready">
+        <span class="badge">AVAILABLE</span>
+        <h3>可下载</h3>
+        <p class="rule">两处点击行为一致：交给浏览器原生下载。</p>
+        <p class="placement">页面顶部</p>
+        <div class="cta"><i class="dot"></i><div><strong>下載 Android APK</strong><small>1.0 · 5.7 MB</small></div><b class="arrow">↓</b></div>
+        <p class="placement">页面中下部</p>
+        <div class="cta"><i class="dot"></i><div><strong>下載 Android APK</strong><small>1.0 · 5.7 MB</small></div><b class="arrow">↓</b></div>
+        <p class="interaction">点击任一入口 → 同一下载地址 → 浏览器下载管理器</p>
+      </article>
+      <article class="panel unavailable">
+        <span class="badge">UNAVAILABLE</span>
+        <h3>暂不可用</h3>
+        <p class="rule">检查失败或返回不可用时，两处入口都保持禁用。</p>
+        <p class="placement">页面顶部</p>
+        <div class="cta"><i class="dot"></i><div><strong>Android APK 暫時未能下載</strong><small>由下載資料確認可用性</small></div><b class="arrow">—</b></div>
+        <p class="placement">页面中下部</p>
+        <div class="cta"><i class="dot"></i><div><strong>Android APK 暫時未能下載</strong><small>由下載資料確認可用性</small></div><b class="arrow">—</b></div>
+        <p class="interaction">错误或无效资料 → 显示暂不可用 → 不自动请求 APK</p>
+      </article>
+    </section>
+
+    <h2>移动端 · 390 px</h2>
+    <section class="grid mobile-grid">
+      <article class="panel checking">
+        <span class="badge">CHECKING</span>
+        <h3>检查中</h3>
+        <p class="rule">检查完成前，两处入口都不可触发 APK 请求。</p>
+        <p class="placement">页面顶部</p>
+        <div class="cta"><i class="dot"></i><div><strong>正在檢查下載…</strong><small>由下載資料確認可用性</small></div><b class="arrow">—</b></div>
+        <p class="placement">页面中下部</p>
+        <div class="cta"><i class="dot"></i><div><strong>正在檢查下載…</strong><small>由下載資料確認可用性</small></div><b class="arrow">—</b></div>
+        <p class="mobile-note">390 px：触控区域 ≥ 44 px；上下入口状态完全同步。</p>
+      </article>
+      <article class="panel ready">
+        <span class="badge">AVAILABLE</span>
+        <h3>可下载</h3>
+        <p class="rule">两处点击行为一致：交给浏览器原生下载。</p>
+        <p class="placement">页面顶部</p>
+        <div class="cta"><i class="dot"></i><div><strong>下載 Android APK</strong><small>1.0 · 5.7 MB</small></div><b class="arrow">↓</b></div>
+        <p class="placement">页面中下部</p>
+        <div class="cta"><i class="dot"></i><div><strong>下載 Android APK</strong><small>1.0 · 5.7 MB</small></div><b class="arrow">↓</b></div>
+        <p class="mobile-note">390 px：触控区域 ≥ 44 px；上下入口状态完全同步。</p>
+      </article>
+      <article class="panel unavailable">
+        <span class="badge">UNAVAILABLE</span>
+        <h3>暂不可用</h3>
+        <p class="rule">检查失败或返回不可用时，两处入口都保持禁用。</p>
+        <p class="placement">页面顶部</p>
+        <div class="cta"><i class="dot"></i><div><strong>Android APK 暫時未能下載</strong><small>由下載資料確認可用性</small></div><b class="arrow">—</b></div>
+        <p class="placement">页面中下部</p>
+        <div class="cta"><i class="dot"></i><div><strong>Android APK 暫時未能下載</strong><small>由下載資料確認可用性</small></div><b class="arrow">—</b></div>
+        <p class="mobile-note">390 px：触控区域 ≥ 44 px；上下入口状态完全同步。</p>
+      </article>
+    </section>
+
+    <section class="copy">
+      <h2>三语状态文案</h2>
+      <p>繁体中文采用香港产品页面语气；英文保持简洁克制。动态版本和大小仅在可用状态展示。</p>
+      <div class="copy-grid">
+        <article class="copy-card"><h3>zh-Hant</h3><p><span>检查中</span>正在檢查下載…</p><p><span>可用</span><strong>下載 Android APK</strong></p><p><span>不可用</span>Android APK 暫時未能下載</p></article>
+        <article class="copy-card"><h3>zh-Hans</h3><p><span>检查中</span>正在检查下载…</p><p><span>可用</span><strong>下载 Android APK</strong></p><p><span>不可用</span>Android APK 暂时无法下载</p></article>
+        <article class="copy-card"><h3>en</h3><p><span>Checking</span>Checking download…</p><p><span>Available</span><strong>Download Android APK</strong></p><p><span>Unavailable</span>Android APK is temporarily unavailable</p></article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
