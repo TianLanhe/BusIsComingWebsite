@@ -130,9 +130,9 @@ export const homepageContent: HomePageContent = {
       kind: "anchor",
     },
     apkMeta: {
-      "zh-Hant": "Android APK 版本及大小暫時未能提供",
-      "zh-Hans": "Android APK 版本和大小暂时不可用",
-      en: "Android APK version and size are temporarily unavailable",
+      "zh-Hant": "正在檢查 Android APK 版本及大小",
+      "zh-Hans": "正在检查 Android APK 版本和大小",
+      en: "Checking the Android APK version and size",
     },
     iphoneStatus: {
       "zh-Hant": "iPhone 暫未支援",
@@ -150,9 +150,9 @@ export const homepageContent: HomePageContent = {
       en: "Download BusIsComing",
     },
     description: {
-      "zh-Hant": "現時先提供 Android APK，一按即可下載；iPhone 版本暫未支援。",
-      "zh-Hans": "Android 是第一优先平台，当前 APK 可直接下载；iPhone 暂未支持。",
-      en: "Android is the first target platform, and the current APK is available now; iPhone is not supported yet.",
+      "zh-Hant": "現時提供 Android APK；完成可用性檢查後即可由瀏覽器下載。",
+      "zh-Hans": "当前提供 Android APK；完成可用性检查后可由浏览器下载。",
+      en: "The Android APK becomes available after a quick availability check and downloads through your browser.",
     },
     manifestRef: "frontend/src/content/downloadManifest.ts",
     androidCard: {
@@ -162,9 +162,9 @@ export const homepageContent: HomePageContent = {
         en: "Android APK",
       },
       meta: {
-        "zh-Hant": "版本及大小暫時未能提供",
-        "zh-Hans": "版本和大小暂时不可用",
-        en: "Version and size are temporarily unavailable",
+        "zh-Hant": "正在檢查目前可下載的版本",
+        "zh-Hans": "正在检查当前可下载版本",
+        en: "Checking the available version",
       },
       primaryAction: {
         label: {

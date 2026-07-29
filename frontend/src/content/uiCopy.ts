@@ -191,25 +191,20 @@ export const uiCopy = {
     "zh-Hans": "步行",
     en: "Walk",
   },
-  downloadUnavailable: {
-    "zh-Hant": "下載資源暫不可用，請稍後再試。",
-    "zh-Hans": "下载资源暂不可用，请稍后再试。",
-    en: "Download is temporarily unavailable. Please try again later.",
+  androidDownloadChecking: {
+    "zh-Hant": "正在檢查下載…",
+    "zh-Hans": "正在检查下载…",
+    en: "Checking download…",
   },
-  downloadReady: {
-    "zh-Hant": "Android APK 1.0 · 約 4.8 MB",
-    "zh-Hans": "Android APK 1.0 · 约 4.8 MB",
-    en: "Android APK 1.0 · About 4.8 MB",
+  androidDownloadReady: {
+    "zh-Hant": "下載 Android APK",
+    "zh-Hans": "下载 Android APK",
+    en: "Download Android APK",
   },
-  downloadStarting: {
-    "zh-Hant": "正在準備下載…",
-    "zh-Hans": "正在准备下载…",
-    en: "Preparing download...",
-  },
-  downloadFailed: {
-    "zh-Hant": "下載資源暫時未能提供，請稍後再試。",
-    "zh-Hans": "下载资源暂不可用或校验失败，请稍后再试。",
-    en: "Download is unavailable or failed verification. Please try again later.",
+  androidDownloadUnavailable: {
+    "zh-Hant": "Android APK 暫時未能下載",
+    "zh-Hans": "Android APK 暂时无法下载",
+    en: "Android APK is temporarily unavailable",
   },
   primaryNavigation: {
     "zh-Hant": "主要導覽",

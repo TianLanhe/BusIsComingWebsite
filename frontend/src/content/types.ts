@@ -383,5 +383,3 @@ export interface HomePageContent {
     versionNote: string;
   };
 }
-
-export type DownloadButtonState = "android-ready";

@@ -56,31 +56,21 @@
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 14px;
   margin-top: var(--space-2);
 }
 
-.primary,
 .secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 9px;
   min-height: 52px;
   border-radius: 8px;
   padding: 0 28px;
   font: var(--text-button);
   text-decoration: none;
-}
-
-.primary {
-  background: var(--brand);
-  color: var(--surface);
-  box-shadow: var(--shadow-button);
-}
-
-.secondary {
-  gap: 9px;
   border: 1px solid var(--brand);
   color: var(--brand);
   background: var(--surface);
@@ -95,13 +85,6 @@
   font: var(--text-caption);
 }
 
-.downloadMeta span:first-child {
-  color: var(--brand);
-  font: var(--text-small-strong);
-}
-
-.primary:hover,
-.primary:focus-visible,
 .secondary:hover,
 .secondary:focus-visible {
   transform: translateY(-1px);
@@ -116,6 +99,12 @@
   .actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1100px) {
+  .actions {
+    flex-wrap: wrap;
   }
 }
 

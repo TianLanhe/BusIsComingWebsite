@@ -36,35 +36,43 @@
 
 | 状态 | 触发 | 展示 | 行为 |
 |------|------|------|------|
-| `android-ready` | 初始、hover、focus、触控 | Android APK 主按钮，展示 `Android APK 1.0` 与约 `4.8 MB` | 点击直接下载 `/api/downloads/android/latest` |
-| `android-pending` | 下载区备用按钮触发 fetch 下载中 | 原位 loading 文案 | 不切换平台，不跳转页面 |
-| `android-error` | 下载区备用下载失败 | 原位三语失败提示 | 不导向 iPhone 或其他平台 |
+| `android-checking` | 主页元数据请求未完成 | 两处 Android 入口均显示检查中且不可操作 | 不发起 APK 请求 |
+| `android-ready` | 元数据返回合法且可用 | 两处 Android 入口均展示当前版本与本地化大小 | 仅此状态渲染指向元数据稳定地址的原生下载链接 |
+| `android-unavailable` | 元数据 HTTP、网络、JSON 或字段校验失败 | 两处 Android 入口均显示暂不可用且不可操作 | 不发起 APK 请求，不回退静态链接 |
 | `iphone-unavailable` | 页面展示 iPhone 状态 | 低权重状态文字 | 不跳转、不下载、不伪装失败 |
+
+### Android 下载入口不变量
+
+- Hero 主下载入口与 Download Section 入口必须共享同一个 `android-checking`、`android-ready`、`android-unavailable` 状态源，不能各自保存下载状态。
+- 只有 `android-ready` 可以渲染原生 `<a>`：其 `href` 必须是已校验元数据的稳定下载地址，`download` 必须是元数据文件名。
+- `android-checking` 和 `android-unavailable` 不得含 APK `href`，并以原生 `disabled` 或等价 `aria-disabled` 语义呈现不可操作状态。
+- 前端不得对 APK 地址执行 `fetch`、读取 `response.blob()`、创建 object URL 或 `blob:` URL、合成临时链接点击，亦不得维护页面内下载进度。
+- 元数据成功是入口可用性检查，不代表独立 APK 下载请求、浏览器落盘或安装最终完成。
 
 ## i18n 不变量
 
 - `zh-Hant`、`zh-Hans` 和 `en` 必须展示同等下载状态。
 - `zh-Hant` 必须采用香港实用书面语，`en` 必须采用自然克制的英语产品表达；不得机械直译、
   逐句搬运、过度口语化或过分官方严肃。
-- Android 可用态必须在三语中表达可下载、版本和大小。
+- Android 可用态必须在三语中表达可下载、版本和大小；检查中与暂不可用态也必须有对应的三语状态文案。
 - iPhone 暂未支持必须在三语中表达，且不得渲染为可点击下载入口。
 
 ## 双端不变量
 
-- 桌面 1440px 和手机 390px 下，Android 下载入口可见可操作。
+- 桌面 1440px 和手机 390px 下，Android 下载入口可见；只有 `android-ready` 可操作。
 - 下载按钮、APK 元信息和 iPhone 状态不得遮挡后续内容或造成不可理解的文字截断。
-- 手机端触控 Android 后，应直接触发下载或保持在可再次触发的可用态。
+- 手机端在 `android-ready` 触控 Android 后，应由浏览器直接接管下载；其他状态保持不可操作。
 
 ## 平台不变量
 
-- Android 可下载状态必须使用同源路径 `/api/downloads/android/latest`。
+- Android ready 状态必须使用元数据提供的同源稳定路径 `/api/downloads/android/latest`。
 - iPhone 的 `downloadUrl` 必须为 `null`。
 - 切换语言不得把 Android 状态重置为不可用，也不得让 iPhone 变为可下载。
 
-## 失败状态
+## 不可用状态
 
-- 若后端下载失败，前端不得把失败表现为 iPhone 或其他平台状态。
-- 若需要展示用户可见失败提示，提示必须使用三语文案，并明确说明下载资源暂不可用或校验失败。
+- 元数据检查失败时，前端不得把不可用状态表现为 iPhone 或其他平台状态，也不得保留静态下载入口。
+- 元数据检查成功后的独立下载失败由浏览器和下载接口处理；页面不把它伪装为下载进度、下载完成或安装完成。
 
 ## 007 首页 UI 体验优化补充
 

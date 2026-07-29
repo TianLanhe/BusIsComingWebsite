@@ -50,10 +50,34 @@ function isLatestAPKMetadata(value: unknown): value is LatestAPKMetadata {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
   return item.platform === "android" && item.status === "available"
-    && typeof item.versionName === "string" && item.versionName.length > 0
+    && isContractVersionName(item.versionName)
     && Number.isInteger(item.versionCode) && Number(item.versionCode) > 0
     && typeof item.fileName === "string" && item.fileName.length > 0 && !/[\\/]/.test(item.fileName)
     && Number.isInteger(item.sizeBytes) && Number(item.sizeBytes) > 0
-    && typeof item.lastUpdated === "string" && /^\d{4}-\d{2}-\d{2}$/.test(item.lastUpdated)
+    && isContractDate(item.lastUpdated)
     && item.downloadUrl === "/api/downloads/android/latest";
+}
+
+function isContractVersionName(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const characterCount = Array.from(value).length;
+  return characterCount >= 1 && characterCount <= 64;
+}
+
+function isContractDate(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const [, yearPart, monthPart, dayPart] = match;
+  const year = Number(yearPart);
+  const monthIndex = Number(monthPart) - 1;
+  const day = Number(dayPart);
+  // Date 会自动归一化越界月份/日期，因此必须把归一化后的年月日再与契约输入逐项核对。
+  const date = new Date(0);
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCFullYear(year, monthIndex, day);
+  return date.getUTCFullYear() === year
+    && date.getUTCMonth() === monthIndex
+    && date.getUTCDate() === day;
 }

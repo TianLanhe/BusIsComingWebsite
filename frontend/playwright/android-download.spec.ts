@@ -1,37 +1,62 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator, type Page, type TestInfo } from "@playwright/test";
 
-test("Android download returns the current BusIsComing APK", async ({ page }, testInfo) => {
-  await page.goto("/en/");
-
-  const beforeScrollY = await page.evaluate(() => window.scrollY);
-  const androidLink = page.locator("#hero").getByRole("link", { name: /Download Android APK|下載 Android APK|下载 Android APK/ });
-  await expect(androidLink).toHaveAttribute("href", /\/api\/downloads\/android\/latest$/);
-
-  const screenshotName =
-    testInfo.project.name === "mobile-390" ? "mobile-390-hero-v2.png" : "desktop-1440-hero-v2.png";
-  await page.locator("#hero").screenshot({
-    path: path.resolve("..", "specs", "003-homepage-ui-optimization", "visual-review", screenshotName),
-  });
+async function expectNativeDownload(
+  page: Page,
+  entry: Locator,
+  testInfo: TestInfo,
+  name: string,
+  manifest: { sizeBytes: number; sha256: string },
+) {
+  await expect(entry).toHaveAttribute("href", "/api/downloads/android/latest");
+  await expect(entry).toHaveAttribute("download", "BusIsComing.apk");
 
   const downloadPromise = page.waitForEvent("download");
-  await androidLink.click();
+  await entry.click();
   const download = await downloadPromise;
-  const afterScrollY = await page.evaluate(() => window.scrollY);
-  const downloadPath = path.join(testInfo.outputDir, "BusIsComing.apk");
+  const downloadPath = path.join(testInfo.outputDir, `${name}-BusIsComing.apk`);
   await download.saveAs(downloadPath);
 
   const file = await readFile(downloadPath);
-  const sha256 = createHash("sha256").update(file).digest("hex");
+  expect(download.suggestedFilename()).toBe("BusIsComing.apk");
+  expect(file.byteLength).toBe(manifest.sizeBytes);
+  expect(createHash("sha256").update(file).digest("hex")).toBe(manifest.sha256);
+}
+
+test("both Android entry points hand the current APK to the browser download manager", async ({ page }, testInfo) => {
+  await page.addInitScript(() => {
+    const nativeFetch = window.fetch;
+    let apkFetches = 0;
+    window.fetch = (...args) => {
+      if (args[0] === "/api/downloads/android/latest") {
+        apkFetches += 1;
+      }
+      return nativeFetch(...args);
+    };
+    Object.defineProperty(window, "__apkFetches", { get: () => apkFetches });
+  });
+  await page.goto("/en/");
+
   const manifest = JSON.parse(await readFile(path.resolve("..", "backend", "downloads", "android", "current.json"), "utf8")) as {
     sizeBytes: number;
     sha256: string;
   };
-
-  expect(download.suggestedFilename()).toBe("BusIsComing.apk");
-  expect(afterScrollY).toBe(beforeScrollY);
-  expect(file.byteLength).toBe(manifest.sizeBytes);
-  expect(sha256).toBe(manifest.sha256);
+  await expectNativeDownload(
+    page,
+    page.locator("#hero").getByRole("link", { name: "Download Android APK" }),
+    testInfo,
+    "hero",
+    manifest,
+  );
+  await expectNativeDownload(
+    page,
+    page.locator("#download").getByRole("link", { name: "Download Android APK" }),
+    testInfo,
+    "download-section",
+    manifest,
+  );
+  await expect(page.locator("a[href^='blob:']")).toHaveCount(0);
+  expect(await page.evaluate(() => (window as Window & { __apkFetches: number }).__apkFetches)).toBe(0);
 });

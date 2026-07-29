@@ -4,11 +4,12 @@ test("desktop and mobile hero expose product positioning and download states", a
   await page.goto("/en/");
 
   const hero = page.locator("#hero");
+  const androidDownload = hero.getByRole("link", { name: "Download Android APK" });
 
   await expect(hero.getByRole("heading", { name: /城巴查詢|Citybus lookup/ })).toBeVisible();
-  await expect(hero.getByRole("link", { name: /下載 Android APK|Download Android APK/ })).toBeVisible();
+  await expect(androidDownload).toBeVisible();
   await expect(hero.getByRole("link", { name: /網上試查|Online Query/ })).toBeVisible();
-  await expect(hero.getByText(/Android APK .+ · .+ MB/)).toBeVisible();
+  await expect(androidDownload).toContainText(/Version .+ · .+ MB/);
   await expect(hero.getByText(/iPhone 暫未支援|iPhone is not supported yet/)).toBeVisible();
   await expect(hero.getByTestId("download-segmented-button")).toHaveCount(0);
   await expect(page.locator("header img").first()).toHaveAttribute("src", /busiscoming-logo-foreground/);

@@ -23,7 +23,7 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 **目的**：确认已导入的 Figma 状态板，并锁定本功能验证基线。
 
 - [X] T001 用户已使用 `html.to.design` 把 `specs/013-unify-apk-download/prototype/index.html` 的三态状态板导入既有 `Homepage v1 Spec` 根节点 `108:2`；已回填根节点、状态板视觉标签、双端截图证据和当前自动连接验证限制，路径：`specs/013-unify-apk-download/figma.md`、`specs/013-unify-apk-download/prototype/desktop-1440.png`、`specs/013-unify-apk-download/prototype/mobile-390.png`
-- [ ] T002 [P] 记录实现前基线：确认 `emulator-5556` 或其他真实 Android 设备在线、保存 Chrome 版本与现有中下部 99% 复现结果；设备不可用时明确阻塞而不以桌面移动视口替代，路径：`specs/013-unify-apk-download/quickstart.md`
+- [X] T002 [P] 记录实现前基线：确认 `emulator-5556` 或其他真实 Android 设备在线、保存 Chrome 版本与现有中下部 99% 复现结果；设备不可用时明确阻塞而不以桌面移动视口替代，路径：`specs/013-unify-apk-download/quickstart.md`
 
 ---
 
@@ -33,11 +33,11 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 
 **关键要求**：阶段 2 完成前不得修改 Hero 或中下部的生产下载行为。
 
-- [ ] T003 [P] 校正 metadata 的中文客户端语义，删除“元数据失败不得禁用稳定下载入口”，明确其为入口可用性门禁且不保证最终下载完成，保持 path/schema/error code 不变，路径：`specs/010-website-analytics/contracts/download-api.openapi.yaml`
-- [ ] T004 [P] 把 `android-pending/android-error` 的 fetch 下载状态改为 `android-checking/android-ready/android-unavailable`，并写明两处入口共享状态、ready 才有稳定链接、禁止 Blob 流程，路径：`shared/contracts/ui-state-contract.md`
-- [ ] T005 [P] 增加检查中、可用、不可用的三语文案并删除只服务页面内 Blob 流程的“正在准备/下载失败”文案，同时扩展完整性断言，路径：`frontend/src/content/uiCopy.ts`、`frontend/src/content/homepageContent.ts`、`frontend/src/tests/i18n-completeness.test.tsx`
-- [ ] T006 为共享 Android 下载动作编写先失败组件测试，覆盖 ready 原生 `href/download`、checking/unavailable 无 `href`、disabled/aria 语义、元数据文件名与不得调用 APK `fetch`/`URL.createObjectURL`，路径：`frontend/src/tests/android-download-action.test.tsx`
-- [ ] T007 实现只消费 `DownloadMetadataProvider` 三态的共享 `AndroidDownloadAction`，ready 渲染原生链接，其他状态渲染不可操作元素，不保存下载进度或读取 APK bytes，路径：`frontend/src/components/download/AndroidDownloadAction.tsx`、`frontend/src/components/download/AndroidDownloadAction.module.css`
+- [X] T003 [P] 校正 metadata 的中文客户端语义，删除“元数据失败不得禁用稳定下载入口”，明确其为入口可用性门禁且不保证最终下载完成，保持 path/schema/error code 不变，路径：`specs/010-website-analytics/contracts/download-api.openapi.yaml`
+- [X] T004 [P] 把 `android-pending/android-error` 的 fetch 下载状态改为 `android-checking/android-ready/android-unavailable`，并写明两处入口共享状态、ready 才有稳定链接、禁止 Blob 流程，路径：`shared/contracts/ui-state-contract.md`
+- [X] T005 [P] 增加检查中、可用、不可用的三语文案并删除只服务页面内 Blob 流程的“正在准备/下载失败”文案，同时扩展完整性断言，路径：`frontend/src/content/uiCopy.ts`、`frontend/src/content/homepageContent.ts`、`frontend/src/tests/i18n-completeness.test.tsx`
+- [X] T006 为共享 Android 下载动作编写先失败组件测试，覆盖 ready 原生 `href/download`、checking/unavailable 无 `href`、disabled/aria 语义、元数据文件名与不得调用 APK `fetch`/`URL.createObjectURL`，路径：`frontend/src/tests/android-download-action.test.tsx`
+- [X] T007 实现只消费 `DownloadMetadataProvider` 三态的共享 `AndroidDownloadAction`，ready 渲染原生链接，其他状态渲染不可操作元素，不保存下载进度或读取 APK bytes，路径：`frontend/src/components/download/AndroidDownloadAction.tsx`、`frontend/src/components/download/AndroidDownloadAction.module.css`
 
 **检查点**：共享动作、契约和三语状态已可独立测试，Hero 与中下部尚未切换生产行为。
 
@@ -53,14 +53,14 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 
 ### 用户故事 1 的测试
 
-- [ ] T008 [P] [US1] 把既有 Hero/中下部测试改为 ready metadata 条件下的两个原生链接断言，删除 Blob、合成点击和页面内失败状态期望，并明确点击不调用 APK `fetch`，路径：`frontend/src/tests/download-button.test.tsx`
-- [ ] T009 [P] [US1] 扩展下载 E2E，分别从 `#hero` 和 `#download` 触发浏览器下载，逐个保存文件并核对建议文件名、`sizeBytes` 和 SHA-256，路径：`frontend/playwright/android-download.spec.ts`
+- [X] T008 [P] [US1] 把既有 Hero/中下部测试改为 ready metadata 条件下的两个原生链接断言，删除 Blob、合成点击和页面内失败状态期望，并明确点击不调用 APK `fetch`，路径：`frontend/src/tests/download-button.test.tsx`
+- [X] T009 [P] [US1] 扩展下载 E2E，分别从 `#hero` 和 `#download` 触发浏览器下载，逐个保存文件并核对建议文件名、`sizeBytes` 和 SHA-256，路径：`frontend/playwright/android-download.spec.ts`
 
 ### 用户故事 1 的实现
 
-- [ ] T010 [US1] 用共享 `AndroidDownloadAction` 替换 Hero 静态直接链接，使 ready 的 `href/download` 来自已校验 metadata，保留在线查询次操作和现有布局，路径：`frontend/src/components/hero/HeroIntro.tsx`、`frontend/src/components/hero/HeroIntro.module.css`
-- [ ] T011 [US1] 用共享 `AndroidDownloadAction` 替换中下部按钮的 `fetch → blob → object URL → synthetic click` 流程，删除本地 `idle/downloading/failed` 状态、立即 revoke 和失败提示分支，保持 iPhone 只读状态，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`
-- [ ] T012 [US1] 调整 Download Section 的 ready 版本/大小展示，确保外层说明与共享动作不重复或矛盾，并保持桌面/手机区块层级，路径：`frontend/src/components/sections/DownloadSection.tsx`、`frontend/src/components/sections/DownloadSection.module.css`
+- [X] T010 [US1] 用共享 `AndroidDownloadAction` 替换 Hero 静态直接链接，使 ready 的 `href/download` 来自已校验 metadata，保留在线查询次操作和现有布局，路径：`frontend/src/components/hero/HeroIntro.tsx`、`frontend/src/components/hero/HeroIntro.module.css`
+- [X] T011 [US1] 用共享 `AndroidDownloadAction` 替换中下部按钮的 `fetch → blob → object URL → synthetic click` 流程，删除本地 `idle/downloading/failed` 状态、立即 revoke 和失败提示分支，保持 iPhone 只读状态，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`
+- [X] T012 [US1] 调整 Download Section 的 ready 版本/大小展示，确保外层说明与共享动作不重复或矛盾，并保持桌面/手机区块层级，路径：`frontend/src/components/sections/DownloadSection.tsx`、`frontend/src/components/sections/DownloadSection.module.css`
 
 **检查点**：metadata ready 时 US1 可独立交付；两处入口都完成浏览器原生下载，页面不处理 APK bytes。
 
@@ -75,13 +75,13 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 
 ### 用户故事 2 的测试
 
-- [ ] T013 [P] [US2] 扩展 Provider/主页测试，覆盖 loading、404、500、网络错误、非法 JSON、非法 `downloadUrl/fileName/sizeBytes`，断言两处入口同步禁用、无静态回退、无重试、语言切换不重取，路径：`frontend/src/tests/download-metadata-provider.test.tsx`
-- [ ] T014 [P] [US2] 扩展 metadata E2E 的 ready/checking/unavailable 路由拦截，统计 APK 请求数并断言所有非 ready 场景为 0，同时检查两处无 `href` 和无 `blob:` URL，路径：`frontend/playwright/apk-metadata.spec.ts`
+- [X] T013 [P] [US2] 扩展 Provider/主页测试，覆盖 loading、404、500、网络错误、非法 JSON、非法 `downloadUrl/fileName/sizeBytes`，断言两处入口同步禁用、无静态回退、无重试、语言切换不重取，路径：`frontend/src/tests/download-metadata-provider.test.tsx`
+- [X] T014 [P] [US2] 扩展 metadata E2E 的 ready/checking/unavailable 路由拦截，统计 APK 请求数并断言所有非 ready 场景为 0，同时检查两处无 `href` 和无 `blob:` URL，路径：`frontend/playwright/apk-metadata.spec.ts`
 
 ### 用户故事 2 的实现
 
-- [ ] T015 [US2] 明确 `DownloadMetadataProvider` 的共享只读三态类型和“检查成功不等于下载完成”边界，保持单 document in-flight、无重试和语言切换复用；如现有实现已满足则只做命名/导出收敛，路径：`frontend/src/components/download/DownloadMetadataProvider.tsx`
-- [ ] T016 [US2] 在 Hero 和中下部为 checking/unavailable 接入同一三语状态内容与不可操作语义，移除 metadata 失败后仍保留下载链接的旧回退，路径：`frontend/src/components/hero/HeroIntro.tsx`、`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/sections/DownloadSection.tsx`
+- [X] T015 [US2] 明确 `DownloadMetadataProvider` 的共享只读三态类型和“检查成功不等于下载完成”边界，保持单 document in-flight、无重试和语言切换复用；如现有实现已满足则只做命名/导出收敛，路径：`frontend/src/components/download/DownloadMetadataProvider.tsx`
+- [X] T016 [US2] 在 Hero 和中下部为 checking/unavailable 接入同一三语状态内容与不可操作语义，移除 metadata 失败后仍保留下载链接的旧回退，路径：`frontend/src/components/hero/HeroIntro.tsx`、`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/sections/DownloadSection.tsx`
 
 **检查点**：US2 可通过 metadata stub 独立验证；非 ready 状态不会触碰 APK 下载接口。
 
@@ -96,14 +96,14 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 
 ### 用户故事 3 的测试与视觉验证
 
-- [ ] T017 [P] [US3] 增加三语可见文案、accessible name、disabled/aria-disabled、键盘焦点和 iPhone 只读不变量测试，路径：`frontend/src/tests/android-download-action.test.tsx`、`frontend/src/tests/download-button.test.tsx`
-- [ ] T018 [US3] 为 1440 与 390 的 checking/ready/unavailable 保存双端截图，断言主要操作区域至少 44×44px、无水平滚动和长英文遮挡，并与 Figma 节点比对，路径：`frontend/playwright/apk-metadata.spec.ts`、`frontend/playwright/__screenshots__/apk-download-checking-desktop.png`、`frontend/playwright/__screenshots__/apk-download-ready-desktop.png`、`frontend/playwright/__screenshots__/apk-download-unavailable-desktop.png`、`frontend/playwright/__screenshots__/apk-download-checking-mobile.png`、`frontend/playwright/__screenshots__/apk-download-ready-mobile.png`、`frontend/playwright/__screenshots__/apk-download-unavailable-mobile.png`
+- [x] T017 [P] [US3] 增加三语可见文案、accessible name、disabled/aria-disabled、键盘焦点和 iPhone 只读不变量测试，路径：`frontend/src/tests/android-download-action.test.tsx`、`frontend/src/tests/download-button.test.tsx`
+- [x] T018 [US3] 为 1440 与 390 的 checking/ready/unavailable 保存双端截图，断言主要操作区域至少 44×44px、无水平滚动和长英文遮挡，并与 Figma 节点比对，路径：`frontend/playwright/apk-metadata.spec.ts`、`frontend/playwright/__screenshots__/apk-download-checking-desktop.png`、`frontend/playwright/__screenshots__/apk-download-ready-desktop.png`、`frontend/playwright/__screenshots__/apk-download-unavailable-desktop.png`、`frontend/playwright/__screenshots__/apk-download-checking-mobile.png`、`frontend/playwright/__screenshots__/apk-download-ready-mobile.png`、`frontend/playwright/__screenshots__/apk-download-unavailable-mobile.png`
 
 ### 用户故事 3 的实现
 
-- [ ] T019 [US3] 按 Figma `v1.4` 统一两处三态的尺寸、焦点、禁用视觉和文本换行，保持 Hero/Download Section 既有视觉层级并满足 390/1440，路径：`frontend/src/components/download/AndroidDownloadAction.module.css`、`frontend/src/components/hero/HeroIntro.module.css`、`frontend/src/components/download/DownloadSegmentedButton.module.css`、`frontend/src/components/sections/DownloadSection.module.css`
-- [ ] T020 [US3] 按 `zh-hant-en-copy-review.md` 完成香港繁体和自然英文人工审校，确认动态版本/大小只在 ready 展示且 iPhone 文案不变，路径：`frontend/src/content/uiCopy.ts`、`frontend/src/content/homepageContent.ts`、`specs/013-unify-apk-download/zh-hant-en-copy-review.md`
-- [ ] T021 [US3] 在真实 Android Chrome 从 Hero 与中下部各完成一次下载，记录 Chrome 下载接管、无页面 99%、字节数和 SHA-256；同时验证 metadata unavailable 两处不可点，路径：`specs/013-unify-apk-download/quickstart.md`、`specs/013-unify-apk-download/figma.md`
+- [x] T019 [US3] 按 Figma `v1.4` 统一两处三态的尺寸、焦点、禁用视觉和文本换行，保持 Hero/Download Section 既有视觉层级并满足 390/1440，路径：`frontend/src/components/download/AndroidDownloadAction.module.css`、`frontend/src/components/hero/HeroIntro.module.css`、`frontend/src/components/download/DownloadSegmentedButton.module.css`、`frontend/src/components/sections/DownloadSection.module.css`
+- [x] T020 [US3] 按 `zh-hant-en-copy-review.md` 完成香港繁体和自然英文人工审校，确认动态版本/大小只在 ready 展示且 iPhone 文案不变，路径：`frontend/src/content/uiCopy.ts`、`frontend/src/content/homepageContent.ts`、`specs/013-unify-apk-download/zh-hant-en-copy-review.md`
+- [x] T021 [US3] 在真实 Android Chrome 从 Hero 与中下部各完成一次下载，记录 Chrome 下载接管、无页面 99%、字节数和 SHA-256；同时验证 metadata unavailable 两处不可点，路径：`specs/013-unify-apk-download/quickstart.md`、`specs/013-unify-apk-download/figma.md`
 
 **检查点**：三个用户故事均可独立验收；手机证据来自真实 Android Chrome，不只来自桌面模拟。
 
@@ -113,12 +113,12 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 
 **目的**：清理旧路径、生成权威契约派生物，并证明前端改动没有破坏服务端和其他主页能力。
 
-- [ ] T022 [P] 从 feature 权威 OpenAPI 单向同步校正后的中文说明到共享主契约和兼容镜像，再生成 bundle 与中文 API UI，禁止手工维护生成物，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`、`shared/contracts/openapi/download-api.bundle.yaml`、`shared/contracts/openapi/docs/download-api.html`
-- [ ] T023 [P] 清理只服务 Blob 下载的未使用 import、类型、CSS 状态和文案，并用搜索确认生产下载代码不再包含 `response.blob`、`URL.createObjectURL`、`URL.revokeObjectURL` 或 APK `fetch`，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`、`frontend/src/content/uiCopy.ts`
-- [ ] T024 [P] 运行 downloads 后端回归，确认 APK 成功/404/409/500、完整性、`Content-Disposition`、`Content-Length`、SHA header、recovery、日志和匿名归因未回退，路径：`backend/internal/downloads/`
-- [ ] T025 运行 OpenAPI lint/bundle/docs、目标 Vitest、`npm run build:public`、两项目 Playwright，再运行全量 `npm run test:unit`、`npm run build`、`npm run test:e2e`，把结果和任何环境限制记录到 `specs/013-unify-apk-download/quickstart.md`
+- [x] T022 [P] 从 feature 权威 OpenAPI 单向同步校正后的中文说明到共享主契约和兼容镜像，再生成 bundle 与中文 API UI，禁止手工维护生成物，路径：`shared/contracts/openapi/download-api.openapi.yaml`、`shared/contracts/download-api.openapi.yaml`、`shared/contracts/openapi/download-api.bundle.yaml`、`shared/contracts/openapi/docs/download-api.html`
+- [x] T023 [P] 清理只服务 Blob 下载的未使用 import、类型、CSS 状态和文案，并用搜索确认生产下载代码不再包含 `response.blob`、`URL.createObjectURL`、`URL.revokeObjectURL` 或 APK `fetch`，路径：`frontend/src/components/download/DownloadSegmentedButton.tsx`、`frontend/src/components/download/DownloadSegmentedButton.module.css`、`frontend/src/content/uiCopy.ts`
+- [x] T024 [P] 运行 downloads 后端回归，确认 APK 成功/404/409/500、完整性、`Content-Disposition`、`Content-Length`、SHA header、recovery、日志和匿名归因未回退，路径：`backend/internal/downloads/`
+- [x] T025 运行 OpenAPI lint/bundle/docs、目标 Vitest、`npm run build:public`、两项目 Playwright，再运行全量 `npm run test:unit`、`npm run build`、`npm run test:e2e`，把结果和任何环境限制记录到 `specs/013-unify-apk-download/quickstart.md`
 - [ ] T026 更新 Figma `v1.4` 最终节点截图和版本说明，确认节点无裁切、重叠、占位文案且与实际 1440/390 三态一致，路径：`specs/013-unify-apk-download/figma.md`
-- [ ] T027 执行 `git diff --check`、检查工作区只包含本功能实现和证据、确认未把用户已有 `backend/downloads/android/BusIsComing.apk` 与 `backend/downloads/android/current.json` 意外纳入，然后按项目规则自动提交，路径：`specs/013-unify-apk-download/tasks.md`
+- [x] T027 执行 `git diff --check`、检查工作区只包含本功能实现和证据、确认未把用户已有 `backend/downloads/android/BusIsComing.apk` 与 `backend/downloads/android/current.json` 意外纳入，然后按项目规则自动提交，路径：`specs/013-unify-apk-download/tasks.md`
 
 ---
 

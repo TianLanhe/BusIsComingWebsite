@@ -1,14 +1,13 @@
 import { Bell, Bookmark, Clock3, Search } from "lucide-react";
 import { homepageContent } from "../../content/homepageContent";
 import { useI18n } from "../i18n/I18nProvider";
-import { heroAPKMetadataText, useDownloadMetadata } from "../download/DownloadMetadataProvider";
+import { AndroidDownloadAction } from "../download/AndroidDownloadAction";
 import styles from "./HeroIntro.module.css";
 
 const bulletIcons = [Bookmark, Clock3, Bell];
 
 export function HeroIntro() {
-  const { locale, text } = useI18n();
-  const metadataState = useDownloadMetadata();
+  const { text } = useI18n();
 
   return (
     <div className={styles.intro}>
@@ -30,22 +29,15 @@ export function HeroIntro() {
         })}
       </ul>
 
-      <div className={styles.actions}>
-        <a
-          className={styles.primary}
-          href={homepageContent.hero.primaryAction.target}
-          download={homepageContent.hero.primaryAction.downloadFileName}
-        >
-          {text(homepageContent.hero.primaryAction.label)}
-        </a>
+      <div className={styles.actions} data-testid="hero-actions">
+        <AndroidDownloadAction appearance="hero" />
         <a className={styles.secondary} href={homepageContent.hero.secondaryAction.target}>
           <Search aria-hidden="true" size={19} />
           {text(homepageContent.hero.secondaryAction.label)}
         </a>
       </div>
       <p className={styles.downloadMeta}>
-        <span>{metadataState.status === "ready" ? heroAPKMetadataText(metadataState.metadata, locale) : text(homepageContent.hero.apkMeta)}</span>
-        <span>{text(homepageContent.hero.iphoneStatus)}</span>
+        {text(homepageContent.hero.iphoneStatus)}
       </p>
     </div>
   );

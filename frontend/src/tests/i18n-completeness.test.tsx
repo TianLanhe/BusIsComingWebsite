@@ -76,5 +76,22 @@ describe("i18n completeness", () => {
     expect(uiCopy.walkingLabel.en).toBe("Walk");
     expect(uiCopy.closeLightbox["zh-Hant"]).not.toBe(uiCopy.closeLightbox["zh-Hans"]);
     expect(uiCopy.stopInfoUnavailable.en).toBe("Stop details unavailable");
+    expect(uiCopy.androidDownloadChecking).toEqual({
+      "zh-Hant": "正在檢查下載…",
+      "zh-Hans": "正在检查下载…",
+      en: "Checking download…",
+    });
+    expect(uiCopy.androidDownloadReady).toEqual({
+      "zh-Hant": "下載 Android APK",
+      "zh-Hans": "下载 Android APK",
+      en: "Download Android APK",
+    });
+    expect(uiCopy.androidDownloadUnavailable).toEqual({
+      "zh-Hant": "Android APK 暫時未能下載",
+      "zh-Hans": "Android APK 暂时无法下载",
+      en: "Android APK is temporarily unavailable",
+    });
+    expect(uiCopy).not.toHaveProperty("downloadStarting");
+    expect(uiCopy).not.toHaveProperty("downloadFailed");
   });
 });

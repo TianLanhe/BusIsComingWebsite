@@ -61,13 +61,27 @@ Spec，并提供可直接定位的根节点 `108:2`。该根节点是本 feature
 - `zh-Hant`、`zh-Hans`、`en` 状态文案均出现在同一状态板。
 - 未发现裁切、重叠、占位文案或与本地原稿不一致。
 
+## Android Chrome 实现对照
+
+2026-07-30 使用本任务新开的专用 `emulator-5558`（`Pixel_9_API_36_1`）完成 T021：
+
+- [顶部下载完成](./evidence/android-t021-hero-complete.png)与
+  [中下部下载完成](./evidence/android-t021-middle-complete.png)均由 Chrome 原生下载提示
+  接管，页面没有自行显示下载进度；
+- [顶部 unavailable](./evidence/android-t021-unavailable-hero.png)与
+  [中下部 unavailable](./evidence/android-t021-unavailable-middle.png)均与 `v1.4`
+  禁用态语义一致，两处没有 APK 链接；
+- 验证结束后已撤销该实例的端口映射并主动关闭；原有 `emulator-5554` 与
+  `emulator-5556` 未被使用或关闭。
+
 ## 当前连接验证限制
 
-2026-07-30 复核时，Figma 元数据、截图和 `use_figma` 接口对该文件统一返回
-`INVALID_ARGUMENT`，Chrome 中的 Figma 页面也未能在自动化等待时限内完成加载。因此本文件只
-声明用户确认的根节点和已实际复核的导入源，不声称已由自动连接重新导出 Figma screenshot 或
-枚举子节点 ID。该限制不阻塞从 `108:2` 定位设计，但 T026 在实现完成后仍需用可用的 Figma
-会话更新最终节点截图和版本说明。
+2026-07-30 复核时，Figma `get_metadata`、`get_screenshot` 以及只读
+`use_figma`（`getNodeByIdAsync("108:2")`）对该文件统一返回 `INVALID_ARGUMENT`。
+按 Figma 工具的错误恢复规则停止重试，未对设计文件执行写入。因此本文件只声明用户确认的
+根节点和已实际复核的导入源，不声称已由自动连接重新导出 Figma screenshot、枚举子节点 ID
+或写入最终截图。该外部连接限制不影响本地实现和视觉验证，但 T026 仍需在 Figma 会话恢复后
+更新最终节点截图与版本说明。
 
 ## 实施门禁结论
 

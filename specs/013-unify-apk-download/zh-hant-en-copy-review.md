@@ -29,3 +29,16 @@
 - 动态版本和大小只在 ready 展示。
 - iPhone 文案保持现有三语内容，不纳入本次改写。
 - 辅助技术标签与可见动作一致，不额外宣称浏览器已经完成下载。
+
+## Phase 5 实施回填（2026-07-30）
+
+- 已以三语组件测试逐一确认 checking、ready、unavailable 的可见文案与 accessible name；ready
+  的 accessible name 仅为动作本身，动态版本/大小通过 `aria-describedby` 作为辅助说明保留。
+- `zh-Hant` 继续使用“正在檢查下載”“下載”“暫時未能下載”，符合香港产品页面的简洁实用语气；
+  `en` 保持 “Checking download…”、“Download Android APK” 与 “temporarily unavailable”，没有引入
+  逐字翻译或过度承诺。
+- 动态版本/大小只在 ready 渲染；checking 与 unavailable 没有版本或大小。Hero 与 Download Section
+  分别保留 `homepageContent.ts` 中既有的三语 iPhone 只读文案；三个语言、两个区域均没有 iPhone
+  link 或 button。
+- 1440 与 390 的英文 visual E2E 已检查状态、版本/大小和 OpenAPI 允许的 64 字符 `versionName`
+  没有裁切、重叠或横纵溢出；两处 ready 链接均可键盘聚焦并有 3px 可见焦点轮廓。

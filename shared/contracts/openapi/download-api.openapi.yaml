@@ -7,7 +7,8 @@ info:
     identifier: LicenseRef-Proprietary
   description: |
     网站主页读取当前 Android APK 元数据和下载当前 APK 的公开契约。
-    元数据失败不得禁用稳定下载入口；任何响应都不得暴露内部路径或构建来源。
+    元数据用于主页 Android 下载入口的可用性门禁和展示；只有取得合法的可用元数据后，前端才可开放稳定下载链接。
+    元数据成功只表示检查时入口可用，不保证后续独立的 APK 下载请求或浏览器落盘最终完成；任何响应都不得暴露内部路径或构建来源。
 servers:
   - url: /
     description: 网站同源公开后端
@@ -27,6 +28,8 @@ paths:
       summary: 查询当前 Android APK 元数据
       description: |
         返回主页展示当前 APK 版本和大小所需的白名单字段，不读取或返回 APK bytes。
+        前端仅在收到合法且状态为 available 的元数据时，使用其中稳定下载地址和文件名开放 Android 下载入口；
+        元数据请求失败或字段无效时，入口应保持不可操作。元数据成功不代表后续独立 APK 下载请求或浏览器落盘必然完成。
         请求不包含 visitor ID path、query 或 body；普通非机器人浏览器的匿名标识由
         HttpOnly Cookie 自动携带或由服务端签发。
 

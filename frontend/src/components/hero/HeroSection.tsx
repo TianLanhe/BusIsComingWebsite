@@ -18,7 +18,7 @@ export function HeroSection() {
             <span>{text(uiCopy.heroTrust)}</span>
           </p>
         </div>
-        <div className={styles.right}>
+        <div className={styles.right} data-testid="hero-preview">
           <AppPreviewCarousel />
         </div>
       </div>

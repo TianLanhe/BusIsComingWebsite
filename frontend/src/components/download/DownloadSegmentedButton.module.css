@@ -4,70 +4,12 @@
   width: min(100%, 420px);
 }
 
-.downloadButton {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  min-height: 78px;
-  border: 1px solid var(--brand);
-  border-radius: 8px;
-  padding: 16px 22px;
-  background: var(--brand);
-  color: var(--surface);
-  box-shadow: var(--shadow-button);
-  cursor: pointer;
-}
-
-.downloadButton:hover,
-.downloadButton:focus-visible {
-  transform: translateY(-1px);
-  outline: none;
-}
-
-.copy {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-  text-align: left;
-}
-
-.copy strong {
-  color: var(--surface);
-  font: var(--text-button);
-}
-
-.copy small {
-  color: rgba(255, 255, 255, 0.84);
-  font: var(--text-caption);
-}
-
-.iphoneStatus,
-.error {
+.iphoneStatus {
   margin: 0;
   font: var(--text-caption);
-}
-
-.iphoneStatus {
   color: var(--muted);
-}
-
-.error {
-  color: #9f2f1f;
 }
 
 .compact {
   max-width: 360px;
-}
-
-@media (max-width: 520px) {
-  .wrap {
-    width: 100%;
-  }
-
-  .downloadButton {
-    gap: 12px;
-    padding: 16px;
-  }
 }
