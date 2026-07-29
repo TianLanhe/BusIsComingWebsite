@@ -84,8 +84,8 @@
 - **服务端稳健性**：不涉及服务端代码变更；现有下载接口的 recovery、请求日志、完整性校验和脱敏错误语义不得回退。
 - **代码可读性**：实现阶段应删除中下部页面内文件读取状态机和重复下载流程；共享的三态规则、元数据有效性与降级边界若无法通过命名自解释，使用简体中文注释说明“为什么”，不添加复述代码的注释。
 - **三语范围**：新增或改写“正在检查下载”“下载 Android APK”“Android APK 暂时不可用”及相关辅助说明，覆盖 `zh-Hant`、`zh-Hans`、`en`；繁体中文按香港语境审校，英文使用自然克制表达。
-- **UI 可视化**：高保真状态板源文件为 `prototype/index.html`，应生成桌面和手机截图；Figma Draft 为 [BusIsComing Website - APK Download Alignment 013](https://www.figma.com/design/ZYMXnKWg4BNybwbuN6TeiZ)。
-- **Figma 设计**：Figma 文件见上；目标版本 `v1.4`，应包含 `CHECKING`、`AVAILABLE`、`UNAVAILABLE` 三态以及 `1440`、`390` 两个视口的顶部/中下部同步状态。当前连接账号对既有主页设计文件只有 View 权限，因此使用独立 Draft 承载本功能设计。
+- **UI 可视化**：高保真状态板源文件为 `prototype/index.html`，桌面和手机截图已生成；状态板已导入既有 [Homepage v1 Spec / 013 APK Download Alignment v1.4](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=108-2&p=f)。
+- **Figma 设计**：Figma 根节点为 `108:2`，版本 `v1.4`；同一状态板包含 `CHECKING`、`AVAILABLE`、`UNAVAILABLE` 三态、`1440` 与 `390` 两个视口，以及顶部/中下部同步入口和三语文案。节点定位、视觉证据与当前连接验证限制详见 `figma.md`。
 - **双端适配**：电脑基准 `1440×900`，手机基准 `390×844`；验证两处入口的三态、44px 触控区域、焦点可见性、长文案换行和无水平滚动。
 - **外部集成与降级**：唯一运行时依赖是同源元数据检查和稳定安装包下载；检查失败时两处入口同步不可用且不请求安装包，不缓存或回退到旧版本。
 - **验证与提交**：规格通过需求清单、无占位符检查和可视化审查后自动提交；仅提交本 feature 与 `.specify/feature.json`，保留用户现有 APK/元数据改动不动。

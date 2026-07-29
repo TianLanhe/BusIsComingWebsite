@@ -95,7 +95,10 @@
   `https://www.figma.com/design/ZYMXnKWg4BNybwbuN6TeiZ`。
 - `use_figma`、网页捕获和资产上传均返回权限/参数拒绝，不能诚实声称已创建节点。
 - 已在 `prototype/index.html` 完成高保真可编辑状态板，并生成 1440 与 390 PNG。
-- 实施前必须使用具备 Edit 权限的连接把状态板导入 Draft，并在 `figma.md` 回填节点 ID。
+- **后续解决（2026-07-30）**：用户已使用 `html.to.design` 把同一状态板导入既有
+  [Homepage v1 Spec 根节点 `108:2`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=108-2&p=f)。
+  原独立 Draft 权限问题不再阻塞实施；当前自动连接仍无法枚举子节点或重新导出截图，因此
+  `figma.md` 保留用户确认的根节点、本地无损源与验证限制，不虚构子节点 ID。
 
 ## 最终决策摘要
 

@@ -10,7 +10,8 @@
 
 ## 2. 实现前门禁
 
-1. 打开 [figma.md](./figma.md)，确认状态板已经导入 Figma Draft 并回填关键节点 ID。
+1. 打开 [figma.md](./figma.md)，从既有 Homepage v1 Spec 根节点 `108:2` 定位 `v1.4` 状态板，
+   并对照本地 1440/390 截图。
 2. 对照 [contracts/download-entry-state-contract.md](./contracts/download-entry-state-contract.md)。
 3. 先修改测试，确认旧 Blob 实现在新增断言下失败。
 

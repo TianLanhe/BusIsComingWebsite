@@ -20,9 +20,9 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 
 ## 阶段 1：设置与设计门禁
 
-**目的**：在代码实现前补齐唯一未完成的 Figma 节点交付，并锁定本功能验证基线。
+**目的**：确认已导入的 Figma 状态板，并锁定本功能验证基线。
 
-- [ ] T001 使用具备 Edit 权限的 Figma 连接把 `specs/013-unify-apk-download/prototype/index.html` 的三态状态板导入 `BusIsComing Website - APK Download Alignment 013` Draft，回填根节点、桌面/手机三态和三语节点 ID，并保存 Figma screenshot 证据，路径：`specs/013-unify-apk-download/figma.md`、`specs/013-unify-apk-download/prototype/desktop-1440.png`、`specs/013-unify-apk-download/prototype/mobile-390.png`
+- [X] T001 用户已使用 `html.to.design` 把 `specs/013-unify-apk-download/prototype/index.html` 的三态状态板导入既有 `Homepage v1 Spec` 根节点 `108:2`；已回填根节点、状态板视觉标签、双端截图证据和当前自动连接验证限制，路径：`specs/013-unify-apk-download/figma.md`、`specs/013-unify-apk-download/prototype/desktop-1440.png`、`specs/013-unify-apk-download/prototype/mobile-390.png`
 - [ ] T002 [P] 记录实现前基线：确认 `emulator-5556` 或其他真实 Android 设备在线、保存 Chrome 版本与现有中下部 99% 复现结果；设备不可用时明确阻塞而不以桌面移动视口替代，路径：`specs/013-unify-apk-download/quickstart.md`
 
 ---
@@ -126,8 +126,8 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 
 ### 阶段依赖
 
-- **阶段 1**：无代码依赖；T001 是 UI 实施完成的硬门禁，T002 是真实手机证据前置。
-- **阶段 2**：可在阶段 1 权限协调期间开展契约和先失败测试，但 T007 完成前不能进入两处入口集成。
+- **阶段 1**：无代码依赖；T001 已完成，T002 是真实手机证据前置。
+- **阶段 2**：可与 T002 的设备证据准备并行开展契约和先失败测试，但 T007 完成前不能进入两处入口集成。
 - **US1（阶段 3）**：依赖 T006/T007；先交付 ready 的统一原生下载。
 - **US2（阶段 4）**：依赖共享动作和 US1 集成位置；测试可以先并行编写，独立以非 ready stub 验收。
 - **US3（阶段 5）**：依赖 US1/US2 三态完整；T017 可提前编写，视觉实现和真实手机验收随后进行。
@@ -150,7 +150,7 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 
 ### 并行机会
 
-- T001、T002 可并行；Figma 权限协调不阻塞真实设备盘点。
+- T001 已完成；T002 可独立开展真实设备盘点。
 - T003、T004、T005 可并行，分别修改 OpenAPI、共享 UI 契约和 i18n。
 - T008、T009 可并行编写，分别覆盖组件与 E2E。
 - T013、T014 可并行编写，分别覆盖 Provider 和浏览器门禁。
@@ -189,5 +189,5 @@ Vitest、Playwright、OpenAPI、Go 回归、双端截图和真实 Android Chrome
 - 本功能不修改后端代码；`backend/internal/downloads/` 任务仅为回归验证。
 - 不把 Range/断点续传加入本期；若原生下载仍在特定网络失败，应建立独立 feature 调查服务端
   Range/CDN 行为，而不是恢复 Blob 方案。
-- Figma Draft 当前权限问题必须诚实保留，获得 Edit 权限后完成 T001/T026。
+- Figma `v1.4` 已导入既有 Homepage v1 Spec 根节点 `108:2`；T026 在实现完成后更新最终节点截图和版本说明。
 - 每次 Spec Kit skill 和后续实现通过验证后按项目规则自动提交，且排除用户现有 APK/元数据改动。

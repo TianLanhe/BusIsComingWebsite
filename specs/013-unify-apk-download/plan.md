@@ -76,11 +76,12 @@ anchor` 状态机；共享三态与原生下载语义通过清晰类型/组件�
 - [mobile-390.png](./prototype/mobile-390.png)
 - [可编辑 HTML 原稿](./prototype/index.html)
 
-**Figma 设计引用**：[独立 Draft](https://www.figma.com/design/ZYMXnKWg4BNybwbuN6TeiZ)；
+**Figma 设计引用**：
+[Homepage v1 Spec / 013 APK Download Alignment v1.4（根节点 `108:2`）](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=108-2&p=f)；
 既有主页下载状态基线为
 [Homepage v1 Spec / Download Button Interaction States](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=4-326)。
-本次目标版本 `v1.4`，详见 [figma.md](./figma.md)。连接账号当前只有 View 席位，Draft 已创建但
-状态画板尚不能写入节点；实施开始前必须完成导入并回填节点 ID
+状态板已由用户使用 `html.to.design` 导入既有主页设计文件，本次目标版本为 `v1.4`，节点定位、
+双端截图和当前连接验证限制详见 [figma.md](./figma.md)
 
 **双端适配范围**：桌面 `1440×900`、手机 `390×844`；两端均验证 Hero 和中下部入口的三态、
 44px 操作区域、键盘焦点、长英文/繁体换行、无水平滚动和无状态布局跳动
@@ -99,7 +100,7 @@ anchor` 状态机；共享三态与原生下载语义通过清晰类型/组件�
 | 试用查询与可靠降级 | 通过 | 不触碰试用查询；元数据失败只禁用下载入口，不影响其他主页功能。 |
 | 现代界面与可视化评审 | 通过 | 已生成 HTML 高保真状态板及 1440/390 PNG。 |
 | 电脑与手机双端一致可用 | 通过 | 每个故事同时包含 1440/390 验证，不把手机作为最后补配。 |
-| Figma 驱动的前端规格 | 有条件通过 | Draft 与既有基线链接已建立，但连接账号为 View 席位；实现前置任务必须导入状态板并回填节点 ID。 |
+| Figma 驱动的前端规格 | 通过 | `v1.4` 状态板已导入既有 Homepage v1 Spec，根节点 `108:2` 可定位三态、双入口、双端和三语基线；本地 HTML/PNG 保留为可复核源。 |
 | 服务端 DDD 架构 | 通过（N/A） | 不改服务端代码或目录。 |
 | 服务端稳健性与可观测性 | 通过（N/A） | 不改服务端；现有 recovery、日志、完整性和统计语义列为回归项。 |
 | 中文注释与代码可读性 | 通过 | 删除复杂 Blob 状态机；只为外部约束补充中文注释。 |
@@ -213,14 +214,12 @@ Hero 和中下部保留各自布局样式与文案组合，不复制下载执行
 
 ## 设计后宪法复查
 
-- 产品、范围、前后端、三语、双端、API 文档、代码可读性和验证门禁均保持通过。
-- 唯一有条件项是 Figma 节点写入权限；`figma.md` 将“导入画板并回填节点 ID”定义为实施阻塞
-  前置任务，未完成前不得把 UI 实现标记为完成。
+- 产品、范围、前后端、三语、双端、API 文档、代码可读性、Figma 和验证门禁均保持通过。
+- Figma `v1.4` 状态板已导入既有 Homepage v1 Spec 根节点 `108:2`；实现阶段按
+  `figma.md` 的视觉标签和本地双端截图对照，不再受原独立 Draft 写入权限阻塞。
 - 无后端代码变更，因此 DDD、panic/recovery/goroutine 规则不产生新增实现义务，但回归测试
   必须证明现有下载响应和匿名统计未被前端改动破坏。
 
 ## 复杂度跟踪
 
-| 违规或复杂点 | 为什么必要 | 被拒绝的更简单方案 |
-|--------------|------------|--------------------|
-| Figma Draft 暂无状态节点 | 连接账号在现有团队只有 View 席位，`use_figma`、截图与资产上传均被拒绝；已创建独立 Draft 并保留可编辑 HTML/PNG 作为无损导入源 | 不把空白 Draft 冒充完成设计；也不只用文字跳过 UI 门禁。实施前必须由有编辑权限的连接完成导入和节点回填 |
+本功能未引入需要宪法例外的复杂度。
