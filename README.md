@@ -3,9 +3,9 @@
 
 # BusIsComing Website
 
-BusIsComing Android App 的官方网站：介绍香港 Citybus 查询能力、提供在线路线试用查询，并交付 Android APK 下载入口。
+BusIsComing Android App 的官方网站：介绍香港 Citybus 通勤功能、提供基础路线试查，并交付当前 Android APK。
 
-[Official Website](https://www.busiscoming.com/)
+[访问官方网站](https://www.busiscoming.com/)
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61dafb?style=flat-square&logo=react&logoColor=111)](https://react.dev/)
@@ -14,283 +14,148 @@ BusIsComing Android App 的官方网站：介绍香港 Citybus 查询能力、�
 
 </div>
 
-## Overview
+## 项目概览
 
-This repository contains the website for **BusIsComing**, an Android app focused on daily Hong Kong Citybus lookup. The site is intentionally scoped as a product homepage, not a general transport planner.
+本仓库包含 BusIsComing 的公开主页、在线 Citybus 路线试查、Android APK 下载服务，以及仅供维护者通过本机或 SSH 隧道访问的匿名统计 Dashboard。
 
-It currently provides:
+当前能力包括：
 
-- A modern, responsive homepage with real sanitized App screenshots.
-- `zh-Hant`, `zh-Hans`, and `en` content switching.
-- A live Citybus trial query backed by server-side route and ETA adapters.
-- A controlled Android APK download endpoint.
-- OpenAPI-first service contracts and deployment scripts for a single-server Caddy setup.
-- SEO discovery basics: `robots.txt`, `sitemap.xml`, canonical metadata, and Search Console guidance.
+- `zh-Hant`、`zh-Hans`、`en` 三语首页与隐私政策页；香港语境默认使用繁体中文。
+- 响应式产品主页、真实脱敏 App 截图和可访问的截图交互。
+- 由服务端代理 Citybus 与 DATA.GOV.HK 的基础路线和首程 ETA 试查。
+- 受完整性校验保护的当前 Android APK metadata 与稳定下载入口。
+- 只记录最小匿名事件的 SQLite 统计，以及绑定 loopback 的私有监控页面。
+- OpenAPI-first 的服务端契约和面向单台 Ubuntu 服务器的 Caddy/systemd 部署脚本。
 
 > [!IMPORTANT]
-> The website must stay aligned with the Android project facts in `/Users/jianglijie/AndroidStudioProjects/BusIsComming`. Do not expand copy or behavior into KMB, MTR, rail, ferry, walking, or full trip planning.
+> 本网站是 Android App 的可信主页，不是通用交通平台。当前范围只覆盖 Citybus，不提供九巴、港铁、铁路、渡轮、其他交通工具查询或完整出行规划。
 
-## Architecture
+## 系统结构
 
-```text
-Browser
-  │
-  ├─ Vite / React frontend
-  │   ├─ Homepage content, i18n, screenshots, SEO metadata
-  │   └─ Route query and download UI
-  │
-  └─ Go / Gin backend
-      ├─ downloads bounded context
-      │   └─ GET /api/downloads/android/latest
-      └─ routes bounded context
-          ├─ POST /api/routes/query_places
-          ├─ POST /api/routes/query_routes
-          └─ POST /api/routes/query_etas
+```mermaid
+flowchart LR
+    Browser["公开浏览器"] --> Caddy["Caddy :443"]
+    Caddy --> Static["React/Vite 三语静态站"]
+    Caddy --> Public["Go 公开服务 127.0.0.1:8080"]
+    Public --> Downloads["downloads context"]
+    Public --> Routes["routes context"]
+    Public --> Analytics["analytics 写入边界"]
+    Maintainer["维护者 / SSH tunnel"] --> Private["私有监控 127.0.0.1:18081"]
+    Private --> Dashboard["Pulse Dashboard"]
+    Private --> Analytics
+    Analytics --> SQLite["SQLite"]
 ```
 
-The backend follows DDD boundaries:
+后端以 `downloads`、`routes`、`analytics` 为 bounded context，并由 `internal/platform` 提供 HTTP 日志、recovery 和双 listener 监督。接口 schema、错误和缓存语义以 `shared/contracts/openapi/*.openapi.yaml` 为准。
 
-- `domain`: business types, rules, and domain errors.
-- `application`: use-case orchestration, caching, token validation, rate limiting.
-- `infrastructure`: filesystem, Citybus, DATA.GOV.HK, HMAC, memory adapters, logging.
-- `interfaces/http`: Gin routes, envelopes, request IDs, HTTP error mapping.
+完整边界见 [系统架构](docs/architecture.md)。
 
-## Project Structure
+## 技术栈
 
-```text
-.
-├── frontend/                  # React + Vite homepage
-│   ├── public/                # favicon, robots.txt, sitemap.xml
-│   └── src/
-│       ├── assets/            # brand logo and sanitized App screenshots
-│       ├── components/        # hero, query demo, sections, i18n
-│       ├── content/           # tri-lingual content and product references
-│       ├── services/          # route query client
-│       └── tests/             # Vitest tests
-├── backend/                   # Go service
-│   ├── cmd/server/            # HTTP entrypoint
-│   ├── downloads/android/     # managed current APK + metadata
-│   └── internal/              # DDD contexts
-├── shared/contracts/          # JSON Schema and OpenAPI contracts
-├── specs/                     # Spec Kit feature artifacts
-├── docs/                      # deployment, API, SEO notes
-└── scripts/                   # local and remote deployment scripts
-```
+| 范围 | 技术 |
+| --- | --- |
+| 公开前端与监控前端 | React 18、TypeScript 5.7、Vite 6 |
+| 图表与端到端测试 | Recharts、Vitest、Testing Library、Playwright |
+| 后端 | Go 1.26.3、Gin、modernc SQLite |
+| 接口契约 | OpenAPI 3.1、Redocly |
+| 生产部署 | Ubuntu 24.04、Caddy、systemd、SSH/SCP |
 
-## Prerequisites
+## 快速开始
 
-- Node.js compatible with the frontend lockfile
-- npm
-- Go 1.26.x
+### 前置条件
+
+- Node.js 与 npm，版本需兼容 `frontend/package-lock.json`
+- Go 1.26.3
 - Git
-- For deployment: `bash`, `ssh`, `scp`, `tar`, `shasum`, `dig`, `file`, `mktemp`
 
-Optional tools:
-
-- Playwright browsers for end-to-end tests
-- Android SDK build-tools `aapt` when replacing the managed APK
-
-## Getting Started
-
-Install frontend dependencies:
+安装前端依赖：
 
 ```bash
 npm --prefix frontend install
 ```
 
-Start the backend in one terminal:
+启动后端：
 
 ```bash
 cd backend
 go run ./cmd/server
 ```
 
-Start the frontend in another terminal:
+默认会启动：
+
+- 公开 API：`http://127.0.0.1:8080`
+- 私有监控服务：`http://127.0.0.1:18081`
+
+在另一个终端启动公开前端：
 
 ```bash
 npm --prefix frontend run dev
 ```
 
-Open the app at:
+打开 `http://localhost:5173/`，开发服务器会跳转到 `/zh-hant/`，并把 `/api/*` 代理到公开后端。
 
-```text
-http://localhost:5173
-```
-
-The Vite dev server proxies `/api/*` to the Go backend.
-
-### Useful Environment Variables
-
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `BUS_HTTP_HOST` | `0.0.0.0` | Backend listen host |
-| `PORT` | `8080` | Backend listen port |
-| `BUS_DOWNLOAD_ROOT` | `downloads/android` | Managed APK root |
-| `ROUTE_QUERY_TOKEN_SECRET` | unset | HMAC secret for route tokens; set a non-empty value outside throwaway local runs |
-| `FRONTEND_HOST` | `0.0.0.0` | Vite dev/preview host |
-| `FRONTEND_PORT` | `5173` | Vite dev port |
-| `BACKEND_HOST` | `0.0.0.0` | Backend host used by Vite proxy |
-| `BACKEND_PORT` | `8080` | Backend port used by Vite proxy |
-
-## Development Commands
-
-Frontend:
+如需开发监控页面，再启动：
 
 ```bash
-npm --prefix frontend run test
-npm --prefix frontend run build
-npm --prefix frontend run test:e2e
+npm --prefix frontend run dev:monitor
 ```
 
-Backend:
-
-```bash
-cd backend
-go test ./...
-go test -race ./internal/routes/application ./internal/routes/infrastructure/memory
-```
-
-OpenAPI:
-
-```bash
-npm --prefix frontend run openapi:lint
-npm --prefix frontend run openapi:routes:lint
-npm --prefix frontend run openapi:docs
-```
-
-Deployment script tests:
-
-```bash
-scripts/tests/deploy_test.sh
-```
-
-> [!NOTE]
-> Playwright tests start their own backend and frontend servers using `frontend/playwright.config.ts`.
-
-## API Contracts
-
-OpenAPI is the source of truth for service APIs:
-
-- `shared/contracts/openapi/download-api.openapi.yaml`
-- `shared/contracts/openapi/route-query-api.openapi.yaml`
-
-Generated previews are under:
-
-- `shared/contracts/openapi/docs/download-api.html`
-- `shared/contracts/openapi/docs/route-query-api.html`
-
-The route query API uses a JSON envelope:
-
-```json
-{
-  "requestId": "route-query-example",
-  "data": {},
-  "error": null
-}
-```
-
-Frontend copy maps backend `error.code` values into tri-lingual user-facing messages.
-
-## Android APK Management
-
-The backend serves one current APK:
-
-- APK: `backend/downloads/android/BusIsComing.apk`
-- Metadata: `backend/downloads/android/current.json`
-- Endpoint: `GET /api/downloads/android/latest`
-
-To replace it:
-
-```bash
-backend/scripts/update_android_apk.py /path/to/BusIsComing.apk
-```
-
-Then verify:
-
-```bash
-cd backend
-go test ./...
-```
-
-## Content, Assets, And Design
-
-- Homepage content lives in `frontend/src/content/`.
-- Brand assets live in `frontend/src/assets/brand/`.
-- Real App screenshots are stored as sanitized copies in `frontend/src/assets/app-screenshots/real/`.
-- New screenshots should update `frontend/src/assets/app-screenshots/real/manifest.json` and then run:
-
-```bash
-npm --prefix frontend run sanitize:screenshots
-```
-
-Current Figma/spec references are tracked in `specs/` and `frontend/src/content/sourceReferences.ts`.
+打开 `http://127.0.0.1:5174/`。本地统计写入需要有效的 `BUS_ANALYTICS_VISITOR_SECRET`；缺失时公开功能仍可用，统计以 degraded 方式关闭。
 
 > [!WARNING]
-> Do not reference raw screenshots directly in the frontend. Use sanitized assets only.
+> 不要把生产 token、visitor secret、服务器环境文件或第三方完整响应提交到仓库或粘贴到日志。
 
-## SEO
+完整环境变量、启动组合和调试说明见 [本地开发](docs/development.md)。
 
-The site includes basic discovery signals:
+## 常用验证
 
-- `frontend/public/robots.txt`
-- `frontend/public/sitemap.xml`
-- homepage canonical metadata in `frontend/index.html`
-- deployment config that avoids returning homepage HTML for unknown paths
+| 范围 | 命令 |
+| --- | --- |
+| 前端单元测试 | `npm --prefix frontend run test` |
+| 公开前端与监控前端构建 | `npm --prefix frontend run build` |
+| 公开页面 E2E | `npm --prefix frontend run test:e2e` |
+| 监控页面 E2E | `npm --prefix frontend run test:e2e:monitor` |
+| 后端测试 | `(cd backend && go test ./...)` |
+| OpenAPI lint | `npm --prefix frontend run openapi:lint` |
+| OpenAPI bundle | `npm --prefix frontend run openapi:bundle` |
+| 本地生成 API HTML | `npm --prefix frontend run openapi:docs` |
+| 部署脚本测试 | `scripts/tests/deploy_test.sh` |
 
-After deployment, follow:
+`openapi:docs` 生成的 `shared/contracts/openapi/docs/` 是本地预览产物，不是接口权威来源，也不进入版本控制。
 
-- `docs/seo-first-indexing.md`
+## 项目目录
 
-At minimum, verify:
-
-```bash
-curl https://www.busiscoming.com/robots.txt
-curl https://www.busiscoming.com/sitemap.xml
-curl -I https://www.busiscoming.com/not-a-real-page-for-seo-check
+```text
+.
+├── frontend/                  # 公开主页、隐私页与私有 Pulse Dashboard
+├── backend/                   # Go 服务、DDD contexts、当前 APK
+├── shared/contracts/         # 长期 JSON Schema、UI contract 与 OpenAPI
+├── specs/                    # Spec Kit feature 产物、Figma 与验证证据
+├── docs/                     # 长期主题文档
+├── scripts/                  # 本地与远端部署脚本
+└── .specify/                 # Constitution、模板与 Spec Kit 配置
 ```
 
-## Deployment
+## 文档导航
 
-The project deploys to one Ubuntu 24.04 x86_64 server using immutable releases, Caddy, and systemd.
+| 文档 | 说明 |
+| --- | --- |
+| [文档治理](docs/documentation-governance.md) | 文件职责、权威来源和更新触发条件 |
+| [系统架构](docs/architecture.md) | 前后端、DDD、公开/私有 listener 和持久化边界 |
+| [本地开发](docs/development.md) | 环境变量、启动、测试、构建和 OpenAPI 工具 |
+| [UI 风格指南](docs/ui-style-guide.md) | 品牌、布局、状态、双端与无障碍原则 |
+| [本地化指南](docs/localization-guidelines.md) | 三语语气、路径、动态数据和回退规则 |
+| [路线查询与 ETA](docs/route-query-and-eta.md) | Citybus 查询、P2P stop map、缓存与 ETA 降级 |
+| [Android APK 交付](docs/android-apk-delivery.md) | metadata、更新脚本、下载、校验与回滚边界 |
+| [匿名统计与私有监控](docs/analytics-and-privacy.md) | 事件、隐私、SQLite、fail-open 与 Dashboard 隔离 |
+| [素材来源与维护](docs/asset-provenance.md) | 品牌图、真实截图、manifest 与脱敏规则 |
+| [部署说明](docs/deployment.md) | Ubuntu、Caddy、systemd、不可变 release 与运维 |
+| [SEO 首次提交](docs/seo-first-indexing.md) | sitemap、canonical、Search Console 与索引检查 |
 
-```bash
-export BUS_DEPLOY_HOST=<server-ip>
-export BUS_DEPLOY_DOMAIN=www.busiscoming.com
+## 事实与契约来源
 
-./scripts/deploy.sh deploy
-./scripts/deploy.sh status
-```
-
-For Cloudflare-proxied DNS:
-
-```bash
-export BUS_DEPLOY_DNS_MODE=proxied
-./scripts/deploy.sh deploy
-```
-
-Useful operations:
-
-```bash
-./scripts/deploy.sh list
-./scripts/deploy.sh rollback
-./scripts/deploy.sh logs --service backend
-./scripts/deploy.sh logs --service caddy --lines 300
-```
-
-See `docs/deployment.md` for the full deployment model and operational boundaries.
-
-## Project Guardrails
-
-- User-visible website copy must support `zh-Hant`, `zh-Hans`, and `en`; `zh-Hant` and `en` copy must be localized with a natural, restrained product tone rather than literal translation.
-- Product facts come from the Android BusIsComing project and this repo's specs.
-- Scope is Hong Kong Citybus lookup only.
-- Service APIs must remain OpenAPI-first.
-- Server code must not use `panic` as business control flow.
-- HTTP entrypoints must keep request logging and recovery enabled.
-- New or complex project code should use focused naming and Chinese comments where they explain non-obvious rules, external constraints, state transitions, cache behavior, or degradation logic.
-
-Spec Kit governance lives in:
-
-- `.specify/memory/constitution.md`
-- `AGENTS.md`
-- `specs/`
+- Android App 当前能力优先参考 `/Users/hezhenyu/AndroidStudioProjects/BusIsComming` 的当前源码、`README.md`、`AGENTS.md` 和主题文档。
+- 网站当前行为以本仓库源码、配置和测试为准。
+- 服务端 HTTP API 以 `shared/contracts/openapi/*.openapi.yaml` 为权威契约。
+- 精确页面、组件和交互状态以对应 `specs/<feature>/` 中的 spec、Figma 引用和验证证据为准。
+- 当前 APK 版本、文件大小和 SHA-256 只以 `backend/downloads/android/current.json` 与实际 APK 为准，不在说明文档重复维护。

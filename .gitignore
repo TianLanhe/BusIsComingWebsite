@@ -3,6 +3,7 @@ dist/
 dist-monitor/
 build/
 coverage/
+docs/superpowers/
 .superpowers/
 playwright-report/
 test-results/

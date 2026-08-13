@@ -2,7 +2,7 @@ export const sourceReferences = {
   androidReadme: "Android project README",
   androidAgents: "Android project AGENTS",
   androidLauncherForeground:
-    "/Users/jianglijie/AndroidStudioProjects/BusIsComming/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+    "/Users/hezhenyu/AndroidStudioProjects/BusIsComming/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
   uiStyleGuide: "Android project UI style guide",
   routeResultsSpec: "Android project route query results spec",
   notificationSpec: "Android project notification monitoring spec",

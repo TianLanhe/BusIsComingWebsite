@@ -1,8 +1,12 @@
 # 部署说明
 
-本文档说明如何把 BusIsComming Website 部署到一台 Ubuntu 24.04 x86_64
+本文档说明如何把 BusIsComing Website 部署到一台 Ubuntu 24.04 x86_64
 服务器。部署脚本在本机完成前端打包和 Go 后端交叉编译，通过 SSH/SCP
 上传不可变 release，再由远端脚本配置 Caddy、systemd、HTTPS 代理和版本链接。
+
+本文档记录生产运维步骤；系统边界见 [系统架构](architecture.md)，日常本地开发见
+[开发指南](development.md)。实际参数和行为以 `scripts/deploy.sh`、
+`scripts/deploy-remote.sh` 及 `scripts/tests/deploy_test.sh` 为准。
 
 ## 前置条件
 
@@ -24,6 +28,27 @@ ssh root@<server-ip>
   `dig`、`file`、`mktemp`。
 - 服务器运行用户：脚本会创建非 root 的 `busiscoming` 系统用户运行后端服务。
 - 服务器公网入口：Caddy 独占 80/443，并反向代理 `/api/*` 到本机后端。
+
+## 部署前检查
+
+先查看当前脚本支持的参数，不要依赖旧文档或历史命令：
+
+```bash
+./scripts/deploy.sh --help
+```
+
+默认部署只接受干净的 `main` 或 `master` 工作区。`deploy` 会先执行 `npm ci`；未传
+`--skip-tests` 时，会运行前端测试、OpenAPI 契约 lint 和后端全部 Go 测试。之后无论是否
+跳过测试，都会构建公开站点、私有监控前端和 Linux amd64 静态后端二进制；未传
+`--skip-apk` 时还会验证 APK 交付文件。
+
+修改部署脚本或服务器配置生成逻辑后，另行运行脚本级测试：
+
+```bash
+./scripts/tests/deploy_test.sh
+```
+
+该测试不会连接真实服务器。上线前仍需确认 DNS、SSH、服务器架构和生产环境变量。
 
 ## 首次部署
 
@@ -127,6 +152,8 @@ export BUS_DEPLOY_KEEP=3
 - 部署健康检查失败时会恢复代码的 `current/previous`，但已经成功替换的 APK 不回滚。
 - 如需避免 APK 变化，部署时使用 `--skip-apk`。
 
+APK 元数据、缓存和人工校验要求见 [Android APK 交付](android-apk-delivery.md)。
+
 ## 远端结构
 
 默认结构：
@@ -195,6 +222,8 @@ Visitor secret 与 `ROUTE_QUERY_TOKEN_SECRET` 独立生成。环境文件和 sec
 Dashboard 或数据库不可用只记录 degraded warning，不得让公开 `/healthz`、主页、巴士试查或 APK
 下载发布失败；公开服务自身或 HTTPS 健康失败仍按原流程回滚代码 release。
 
+事件白名单、匿名访客标识和禁止记录字段见 [匿名统计与隐私边界](analytics-and-privacy.md)。
+
 ## 故障处理
 
 - DNS 校验失败：`direct` 模式下确认 `www.busiscoming.com` 和 `busiscoming.com` 的
@@ -213,3 +242,11 @@ Dashboard 或数据库不可用只记录 degraded warning，不得让公开 `/he
 - 并发部署：远端使用锁，同一时间只允许一个修改型命令运行。
 
 不要把服务器环境文件、token、`ROUTE_QUERY_TOKEN_SECRET` 或完整第三方响应贴到公开日志。
+
+## 相关文档
+
+- [系统架构](architecture.md)：公网/私网拓扑和部署单元。
+- [开发指南](development.md)：本地启动、环境变量和通用验证命令。
+- [Android APK 交付](android-apk-delivery.md)：安装包更新、完整性和回滚边界。
+- [匿名统计与隐私边界](analytics-and-privacy.md)：生产数据、私有 Dashboard 和降级策略。
+- [首次 SEO 提交与持续检查](seo-first-indexing.md)：上线后的静态页面和索引检查。
