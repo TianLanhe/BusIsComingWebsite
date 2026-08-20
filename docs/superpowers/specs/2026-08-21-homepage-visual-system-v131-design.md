@@ -2,7 +2,7 @@
 
 日期：2026-08-21
 
-状态：对话中的视觉方向已确认，等待用户审阅本文档；Figma 尚待通过 html.to.design 导入并回填真实节点。
+状态：视觉方向、双端构图与非理想状态均已获用户确认；Figma 尚待通过 html.to.design 导入并回填真实节点。
 
 取代范围：本文件取代 `2026-07-20-homepage-breathing-hierarchy-redesign-design.md` 对公开首页信息架构、视觉、动效和文案的设计结论。旧文件只解释历史决策，不得继续指导实现。
 
@@ -357,12 +357,17 @@ FAQ 桌面端为左侧标题、右侧折叠列表；手机端上下排列。标�
 
 Figma 导入完成后，必须在新的 feature `figma.md` 中记录真实文件 URL、frame URL、node ID、viewport、状态和版本。不得编造 node ID。Figma 记录完成前，不进入正式前端实现。
 
+路线试查的六种状态必须共用同一结果区几何尺寸：loading 使用三层骨架屏；empty 与 error 在原结果区内提供单一下一步；保留旧结果时只在结果工具栏写明“暂未更新”，不额外叠加提示卡。下载三态必须共用同一按钮几何尺寸；checking 与 unavailable 不提供有效链接，二维码只在 ready 显示，手机始终隐藏二维码。
+
+html.to.design 导入状态画板前，先选中目标状态，再点击原型控制栏中的“准备导入”。该操作会把控制栏完全移出布局；导入内容不得包含控制栏本身。桌面与手机分别以 `1440×960` 和 `390×844` 视口导入，不允许在 Figma 内对导入结果做非等比拉伸。
+
 ## 13. 已确认预览锚点
 
 当前本地 Visual Companion 会话中的获批锚点：
 
 - `.superpowers/brainstorm/39893-1787244865/content/download-motion-type-refined-v10.html`：第一屏、路线试查和选定下载方向；
 - `.superpowers/brainstorm/39893-1787244865/content/ending-faq-contact-v1.html`：下载到 FAQ、联系和页尾的完整收尾；
+- `.superpowers/brainstorm/39893-1787244865/content/ui-state-contract-v1.html`：路线试查六态与下载三态的获批双端状态合同；
 - `.superpowers/brainstorm/39893-1787244865/ending-faq-contact-desktop-v2.png`：收尾桌面视觉证据；
 - `.superpowers/brainstorm/39893-1787244865/ending-faq-contact-mobile-v2.png`：收尾手机视觉证据。
 
