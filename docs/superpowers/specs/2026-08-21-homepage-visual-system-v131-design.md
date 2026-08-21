@@ -2,7 +2,7 @@
 
 日期：2026-08-21
 
-状态：视觉方向、双端构图与非理想状态均已获用户确认；Figma 尚待通过 html.to.design 导入并回填真实节点。
+状态：视觉方向、双端构图与非理想状态均已获用户确认；最终设计已写入 Figma 并完成桌面端节点与尺寸复核。
 
 取代范围：本文件取代 `2026-07-20-homepage-breathing-hierarchy-redesign-design.md` 对公开首页信息架构、视觉、动效和文案的设计结论。旧文件只解释历史决策，不得继续指导实现。
 
@@ -339,27 +339,33 @@ FAQ 桌面端为左侧标题、右侧折叠列表；手机端上下排列。标�
 
 ## 12. Figma 交付合同
 
-由于本轮没有可用的 Figma MCP 额度，先通过 Visual Companion 产出 HTML 预览，再由用户使用 html.to.design 导入现有 Figma 文件。导入时建立独立页面：
+`html.to.design` 与 Figma MCP 配额均不可用后，本轮改用仓库内的一次性本地开发插件，把获批设计写成原生 Figma 变量、样式、组件、文字和形状；只有五张真实 App 截图使用 image fill，没有把整页扁平化成图片。Starter 方案已达到页面数量上限，因此没有新建页面，而是在既有 `Homepage v1 Spec` 页面内创建独立最终 Section。
 
-`Homepage Visual System v1.3.1 — Approved 2026-08-21`
+真实交付入口：
 
-至少包含：
+- Figma 文件：[BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)；
+- 页面：`Homepage v1 Spec`（`0:1`）；
+- 最终 Section：[Homepage Visual System v1.3.1 — FINAL](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=119-64)（`119:64`，`7900×7200`，38 个顶层节点）；
+- 桌面首屏 Story 01：[01 Hero / Desktop 1440×960 / Story 01](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=119-176)（`119:176`）；
+- 手机首屏 Story 01：[01 Hero / Mobile 390×844 / Story 01](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=119-461)（`119:461`）。
+
+最终 Section 包含：
 
 1. `00 Foundations`：色彩、排版、间距、风带层次、手机边框材质；
 2. `01 Hero / Desktop / 1440×960`；
 3. `01 Hero / Mobile / 390×844`；
 4. 五个 Hero 故事的标题、说明和截图状态；
-5. `02 Route Trial / Desktop` 与 `Mobile`，包含 default/loading/result/empty/error；
-6. `03 Download / Desktop` 与 `Mobile`，包含 loading/ready/unavailable 和 reduced motion；
+5. `02 Route Trial / Desktop` 与 `Mobile`，包含 idle/loading/success/empty/error/retained；
+6. `03 Download / Desktop` 与 `Mobile`，包含 checking/ready/unavailable/reduced-motion；
 7. `04 Support Ending / Desktop` 与 `Mobile`，包含 FAQ 展开/收起；
 8. `05 Motion Notes`：风带、环形舞台和下载汇聚的时长、曲线、层级及 reduced motion；
 9. `06 Content Contract`：三语文案与运营商覆盖边界。
 
-Figma 导入完成后，必须在新的 feature `figma.md` 中记录真实文件 URL、frame URL、node ID、viewport、状态和版本。不得编造 node ID。Figma 记录完成前，不进入正式前端实现。
+Figma 桌面端已确认最终 Section、38 个顶层节点、桌面 `1440×960` 与手机 `390×844` Frame，并完成画面可见性检查。由于 Starter MCP 调用额度已耗尽，本轮没有伪造 API readback；上述节点来自 Figma 桌面运行时实际选中状态与 URL。后续创建本次升级的正式 feature 时，必须把这些真实链接同步写入对应 `figma.md`，再进入前端实现。
 
 路线试查的六种状态必须共用同一结果区几何尺寸：loading 使用三层骨架屏；empty 与 error 在原结果区内提供单一下一步；保留旧结果时只在结果工具栏写明“暂未更新”，不额外叠加提示卡。下载三态必须共用同一按钮几何尺寸；checking 与 unavailable 不提供有效链接，二维码只在 ready 显示，手机始终隐藏二维码。
 
-html.to.design 导入状态画板前，先选中目标状态，再点击原型控制栏中的“准备导入”。该操作会把控制栏完全移出布局；导入内容不得包含控制栏本身。桌面与手机分别以 `1440×960` 和 `390×844` 视口导入，不允许在 Figma 内对导入结果做非等比拉伸。
+桌面与手机 Frame 已分别锁定为 `1440×960` 和 `390×844`，实现和视觉验收不得在 Figma 或浏览器内对其做非等比拉伸。
 
 ## 13. 已确认预览锚点
 

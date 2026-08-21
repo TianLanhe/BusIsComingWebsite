@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { color-scheme: light dark; font-family: Inter, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px; color: var(--figma-color-text); background: var(--figma-color-bg); }
+    h1 { margin: 0; font-size: 18px; line-height: 1.25; }
+    .lead { margin: 8px 0 16px; color: var(--figma-color-text-secondary); font-size: 12px; line-height: 1.55; }
+    .notice { padding: 12px; border: 1px solid var(--figma-color-border); border-radius: 10px; background: var(--figma-color-bg-secondary); font-size: 11px; line-height: 1.55; }
+    ul { margin: 12px 0 0; padding-left: 18px; }
+    li + li { margin-top: 5px; }
+    button { width: 100%; min-height: 42px; margin-top: 14px; border: 0; border-radius: 9px; font: inherit; font-weight: 700; cursor: pointer; }
+    #generate { color: #fff; background: #08645d; }
+    #generate:disabled { cursor: wait; opacity: .55; }
+    #close { color: var(--figma-color-text); background: var(--figma-color-bg-tertiary); }
+    #status { min-height: 82px; margin-top: 14px; padding: 12px; border-left: 3px solid #08645d; border-radius: 6px; color: var(--figma-color-text-secondary); background: var(--figma-color-bg-secondary); font-size: 11px; line-height: 1.5; white-space: pre-wrap; }
+    #status.error { border-color: #c94f5f; }
+    #status.done { border-color: #168a62; }
+  </style>
+</head>
+<body>
+  <h1>Homepage Visual System v1.3.1</h1>
+  <p class="lead">在当前 Figma 页面生成已确认的双端首页、状态矩阵、变量、组件与 UX 注释。</p>
+  <div class="notice">
+    插件不会删除或覆盖现有节点。若 `FINAL` Section 已存在，只会定位到该节点。
+    <ul>
+      <li>桌面 Hero × 5：1440×960</li>
+      <li>手机 Hero × 5：390×844</li>
+      <li>路线 6 态、下载 4 态、FAQ 与动效合同</li>
+      <li>真实截图仅作为手机屏幕填充，其余均为原生 Figma 节点</li>
+    </ul>
+  </div>
+  <button id="generate" type="button">生成最终设计画板</button>
+  <div id="status" role="status" aria-live="polite">准备就绪。请确保当前打开的是 BusIsComing Website — Homepage v1 Spec。</div>
+  <button id="close" type="button">关闭插件</button>
+  <script>
+    const generate = document.getElementById('generate');
+    const status = document.getElementById('status');
+    generate.addEventListener('click', () => {
+      generate.disabled = true;
+      status.className = '';
+      status.textContent = '开始生成…';
+      parent.postMessage({ pluginMessage: { type: 'generate' } }, '*');
+    });
+    document.getElementById('close').addEventListener('click', () => parent.postMessage({ pluginMessage: { type: 'close' } }, '*'));
+    onmessage = (event) => {
+      const message = event.data.pluginMessage;
+      if (!message || message.type !== 'progress') return;
+      status.className = message.stage === 'error' ? 'error' : message.stage === 'done' ? 'done' : '';
+      status.textContent = `${message.message}${message.detail ? `\n\n${message.detail}` : ''}`;
+      if (message.stage === 'error' || message.stage === 'done') generate.disabled = false;
+    };
+  </script>
+</body>
+</html>
