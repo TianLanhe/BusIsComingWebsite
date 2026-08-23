@@ -13,34 +13,34 @@
           "path": "/zh-hant/",
           "htmlLang": "zh-Hant",
           "canonical": "https://www.busiscoming.com/zh-hant/",
-          "title": "香港城巴查詢 App | BusIsComing 巴士路線、車費與 ETA",
-          "description": "BusIsComing 是面向香港城巴查詢的 Android App，支援常用路線、Citybus 路線比較、車費、步行距離與抵站時間查看。",
-          "ogTitle": "BusIsComing | 香港城巴查詢 Android App",
-          "ogDescription": "保存常用起點和目的地，快速比較 Citybus 路線、車費、步行距離與首程 ETA，並可在線試用和下載 Android APK。",
-          "twitterTitle": "BusIsComing | 香港城巴查詢 Android App",
-          "twitterDescription": "BusIsComing 官網提供香港城巴查詢功能介紹、在線試用與 Android APK 下載。"
+          "title": "香港巴士路線規劃 App | BusIsComing 路線、車費與到站時間",
+          "description": "BusIsComing 是香港巴士路線規劃與導航 Android App，可比較路線、車費與候車時間，查看沿途位置及跨營運商首程到站時間。",
+          "ogTitle": "BusIsComing | 香港巴士路線規劃與導航 App",
+          "ogDescription": "搜尋香港巴士路線、比較車費與候車時間，保存常用行程並查看沿途位置；網站亦提供路線試查及 Android App 下載。",
+          "twitterTitle": "BusIsComing | 香港巴士路線規劃與導航 App",
+          "twitterDescription": "在 BusIsComing 搜尋和比較香港巴士路線，試查路線或下載 Android App。"
         },
         "zh-Hans": {
           "path": "/zh-hans/",
           "htmlLang": "zh-Hans",
           "canonical": "https://www.busiscoming.com/zh-hans/",
-          "title": "香港城巴查询 App | BusIsComing 巴士路线、车费与 ETA",
-          "description": "BusIsComing 是面向香港城巴查询的 Android App，支持常用路线、Citybus 路线比较、车费、步行距离与到站时间查看。",
-          "ogTitle": "BusIsComing | 香港城巴查询 Android App",
-          "ogDescription": "保存常用起点和终点，快速比较 Citybus 路线、车费、步行距离与首程 ETA，并可在线试用和下载 Android APK。",
-          "twitterTitle": "BusIsComing | 香港城巴查询 Android App",
-          "twitterDescription": "BusIsComing 官网提供香港城巴查询功能介绍、在线试用与 Android APK 下载。"
+          "title": "香港巴士路线规划 App | BusIsComing 路线、车费与到站时间",
+          "description": "BusIsComing 是香港巴士路线规划与导航 Android App，可比较路线、车费与候车时间，查看沿途位置及跨运营商首程到站时间。",
+          "ogTitle": "BusIsComing | 香港巴士路线规划与导航 App",
+          "ogDescription": "搜索香港巴士路线、比较车费与候车时间，保存常用行程并查看沿途位置；网站也提供路线试查及 Android App 下载。",
+          "twitterTitle": "BusIsComing | 香港巴士路线规划与导航 App",
+          "twitterDescription": "在 BusIsComing 搜索和比较香港巴士路线，试查路线或下载 Android App。"
         },
         "en": {
           "path": "/en/",
           "htmlLang": "en",
           "canonical": "https://www.busiscoming.com/en/",
-          "title": "BusIsComing Citybus Lookup App | Routes, Fare and ETA",
-          "description": "BusIsComing is an Android app for Hong Kong Citybus lookup, with saved routes, Citybus route comparison, fare, walking distance, and ETA details.",
-          "ogTitle": "BusIsComing | Hong Kong Citybus Lookup Android App",
-          "ogDescription": "Save frequent origins and destinations, compare Citybus routes, fare, walking distance, and first-leg ETA, then try the website demo or download the Android APK.",
-          "twitterTitle": "BusIsComing | Hong Kong Citybus Lookup Android App",
-          "twitterDescription": "BusIsComing introduces Hong Kong Citybus lookup, an online trial, and Android APK download."
+          "title": "Hong Kong Bus Route Planner | BusIsComing Android App",
+          "description": "BusIsComing is a Hong Kong bus route planner and navigation app for comparing routes, fares, waiting times, walking distance, and eligible joint-route arrivals.",
+          "ogTitle": "BusIsComing | Hong Kong Bus Route Planner and Navigation App",
+          "ogDescription": "Search and compare Hong Kong bus routes, save regular journeys, follow your position, try a route online, or download the Android app.",
+          "twitterTitle": "BusIsComing | Hong Kong Bus Route Planner",
+          "twitterDescription": "Search and compare Hong Kong bus routes, try a route online, or download BusIsComing for Android."
         }
       }
     },

@@ -10,12 +10,7 @@
 | `frontend/public/favicon.webp` | 96×96、带透明通道 | 浏览器 favicon |
 | `frontend/src/assets/brand/busiscoming-icon.webp` | 192×192、带透明通道 | 历史完整 launcher 素材，不作为当前网站 logo |
 
-当前 foreground 来源为 Android 主项目：
-
-```text
-/Users/hezhenyu/AndroidStudioProjects/BusIsComming/
-app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
-```
+当前 foreground 来源为 Android 主项目受管的 launcher foreground 资源。网站只保存导出的公开品牌文件和来源说明，运行时不读取 Android 工程或本机路径。
 
 导出规则：
 
@@ -35,37 +30,36 @@ Android 源资源或品牌决策变化时，先核对 Android 主项目当前资
 frontend/src/assets/app-screenshots/real/
 ```
 
-`manifest.json` 是截图场景、顺序、默认图、脱敏状态和三语 alt text 的结构化来源。当前四个 feature group：
+`manifest.json` 是截图场景、顺序、源/衍生指纹、脱敏状态和三语 alt text 的结构化来源。当前五个故事资产：
 
-| `featureId` | 场景 |
+| `storyId` | 场景 |
 | --- | --- |
-| `favorite-citybus-routes` | 常用 Citybus 路线与路线列表 |
-| `route-comparison` | 车费、耗时、步行和 ETA 比较 |
-| `eta-details` | 路线详情与多班 ETA |
+| `route-search` | 输入起终点与候选巴士路线 |
+| `saved-journeys` | 常用行程与路线、车费、候车时间比较 |
+| `journey-guidance` | 路线、转乘与当前位置沿途导航 |
+| `cross-operator-arrivals` | 符合条件的联营路线跨运营商到站时间 |
 | `predeparture-monitor` | 锁屏/通知栏出门前监测 |
-
-一张图片可以被多个 feature 引用，例如当前路线比较和常用路线共享同一结果截图。不要为了目录整齐复制相同文件。
 
 ## Manifest 规则
 
-每个 group 必须：
+每个 asset 必须：
 
-- 使用 schema 允许的 `featureId`；
-- 至少有一张图片；
-- 恰好一张 `isDefault: true`，当前默认图 `order` 为 1；
-- 只引用 `frontend/src/assets/app-screenshots/real/` 内文件；
-- 为每张图提供 `zh-Hant`、`zh-Hans`、`en` 非空 alt；
-- 使用 `pending/approved/rejected` 脱敏状态；
+- 使用 schema 允许的 `storyId` 并与五故事一一对应；
+- 保存源截图宽高和 SHA-256，但不保存本机绝对源路径；
+- 生成 540/720/1080 三种 WebP 衍生物并保存尺寸、字节数和 SHA-256；
+- 只引用 `frontend/src/assets/app-screenshots/real/` 内的受管衍生文件；
+- 提供 `zh-Hant`、`zh-Hans`、`en` 非空 alt；
+- 使用 `approved` 发布和脱敏状态；
 - 在 `retainedItems` 中说明允许保留的产品事实。
 
 契约位置：
 
 ```text
-specs/003-homepage-ui-optimization/contracts/
-screenshot-assets.manifest.schema.json
+specs/014-upgrade-homepage-visual-system/contracts/
+screenshot-assets-v131.manifest.schema.json
 ```
 
-`frontend/src/tests/screenshot-assets-contract.test.ts` 同时验证 schema、用户确认的场景映射、默认图和 alt 完整性。
+`frontend/src/tests/screenshot-assets-contract.test.ts` 同时验证 schema、五故事映射、衍生指纹、批准状态、三语 alt 和无本机路径。
 
 ## 脱敏边界
 
@@ -87,31 +81,19 @@ screenshot-assets.manifest.schema.json
 ## 当前处理脚本
 
 ```bash
-npm --prefix frontend run sanitize:screenshots
+node frontend/scripts/prepare-homepage-story-assets.mjs
 ```
 
-`frontend/scripts/sanitize-homepage-screenshots.mjs`：
-
-1. 读取 manifest；
-2. 按 `featureId` 使用显式 mask plan；
-3. 覆盖敏感区域；
-4. 旋转、缩放到最大宽度 420px，并以 JPEG 压缩内容写入 manifest 的 output path。
-
-当前 manifest 的 `sourceRoot` 与 `outputRoot` 相同，且每张图的 `sourcePath`/`outputPath` 指向同一项目内文件。这意味着脚本会重写受管截图，不在仓库保留一份无损原图。运行前必须确保原始可信素材在仓库外有受控副本，并在运行后逐张检查；不要在已压缩输出上无目的重复执行，避免累积质量损失。
-
-当前受管文件本身是 PNG，但处理脚本显式使用 JPEG encoder，同时仍写回 `.png` 路径。再次运行前应把编码格式与扩展名作为独立代码问题统一；在此之前，运行后必须检查实际媒体类型，不能只凭文件名判断格式。
-
-脚本的 mask plan 是实现细节，manifest 的 `redactedItems`/`retainedItems` 是记录。两者不一致时不能仅把 manifest 状态改成 approved，必须重新核对实际像素和测试证据。
+`frontend/scripts/prepare-homepage-story-assets.mjs` 从明确列出的、已批准且只读的源截图生成新的 WebP 路径，先验证源 SHA，再写入 540/720/1080 衍生物与 manifest。它不会在原路径覆盖源图，也不会运行旧的 mask 坐标流程。旧 `sanitize:screenshots` 不得用于这组 v1.3.1 资产。
 
 ## 更新流程
 
 1. 在 Android 主项目或用户提供素材中确认截图对应当前真实功能。
-2. 在仓库外保存受控原图；不要先提交未经脱敏版本。
-3. 将待处理副本放入 `frontend/src/assets/app-screenshots/real/`。
-4. 更新 mask plan 与 `manifest.json` 的 group、顺序、状态、retained/redacted items 和三语 alt。
-5. 运行 `sanitize:screenshots`，逐张放大检查输出。
-6. 更新 `carouselSlides.ts` 的静态 import 映射；manifest 中存在但未映射的图片不能进入页面。
-7. 运行契约测试、构建和桌面/手机 Playwright。
+2. 在仓库外保存受控原图；不要提交未经脱敏版本或本机源路径。
+3. 在准备脚本中登记批准的源指纹与新的输出 basename。
+4. 运行 `prepare-homepage-story-assets.mjs`，逐张放大检查输出并核对 manifest。
+5. 更新 `storyAssets.ts` 的静态 import 映射；manifest 中存在但未映射的图片不能进入页面。
+6. 运行契约测试、构建和桌面/手机 Playwright。
 8. 涉及场景、层级或交互变化时，更新对应 Figma 与 feature 文档。
 
 常用验证：
@@ -119,7 +101,7 @@ npm --prefix frontend run sanitize:screenshots
 ```bash
 npm --prefix frontend run test
 npm --prefix frontend run build
-npm --prefix frontend run test:e2e -- feature-gallery.spec.ts hero-carousel.spec.ts
+npm --prefix frontend run test:e2e -- hero-carousel.spec.ts homepage-visual-regression.spec.ts
 ```
 
 ## Alt text

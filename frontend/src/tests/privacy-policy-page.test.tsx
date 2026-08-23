@@ -15,10 +15,10 @@ describe("privacy policy page", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "BusIsComing 私隱政策" })).toBeInTheDocument();
     expect(screen.getByText("2026-07-22")).toBeInTheDocument();
-    expect(screen.getAllByText("hezhenyu966@gmail.com")).toHaveLength(2);
+    expect(screen.getAllByText("hezhenyu966@gmail.com")).toHaveLength(1);
     expect(screen.queryByTitle("English")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "功能介紹" })).toHaveAttribute("href", "/zh-hant/#features");
-    expect(screen.getByRole("link", { name: "網上試查" })).toHaveAttribute("href", "/zh-hant/#online-query");
+    expect(screen.getByRole("link", { name: "功能" })).toHaveAttribute("href", "/zh-hant/#features");
+    expect(screen.getAllByRole("link", { name: "常見問題" })[0]).toHaveAttribute("href", "/zh-hant/#faq");
     expect(screen.getByRole("link", { name: "私隱政策" })).toHaveAttribute("href", "/zh-hant/privacy/");
   });
 

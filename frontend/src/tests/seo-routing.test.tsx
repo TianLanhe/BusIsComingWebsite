@@ -67,8 +67,10 @@ describe("localized SEO routing", () => {
 
     renderSeoHarness();
 
-    expect(screen.getByTitle("English")).toHaveAttribute("href", "/en/#features");
-    fireEvent.click(screen.getByTitle("English"));
+    fireEvent.click(screen.getByRole("button", { name: "Language" }));
+    const english = screen.getByRole("menuitem", { name: "English" });
+    expect(english).toHaveAttribute("href", "/en/#features");
+    fireEvent.click(english);
 
     await waitFor(() => expect(window.location.pathname).toBe("/en/"));
     expect(window.location.hash).toBe("#features");

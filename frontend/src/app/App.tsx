@@ -1,7 +1,7 @@
 import { DownloadSection } from "../components/sections/DownloadSection";
 import { DownloadMetadataProvider } from "../components/download/DownloadMetadataProvider";
 import { FaqSection } from "../components/sections/FaqSection";
-import { FeatureGrid } from "../components/sections/FeatureGrid";
+import { ContactStrip } from "../components/sections/ContactStrip";
 import { FooterContact } from "../components/sections/FooterContact";
 import { Header } from "../components/sections/Header";
 import { HeroSection } from "../components/hero/HeroSection";
@@ -15,7 +15,7 @@ export function App() {
   const exactHomepage = typeof window !== "undefined" && locale !== null && window.location.pathname === homePathForLocale(locale);
 
   const page = (
-    <>
+    <div id="top">
       <SeoHead pageId={pageId} />
       <Header pageId={pageId} hideLanguageSwitcher={isPrivacyPage} />
       {isPrivacyPage ? (
@@ -23,14 +23,14 @@ export function App() {
       ) : (
         <main>
           <HeroSection />
-          <FeatureGrid />
           <OnlineQueryDemoSection />
           <DownloadSection />
           <FaqSection />
+          <ContactStrip />
         </main>
       )}
       <FooterContact />
-    </>
+    </div>
   );
 
   return exactHomepage ? <DownloadMetadataProvider>{page}</DownloadMetadataProvider> : page;

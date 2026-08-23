@@ -4,7 +4,7 @@
 
 ## 体验定位
 
-BusIsComing 应呈现为安静、实用、可信赖的现代通勤工具：让用户快速判断产品用途、试查 Citybus、理解限制并下载 App，而不是制造夸张营销、复杂后台感或无意义装饰。
+BusIsComing 应呈现为安静、实用、可信赖的现代通勤工具：让用户快速判断巴士路线规划与导航用途、试查路线、理解限制并下载 App，而不是制造夸张营销、复杂后台感或无意义装饰。
 
 公开主页与私有 Pulse Dashboard 面向不同用户，但共享以下基线：
 
@@ -18,9 +18,9 @@ BusIsComing 应呈现为安静、实用、可信赖的现代通勤工具：让�
 
 ### 公开主页
 
-![公开主页桌面端功能与在线试查基线](../specs/007-homepage-ui-polish/visual-review/desktop-1440-sections.png)
-
-![公开主页手机端功能与在线试查基线](../specs/007-homepage-ui-polish/visual-review/mobile-390-sections.png)
+当前公开主页以 feature 014 的 Figma Section `119:64` 为设计来源，并以固定 Chromium 下的
+`1440×960`、`390×844`、`320px` Playwright golden 为实现基线。参考、实际图、叠图和差异图统一位于
+`specs/014-upgrade-homepage-visual-system/visual-review/`，旧 FeatureGrid、四故事牌堆和 lightbox 只作历史记录。
 
 ### 私有监控
 
@@ -76,12 +76,13 @@ loading、ready、empty、unavailable、partial error 和 success 应尽量共�
 - 语言标签使用“繁體中文／简体中文／English”或已有紧凑标签，并提供完整可访问名称。
 - 语言切换应保留当前页面类型、query 和 hash，不把隐私页错误切回首页。
 
-### App 截图轮播
+### 五故事截图舞台
 
-- 只展示 manifest 中获批的脱敏截图。
-- 当前首页使用低旋转 stair-card-deck；功能场景切换与同场景截图切换保持明确分工。
-- 触控、鼠标、键盘和 lightbox 必须有等价路径；装饰性后排图片不应进入多余焦点顺序。
-- lightbox 支持关闭、缩放、平移和同功能图片切换，并在关闭后恢复合理焦点。
+- 只展示 manifest 中获批、可追踪衍生指纹的五张 v1.3.1 截图。
+- 五张截图常驻环形槽位；一个前景、两个近景、两个远景形成明确远近关系，不排成平面队列。
+- 故事只由 `01–05` 原生按钮切换，不自动播放、不拖拽、不提供 lightbox；Arrow/Home/End 与指针操作等价。
+- 前景图片提供当前语言 alt；后景图片为空 alt、`aria-hidden`、不聚焦且不可点击。
+- 手机边框四侧完整、无硬件开孔；故事轨在舞台下方的正常文档流内，不能覆盖截图。
 
 ### 表单与查询结果
 
@@ -95,6 +96,8 @@ loading、ready、empty、unavailable、partial error 和 success 应尽量共�
 - `loading`、`ready`、`unavailable` 三态使用同一语义位置。
 - 只有 `ready` 渲染可操作原生链接；其它状态不能带 `href` 或模拟下载。
 - 不显示无法从浏览器可靠得知的伪下载进度或安装完成状态。
+- ready 桌面端二维码与下载按钮解析到同一个公开绝对 URL；手机端不显示二维码。
+- 下载段采用非卡片构图，进入视区后只运行一次克制的风带汇聚；reduced motion 完全静止。
 
 ### Dashboard 图表与表格
 
@@ -106,7 +109,8 @@ loading、ready、empty、unavailable、partial error 和 success 应尽量共�
 ## 动效
 
 - 动效只用于解释层级、连续性或直接操作反馈，时间短且可中断。
-- 轮播自动切换必须允许手动控制，交互中不抢夺用户操作。
+- 首页故事不自动切换；所有动效必须由用户选择或一次性进入视区触发。
+- 风带只动画 `transform`、`opacity`、`scale`，周期约 10–22 秒，不驱动布局。
 - 遵守 `prefers-reduced-motion: reduce`，关闭平滑滚动并把动画/过渡压缩到近乎即时。
 - loading spinner 需要可访问文本，不能仅靠旋转图形表示状态。
 
@@ -135,6 +139,7 @@ loading、ready、empty、unavailable、partial error 和 success 应尽量共�
 | 匿名统计 Dashboard | `specs/010-website-analytics/figma.md` |
 | Dashboard 修复与可观测性 | `specs/011-analytics-dashboard-remediation/figma.md`、`specs/012-analytics-dashboard-observability/figma.md` |
 | APK 双入口三态 | `specs/013-unify-apk-download/figma.md` |
+| 首页五故事、路线、下载与收尾 | `specs/014-upgrade-homepage-visual-system/figma.md` |
 
 涉及页面、组件、布局、视觉状态或交互的新 spec 必须在 plan/implement 前记录 Figma 文件、真实关键节点、手机/电脑 viewport、交互状态和版本。不得编造 node ID，也不能用本指南代替 feature 设计。
 

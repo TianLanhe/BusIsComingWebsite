@@ -1,373 +1,193 @@
-import { carouselSlides } from "./carouselSlides";
-import { onlineQueryDemo } from "./onlineQueryDemo";
-import { contact, faq, features, scopeExclusions } from "./sectionsContent";
+import { homepageStories } from "./homepageStories";
 import { sourceReferenceList, sourceReferences } from "./sourceReferences";
-import type { HomePageContent } from "./types";
-import { uiCopy } from "./uiCopy";
+import type { HomepageContentV3 } from "./types";
 
-export const homepageContent: HomePageContent = {
-  metadata: {
-    version: "2026-06-24.homepage-experience-polish",
-    lastUpdated: "2026-06-25",
-    sourceReferences: sourceReferenceList,
-  },
+export const homepageContent: HomepageContentV3 = {
+  metadata: { version: "3.0.0", lastReviewed: "2026-08-24", sourceReferences: sourceReferenceList },
   navigation: {
-    brand: {
-      "zh-Hant": "BusIsComing",
-      "zh-Hans": "BusIsComing",
-      en: "BusIsComing",
-    },
+    brand: { "zh-Hant": "BusIsComing", "zh-Hans": "BusIsComing", en: "BusIsComing" },
     items: [
-      {
-        id: "features",
-        label: {
-          "zh-Hant": "功能介紹",
-          "zh-Hans": "功能介绍",
-          en: "Features",
-        },
-        target: "#features",
-      },
-      {
-        id: "online-query",
-        label: {
-          "zh-Hant": "網上試查",
-          "zh-Hans": "在线查询",
-          en: "Online Query",
-        },
-        target: "#online-query",
-      },
-      {
-        id: "faq",
-        label: {
-          "zh-Hant": "常見問題",
-          "zh-Hans": "常见问题",
-          en: "FAQ",
-        },
-        target: "#faq",
-      },
-      {
-        id: "contact",
-        label: {
-          "zh-Hant": "聯絡我們",
-          "zh-Hans": "联系我们",
-          en: "Contact Us",
-        },
-        target: "#contact",
-      },
+      { id: "features", label: { "zh-Hant": "功能", "zh-Hans": "功能", en: "Features" }, target: "#features" },
+      { id: "faq", label: { "zh-Hant": "常見問題", "zh-Hans": "常见问题", en: "FAQ" }, target: "#faq" },
+      { id: "contact", label: { "zh-Hant": "聯絡我們", "zh-Hans": "联系我们", en: "Contact" }, target: "#contact" },
     ],
-    languageLabel: {
-      "zh-Hant": "語言",
-      "zh-Hans": "语言",
-      en: "Language",
-    },
+    languageLabel: { "zh-Hant": "選擇語言", "zh-Hans": "选择语言", en: "Choose language" },
   },
   hero: {
-    headline: {
-      "zh-Hant": "城巴查詢，出門前心中有數",
-      "zh-Hans": "城巴查询，出门前心中有数",
-      en: "Citybus lookup before you head out",
+    eyebrow: { "zh-Hant": "香港巴士出行 APP", "zh-Hans": "香港巴士出行 APP", en: "HONG KONG BUS APP" },
+    productPositioning: {
+      "zh-Hant": "香港巴士路線規劃與導航 App",
+      "zh-Hans": "香港巴士路线规划与导航 App",
+      en: "A Hong Kong bus route planner and navigation app",
     },
-    subheading: {
-      "zh-Hant": "為日常搭城巴而設的 Android App，儲低常用起點和目的地，快速比較 Citybus 路線、交通費用、步行距離與首程抵站時間。",
-      "zh-Hans": "为日常乘坐城巴而设的 Android App，保存常用起终点，快速比较 Citybus 路线、车费、步行距离与首程 ETA。",
-      en: "An Android app for daily Citybus trips: save frequent searches and compare Citybus routes, fare, walking distance, and first-leg ETA.",
+    primaryAction: {
+      label: { "zh-Hant": "下載 Android App", "zh-Hans": "下载 Android App", en: "Download Android App" },
+      target: "#download",
     },
-    bullets: [
+    secondaryAction: {
+      label: { "zh-Hant": "路線試查 →", "zh-Hans": "路线试查 →", en: "Try route search →" },
+      target: "#route-trial",
+    },
+    stories: homepageStories,
+  },
+  routeTrial: {
+    title: {
+      "zh-Hant": "不用先下載，現在就試一程。",
+      "zh-Hans": "不用先下载，现在就试一程。",
+      en: "Try a bus journey before you download.",
+    },
+    description: {
+      "zh-Hant": "選擇起點和目的地，整理合適的巴士路線。",
+      "zh-Hans": "选择起点和目的地，整理合适的巴士路线。",
+      en: "Choose your origin and destination to compare suitable bus routes.",
+    },
+    originLabel: { "zh-Hant": "起點", "zh-Hans": "起点", en: "Origin" },
+    destinationLabel: { "zh-Hant": "目的地", "zh-Hans": "目的地", en: "Destination" },
+    queryAction: { "zh-Hant": "比較巴士路線 →", "zh-Hans": "比较巴士路线 →", en: "Compare bus routes →" },
+    retryAction: { "zh-Hant": "再試一次", "zh-Hans": "再试一次", en: "Try again" },
+    emptyState: {
+      title: {
+        "zh-Hant": "路線會在這裡出現",
+        "zh-Hans": "路线会在这里出现",
+        en: "Your route options will appear here",
+      },
+      description: {
+        "zh-Hant": "選好起點和目的地後，便可比較候車、車費、耗時與步行距離。",
+        "zh-Hans": "选好起点和目的地后，即可比较候车、车费、耗时与步行距离。",
+        en: "Choose both places to compare waiting time, fare, journey time, and walking distance.",
+      },
+    },
+    errorState: {
+      title: {
+        "zh-Hant": "路線暫時無法取得",
+        "zh-Hans": "路线暂时无法获取",
+        en: "Routes are temporarily unavailable",
+      },
+      description: {
+        "zh-Hant": "你的起點和目的地仍然保留，可以稍後再試。",
+        "zh-Hans": "你的起点和目的地仍会保留，可以稍后再试。",
+        en: "Your selected places are still here. You can try again shortly.",
+      },
+    },
+    retainedState: {
+      "zh-Hant": "暫未更新，仍顯示上次結果",
+      "zh-Hans": "暂未更新，仍显示上次结果",
+      en: "Not refreshed — showing the previous result",
+    },
+    metricLabels: {
+      fare: { "zh-Hant": "車費", "zh-Hans": "车费", en: "Fare" },
+      duration: { "zh-Hant": "耗時", "zh-Hans": "耗时", en: "Time" },
+      walking: { "zh-Hant": "步行", "zh-Hans": "步行", en: "Walk" },
+      eta: { "zh-Hant": "候車", "zh-Hans": "候车", en: "Wait" },
+    },
+    scopeNotice: {
+      "zh-Hant": "網站提供香港巴士路線試查；完整行程、沿途導航與鎖屏更新請在 App 使用。",
+      "zh-Hans": "网站提供香港巴士路线试查；完整行程、沿途导航与锁屏更新请在 App 中使用。",
+      en: "The website offers a Hong Kong bus route trial. Use the app for saved journeys, guidance, and lock-screen updates.",
+    },
+  },
+  downloadDecision: {
+    title: {
+      "zh-Hant": "路線找到了，把它帶在身邊。",
+      "zh-Hans": "路线找到了，把它带在身边。",
+      en: "Found your route? Take it with you.",
+    },
+    description: {
+      "zh-Hant": "下載 Android App，保存常用行程，沿途查看並在出門前持續掌握時間。",
+      "zh-Hans": "下载 Android App，保存常用行程，沿途查看并在出门前持续掌握时间。",
+      en: "Download the Android app to save journeys, follow the route, and keep departure timing close at hand.",
+    },
+    minimumAndroid: { "zh-Hant": "Android 7.1+", "zh-Hans": "Android 7.1+", en: "Android 7.1+" },
+    readyAction: { "zh-Hant": "下載 BusIsComing", "zh-Hans": "下载 BusIsComing", en: "Download BusIsComing" },
+    checkingState: { "zh-Hant": "正在取得版本資料", "zh-Hans": "正在获取版本信息", en: "Checking the latest version" },
+    unavailableState: {
+      "zh-Hant": "Android APK 暫時未能下載",
+      "zh-Hans": "Android APK 暂时无法下载",
+      en: "The Android APK is temporarily unavailable",
+    },
+    metadataLabels: {
+      version: { "zh-Hant": "版本", "zh-Hans": "版本", en: "Version" },
+      minimumSystem: { "zh-Hant": "系統", "zh-Hans": "系统", en: "System" },
+      size: { "zh-Hant": "大小", "zh-Hans": "大小", en: "Size" },
+      updated: { "zh-Hant": "更新", "zh-Hans": "更新", en: "Updated" },
+    },
+    installationNote: {
+      "zh-Hant": "下載後依照 Android 畫面提示安裝。",
+      "zh-Hans": "下载后按 Android 画面提示安装。",
+      en: "After downloading, follow the Android prompts to install.",
+    },
+  },
+  supportEnding: {
+    title: {
+      "zh-Hant": "出發前，也許你想知道。",
+      "zh-Hans": "出发前，也许你想知道。",
+      en: "A few things before you set off.",
+    },
+    faq: [
       {
-        title: {
-          "zh-Hant": "儲存常用起終點",
-          "zh-Hans": "保存常用起终点",
-          en: "Save frequent trips",
-        },
-        description: {
-          "zh-Hant": "常用城巴查詢一按再開",
-          "zh-Hans": "一键重打开常用城巴查询",
-          en: "Reopen commute searches in one tap",
+        id: "android-install",
+        defaultOpen: true,
+        question: { "zh-Hant": "Android APK 如何安裝？", "zh-Hans": "Android APK 如何安装？", en: "How do I install the Android APK?" },
+        answer: {
+          "zh-Hant": "下載 APK 後，依照 Android 的畫面提示允許此來源安裝，再開啟檔案完成安裝。",
+          "zh-Hans": "下载 APK 后，按 Android 的画面提示允许此来源安装，再打开文件完成安装。",
+          en: "Download the APK, follow Android's prompt to allow this install source, then open the file to finish.",
         },
       },
       {
-        title: {
-          "zh-Hant": "路線比較更清楚",
-          "zh-Hans": "路线比较更清楚",
-          en: "Compare route options",
-        },
-        description: {
-          "zh-Hant": "用車費、行程時間和步行距離輔助判斷",
-          "zh-Hans": "用车费、行程时间和步行距离辅助判断",
-          en: "Use fare, journey time, and walking distance to decide",
+        id: "data-coverage",
+        defaultOpen: false,
+        question: { "zh-Hant": "目前支援哪些巴士資料？", "zh-Hans": "目前支持哪些巴士数据？", en: "Which bus data is currently covered?" },
+        answer: {
+          "zh-Hant": "路線規劃以 App 已支援的香港巴士路線資料為準；符合條件的聯營路線可集中顯示城巴、九巴與龍運的首程到站時間。營運商覆蓋會按資料可用性逐步擴展。",
+          "zh-Hans": "路线规划以 App 已支持的香港巴士路线数据为准；符合条件的联营路线可集中显示城巴、九巴与龙运的首程到站时间。运营商覆盖会随数据可用性逐步扩展。",
+          en: "Route planning follows the Hong Kong bus data currently supported by the app. Eligible joint routes can show first-leg Citybus, KMB, and Long Win arrivals together; coverage grows only when reliable data is available.",
         },
       },
       {
-        title: {
-          "zh-Hant": "出門前短時監測",
-          "zh-Hans": "出门前短时监测",
-          en: "Pre-departure monitoring",
+        id: "website-app-difference",
+        defaultOpen: false,
+        question: { "zh-Hant": "網站試查和 App 有甚麼分別？", "zh-Hans": "网站试查和 App 有什么区别？", en: "How is the website trial different from the app?" },
+        answer: {
+          "zh-Hant": "網站適合快速試查路線；App 另外提供常用行程、沿途路線與目前位置、完整班次，以及鎖屏持續更新候車與步行時間。",
+          "zh-Hans": "网站适合快速试查路线；App 还提供常用行程、沿途路线与当前位置、完整班次，以及锁屏持续更新候车与步行时间。",
+          en: "The website is for a quick route trial. The app adds saved journeys, route and position guidance, fuller arrivals, and lock-screen waiting and walking updates.",
         },
-        description: {
-          "zh-Hant": "監測首程抵站時間，安心出門",
-          "zh-Hans": "监测首程 ETA，安心出门",
-          en: "Keep first-leg ETA visible before leaving",
+      },
+      {
+        id: "iphone-support",
+        defaultOpen: false,
+        question: { "zh-Hant": "iPhone 可以使用嗎？", "zh-Hans": "iPhone 可以使用吗？", en: "Can I use it on iPhone?" },
+        answer: {
+          "zh-Hant": "暫時只提供 Android 版本，iPhone 版本尚未推出。",
+          "zh-Hans": "目前只提供 Android 版本，iPhone 版本尚未推出。",
+          en: "Only the Android version is available for now. An iPhone version has not been released.",
         },
       },
     ],
-    primaryAction: {
-      label: {
-        "zh-Hant": "下載 Android APK",
-        "zh-Hans": "下载 Android APK",
-        en: "Download Android APK",
-      },
-      target: "/api/downloads/android/latest",
-      kind: "download",
-      downloadFileName: "BusIsComing.apk",
-    },
-    secondaryAction: {
-      label: {
-        "zh-Hant": "網上試查",
-        "zh-Hans": "在线查询",
-        en: "Online Query",
-      },
-      target: "#online-query",
-      kind: "anchor",
-    },
-    apkMeta: {
-      "zh-Hant": "正在檢查 Android APK 版本及大小",
-      "zh-Hans": "正在检查 Android APK 版本和大小",
-      en: "Checking the Android APK version and size",
-    },
-    iphoneStatus: {
-      "zh-Hant": "iPhone 暫未支援",
-      "zh-Hans": "iPhone 暂未支持",
-      en: "iPhone is not supported yet",
-    },
-  },
-  featureShowcase: carouselSlides,
-  features,
-  onlineQueryDemo,
-  downloadSection: {
-    title: {
-      "zh-Hant": "下載 BusIsComing",
-      "zh-Hans": "下载 BusIsComing",
-      en: "Download BusIsComing",
-    },
-    description: {
-      "zh-Hant": "現時提供 Android APK；完成可用性檢查後即可由瀏覽器下載。",
-      "zh-Hans": "当前提供 Android APK；完成可用性检查后可由浏览器下载。",
-      en: "The Android APK becomes available after a quick availability check and downloads through your browser.",
-    },
-    manifestRef: "frontend/src/content/downloadManifest.ts",
-    androidCard: {
-      title: {
-        "zh-Hant": "Android APK",
-        "zh-Hans": "Android APK",
-        en: "Android APK",
-      },
-      meta: {
-        "zh-Hant": "正在檢查目前可下載的版本",
-        "zh-Hans": "正在检查当前可下载版本",
-        en: "Checking the available version",
-      },
-      primaryAction: {
-        label: {
-          "zh-Hant": "下載 Android APK",
-          "zh-Hans": "下载 Android APK",
-          en: "Download Android APK",
-        },
-        target: "/api/downloads/android/latest",
-        kind: "download",
-        downloadFileName: "BusIsComing.apk",
-      },
-      backupAction: {
-        label: {
-          "zh-Hant": "重新下載",
-          "zh-Hans": "重新下载",
-          en: "Download again",
-        },
-        target: "/api/downloads/android/latest",
-        kind: "download",
-        downloadFileName: "BusIsComing.apk",
-      },
-    },
-    iphoneStatus: {
-      "zh-Hant": "iPhone 暫未支援，現階段請先使用 Android 版本。",
-      "zh-Hans": "iPhone 暂未支持，现阶段请先使用 Android 版本。",
-      en: "iPhone is not supported yet. Use the Android APK for now.",
-    },
-  },
-  faq,
-  contact,
-  footerPrivacyLink: {
-    label: {
-      "zh-Hant": "私隱政策",
-      "zh-Hans": "隐私政策",
-      en: "Privacy Policy",
-    },
-    href: {
-      "zh-Hant": "/zh-hant/privacy/",
-      "zh-Hans": "/zh-hans/privacy/",
-      en: "/en/privacy/",
-    },
-  },
-  scopeExclusions,
-  homepageExperience: {
-    metadata: {
-      version: "2026-06-24.homepage-experience-polish",
-      lastUpdated: "2026-06-25",
-    },
-    carousel: {
-      autoAdvanceMs: 3000,
-      featureOrder: ["favorite-citybus-routes", "route-comparison", "eta-details", "predeparture-monitor"],
-      visualMode: "stair-card-deck",
-      supportsSwipe: true,
-      supportsDesktopDrag: true,
-      supportsKeyboardSwitching: true,
-      showsNumericLabels: false,
-      usesThumbnailStack: false,
-      usesPersistentArrows: false,
-    },
-    brandLogo: {
-      sourcePath: sourceReferences.androidLauncherForeground,
-      outputPath: "frontend/src/assets/brand/busiscoming-logo-foreground.png",
-      backgroundRemoved: true,
-      transparent: true,
-      usesLauncherPlate: false,
-      placements: ["header", "footer", "favicon"],
-    },
     contact: {
-      navLabel: {
-        "zh-Hant": "聯絡我們",
-        "zh-Hans": "联系我们",
-        en: "Contact Us",
-      },
-      email: "hezhenyu966@gmail.com",
-      href: "mailto:hezhenyu966@gmail.com",
+      label: { "zh-Hant": "直接聯絡我們", "zh-Hans": "直接联系我们", en: "Contact us directly" },
+      target: "mailto:hezhenyu966@gmail.com",
     },
-    localizedCopyReview: {
-      scope: ["navigation", "hero", "carousel", "features", "online-query", "download", "faq", "footer", "status", "accessibility"],
-      zhHantTone: "hong-kong-practical-written",
-      enTone: "natural-restrained-product",
-      translationMode: "locale-adapted-not-literal",
-      toneGuardrail: "clear-natural-not-colloquial-or-bureaucratic",
-      allLocalesRequired: ["zh-Hant", "zh-Hans", "en"],
+    privacyLink: {
+      label: { "zh-Hant": "私隱政策", "zh-Hans": "隐私政策", en: "Privacy Policy" },
+      href: { "zh-Hant": "/zh-hant/privacy/", "zh-Hans": "/zh-hans/privacy/", en: "/en/privacy/" },
     },
-    figmaReference: {
-      fileUrl: sourceReferences.figmaExperiencePolish,
-      pageName: "Homepage Experience Polish - 005",
-      nodeNames: [
-        "Desktop 1440 / Stair Card Deck: 29:3",
-        "Mobile 390 / Stair Card Deck: 29:44",
-        "Carousel States / Scene Dots and Deck Click: 29:83",
-        "Brand Contact States: 29:101",
-        "Spec Notes: 29:108",
-      ],
+    backToTop: {
+      label: { "zh-Hant": "返回頂部 ↑", "zh-Hans": "返回顶部 ↑", en: "Back to top ↑" },
+      target: "#top",
     },
   },
+  scopeExclusions: [
+    { "zh-Hant": "網站試查不取代完整 App 體驗。", "zh-Hans": "网站试查不替代完整 App 体验。", en: "The website trial does not replace the full app experience." },
+    { "zh-Hant": "聯營首程到站時間不等於完整跨營運商路線規劃。", "zh-Hans": "联营首程到站时间不等于完整跨运营商路线规划。", en: "Joint-route first-leg arrivals do not imply full cross-operator route planning." },
+    { "zh-Hant": "不提供港鐵、鐵路或渡輪路線規劃。", "zh-Hans": "不提供港铁、铁路或渡轮路线规划。", en: "MTR, rail, and ferry route planning are outside this product." },
+  ],
   figmaReference: {
-    fileUrl: sourceReferences.figmaExperiencePolish,
-    pageNode: "Homepage Experience Polish - 005",
-    desktopNode: "29:3",
-    mobileNode: "29:44",
-    downloadStatesNode: "29:101",
-    carouselStatesNode: "29:83",
-    notesNode: "29:108",
-    versionNote:
-      "2026-06-25 homepage experience polish: stair-card-deck carousel, scene-only drag, same-scene deck click, brand contact states, and spec notes.",
-  },
-  homepageUiPolish: {
-    metadata: {
-      version: "2026-06-27.homepage-ui-polish",
-      lastUpdated: "2026-06-27",
-    },
-    heroGallery: {
-      desktopScale: "medium",
-      showZoomIndicator: false,
-      splitGestureZones: {
-        screenshotZoneAction: "switch-same-feature-image",
-        copyZoneAction: "switch-feature",
-      },
-      lightbox: {
-        enabled: true,
-        sameFeatureOnly: true,
-        supportsZoom: true,
-        supportsPan: true,
-        supportsKeyboardClose: true,
-        controls: {
-          close: uiCopy.closeLightbox,
-          zoomIn: uiCopy.zoomInScreenshot,
-          zoomOut: uiCopy.zoomOutScreenshot,
-          resetZoom: uiCopy.resetScreenshotZoom,
-          previousImage: uiCopy.previousScreenshot,
-          nextImage: uiCopy.nextScreenshot,
-        },
-      },
-    },
-    featureGrid: {
-      mobileColumns: 2,
-      desktopUnchanged: true,
-      minimumFeatureCount: 6,
-      futureFeatureCount: 10,
-    },
-    routeResultCard: {
-      mobileCompact: true,
-      desktopUnchanged: true,
-      metricLayout: "inline-label-value",
-      missingStopFallback: uiCopy.stopInfoUnavailable,
-      metrics: [
-        {
-          id: "fare",
-          label: uiCopy.fareLabel,
-          valueStyle: "emphasized",
-        },
-        {
-          id: "duration",
-          label: uiCopy.durationLabel,
-          valueStyle: "emphasized",
-        },
-        {
-          id: "walking",
-          label: uiCopy.walkingLabel,
-          valueStyle: "emphasized",
-        },
-      ],
-    },
-    fareCopy: {
-      title: {
-        "zh-Hant": "車費一眼看清",
-        "zh-Hans": "车费一眼看清",
-        en: "Fare at a glance",
-      },
-      description: {
-        "zh-Hant": "每條候選路線直接顯示車費，毋須點入詳情才知道大約花費。",
-        "zh-Hans": "每条候选路线直接显示车费，不用点进详情才知道大致花费。",
-        en: "See the fare on each route option without opening details first.",
-      },
-      forbiddenPhrases: [
-        "多程总车费一眼看清",
-        "多程總車費一眼看清",
-        "比较城巴方案时，可直接看到多程全程总车费，而不只是币种显示。",
-        "比較城巴方案時，可直接看到多程全程總車費，而不只是幣種顯示。",
-        "not just the currency label",
-      ],
-    },
-    figmaReference: {
-      fileUrl: sourceReferences.figmaExperiencePolish,
-      pageName: "Homepage UI Polish - 007",
-      nodeNames: [
-        "Desktop 1440 / Hero Medium Screenshot Deck",
-        "Desktop 1440 / Screenshot Lightbox",
-        "Mobile 390 / Compact Feature Grid",
-        "Mobile 390 / Compact Route Result Card",
-        "Interaction States / Split Gesture Zones",
-        "Spec Notes",
-      ],
-      nodeIds: {
-        "Desktop 1440 / Hero Medium Screenshot Deck": "51:86",
-        "Desktop 1440 / Screenshot Lightbox": "51:113",
-        "Mobile 390 / Compact Feature Grid": "51:125",
-        "Mobile 390 / Compact Route Result Card": "51:151",
-        "Interaction States / Split Gesture Zones": "51:183",
-        "Spec Notes": "51:194",
-      },
-      nodeIdsResolved: true,
-    },
+    fileUrl: sourceReferences.figma,
+    sectionNode: "119:64",
+    desktopHeroNode: "119:176",
+    mobileHeroNode: "119:461",
+    designVersion: "Homepage Visual System v1.3.1 — FINAL",
   },
 };

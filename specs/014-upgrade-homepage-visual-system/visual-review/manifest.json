@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "feature": "014-upgrade-homepage-visual-system",
+  "figma": {
+    "fileKey": "LAm6RjzFuFHsHFlcipx8pU",
+    "sectionNodeId": "119:64",
+    "version": "Homepage Visual System v1.3.1 — FINAL"
+  },
+  "references": [
+    {
+      "id": "figma-119-176-desktop",
+      "nodeId": "119:176",
+      "viewport": { "width": 1440, "height": 960 },
+      "locale": "zh-Hant",
+      "storyId": "route-search",
+      "exportMethod": "Figma asset download through MCP",
+      "exportedAt": "2026-08-24",
+      "path": "reference/figma-119-176-desktop.png",
+      "sha256": "d705c0ecdb704f28dc25be53a26beb4fc733284d4f4620d97f4a9f7f4680cd96",
+      "status": "available"
+    },
+    {
+      "id": "figma-119-461-mobile",
+      "nodeId": "119:461",
+      "viewport": { "width": 390, "height": 844 },
+      "locale": "zh-Hant",
+      "storyId": "route-search",
+      "exportMethod": "not exported",
+      "exportedAt": null,
+      "path": null,
+      "sha256": null,
+      "status": "blocked-by-figma-starter-tool-limit"
+    }
+  ],
+  "browserGoldens": {
+    "root": "frontend/playwright/__screenshots__/homepage-visual-regression.spec.ts",
+    "engine": "Playwright fixed Chromium",
+    "viewports": ["desktop-1440", "mobile-390", "mobile-320"],
+    "locales": ["zh-Hant", "zh-Hans", "en"],
+    "heroStories": ["route-search", "saved-journeys", "journey-guidance", "cross-operator-arrivals", "predeparture-monitor"],
+    "sectionStates": ["route-idle", "download-ready", "faq-default"],
+    "maxDiffPixelRatio": 0.003,
+    "approvedAt": "2026-08-24",
+    "approvalBasis": "Figma desktop overlay plus explicit geometry, semantic, trilingual mobile and reduced-motion assertions"
+  },
+  "comparisons": [
+    {
+      "reference": "reference/figma-119-176-desktop.png",
+      "actual": "actual/browser-first-screen-story-01-desktop-1440.png",
+      "sideBySide": "side-by-side/first-screen-story-01-desktop-1440.png",
+      "overlay": "overlay/first-screen-story-01-desktop-1440.png",
+      "diff": "diff/first-screen-story-01-desktop-1440.png",
+      "actualSha256": "85af450f3749a31aae1881f84e5c0fd66f2dc8172591ef07c8526233cb8f0d4f"
+    }
+  ],
+  "limitations": [
+    "Figma Starter tool quota prevented a fresh 119:461 image export.",
+    "Route, Download and Support are protected by browser goldens and geometry tests; no fresh Figma PNG export was available for those frames."
+  ]
+}

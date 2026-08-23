@@ -1,0 +1,236 @@
+.stage {
+  position: relative;
+  width: 100%;
+  height: 640px;
+  min-width: 0;
+  contain: layout paint;
+}
+
+.orbit {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  perspective: 1400px;
+}
+
+.phone {
+  --phone-x: 0px;
+  --phone-y: 0px;
+  --phone-scale: 1;
+  --phone-rotate: 0deg;
+  --phone-opacity: 1;
+  --phone-blur: 0px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 356px;
+  aspect-ratio: 1080 / 2172;
+  margin: 0;
+  padding: 8px;
+  overflow: hidden;
+  border-radius: 58px;
+  background: linear-gradient(145deg, #8aa19d 0%, #244846 18%, #0b2928 52%, #163a38 78%, #91a6a2 100%);
+  box-shadow: var(--shadow-phone);
+  opacity: var(--phone-opacity);
+  filter: blur(var(--phone-blur));
+  transform: translate3d(calc(-50% + var(--phone-x)), var(--phone-y), 0) scale(var(--phone-scale)) rotate(var(--phone-rotate));
+  transform-origin: 50% 58%;
+  transition:
+    transform var(--motion-orbit-desktop) var(--motion-ease-soft),
+    opacity 440ms var(--motion-ease-soft),
+    filter 480ms var(--motion-ease-soft);
+  pointer-events: none;
+}
+
+.screen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50px;
+  background: #e8f2ef;
+}
+
+.screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #e8f2ef;
+}
+
+.phone[data-slot="front"] {
+  --phone-x: 0px;
+  --phone-y: 28px;
+  --phone-scale: 1;
+  --phone-rotate: 4.5deg;
+  z-index: 5;
+}
+
+.phone[data-slot="near-left"] {
+  --phone-x: -254px;
+  --phone-y: 96px;
+  --phone-scale: .69;
+  --phone-rotate: -7deg;
+  --phone-opacity: .36;
+  --phone-blur: .35px;
+  z-index: 3;
+  box-shadow: none;
+}
+
+.phone[data-slot="near-right"] {
+  --phone-x: 254px;
+  --phone-y: 84px;
+  --phone-scale: .67;
+  --phone-rotate: 7deg;
+  --phone-opacity: .34;
+  --phone-blur: .4px;
+  z-index: 3;
+  box-shadow: none;
+}
+
+.phone[data-slot="far-left"] {
+  --phone-x: -330px;
+  --phone-y: 154px;
+  --phone-scale: .5;
+  --phone-rotate: -10deg;
+  --phone-opacity: .12;
+  --phone-blur: 1.1px;
+  z-index: 1;
+  box-shadow: none;
+}
+
+.phone[data-slot="far-right"] {
+  --phone-x: 330px;
+  --phone-y: 150px;
+  --phone-scale: .5;
+  --phone-rotate: 10deg;
+  --phone-opacity: .12;
+  --phone-blur: 1.1px;
+  z-index: 1;
+  box-shadow: none;
+}
+
+/*
+ * 1440px 获批稿不是把手机舞台塞进右栏，而是以整张首屏为坐标系排布。
+ * 这里用每个槽位的中心点复现 119:176；五张图仍常驻 DOM，远端两张仅在
+ * 桌面静态构图中退到不可见的环形背面，切换时会沿同一组槽位回到前景。
+ */
+@media (min-width: 1181px) {
+  .stage {
+    height: 878px;
+    contain: layout;
+  }
+
+  .phone {
+    --phone-center-x: 1098px;
+    --phone-center-y: 388px;
+    top: var(--phone-center-y);
+    left: var(--phone-center-x);
+    transform: translate3d(-50%, -50%, 0) scale(var(--phone-scale)) rotate(var(--phone-rotate));
+    transform-origin: 50% 50%;
+  }
+
+  .phone[data-slot="front"] {
+    --phone-center-x: 1098px;
+    --phone-center-y: 388px;
+    --phone-y: 0px;
+  }
+
+  .phone[data-slot="near-left"] {
+    --phone-center-x: 907px;
+    --phone-center-y: 347px;
+    --phone-y: 0px;
+    --phone-scale: .6854;
+    --phone-opacity: .36;
+  }
+
+  .phone[data-slot="near-right"] {
+    --phone-center-x: 1244px;
+    --phone-center-y: 327px;
+    --phone-y: 0px;
+    --phone-scale: .6685;
+    --phone-opacity: .34;
+  }
+
+  .phone[data-slot="far-left"],
+  .phone[data-slot="far-right"] {
+    --phone-opacity: 0;
+    --phone-blur: 0px;
+  }
+}
+
+@media (max-width: 980px) {
+  .stage {
+    height: 430px;
+  }
+
+  .phone {
+    top: 0;
+    width: 214px;
+    padding: 5px;
+    border-radius: 36px;
+    transition:
+      transform var(--motion-orbit-mobile) var(--motion-ease-orbit),
+      opacity 660ms var(--motion-ease-orbit),
+      filter 760ms var(--motion-ease-orbit);
+  }
+
+  .screen {
+    border-radius: 31px;
+  }
+
+  .phone[data-slot="front"] {
+    --phone-x: 0px;
+    --phone-y: 0px;
+    --phone-rotate: 0deg;
+  }
+
+  .phone[data-slot="near-left"] {
+    --phone-x: -104px;
+    --phone-y: 29px;
+    --phone-scale: .65;
+    --phone-rotate: -5.5deg;
+    --phone-opacity: .52;
+  }
+
+  .phone[data-slot="near-right"] {
+    --phone-x: 104px;
+    --phone-y: 27px;
+    --phone-scale: .65;
+    --phone-rotate: 5.5deg;
+    --phone-opacity: .55;
+  }
+
+  .phone[data-slot="far-left"] {
+    --phone-x: -135px;
+    --phone-y: 50px;
+    --phone-scale: .49;
+    --phone-rotate: -8deg;
+    --phone-opacity: .27;
+    --phone-blur: .8px;
+  }
+
+  .phone[data-slot="far-right"] {
+    --phone-x: 135px;
+    --phone-y: 47px;
+    --phone-scale: .49;
+    --phone-rotate: 8deg;
+    --phone-opacity: .27;
+    --phone-blur: .8px;
+  }
+}
+
+@media (max-width: 350px) {
+  .stage { height: 392px; }
+  .phone { width: 194px; }
+  .phone[data-slot="near-left"] { --phone-x: -91px; }
+  .phone[data-slot="near-right"] { --phone-x: 91px; }
+  .phone[data-slot="far-left"] { --phone-x: -118px; }
+  .phone[data-slot="far-right"] { --phone-x: 118px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone {
+    transition: none;
+    filter: none;
+  }
+}

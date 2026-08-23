@@ -1,7 +1,7 @@
 export const sections = {
   hero: "hero",
   features: "features",
-  onlineQuery: "online-query",
+  routeTrial: "route-trial",
   download: "download",
   faq: "faq",
   contact: "contact",

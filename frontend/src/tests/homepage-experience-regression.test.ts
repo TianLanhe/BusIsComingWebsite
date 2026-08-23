@@ -1,25 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { carouselSlides } from "../content/carouselSlides";
 import { homepageContent } from "../content/homepageContent";
-import { uiCopy } from "../content/uiCopy";
 
-describe("homepage experience polish regression guards", () => {
-  it("removes old support and thumbnail carousel signals from user-facing content", () => {
-    const content = JSON.stringify({ homepageContent, uiCopy });
-    const carouselVisibleCopy = carouselSlides
-      .flatMap((slide) => [
-        ...Object.values(slide.title),
-        ...Object.values(slide.description),
-        ...slide.gallery.images.flatMap((image) => Object.values(image.alt)),
-      ])
-      .join(" ");
+describe("homepage visual-system regression guards", () => {
+  it("keeps only the approved four-section narrative", () => {
+    expect(homepageContent).toHaveProperty("hero");
+    expect(homepageContent).toHaveProperty("routeTrial");
+    expect(homepageContent).toHaveProperty("downloadDecision");
+    expect(homepageContent).toHaveProperty("supportEnding");
+    expect(homepageContent).not.toHaveProperty("featureShowcase");
+    expect(homepageContent).not.toHaveProperty("featureGrid");
+    expect(homepageContent).not.toHaveProperty("homepageExperience.carousel");
+  });
 
+  it("does not reintroduce rejected carousel or placeholder signals", () => {
+    const content = JSON.stringify(homepageContent);
     expect(content).not.toContain("feedback@busiscoming.local");
-    expect(content).not.toContain("支援我們");
-    expect(content).not.toContain("支持我们");
-    expect(content).not.toContain('"Support"');
-    expect(carouselVisibleCopy).not.toMatch(/\b0[1-4]\b/);
-    expect(homepageContent.homepageExperience.carousel.usesThumbnailStack).toBe(false);
-    expect(homepageContent.homepageExperience.carousel.usesPersistentArrows).toBe(false);
+    expect(content).not.toContain("autoAdvanceMs");
+    expect(content).not.toContain("stair-card-deck");
+    expect(content).not.toContain("lightbox");
   });
 });

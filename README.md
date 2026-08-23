@@ -3,7 +3,7 @@
 
 # BusIsComing Website
 
-BusIsComing Android App 的官方网站：介绍香港 Citybus 通勤功能、提供基础路线试查，并交付当前 Android APK。
+BusIsComing Android App 的官方网站：介绍香港巴士路线规划与导航能力、提供基础路线试查，并交付当前 Android APK。
 
 [访问官方网站](https://www.busiscoming.com/)
 
@@ -16,19 +16,19 @@ BusIsComing Android App 的官方网站：介绍香港 Citybus 通勤功能、�
 
 ## 项目概览
 
-本仓库包含 BusIsComing 的公开主页、在线 Citybus 路线试查、Android APK 下载服务，以及仅供维护者通过本机或 SSH 隧道访问的匿名统计 Dashboard。
+本仓库包含 BusIsComing 的公开主页、在线巴士路线试查、Android APK 下载服务，以及仅供维护者通过本机或 SSH 隧道访问的匿名统计 Dashboard。
 
 当前能力包括：
 
 - `zh-Hant`、`zh-Hans`、`en` 三语首页与隐私政策页；香港语境默认使用繁体中文。
-- 响应式产品主页、真实脱敏 App 截图和可访问的截图交互。
+- 响应式产品主页、五个核心产品故事、真实脱敏 App 截图和可访问的环形舞台交互。
 - 由服务端代理 Citybus 与 DATA.GOV.HK 的基础路线和首程 ETA 试查。
 - 受完整性校验保护的当前 Android APK metadata 与稳定下载入口。
 - 只记录最小匿名事件的 SQLite 统计，以及绑定 loopback 的私有监控页面。
 - OpenAPI-first 的服务端契约和面向单台 Ubuntu 服务器的 Caddy/systemd 部署脚本。
 
 > [!IMPORTANT]
-> 本网站是 Android App 的可信主页，不是通用交通平台。当前范围只覆盖 Citybus，不提供九巴、港铁、铁路、渡轮、其他交通工具查询或完整出行规划。
+> 本网站是巴士路线规划与导航 App 的可信主页，不是通用交通平台。网站路线试查当前使用 Citybus 路线数据；符合条件的联营路线可呈现城巴、九巴与龙运首程抵站时间，但不等于完整支持其他运营商路线规划。产品定位不绑定单一运营商。
 
 ## 系统结构
 
@@ -154,7 +154,7 @@ npm --prefix frontend run dev:monitor
 
 ## 事实与契约来源
 
-- Android App 当前能力优先参考 `/Users/hezhenyu/AndroidStudioProjects/BusIsComming` 的当前源码、`README.md`、`AGENTS.md` 和主题文档。
+- Android App 当前能力以 Android 主项目的当前源码与长期文档为准；网站运行时不读取 Android 工程路径。
 - 网站当前行为以本仓库源码、配置和测试为准。
 - 服务端 HTTP API 以 `shared/contracts/openapi/*.openapi.yaml` 为权威契约。
 - 精确页面、组件和交互状态以对应 `specs/<feature>/` 中的 spec、Figma 引用和验证证据为准。

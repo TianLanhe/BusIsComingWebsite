@@ -1,58 +1,49 @@
-import { useId } from "react";
-import { Download, Smartphone } from "lucide-react";
-import { uiCopy } from "../../content/uiCopy";
+import { homepageContent } from "../../content/homepageContent";
+import type { LocalizedString } from "../../content/types";
 import { useI18n } from "../i18n/I18nProvider";
-import { useDownloadMetadata, versionAPKMetadataText } from "./DownloadMetadataProvider";
+import { useDownloadMetadata } from "./DownloadMetadataProvider";
 import styles from "./AndroidDownloadAction.module.css";
 
-interface AndroidDownloadActionProps {
+export function AndroidDownloadAction({
+  appearance = "section",
+  readyLabel,
+}: {
   appearance?: "hero" | "section";
-}
-
-export function AndroidDownloadAction({ appearance = "section" }: AndroidDownloadActionProps) {
-  const { locale, text } = useI18n();
+  readyLabel?: LocalizedString;
+}) {
+  const { text } = useI18n();
   const metadataState = useDownloadMetadata();
-  const className = `${styles.action} ${appearance === "hero" ? styles.hero : ""}`;
-  const metadataDescriptionId = useId();
+  const className = `${styles.action} ${appearance === "hero" ? styles.hero : styles.section}`;
 
   if (metadataState.status === "ready") {
     return (
       <a
-        aria-describedby={metadataDescriptionId}
-        aria-label={text(uiCopy.androidDownloadReady)}
+        aria-label={text(readyLabel ?? homepageContent.downloadDecision.readyAction)}
         className={className}
         data-download-state="android-ready"
         download={metadataState.metadata.fileName}
         href={metadataState.metadata.downloadUrl}
       >
-        <Smartphone aria-hidden="true" size={28} />
-        <span className={styles.copy}>
-          <strong>{text(uiCopy.androidDownloadReady)}</strong>
-          <small id={metadataDescriptionId}>{versionAPKMetadataText(metadataState.metadata, locale)}</small>
-        </span>
-        <Download aria-hidden="true" size={26} />
+        <span>{text(readyLabel ?? homepageContent.downloadDecision.readyAction)}</span>
+        <span className={styles.arrow} aria-hidden="true">↓</span>
       </a>
     );
   }
 
   const statusCopy = metadataState.status === "loading"
-    ? uiCopy.androidDownloadChecking
-    : uiCopy.androidDownloadUnavailable;
-  const status = metadataState.status === "loading" ? "android-checking" : "android-unavailable";
+    ? homepageContent.downloadDecision.checkingState
+    : homepageContent.downloadDecision.unavailableState;
 
   return (
     <button
-      aria-disabled="true"
       className={`${className} ${styles.disabled}`}
-      data-download-state={status}
+      data-download-state={metadataState.status === "loading" ? "android-checking" : "android-unavailable"}
+      aria-disabled="true"
       disabled
       type="button"
     >
-      <Smartphone aria-hidden="true" size={28} />
-      <span className={styles.copy}>
-        <strong>{text(statusCopy)}</strong>
-      </span>
-      <Download aria-hidden="true" size={26} />
+      <span>{text(statusCopy)}</span>
+      <span className={styles.arrow} aria-hidden="true">↓</span>
     </button>
   );
 }

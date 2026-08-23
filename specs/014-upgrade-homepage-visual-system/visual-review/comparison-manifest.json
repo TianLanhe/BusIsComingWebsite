@@ -1,0 +1,10 @@
+{
+  "basename": "first-screen-story-01-desktop-1440",
+  "width": 1440,
+  "height": 960,
+  "referenceSha256": "d705c0ecdb704f28dc25be53a26beb4fc733284d4f4620d97f4a9f7f4680cd96",
+  "actualSha256": "85af450f3749a31aae1881f84e5c0fd66f2dc8172591ef07c8526233cb8f0d4f",
+  "sideBySidePath": "side-by-side/first-screen-story-01-desktop-1440.png",
+  "overlayPath": "overlay/first-screen-story-01-desktop-1440.png",
+  "diffPath": "diff/first-screen-story-01-desktop-1440.png"
+}

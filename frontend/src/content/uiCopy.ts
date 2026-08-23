@@ -2,9 +2,9 @@ import type { LocalizedString } from "./types";
 
 export const uiCopy = {
   heroTrust: {
-    "zh-Hant": "不收集個人資料 · 聚焦城巴日常查詢",
-    "zh-Hans": "不收集个人资料 · 聚焦城巴日常查询",
-    en: "Private by design · focused on daily Citybus lookup",
+    "zh-Hant": "不收集個人資料 · 聚焦日常巴士出行",
+    "zh-Hans": "不收集个人资料 · 聚焦日常巴士出行",
+    en: "Private by design · focused on everyday bus travel",
   },
   queryButton: {
     "zh-Hant": "查詢",
@@ -57,9 +57,24 @@ export const uiCopy = {
     en: "Searching routes",
   },
   queryLoadingDescription: {
-    "zh-Hant": "正在連接 Citybus 服務，結果會按耗時排序。",
-    "zh-Hans": "正在连接 Citybus 服务，结果会按耗时排序。",
-    en: "Connecting to Citybus. Results will be sorted by journey time.",
+    "zh-Hant": "正在整理合適的巴士路線。",
+    "zh-Hans": "正在整理合适的巴士路线。",
+    en: "Preparing suitable bus route options.",
+  },
+  noRoutesTitle: {
+    "zh-Hant": "暫時找不到合適路線",
+    "zh-Hans": "暂时找不到合适路线",
+    en: "No suitable routes found",
+  },
+  noRoutesDescription: {
+    "zh-Hant": "可調整起點或目的地，再試一次。",
+    "zh-Hans": "可以调整起点或目的地，再试一次。",
+    en: "Adjust the origin or destination and try again.",
+  },
+  adjustPlaces: {
+    "zh-Hant": "重新選擇地點",
+    "zh-Hans": "重新选择地点",
+    en: "Choose different places",
   },
   routeResultsTitle: {
     "zh-Hant": "可選路線",
@@ -142,9 +157,9 @@ export const uiCopy = {
     en: "Refresh after language change failed.",
   },
   sampleResult: {
-    "zh-Hant": "範例結果（Citybus）",
-    "zh-Hans": "示例结果（Citybus）",
-    en: "Sample results (Citybus)",
+    "zh-Hant": "範例巴士結果",
+    "zh-Hans": "示例巴士结果",
+    en: "Sample bus results",
   },
   dataReference: {
     "zh-Hant": "資料僅供參考",
@@ -157,9 +172,9 @@ export const uiCopy = {
     en: "Download the app for the complete experience.",
   },
   featureHeading: {
-    "zh-Hant": "為每日城巴通勤，節省時間",
-    "zh-Hans": "为每天城巴通勤节省时间",
-    en: "Save time on everyday Citybus trips",
+    "zh-Hant": "為每日巴士出行節省時間",
+    "zh-Hans": "为每天巴士出行节省时间",
+    en: "Save time on everyday bus journeys",
   },
   temporaryMock: {
     "zh-Hant": "已使用真實 App 截圖",
@@ -216,70 +231,35 @@ export const uiCopy = {
     "zh-Hans": "下载 App",
     en: "Download App",
   },
-  appPreviewCarousel: {
-    "zh-Hant": "App 功能預覽輪播",
-    "zh-Hans": "App 功能预览轮播",
-    en: "App preview carousel",
+  heroJourneyContextLabel: {
+    "zh-Hant": "本次行程",
+    "zh-Hans": "本次行程",
+    en: "This journey",
   },
-  previousSlide: {
-    "zh-Hant": "上一項功能",
-    "zh-Hans": "上一项功能",
-    en: "Previous feature",
+  heroArrivalContextLabel: {
+    "zh-Hant": "首程班次",
+    "zh-Hans": "首程班次",
+    en: "First-leg arrivals",
   },
-  nextSlide: {
-    "zh-Hant": "下一項功能",
-    "zh-Hans": "下一项功能",
-    en: "Next feature",
+  heroRouteSummary: {
+    "zh-Hant": "3 條路線 · 即時比較",
+    "zh-Hans": "3 条路线 · 即时比较",
+    en: "3 routes · compare now",
   },
-  carouselPagination: {
-    "zh-Hant": "功能預覽位置",
-    "zh-Hans": "功能预览位置",
-    en: "Feature preview position",
+  heroArrivalSummary: {
+    "zh-Hant": "6、11、18、27 分鐘",
+    "zh-Hans": "6、11、18、27 分钟",
+    en: "6, 11, 18, 27 min",
   },
-  slideLabelPrefix: {
-    "zh-Hant": "功能",
-    "zh-Hans": "功能",
-    en: "Feature",
+  durationUnit: {
+    "zh-Hant": "分鐘",
+    "zh-Hans": "分钟",
+    en: "min",
   },
-  sameSceneScreenshotPrefix: {
-    "zh-Hant": "顯示同場景截圖",
-    "zh-Hans": "显示同场景截图",
-    en: "Show same-scene screenshot",
-  },
-  screenshotLightboxTitle: {
-    "zh-Hant": "查看 App 截圖",
-    "zh-Hans": "查看 App 截图",
-    en: "View app screenshot",
-  },
-  closeLightbox: {
-    "zh-Hant": "關閉大圖",
-    "zh-Hans": "关闭大图",
-    en: "Close image viewer",
-  },
-  zoomInScreenshot: {
-    "zh-Hant": "放大截圖",
-    "zh-Hans": "放大截图",
-    en: "Zoom in",
-  },
-  zoomOutScreenshot: {
-    "zh-Hant": "縮小截圖",
-    "zh-Hans": "缩小截图",
-    en: "Zoom out",
-  },
-  resetScreenshotZoom: {
-    "zh-Hant": "重設縮放",
-    "zh-Hans": "重置缩放",
-    en: "Reset zoom",
-  },
-  previousScreenshot: {
-    "zh-Hant": "上一張同功能截圖",
-    "zh-Hans": "上一张同功能截图",
-    en: "Previous screenshot in this feature",
-  },
-  nextScreenshot: {
-    "zh-Hant": "下一張同功能截圖",
-    "zh-Hans": "下一张同功能截图",
-    en: "Next screenshot in this feature",
+  walkingUnit: {
+    "zh-Hant": "米",
+    "zh-Hans": "米",
+    en: "m",
   },
   faqHeading: {
     "zh-Hant": "常見問題",

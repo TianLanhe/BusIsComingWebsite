@@ -25,7 +25,7 @@ const privacyPages = [
 ];
 
 for (const privacyPage of privacyPages) {
-  test(`privacy page renders for ${privacyPage.path}`, async ({ page }, testInfo) => {
+  test(`privacy page renders for ${privacyPage.path}`, async ({ page }) => {
     await page.goto(privacyPage.path);
 
     await expect(page.getByRole("heading", { level: 1, name: privacyPage.title })).toBeVisible();
@@ -40,11 +40,5 @@ for (const privacyPage of privacyPages) {
     const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     expect(horizontalOverflow).toBe(false);
 
-    await page.screenshot({
-      path: `../specs/008-privacy-policy-pages/visual-review/${testInfo.project.name}-${privacyPage.path
-        .replaceAll("/", "-")
-        .replace(/^-|-$/g, "")}.png`,
-      fullPage: true,
-    });
   });
 }

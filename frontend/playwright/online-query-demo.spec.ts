@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("online query selects places, shows loading, renders route cards, and updates ETA", async ({ page }, testInfo) => {
-  const visualPrefix = `../specs/007-homepage-ui-polish/visual-review/${testInfo.project.name}`;
+test("online query selects places, shows loading, renders route cards, and updates ETA", async ({ page }) => {
   const longOriginStop = "Very Long Origin Stop Name Near Hing Wah Estate Bus Terminus";
   const longDestinationStop = "Very Long Destination Stop Name Near Yue Wan Estate Shopping Centre";
   await page.route("**/api/routes/query_places", async (route) => {
@@ -85,26 +84,18 @@ test("online query selects places, shows loading, renders route cards, and updat
     });
   });
 
-  await page.goto("/en/#online-query");
+  await page.goto("/en/#route-trial");
   await expect(page.getByTestId("online-query-demo")).toBeVisible();
-  await page.locator("#online-query").evaluate((element) => element.scrollIntoView({ block: "start" }));
-  await page.screenshot({
-    path: `${visualPrefix}-online-query-v2.png`,
-    fullPage: false,
-  });
+  await page.locator("#route-trial").evaluate((element) => element.scrollIntoView({ block: "start" }));
 
   await page.getByLabel(/Origin|出發地|出发地/).fill("origin");
   await expect(page.getByTestId("origin-place-dropdown")).toBeVisible();
-  await page.screenshot({
-    path: `${visualPrefix}-place-dropdown.png`,
-    fullPage: false,
-  });
-  await page.getByRole("button", { name: "Origin Place" }).click();
+  await page.getByRole("option", { name: "Origin Place" }).click();
   await page.getByLabel(/Destination|目的地/).fill("destination");
   await expect(page.getByTestId("destination-place-dropdown")).toBeVisible();
-  await page.getByRole("button", { name: "Destination Place" }).click();
+  await page.getByRole("option", { name: "Destination Place" }).click();
 
-  await page.getByTestId("online-query-demo").getByRole("button", { name: /Search|查詢|查询/ }).click();
+  await page.getByTestId("online-query-demo").getByRole("button", { name: /Compare bus routes|比較巴士路線|比较巴士路线/ }).click();
   await expect(page.getByTestId("route-loading")).toBeVisible();
   await expect(page.getByText("606")).toBeVisible();
   await expect(page.getByText(longOriginStop)).toBeVisible();
@@ -115,27 +106,18 @@ test("online query selects places, shows loading, renders route cards, and updat
   const destinationStopBox = await page.getByTestId("route-destination-stop").boundingBox();
   expect(originStopBox?.height ?? 99).toBeLessThan(24);
   expect(destinationStopBox?.height ?? 99).toBeLessThan(24);
-  await expect(page.getByTestId("route-card")).toHaveAttribute("data-mobile-layout", "compact");
-  await expect(page.getByTestId("route-metrics")).toHaveAttribute("data-layout", "inline-label-value");
-  await expect(page.getByTestId("route-metric-fare")).toContainText("Fare");
-  await expect(page.getByTestId("route-metric-fare")).toContainText("$6.10");
-  await expect(page.getByTestId("route-metric-duration")).toContainText("Time");
-  await expect(page.getByTestId("route-metric-duration")).toContainText("10 min");
-  await expect(page.getByTestId("route-metric-walking")).toContainText("Walk");
-  await expect(page.getByTestId("route-metric-walking")).toContainText("266 m");
+  await expect(page.getByTestId("route-card")).toBeVisible();
+  await expect(page.getByTestId("route-metrics")).toContainText("Fare");
+  await expect(page.getByTestId("route-metrics")).toContainText("$6.10");
+  await expect(page.getByTestId("route-metrics")).toContainText("Time 10 min");
+  await expect(page.getByTestId("route-metrics")).toContainText("Walk 266 m");
+  await expect(page.getByTestId("route-card")).not.toContainText(/Direct|Transfer|直達|转乘|轉乘/);
   await expect(page.getByText(/Wait 49 min|等候 49/)).toBeVisible();
-  await page.locator("#online-query").evaluate((element) => element.scrollIntoView({ block: "start" }));
+  await page.locator("#route-trial").evaluate((element) => element.scrollIntoView({ block: "start" }));
 
-  await page.screenshot({
-    path: `${visualPrefix}-route-results.png`,
-    fullPage: false,
-  });
 
-  await page.getByTitle("简体中文").click();
-  await expect(page.getByText(/仍显示上次成功查询结果|Still showing the last successful results/)).toBeVisible();
-  await page.locator("#online-query").evaluate((element) => element.scrollIntoView({ block: "start" }));
-  await page.screenshot({
-    path: testInfo.project.name === "desktop-1440" ? `${visualPrefix}-error-retained.png` : `${visualPrefix}-error-empty.png`,
-    fullPage: false,
-  });
+  await page.locator("header").getByRole("button", { name: "Choose language" }).click();
+  await page.getByRole("menuitem", { name: "简体中文" }).click();
+  await expect(page.getByText(/暂未更新，仍显示上次结果|Not refreshed — showing the previous result/)).toBeVisible();
+  await page.locator("#route-trial").evaluate((element) => element.scrollIntoView({ block: "start" }));
 });

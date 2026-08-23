@@ -1,0 +1,111 @@
+.wrapper {
+  position: relative;
+  z-index: 8;
+  width: min(100%, 570px);
+}
+
+.rail {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: 100%;
+  height: 88px;
+  overflow: hidden;
+  border: 1px solid rgba(8, 100, 93, .14);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .64);
+  box-shadow: 0 10px 28px rgba(7, 63, 60, .075);
+  backdrop-filter: blur(18px);
+}
+
+.track {
+  position: absolute;
+  top: 30px;
+  right: 10%;
+  left: 10%;
+  height: 1px;
+  background: rgba(8, 100, 93, .15);
+}
+
+.story {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 48px 1fr;
+  place-items: center;
+  min-width: 0;
+  min-height: 78px;
+  margin: 5px 0;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.number {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  height: 42px;
+  border: 1px solid rgba(8, 100, 93, .25);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, .72);
+  font: 760 14px / 1 var(--font-sans);
+  transition: min-width 260ms var(--motion-ease-soft), color 260ms, background 260ms, border-color 260ms;
+}
+
+.label {
+  overflow: hidden;
+  max-width: 100%;
+  color: inherit;
+  font: 700 12px / 1.2 var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.story[data-active="true"] {
+  color: var(--bic-teal-dark);
+}
+
+.story[data-active="true"] .number {
+  min-width: 72px;
+  border-color: var(--bic-teal);
+  color: white;
+  background: var(--bic-teal);
+  box-shadow: 0 10px 24px rgba(8, 100, 93, .2);
+}
+
+.story:focus-visible {
+  z-index: 2;
+  border-radius: 14px;
+}
+
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@media (max-width: 980px) {
+  .wrapper { width: 100%; }
+  .rail { height: 82px; border-radius: 18px; background: rgba(255, 255, 255, .8); }
+  .track { top: 25px; }
+  .story { grid-template-rows: 44px 1fr; min-height: 72px; }
+  .number { min-width: 42px; height: 36px; font-size: 13px; }
+  .story[data-active="true"] .number { min-width: 66px; }
+  .label { font-size: 11px; }
+}
+
+@media (max-width: 340px) {
+  .number { min-width: 38px; }
+  .story[data-active="true"] .number { min-width: 54px; }
+  .label { font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .number { transition: none; }
+}

@@ -1,125 +1,262 @@
 {
-  "version": "2026-06-25.project-assets",
-  "sourceRoot": "frontend/src/assets/app-screenshots/real",
-  "outputRoot": "frontend/src/assets/app-screenshots/real",
-  "groups": [
+  "schemaVersion": "2.0.0",
+  "appVersion": "1.3.1",
+  "approvedAt": "2026-08-21",
+  "assets": [
     {
-      "featureId": "favorite-citybus-routes",
-      "sourceDirectory": "frontend/src/assets/app-screenshots/real",
-      "defaultSourceFile": "home-favorites-results.png",
-      "images": [
+      "id": "route-search",
+      "storyId": "route-search",
+      "order": 1,
+      "sourceFingerprint": {
+        "width": 1080,
+        "height": 2172,
+        "sha256": "d9621d2a93b348d01eb83ce4917bc5d0b249e5d24d9ce7450aa57384a0c74989"
+      },
+      "outputs": [
         {
-          "id": "home-favorites-results",
-          "sourcePath": "frontend/src/assets/app-screenshots/real/home-favorites-results.png",
-          "outputPath": "frontend/src/assets/app-screenshots/real/home-favorites-results.png",
-          "order": 1,
-          "isDefault": true,
-          "desensitizationStatus": "approved",
-          "redactedItems": [],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "常用路線查詢結果主畫面",
-            "zh-Hans": "常用路线查询结果主画面",
-            "en": "Saved route results screen"
-          }
+          "assetPath": "frontend/src/assets/app-screenshots/real/route-search-540.webp",
+          "width": 540,
+          "height": 1086,
+          "format": "webp",
+          "sizeBytes": 50058,
+          "sha256": "c7ef22cd37343de5b1f1317a2aba069043879462ff4d4b0d644bc50f2bd4e588"
         },
         {
-          "id": "home-all-routes-sheet",
-          "sourcePath": "frontend/src/assets/app-screenshots/real/home-all-routes-sheet.png",
-          "outputPath": "frontend/src/assets/app-screenshots/real/home-all-routes-sheet.png",
-          "order": 2,
-          "isDefault": false,
-          "desensitizationStatus": "approved",
-          "redactedItems": [],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "常用路線列表底部面板",
-            "zh-Hans": "常用路线列表底部面板",
-            "en": "Saved route list bottom sheet"
-          }
-        }
-      ]
-    },
-    {
-      "featureId": "route-comparison",
-      "sourceDirectory": "frontend/src/assets/app-screenshots/real",
-      "defaultSourceFile": "home-favorites-results.png",
-      "images": [
-        {
-          "id": "home-favorites-results",
-          "sourcePath": "frontend/src/assets/app-screenshots/real/home-favorites-results.png",
-          "outputPath": "frontend/src/assets/app-screenshots/real/home-favorites-results.png",
-          "order": 1,
-          "isDefault": true,
-          "desensitizationStatus": "approved",
-          "redactedItems": [],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "路線結果比較畫面",
-            "zh-Hans": "路线结果比较画面",
-            "en": "Route comparison results screen"
-          }
-        }
-      ]
-    },
-    {
-      "featureId": "eta-details",
-      "sourceDirectory": "frontend/src/assets/app-screenshots/real",
-      "defaultSourceFile": "route-detail-expanded.png",
-      "images": [
-        {
-          "id": "route-detail-expanded",
-          "sourcePath": "frontend/src/assets/app-screenshots/real/route-detail-expanded.png",
-          "outputPath": "frontend/src/assets/app-screenshots/real/route-detail-expanded.png",
-          "order": 1,
-          "isDefault": true,
-          "desensitizationStatus": "approved",
-          "redactedItems": [],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "路線詳情展開主畫面",
-            "zh-Hans": "路线详情展开主画面",
-            "en": "Expanded route detail screen"
-          }
+          "assetPath": "frontend/src/assets/app-screenshots/real/route-search-720.webp",
+          "width": 720,
+          "height": 1448,
+          "format": "webp",
+          "sizeBytes": 70000,
+          "sha256": "e3a3225e774fc4e75117f7691f02fd862c49186bb5fedc7fac63c894ad857a89"
         },
         {
-          "id": "eta-arrivals-sheet",
-          "sourcePath": "frontend/src/assets/app-screenshots/real/eta-arrivals-sheet.png",
-          "outputPath": "frontend/src/assets/app-screenshots/real/eta-arrivals-sheet.png",
-          "order": 2,
-          "isDefault": false,
-          "desensitizationStatus": "approved",
-          "redactedItems": [],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "多班 ETA 候車時間面板",
-            "zh-Hans": "多班 ETA 候车时间面板",
-            "en": "Multiple ETA arrival time sheet"
-          }
+          "assetPath": "frontend/src/assets/app-screenshots/real/route-search-1080.webp",
+          "width": 1080,
+          "height": 2172,
+          "format": "webp",
+          "sizeBytes": 112056,
+          "sha256": "cd8772883753ec9f1109d24a5f2aa4aeeec8d95208cbe14204ce3c5e04bda139"
         }
-      ]
+      ],
+      "approvalStatus": "approved",
+      "desensitizationStatus": "approved",
+      "redactedItems": [],
+      "retainedItems": [
+        "approved-product-ui",
+        "route-and-arrival-values",
+        "app-navigation"
+      ],
+      "alt": {
+        "zh-Hant": "本次行程及候選巴士路線",
+        "zh-Hans": "本次行程及候选巴士路线",
+        "en": "Current journey and suggested bus routes"
+      },
+      "approvedAt": "2026-08-21",
+      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
     },
     {
-      "featureId": "predeparture-monitor",
-      "sourceDirectory": "frontend/src/assets/app-screenshots/real",
-      "defaultSourceFile": "lockscreen-monitor.png",
-      "images": [
+      "id": "saved-journeys",
+      "storyId": "saved-journeys",
+      "order": 2,
+      "sourceFingerprint": {
+        "width": 1080,
+        "height": 2172,
+        "sha256": "f5ff363cc192ebca12b8426f9aebab3fad20565381365ba941e21529503c3eb9"
+      },
+      "outputs": [
         {
-          "id": "lockscreen-monitor",
-          "sourcePath": "frontend/src/assets/app-screenshots/real/lockscreen-monitor.png",
-          "outputPath": "frontend/src/assets/app-screenshots/real/lockscreen-monitor.png",
-          "order": 1,
-          "isDefault": true,
-          "desensitizationStatus": "approved",
-          "redactedItems": [],
-          "retainedItems": ["price-time-eta-values", "layout-shape", "app-navigation-shape"],
-          "alt": {
-            "zh-Hant": "鎖定畫面的出門前 ETA 監測通知",
-            "zh-Hans": "锁屏上的出门前 ETA 监测通知",
-            "en": "Lock screen pre-departure ETA notification"
-          }
+          "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-540.webp",
+          "width": 540,
+          "height": 1086,
+          "format": "webp",
+          "sizeBytes": 56854,
+          "sha256": "a42916806b005594bb174e5c02e38aee63d67081a56b6335c9601e2dc208d864"
+        },
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-720.webp",
+          "width": 720,
+          "height": 1448,
+          "format": "webp",
+          "sizeBytes": 80016,
+          "sha256": "7785d715721e3f2120a71a72884183fdac213b0e1918e6b1ae5da8c44c7dbb41"
+        },
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-1080.webp",
+          "width": 1080,
+          "height": 2172,
+          "format": "webp",
+          "sizeBytes": 127436,
+          "sha256": "f59f9e2751e10ba276520ddc50a698fc0e7f14891658269f5dbdbe8e1cfdb919"
         }
-      ]
+      ],
+      "approvalStatus": "approved",
+      "desensitizationStatus": "approved",
+      "redactedItems": [],
+      "retainedItems": [
+        "approved-product-ui",
+        "route-and-arrival-values",
+        "app-navigation"
+      ],
+      "alt": {
+        "zh-Hant": "常用行程及巴士路線比較",
+        "zh-Hans": "常用行程及巴士路线比较",
+        "en": "Saved journeys and bus route comparison"
+      },
+      "approvedAt": "2026-08-21",
+      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
+    },
+    {
+      "id": "journey-guidance",
+      "storyId": "journey-guidance",
+      "order": 3,
+      "sourceFingerprint": {
+        "width": 1080,
+        "height": 2172,
+        "sha256": "10db41131df140927ed347d7a83c26f83e23ee5344c6873c411b2062571bebfd"
+      },
+      "outputs": [
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-540.webp",
+          "width": 540,
+          "height": 1086,
+          "format": "webp",
+          "sizeBytes": 100562,
+          "sha256": "7ec99c07e09ad998f92916081af7bbcde07d9a10afb3e6a1c80afaf3040bc8d0"
+        },
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-720.webp",
+          "width": 720,
+          "height": 1448,
+          "format": "webp",
+          "sizeBytes": 149932,
+          "sha256": "6996317fcadeed530425d8df949a314737ce192db84f4a01db3eef6619d91466"
+        },
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-1080.webp",
+          "width": 1080,
+          "height": 2172,
+          "format": "webp",
+          "sizeBytes": 240688,
+          "sha256": "72297d39eb223663729d802e93e4a41d6ccb9cb2b433424efc65c7c0afe96e73"
+        }
+      ],
+      "approvalStatus": "approved",
+      "desensitizationStatus": "approved",
+      "redactedItems": [],
+      "retainedItems": [
+        "approved-product-ui",
+        "route-and-arrival-values",
+        "app-navigation"
+      ],
+      "alt": {
+        "zh-Hant": "路線、轉乘與目前位置畫面",
+        "zh-Hans": "路线、换乘与当前位置画面",
+        "en": "Route, transfers, and current position view"
+      },
+      "approvedAt": "2026-08-21",
+      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
+    },
+    {
+      "id": "cross-operator-arrivals",
+      "storyId": "cross-operator-arrivals",
+      "order": 4,
+      "sourceFingerprint": {
+        "width": 1080,
+        "height": 2172,
+        "sha256": "9af05fc114796d05e887b8b3dd1e2b127393efb9a7c2b23cd7e1476dc2ece4a1"
+      },
+      "outputs": [
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-540.webp",
+          "width": 540,
+          "height": 1086,
+          "format": "webp",
+          "sizeBytes": 38186,
+          "sha256": "fdf7e002e5d651adba7d3c017537b29b26259188e2a1aec0a0c52cb7434b6073"
+        },
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-720.webp",
+          "width": 720,
+          "height": 1448,
+          "format": "webp",
+          "sizeBytes": 53086,
+          "sha256": "09d12fc2b92ff34ff5d86321396835f6ebf742626423bab2b4a3e79080d08e78"
+        },
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-1080.webp",
+          "width": 1080,
+          "height": 2172,
+          "format": "webp",
+          "sizeBytes": 80850,
+          "sha256": "b64990410f47b417a8456a58f22cb9998f66450872390bbb1edce513a3bf32fb"
+        }
+      ],
+      "approvalStatus": "approved",
+      "desensitizationStatus": "approved",
+      "redactedItems": [],
+      "retainedItems": [
+        "approved-product-ui",
+        "route-and-arrival-values",
+        "app-navigation"
+      ],
+      "alt": {
+        "zh-Hant": "跨營運商巴士到站時間",
+        "zh-Hans": "跨运营商巴士到站时间",
+        "en": "Bus arrivals across operators for an eligible route"
+      },
+      "approvedAt": "2026-08-21",
+      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
+    },
+    {
+      "id": "predeparture-monitor",
+      "storyId": "predeparture-monitor",
+      "order": 5,
+      "sourceFingerprint": {
+        "width": 1080,
+        "height": 2400,
+        "sha256": "1cda8c7ff30823be5b95498dfd640bf124f4e3886851cd5ab6ad7968c4afa1bd"
+      },
+      "outputs": [
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-540.webp",
+          "width": 540,
+          "height": 1200,
+          "format": "webp",
+          "sizeBytes": 27722,
+          "sha256": "0d6e0f32aebe08ff7831b8c0f9c5f1fea306efb96120b89a89ce67ebbb597745"
+        },
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-720.webp",
+          "width": 720,
+          "height": 1600,
+          "format": "webp",
+          "sizeBytes": 39024,
+          "sha256": "2ca53700c34235ae36bcf49c8a656ef5fa25659fcc0a5493f69979f2e4744328"
+        },
+        {
+          "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-1080.webp",
+          "width": 1080,
+          "height": 2400,
+          "format": "webp",
+          "sizeBytes": 59940,
+          "sha256": "d99e4e2091157e2ddd3faf740c27b6d5b1c178dd730f0b0a8bb12b3d2cc3ed0b"
+        }
+      ],
+      "approvalStatus": "approved",
+      "desensitizationStatus": "approved",
+      "redactedItems": [],
+      "retainedItems": [
+        "approved-product-ui",
+        "route-and-arrival-values",
+        "app-navigation"
+      ],
+      "alt": {
+        "zh-Hant": "鎖屏上的候車與步行監控",
+        "zh-Hans": "锁屏上的候车与步行监控",
+        "en": "Waiting and walking updates on the lock screen"
+      },
+      "approvedAt": "2026-08-21",
+      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
     }
   ]
 }

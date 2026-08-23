@@ -1,245 +1,124 @@
 export type Locale = "zh-Hant" | "zh-Hans" | "en";
 export type SeoPageId = "home" | "privacy";
-
 export type LocalizedString = Record<Locale, string>;
-
-export interface TextPair {
-  title: LocalizedString;
-  description: LocalizedString;
-}
 
 export interface Action {
   label: LocalizedString;
   target: string;
-  kind?: "download" | "anchor" | "external";
-  downloadFileName?: string;
 }
 
-export type DownloadPlatformId = "android" | "ios";
-export type DownloadStatus = "available" | "unsupported" | "temporarily-unavailable";
+export type HeroStoryId =
+  | "route-search"
+  | "saved-journeys"
+  | "journey-guidance"
+  | "cross-operator-arrivals"
+  | "predeparture-monitor";
 
-export interface DownloadPlatform {
-  platform: DownloadPlatformId;
-  status: DownloadStatus;
-  label: LocalizedString;
+export type HeroStageSlot = "front" | "near-left" | "near-right" | "far-left" | "far-right";
+
+export interface HeroStory {
+  id: HeroStoryId;
+  order: 1 | 2 | 3 | 4 | 5;
+  numberLabel: `0${1 | 2 | 3 | 4 | 5}`;
+  shortLabel: LocalizedString;
+  title: LocalizedString;
   description: LocalizedString;
-  actionLabel: LocalizedString;
-  downloadUrl: string | null;
-  disabledReason: LocalizedString | null;
-  artifact: DownloadArtifact | null;
+  lineBreakHints: Record<Locale, string[]>;
+  screenshotId: HeroStoryId;
+  alt: LocalizedString;
+  factReference: string;
 }
 
-export interface DownloadArtifact {
-  appName: string;
-  applicationId: string;
-  versionName: string;
-  versionCode: number;
-  fileName: string;
-  sizeBytes: number;
-  sizeLabel: LocalizedString;
-  sha256: string;
-  lastUpdated: string;
-}
-
-export interface DownloadManifest {
-  version: string;
-  lastUpdated: string;
-  platforms: Record<DownloadPlatformId, DownloadPlatform>;
-}
-
-export type FeatureShowcaseId = "favorite-citybus-routes" | "route-comparison" | "eta-details" | "predeparture-monitor";
-
-export interface SanitizedScreenshotAsset {
-  id: string;
-  sourcePath: string;
+export interface ManagedScreenshotOutput {
   assetPath: string;
-  src: string;
+  width: number;
+  height: number;
+  format: "png" | "webp" | "avif";
+  sizeBytes: number;
+  sha256: string;
+}
+
+export interface ManagedScreenshotAsset {
+  id: HeroStoryId;
+  storyId: HeroStoryId;
   order: number;
-  isDefault: boolean;
-  desensitizationStatus: "pending" | "approved" | "rejected";
+  sourceFingerprint: { width: number; height: number; sha256: string };
+  outputs: ManagedScreenshotOutput[];
+  approvalStatus: "approved";
+  desensitizationStatus: "approved";
   redactedItems: string[];
   retainedItems: string[];
   alt: LocalizedString;
+  approvedAt: string;
+  provenanceLabel: string;
 }
 
-export interface ScreenshotGallery {
-  featureId: FeatureShowcaseId;
-  defaultImageId: string;
-  manualOnly: true;
-  hideStackWhenSingleImage: true;
-  visualMode: "stair-card-deck";
-  lightboxEnabled: true;
-  allowThumbnailControls: false;
-  images: SanitizedScreenshotAsset[];
-}
-
-export interface HomepageFeatureShowcaseItem {
-  id: FeatureShowcaseId;
-  order: number;
-  title: LocalizedString;
-  description: LocalizedString;
-  gallery: ScreenshotGallery;
-  sourceReference: string;
-  autoCarouselEligible: true;
-}
-
-export type CarouselSlide = HomepageFeatureShowcaseItem;
-
-export type LocalizedCopyScope =
-  | "navigation"
-  | "hero"
-  | "carousel"
-  | "features"
-  | "online-query"
-  | "download"
-  | "faq"
-  | "footer"
-  | "status"
-  | "accessibility";
-
-export interface BrandLogoAsset {
-  sourcePath: string;
-  outputPath: string;
-  backgroundRemoved: true;
-  transparent: true;
-  usesLauncherPlate: false;
-  placements: Array<"header" | "footer" | "favicon">;
-}
-
-export interface HomepageExperiencePolishContract {
-  metadata: {
-    version: string;
-    lastUpdated: string;
-  };
-  carousel: {
-    autoAdvanceMs: 3000;
-    featureOrder: FeatureShowcaseId[];
-    visualMode: "stair-card-deck";
-    supportsSwipe: true;
-    supportsDesktopDrag: true;
-    supportsKeyboardSwitching: true;
-    showsNumericLabels: false;
-    usesThumbnailStack: false;
-    usesPersistentArrows: false;
-  };
-  brandLogo: BrandLogoAsset;
-  contact: {
-    navLabel: LocalizedString;
-    email: "hezhenyu966@gmail.com";
-    href: "mailto:hezhenyu966@gmail.com";
-  };
-  localizedCopyReview: {
-    scope: LocalizedCopyScope[];
-    zhHantTone: "hong-kong-practical-written";
-    enTone: "natural-restrained-product";
-    translationMode: "locale-adapted-not-literal";
-    toneGuardrail: "clear-natural-not-colloquial-or-bureaucratic";
-    allLocalesRequired: Locale[];
-  };
-  figmaReference: {
-    fileUrl: string;
-    pageName: "Homepage Experience Polish - 005";
-    nodeNames: string[];
-  };
-}
-
-export interface HomepageUiPolishContract {
-  metadata: {
-    version: string;
-    lastUpdated: string;
-  };
-  heroGallery: {
-    desktopScale: "medium";
-    showZoomIndicator: false;
-    splitGestureZones: {
-      screenshotZoneAction: "switch-same-feature-image";
-      copyZoneAction: "switch-feature";
-    };
-    lightbox: {
-      enabled: true;
-      sameFeatureOnly: true;
-      supportsZoom: true;
-      supportsPan: true;
-      supportsKeyboardClose: true;
-      controls: {
-        close: LocalizedString;
-        zoomIn: LocalizedString;
-        zoomOut: LocalizedString;
-        resetZoom: LocalizedString;
-        previousImage: LocalizedString;
-        nextImage: LocalizedString;
-      };
-    };
-  };
-  featureGrid: {
-    mobileColumns: 2;
-    desktopUnchanged: true;
-    minimumFeatureCount: number;
-    futureFeatureCount: number;
-  };
-  routeResultCard: {
-    mobileCompact: true;
-    desktopUnchanged: true;
-    metricLayout: "inline-label-value";
-    missingStopFallback: LocalizedString;
-    metrics: Array<{
-      id: "fare" | "duration" | "walking";
-      label: LocalizedString;
-      valueStyle: "emphasized";
-    }>;
-  };
-  fareCopy: {
-    title: LocalizedString;
-    description: LocalizedString;
-    forbiddenPhrases: string[];
-  };
-  figmaReference: {
-    fileUrl: string;
-    pageName: "Homepage UI Polish - 007";
-    nodeNames: string[];
-    nodeIds: Record<string, string>;
-    nodeIdsResolved: boolean;
-  };
-}
-
-export interface FeatureItem {
-  id: string;
-  title: LocalizedString;
-  description: LocalizedString;
-  icon: string;
-  sourceReference: string;
-}
-
-export interface OnlineQueryDemo {
-  title: LocalizedString;
-  description: LocalizedString;
-  limitationNotice: LocalizedString;
-  initialEmptyTitle: LocalizedString;
-  initialEmptyDescription: LocalizedString;
-  noRoutesTitle: LocalizedString;
-  noRoutesDescription: LocalizedString;
-  scopeNotice: LocalizedString;
-}
-
-export interface FAQItem {
-  id: string;
-  category: "android-install" | "ios-status" | "online-query-limit" | "data-scope" | "other";
+export interface HomepageFaqItem {
+  id: "android-install" | "data-coverage" | "website-app-difference" | "iphone-support";
   question: LocalizedString;
   answer: LocalizedString;
+  defaultOpen: boolean;
 }
 
-export interface ContactEntry {
-  id: string;
-  label: LocalizedString;
-  description: LocalizedString;
-  href: string;
-  priority: "secondary";
+export interface HomepageContentV3 {
+  metadata: {
+    version: "3.0.0";
+    lastReviewed: string;
+    sourceReferences: string[];
+  };
+  navigation: {
+    brand: LocalizedString;
+    items: Array<{ id: "features" | "faq" | "contact"; label: LocalizedString; target: string }>;
+    languageLabel: LocalizedString;
+  };
+  hero: {
+    eyebrow: LocalizedString;
+    productPositioning: LocalizedString;
+    primaryAction: Action;
+    secondaryAction: Action;
+    stories: HeroStory[];
+  };
+  routeTrial: {
+    title: LocalizedString;
+    description: LocalizedString;
+    originLabel: LocalizedString;
+    destinationLabel: LocalizedString;
+    queryAction: LocalizedString;
+    retryAction: LocalizedString;
+    emptyState: { title: LocalizedString; description: LocalizedString };
+    errorState: { title: LocalizedString; description: LocalizedString };
+    retainedState: LocalizedString;
+    metricLabels: Record<"fare" | "duration" | "walking" | "eta", LocalizedString>;
+    scopeNotice: LocalizedString;
+  };
+  downloadDecision: {
+    title: LocalizedString;
+    description: LocalizedString;
+    minimumAndroid: LocalizedString;
+    readyAction: LocalizedString;
+    checkingState: LocalizedString;
+    unavailableState: LocalizedString;
+    metadataLabels: Record<"version" | "minimumSystem" | "size" | "updated", LocalizedString>;
+    installationNote: LocalizedString;
+  };
+  supportEnding: {
+    title: LocalizedString;
+    faq: HomepageFaqItem[];
+    contact: Action;
+    privacyLink: { label: LocalizedString; href: Record<Locale, string> };
+    backToTop: Action;
+  };
+  scopeExclusions: LocalizedString[];
+  figmaReference: {
+    fileUrl: string;
+    sectionNode: "119:64";
+    desktopHeroNode: "119:176";
+    mobileHeroNode: "119:461";
+    designVersion: "Homepage Visual System v1.3.1 — FINAL";
+  };
 }
 
-export interface FooterPrivacyLink {
-  label: LocalizedString;
-  href: Record<Locale, string>;
-}
+export type HomePageContent = HomepageContentV3;
 
 export type SummaryCardId =
   | "no-account-identity"
@@ -297,11 +176,7 @@ export interface PrivacyPolicyContent {
     contactEmail: "hezhenyu966@gmail.com";
     appliesTo: Array<"website" | "android-app">;
   };
-  hero: {
-    eyebrow: LocalizedString;
-    title: LocalizedString;
-    lead: LocalizedString;
-  };
+  hero: { eyebrow: LocalizedString; title: LocalizedString; lead: LocalizedString };
   summaryCards: SummaryCard[];
   sections: PolicySection[];
 }
@@ -325,61 +200,4 @@ export interface SeoPageGroup {
   changefreq: "weekly" | "monthly" | "yearly";
   priority: number;
   locales: Record<Locale, SeoPageLocale>;
-}
-
-export interface HomePageContent {
-  metadata: {
-    version: string;
-    lastUpdated: string;
-    sourceReferences: string[];
-  };
-  navigation: {
-    brand: LocalizedString;
-    items: Array<{
-      id: string;
-      label: LocalizedString;
-      target: string;
-    }>;
-    languageLabel: LocalizedString;
-  };
-  hero: {
-    headline: LocalizedString;
-    subheading: LocalizedString;
-    bullets: TextPair[];
-    primaryAction: Action;
-    secondaryAction: Action;
-    apkMeta: LocalizedString;
-    iphoneStatus: LocalizedString;
-  };
-  featureShowcase: HomepageFeatureShowcaseItem[];
-  features: FeatureItem[];
-  onlineQueryDemo: OnlineQueryDemo;
-  downloadSection: {
-    title: LocalizedString;
-    description: LocalizedString;
-    manifestRef: string;
-    androidCard: {
-      title: LocalizedString;
-      meta: LocalizedString;
-      primaryAction: Action;
-      backupAction: Action;
-    };
-    iphoneStatus: LocalizedString;
-  };
-  faq: FAQItem[];
-  contact: ContactEntry[];
-  footerPrivacyLink: FooterPrivacyLink;
-  scopeExclusions: LocalizedString[];
-  homepageExperience: HomepageExperiencePolishContract;
-  homepageUiPolish: HomepageUiPolishContract;
-  figmaReference: {
-    fileUrl: string;
-    pageNode: string;
-    desktopNode: string;
-    mobileNode: string;
-    downloadStatesNode: string;
-    carouselStatesNode: string;
-    notesNode: string;
-    versionNote: string;
-  };
 }

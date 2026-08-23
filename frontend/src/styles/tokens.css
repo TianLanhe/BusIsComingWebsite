@@ -1,28 +1,61 @@
 :root {
-  --brand: #00545b;
-  --brand-dark: #07363d;
-  --brand-soft: #e9f5f5;
-  --surface: #ffffff;
-  --text: #18323a;
-  --muted: #62747b;
-  --border: #dce8ea;
-  --border-strong: #bdcfd3;
-  --page-max: 1260px;
-  --page-pad: clamp(20px, 4.5vw, 72px);
-  --section-pad: clamp(58px, 8vw, 96px);
+  --bic-ink: #102827;
+  --bic-teal: #08645d;
+  --bic-teal-dark: #073f3c;
+  --bic-muted: #58706d;
+  --bic-line: #a9c7c1;
+  --bic-pale: #d8ece7;
+  --bic-wind: #edf6f2;
+  --bic-paper: #fbfdfb;
+  --bic-white: #ffffff;
+  --bic-disabled: #9aaba8;
+
+  --brand: var(--bic-teal);
+  --brand-dark: var(--bic-teal-dark);
+  --brand-soft: var(--bic-pale);
+  --surface: var(--bic-white);
+  --text: var(--bic-ink);
+  --muted: var(--bic-muted);
+  --border: color-mix(in srgb, var(--bic-line) 52%, white);
+  --border-strong: var(--bic-line);
+
+  --page-max: 1312px;
+  --page-pad: clamp(20px, 4.45vw, 64px);
+  --section-pad: clamp(76px, 9vw, 132px);
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 80px;
   --space-2: 8px;
   --space-3: 12px;
   --space-5: 20px;
   --space-6: 24px;
   --space-7: 32px;
   --space-8: 42px;
-  --shadow-soft: 0 18px 42px rgba(20, 48, 56, 0.1);
-  --shadow-button: 0 14px 30px rgba(0, 84, 91, 0.22);
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --text-hero: 800 clamp(42px, 5.4vw, 76px) / 1.04 var(--font-sans);
-  --text-section-title: 760 clamp(28px, 3vw, 42px) / 1.12 var(--font-sans);
+
+  --radius-sm: 10px;
+  --radius-md: 13px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-phone: 62px;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 18px 42px rgba(7, 63, 60, 0.1);
+  --shadow-float: 0 24px 58px rgba(7, 63, 60, 0.16);
+  --shadow-phone: 0 28px 60px rgba(7, 46, 43, 0.24);
+  --shadow-button: 0 14px 30px rgba(8, 100, 93, 0.22);
+
+  --font-sans: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --text-hero: 800 clamp(58px, 5.84vw, 84px) / 0.94 var(--font-sans);
+  --text-hero-mobile: 800 clamp(38px, 10.5vw, 41px) / 0.93 var(--font-sans);
+  --text-section-title: 800 clamp(38px, 4vw, 54px) / 1.06 var(--font-sans);
   --text-subtitle: 720 22px / 1.25 var(--font-sans);
-  --text-lead: 400 clamp(18px, 1.55vw, 22px) / 1.58 var(--font-sans);
+  --text-lead: 400 clamp(17px, 1.4vw, 20px) / 1.72 var(--font-sans);
   --text-body: 400 16px / 1.65 var(--font-sans);
   --text-body-strong: 700 16px / 1.45 var(--font-sans);
   --text-small: 400 14px / 1.5 var(--font-sans);
@@ -30,8 +63,13 @@
   --text-caption: 500 13px / 1.35 var(--font-sans);
   --text-button: 760 15px / 1.2 var(--font-sans);
   --text-control: 650 14px / 1.2 var(--font-sans);
-  --text-nav: 650 14px / 1.2 var(--font-sans);
-  --text-brand: 820 22px / 1 var(--font-sans);
+  --text-nav: 700 13px / 1.2 var(--font-sans);
+  --text-brand: 820 20px / 1 var(--font-sans);
   --text-route: 800 18px / 1 var(--font-sans);
-  --text-overline: 780 13px / 1 var(--font-sans);
+  --text-overline: 780 12px / 1.2 var(--font-sans);
+
+  --motion-orbit-mobile: 880ms;
+  --motion-orbit-desktop: 520ms;
+  --motion-ease-orbit: cubic-bezier(.18, .82, .18, 1);
+  --motion-ease-soft: cubic-bezier(.2, .8, .2, 1);
 }

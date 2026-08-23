@@ -1,0 +1,10 @@
+.qr {
+  display: grid;
+  place-items: center;
+  width: 146px;
+  height: 146px;
+  border: 1px solid rgba(8, 100, 93, .18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .86);
+  box-shadow: 0 14px 32px rgba(7, 63, 60, .1);
+}

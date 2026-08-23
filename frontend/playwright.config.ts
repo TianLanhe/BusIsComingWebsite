@@ -8,9 +8,14 @@ const browserHost = process.env.PLAYWRIGHT_HOST ?? "127.0.0.1";
 
 export default defineConfig({
   testDir: "./playwright",
+  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}-{projectName}{ext}",
   timeout: 30_000,
   expect: {
     timeout: 5_000,
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.003,
+      animations: "disabled",
+    },
   },
   use: {
     baseURL: `http://${browserHost}:${frontendPort}`,
@@ -53,6 +58,10 @@ export default defineConfig({
     {
       name: "mobile-390",
       use: { viewport: { width: 390, height: 844 }, isMobile: true },
+    },
+    {
+      name: "mobile-320",
+      use: { viewport: { width: 320, height: 720 }, isMobile: true },
     },
   ],
 });

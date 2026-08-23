@@ -1,0 +1,117 @@
+.field {
+  --wind-strength: 1;
+  position: absolute;
+  z-index: 0;
+  inset: -18%;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+:global(html[data-visual-paused="true"]) .field span {
+  animation-play-state: paused !important;
+}
+
+.field[data-intensity="route"] {
+  --wind-strength: .55;
+}
+
+.field[data-intensity="download"] {
+  --wind-strength: .38;
+}
+
+.field[data-intensity="quiet"] {
+  --wind-strength: .12;
+}
+
+.field span {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+.far {
+  top: -10%;
+  left: -16%;
+  width: 135%;
+  height: 52%;
+  border: clamp(28px, 7vw, 94px) solid rgba(255, 255, 255, calc(.42 * var(--wind-strength)));
+  opacity: calc(.62 * var(--wind-strength));
+  animation: wind-far 22s ease-in-out infinite alternate;
+}
+
+.back {
+  top: 12%;
+  left: 42%;
+  width: 92%;
+  height: 43%;
+  border: clamp(22px, 5vw, 70px) solid rgba(8, 100, 93, calc(.08 * var(--wind-strength)));
+  opacity: calc(.38 * var(--wind-strength));
+  animation: wind-back 18s ease-in-out infinite alternate;
+}
+
+.mid {
+  top: 42%;
+  left: -12%;
+  width: 132%;
+  height: 22%;
+  background: rgba(255, 255, 255, calc(.64 * var(--wind-strength)));
+  opacity: calc(.82 * var(--wind-strength));
+  filter: blur(18px);
+  animation: wind-mid 15s ease-in-out infinite alternate;
+}
+
+.near {
+  top: 79%;
+  left: -10%;
+  width: 126%;
+  height: 27%;
+  background: rgba(255, 255, 255, calc(.7 * var(--wind-strength)));
+  opacity: calc(.78 * var(--wind-strength));
+  filter: blur(24px);
+  animation: wind-near 12s ease-in-out infinite alternate;
+}
+
+.glow {
+  top: 56%;
+  left: 47%;
+  width: 68%;
+  height: 28%;
+  background: rgba(216, 236, 231, calc(.52 * var(--wind-strength)));
+  filter: blur(42px);
+  opacity: calc(.8 * var(--wind-strength));
+  animation: wind-glow 10s ease-in-out infinite alternate;
+}
+
+.field[data-paused="true"] span {
+  animation-play-state: paused;
+}
+
+@keyframes wind-far {
+  to { transform: translate3d(7%, 4%, 0) scale(1.04); opacity: calc(.48 * var(--wind-strength)); }
+}
+
+@keyframes wind-back {
+  to { transform: translate3d(-9%, 5%, 0) scale(.98); opacity: calc(.28 * var(--wind-strength)); }
+}
+
+@keyframes wind-mid {
+  to { transform: translate3d(10%, -7%, 0) scale(1.08); opacity: calc(.68 * var(--wind-strength)); }
+}
+
+@keyframes wind-near {
+  to { transform: translate3d(-8%, -5%, 0) scale(1.05); opacity: calc(.62 * var(--wind-strength)); }
+}
+
+@keyframes wind-glow {
+  to { transform: translate3d(-12%, 8%, 0) scale(1.12); opacity: calc(.58 * var(--wind-strength)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field span {
+    animation: none;
+    will-change: auto;
+  }
+}

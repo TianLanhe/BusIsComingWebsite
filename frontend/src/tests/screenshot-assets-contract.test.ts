@@ -1,61 +1,39 @@
+import { createHash } from "node:crypto";
+import { readFileSync, statSync } from "node:fs";
+import { resolve } from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, expect, it } from "vitest";
-import screenshotManifestSchema from "../../../specs/003-homepage-ui-optimization/contracts/screenshot-assets.manifest.schema.json";
+import screenshotManifestSchema from "../../../specs/014-upgrade-homepage-visual-system/contracts/screenshot-assets-v131.manifest.schema.json";
 import screenshotManifest from "../assets/app-screenshots/real/manifest.json";
-import { carouselSlides } from "../content/carouselSlides";
-import { locales } from "../content/locales";
+import { homepageStories } from "../content/homepageStories";
 
-describe("screenshot assets manifest", () => {
+describe("v1.3.1 screenshot assets", () => {
   const ajv = new Ajv2020({ strict: false });
+  ajv.addFormat("date", /^\d{4}-\d{2}-\d{2}$/);
 
-  it("validates the manifest against the feature contract", () => {
+  it("validates the five approved sources and responsive outputs", () => {
     const validate = ajv.compile(screenshotManifestSchema);
-
     expect(validate(screenshotManifest), JSON.stringify(validate.errors, null, 2)).toBe(true);
+    expect(screenshotManifest.assets.map((asset) => asset.storyId)).toEqual(homepageStories.map((story) => story.id));
   });
 
-  it("keeps the user-confirmed scene mapping and default images", () => {
-    expect(screenshotManifest.groups).toHaveLength(4);
-
-    expect(screenshotManifest.sourceRoot).toBe("frontend/src/assets/app-screenshots/real");
-    expect(screenshotManifest.groups.map((group) => [group.featureId, group.images.map((image) => image.id)])).toEqual([
-      ["favorite-citybus-routes", ["home-favorites-results", "home-all-routes-sheet"]],
-      ["route-comparison", ["home-favorites-results"]],
-      ["eta-details", ["route-detail-expanded", "eta-arrivals-sheet"]],
-      ["predeparture-monitor", ["lockscreen-monitor"]],
-    ]);
-
-    for (const group of screenshotManifest.groups) {
-      const defaultImage = group.images.find((image) => image.isDefault);
-      expect(defaultImage?.order, `${group.featureId} default order`).toBe(1);
-      expect(defaultImage?.sourcePath.endsWith(group.defaultSourceFile), `${group.featureId} default source`).toBe(true);
-      expect(group.images.filter((image) => image.isDefault), `${group.featureId} default count`).toHaveLength(1);
-
-      for (const image of group.images) {
-        expect(image.desensitizationStatus, image.id).toBe("approved");
-        expect(image.sourcePath.startsWith("frontend/src/assets/app-screenshots/real/"), image.id).toBe(true);
-        expect(image.outputPath.endsWith(".png"), image.id).toBe(true);
-        expect(image.retainedItems, image.id).toContain("price-time-eta-values");
+  it("keeps every production derivative present and fingerprinted", () => {
+    for (const asset of screenshotManifest.assets) {
+      expect(asset.outputs.map((output) => output.width)).toEqual([540, 720, 1080]);
+      for (const output of asset.outputs) {
+        const path = resolve(process.cwd(), "..", output.assetPath);
+        const bytes = readFileSync(path);
+        expect(statSync(path).size, output.assetPath).toBe(output.sizeBytes);
+        expect(createHash("sha256").update(bytes).digest("hex"), output.assetPath).toBe(output.sha256);
       }
     }
   });
 
-  it("exposes stair-card-deck galleries with approved assets and complete alt text", () => {
-    for (const slide of carouselSlides) {
-      const defaultImage = slide.gallery.images.find((image) => image.id === slide.gallery.defaultImageId);
-
-      expect(slide.gallery.manualOnly, slide.id).toBe(true);
-      expect(slide.gallery.visualMode, slide.id).toBe("stair-card-deck");
-      expect(slide.gallery.allowThumbnailControls, slide.id).toBe(false);
-      expect(defaultImage, `${slide.id} default image`).toBeTruthy();
-      expect(defaultImage?.desensitizationStatus, `${slide.id} status`).toBe("approved");
-
-      for (const image of slide.gallery.images) {
-        for (const locale of locales) {
-          expect(image.alt[locale], `${image.id} ${locale} alt`).toEqual(expect.any(String));
-          expect(image.alt[locale].trim().length, `${image.id} ${locale} alt`).toBeGreaterThan(0);
-        }
-      }
-    }
+  it("contains no developer workstation or Android project path", () => {
+    const manifest = JSON.stringify(screenshotManifest);
+    expect(manifest).not.toContain("/Users/");
+    expect(manifest).not.toContain("/private/var/");
+    expect(manifest).not.toContain("AndroidStudioProjects");
+    expect(manifest).not.toContain("sourcePath");
   });
 });

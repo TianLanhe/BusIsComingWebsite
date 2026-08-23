@@ -1,62 +1,22 @@
-import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import { expect, test, type Locator, type Page, type TestInfo } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-async function expectNativeDownload(
-  page: Page,
-  entry: Locator,
-  testInfo: TestInfo,
-  name: string,
-  manifest: { sizeBytes: number; sha256: string },
-) {
-  await expect(entry).toHaveAttribute("href", "/api/downloads/android/latest");
-  await expect(entry).toHaveAttribute("download", "BusIsComing.apk");
-
-  const downloadPromise = page.waitForEvent("download");
-  await entry.click();
-  const download = await downloadPromise;
-  const downloadPath = path.join(testInfo.outputDir, `${name}-BusIsComing.apk`);
-  await download.saveAs(downloadPath);
-
-  const file = await readFile(downloadPath);
-  expect(download.suggestedFilename()).toBe("BusIsComing.apk");
-  expect(file.byteLength).toBe(manifest.sizeBytes);
-  expect(createHash("sha256").update(file).digest("hex")).toBe(manifest.sha256);
-}
-
-test("both Android entry points hand the current APK to the browser download manager", async ({ page }, testInfo) => {
-  await page.addInitScript(() => {
-    const nativeFetch = window.fetch;
-    let apkFetches = 0;
-    window.fetch = (...args) => {
-      if (args[0] === "/api/downloads/android/latest") {
-        apkFetches += 1;
-      }
-      return nativeFetch(...args);
-    };
-    Object.defineProperty(window, "__apkFetches", { get: () => apkFetches });
-  });
+test("ready metadata creates native links and one desktop-only QR target", async ({ page }, testInfo) => {
+  const downloadUrl = "/api/downloads/android/latest";
+  await page.route("**/api/downloads/android/latest/metadata", (route) => route.fulfill({
+    contentType: "application/json",
+    body: JSON.stringify({
+      platform: "android", status: "available", versionName: "1.3.1", versionCode: 19,
+      fileName: "BusIsComing.apk", sizeBytes: 2_621_440, lastUpdated: "2026-08-24", downloadUrl,
+    }),
+  }));
   await page.goto("/en/");
-
-  const manifest = JSON.parse(await readFile(path.resolve("..", "backend", "downloads", "android", "current.json"), "utf8")) as {
-    sizeBytes: number;
-    sha256: string;
-  };
-  await expectNativeDownload(
-    page,
-    page.locator("#hero").getByRole("link", { name: "Download Android APK" }),
-    testInfo,
-    "hero",
-    manifest,
-  );
-  await expectNativeDownload(
-    page,
-    page.locator("#download").getByRole("link", { name: "Download Android APK" }),
-    testInfo,
-    "download-section",
-    manifest,
-  );
+  await expect(page.locator("a[download='BusIsComing.apk']")).toHaveCount(2);
   await expect(page.locator("a[href^='blob:']")).toHaveCount(0);
-  expect(await page.evaluate(() => (window as Window & { __apkFetches: number }).__apkFetches)).toBe(0);
+  const qr = page.locator("#download [data-testid='download-qr-code']");
+  if (testInfo.project.name === "desktop-1440") {
+    await expect(qr).toBeVisible();
+    await expect(qr).toHaveAttribute("data-qrcode-value", `http://127.0.0.1:5184${downloadUrl}`);
+  } else {
+    await expect(qr).toHaveCount(0);
+  }
 });

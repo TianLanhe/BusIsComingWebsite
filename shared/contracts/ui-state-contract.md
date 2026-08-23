@@ -1,119 +1,81 @@
-# UI 状态契约：首页体验与下载入口
+# UI 状态契约：首页视觉系统 v1.3.1
 
 ## 适用范围
 
-本契约覆盖首页首屏功能轮播、品牌联系入口、首屏主下载按钮和下载区备用入口。实现可以调整内部组件代码，但不得改变这些用户可见状态和不变量。
+本契约覆盖公开三语首页的 Header、五故事 Hero、共享下载入口、FAQ 和跨语言状态保持。路线试查的
+业务状态继续由 `route-query-ui-state.md` 约束。Figma 最终 Section `119:64` 是视觉权威，
+`specs/014-upgrade-homepage-visual-system/contracts/homepage-visual-system.contract.md` 是完整
+feature 合同。
 
-## 功能轮播
+本版取代旧四故事、3 秒自动播放、`stair-card-deck`、拖拽、同故事画廊、lightbox、FeatureGrid
+和功能证据标签。生产代码和测试不得同时保留两套模型。
 
-| 状态 | 触发 | 展示 | 行为 |
-|------|------|------|------|
-| `carousel-auto` | 首屏进入且无交互 | 单一主手机截图，同场景后方截图以低旋转阶梯牌堆露出 | 约 3 秒切换 4 个功能页，10 秒内至少切换 2 次 |
-| `carousel-paused` | hover、focus、drag、touch | 当前主图保持稳定 | 暂停自动切换，交互结束后恢复或保持可控状态 |
-| `carousel-dragging` | 手机滑动或桌面拖动 | 相邻功能场景进入 | 只切换功能场景，不切换同场景截图；不显示底部缩略图、胶片条、图片按钮组或常驻箭头 |
-| `carousel-deck-click` | 点击同场景后方牌堆图片 | 被点击图片切到主图，功能场景不变 | 仅露出的后方图片可切换同场景截图，主图点击不切换 |
-| `carousel-dot-click` | 点击场景点点 | 对应功能场景进入 | 点点是可点击控件，不是纯装饰 |
-| `carousel-keyboard` | 键盘方向键或读屏可访问按钮 | 视觉上不出现抢占式箭头 | 可切换上一项/下一项功能，并保留当前语言状态 |
-| `carousel-reduced-motion` | `prefers-reduced-motion: reduce` | 关闭或弱化自动动画 | 保留手动滑动、拖动和键盘切换能力 |
+## Header
 
-### 轮播不变量
+- 桌面和手机必须同时显示品牌、功能、FAQ、联系和语言入口。
+- 390px 不得退化为仅显示联系或汉堡菜单；320px 可视觉隐藏品牌文字，但保留可访问名称。
+- 语言入口使用 disclosure，具备 `aria-expanded`、Escape 关闭和焦点恢复。
+- 所有主要目标至少 `44×44 CSS px`，并提供可见 `:focus-visible`。
 
-- `autoAdvanceMs` 必须为 `3000`。
-- 自动切换只覆盖 `favorite-citybus-routes`、`route-comparison`、`eta-details`、`predeparture-monitor` 四个功能页。
-- 视觉模式必须为 `stair-card-deck`：一个主手机截图 + 同场景后方截图低旋转阶梯牌堆。
-- 后方牌堆图桌面约 5 度旋转，手机可收敛到约 4 度；后方图底部不得低于主图底部。
-- 不得显示 `01`、`02`、`03`、`04` 等编号装饰。
-- 不得显示底部缩略图堆叠、胶片条、缩略图按钮组、上下图片堆叠或传统常驻左右箭头。
+## 五故事 Hero
 
-## 品牌与联系入口
+唯一状态源为 `activeStoryId`，固定顺序是：
 
-| 状态 | 触发 | 展示 | 行为 |
-|------|------|------|------|
-| `brand-logo-ready` | Header/footer 渲染 | Android foreground icon 裁出的透明巴士主体 | 不使用 lucide 线框巴士或 launcher 背景底板 |
-| `contact-ready` | 导航/footer 渲染 | `聯絡我們 / 联系我们 / Contact Us` 和 `hezhenyu966@gmail.com` | 邮箱链接指向 `mailto:hezhenyu966@gmail.com` |
+1. `route-search`
+2. `saved-journeys`
+3. `journey-guidance`
+4. `cross-operator-arrivals`
+5. `predeparture-monitor`
+
+状态必须在同一次 render 中同步标题、说明、前景截图、五个环形槽位、选中按钮和 live region。每次
+恰有一个 `front`、两个 `near`、两个 `far`。后景不可点击、不可聚焦、空 alt 且
+`aria-hidden=true`；只有前景图暴露三语 alt。
+
+故事按钮显示 `01–05` 与本地化短标签，支持 pointer、touch、Arrow、Home、End。禁止 autoplay、
+drag/swipe、lightbox 和隐藏上一页/下一页控件。连续快速选择以后最后一次选择必须胜出。
+
+标准动效手机约 880ms、桌面约 520ms，使用 x/y/scale/rotate/opacity/blur/z-index 形成环形前后交换，
+不得退化为平面队列或单纯淡入淡出。reduced motion 立即换槽，但保留静态远近层级。
+
+## 风带
+
+- Hero、Route、Download 使用 3–5 层白色/浅绿背景，强度逐段收敛；Support 静止。
+- 周期分布在 10–22 秒，只动画 transform、opacity、scale，不动画布局。
+- 所有风带层均为装饰，不能获取 pointer/focus，overscan 不得产生水平滚动。
+- reduced motion 下持续 animation 数量必须为 0。
+- 禁止紫色色块、霓虹、深色潮汐、固定底浪和影响文字对比度的动画。
 
 ## 下载入口
 
-| 状态 | 触发 | 展示 | 行为 |
-|------|------|------|------|
-| `android-checking` | 主页元数据请求未完成 | 两处 Android 入口均显示检查中且不可操作 | 不发起 APK 请求 |
-| `android-ready` | 元数据返回合法且可用 | 两处 Android 入口均展示当前版本与本地化大小 | 仅此状态渲染指向元数据稳定地址的原生下载链接 |
-| `android-unavailable` | 元数据 HTTP、网络、JSON 或字段校验失败 | 两处 Android 入口均显示暂不可用且不可操作 | 不发起 APK 请求，不回退静态链接 |
-| `iphone-unavailable` | 页面展示 iPhone 状态 | 低权重状态文字 | 不跳转、不下载、不伪装失败 |
+Hero 和 DownloadDecision 共用一个 `DownloadMetadataProvider`：
 
-### Android 下载入口不变量
+| 状态 | 主行动 | 信息 | 桌面 QR | 手机 QR |
+| --- | --- | --- | --- | --- |
+| `checking` | 不可操作、无 href | 检查中 | 无 | 无 |
+| `ready` | 原生 `<a download>` | version、Android 7.1+、size、updated 同权重 | 有 | 无 |
+| `unavailable` | 不可操作、无 href | 单一暂不可用说明 | 无 | 无 |
 
-- Hero 主下载入口与 Download Section 入口必须共享同一个 `android-checking`、`android-ready`、`android-unavailable` 状态源，不能各自保存下载状态。
-- 只有 `android-ready` 可以渲染原生 `<a>`：其 `href` 必须是已校验元数据的稳定下载地址，`download` 必须是元数据文件名。
-- `android-checking` 和 `android-unavailable` 不得含 APK `href`，并以原生 `disabled` 或等价 `aria-disabled` 语义呈现不可操作状态。
-- 前端不得对 APK 地址执行 `fetch`、读取 `response.blob()`、创建 object URL 或 `blob:` URL、合成临时链接点击，亦不得维护页面内下载进度。
-- 元数据成功是入口可用性检查，不代表独立 APK 下载请求、浏览器落盘或安装最终完成。
+QR 值必须等于 `new URL(metadata.downloadUrl, window.location.origin).href`，与按钮最终 URL 相同，
+不成为第二个焦点目标。禁止远程 QR、静态备用 QR、Blob 下载、虚假进度、BUILD、SHA、sourcePath
+和陈旧版本回退。
 
-## i18n 不变量
+DownloadDecision 首次进入约 50% viewport 时只触发一次 `data-converged=true`；离开重入和语言
+切换均不重播。reduced motion 不观察、不触发，组件卸载清理 observer。
 
-- `zh-Hant`、`zh-Hans` 和 `en` 必须展示同等下载状态。
-- `zh-Hant` 必须采用香港实用书面语，`en` 必须采用自然克制的英语产品表达；不得机械直译、
-  逐句搬运、过度口语化或过分官方严肃。
-- Android 可用态必须在三语中表达可下载、版本和大小；检查中与暂不可用态也必须有对应的三语状态文案。
-- iPhone 暂未支持必须在三语中表达，且不得渲染为可点击下载入口。
+## FAQ 与收尾
 
-## 双端不变量
+- FAQ 恰有 Android 安装、数据覆盖、网站与 App 区别、iPhone 支持四项。
+- 默认展开 `android-install`，同一时间最多一项；稳定 ID 在语言切换后保持。
+- 原生 button 负责 `aria-expanded/aria-controls`，panel 负责 `aria-labelledby`，加减号仅装饰。
+- FAQ 后依次是联系横条与浅色 SiteFooter；保留当前语言 Privacy 和返回顶部。
+- 禁止独立 FAQ 卡片、深色页尾或新的营销屏。
 
-- 桌面 1440px 和手机 390px 下，Android 下载入口可见；只有 `android-ready` 可操作。
-- 下载按钮、APK 元信息和 iPhone 状态不得遮挡后续内容或造成不可理解的文字截断。
-- 手机端在 `android-ready` 触控 Android 后，应由浏览器直接接管下载；其他状态保持不可操作。
+## 三语、响应式与状态保持
 
-## 平台不变量
-
-- Android ready 状态必须使用元数据提供的同源稳定路径 `/api/downloads/android/latest`。
-- iPhone 的 `downloadUrl` 必须为 `null`。
-- 切换语言不得把 Android 状态重置为不可用，也不得让 iPhone 变为可下载。
-
-## 不可用状态
-
-- 元数据检查失败时，前端不得把不可用状态表现为 iPhone 或其他平台状态，也不得保留静态下载入口。
-- 元数据检查成功后的独立下载失败由浏览器和下载接口处理；页面不把它伪装为下载进度、下载完成或安装完成。
-
-## 007 首页 UI 体验优化补充
-
-本节沉淀 `specs/007-homepage-ui-polish/` 的长期 UI 状态约束。实现可以调整组件内部结构，但不得改变下列用户可见行为。
-
-### Hero 截图与手势区域
-
-| 状态 | 触发 | 展示 | 行为 |
-|------|------|------|------|
-| `hero-deck-desktop-medium` | 桌面 1440px 首屏进入 | 主截图和后排堆叠图中等放大 | 右侧说明文字仍可读，不横向溢出 |
-| `hero-deck-no-zoom-indicator` | 首屏渲染 | 不显示放大提示器、放大图标或教学文案 | 主截图仍可点击打开大图 |
-| `screenshot-zone-drag` | 在截图区左右拖动 | 当前功能不变，主截图切换 | 只切同功能截图，不跨功能 |
-| `copy-zone-drag` | 在文字介绍区左右拖动 | 功能场景切换 | 不切同功能截图 |
-| `deck-card-click` | 点击后排堆叠图 | 被点击图成为主图 | 当前功能场景不变 |
-
-### 大图查看
-
-| 状态 | 触发 | 展示 | 行为 |
-|------|------|------|------|
-| `lightbox-open` | 点击主截图 | 居中大图对话框、遮罩、关闭控件 | 焦点进入对话框 |
-| `lightbox-zoomed` | 用户缩放 | 截图按比例放大 | 支持平移查看细节 |
-| `lightbox-same-feature-next` | 左右滑动或切换控件 | 同功能下一张截图 | 不跨功能 |
-| `lightbox-close` | Esc、关闭按钮或遮罩 | 回到页面原位置 | 保持原功能和当前截图 |
-
-大图模式必须支持键盘关闭；关闭后焦点应回到触发主截图。单图功能不显示不可用的上一张/下一张控件。放大后平移优先于切图，避免查看细节时误触发。
-
-### 手机功能介绍
-
-手机 390px 下，功能介绍必须使用 2 列紧凑卡片，桌面布局保持现状。每张卡保留图标、标题和一句短说明；未来增加到 10 个主要功能时继续 2 列纵向扩展，不使用分组胶囊或横向 carousel 隐藏主要功能。
-
-### 手机路线结果卡
-
-手机 390px 下，路线结果卡必须采用路线号 + 候车状态、站点路径或缺失提示、车费/耗时/步行紧凑指标带三层结构。路线号不得过粗过大；站点资料缺失时显示受控提示，不展示空的上车站/下车站路径；车费、耗时、步行必须同时展示项目名称和值，且标签和值样式区分。
-
-### 费用文案
-
-| 文案项 | `zh-Hant` | `zh-Hans` | `en` |
-|--------|-----------|-----------|------|
-| 费用功能标题 | 車費一眼看清 | 车费一眼看清 | Fare at a glance |
-| 路线卡指标标签 1 | 車費 | 车费 | Fare |
-| 路线卡指标标签 2 | 耗時 | 耗时 | Time |
-| 路线卡指标标签 3 | 步行 | 步行 | Walk |
-
-用户可见内容不得出现“多程总车费一眼看清”、内部修改要求原句或 “not just the currency label” 之类问题说明式表达。
+- 所有可见文字、alt、aria label、状态和错误映射覆盖 `zh-Hant`、`zh-Hans`、`en`。
+- 语言切换不得 reload 或以 locale key 重挂载首页；当前故事、hash/scroll、路线输入与有效结果、
+  下载状态和 FAQ ID 均保持。
+- 1440×960、390×844 和 320px 必须无横向滚动。手机截图四边完整、无硬件开孔，故事轨在正常文档
+  流并位于舞台下方，不得覆盖截图。
+- 首页总体定位是香港巴士路线规划与导航 App；符合条件的联营路线首程 ETA 不得扩写为完整跨营运商
+  路线规划。

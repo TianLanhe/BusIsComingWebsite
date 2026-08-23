@@ -1,35 +1,31 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://busiscoming.local/contracts/homepage-content.schema.json",
-  "title": "BusIsComing Homepage Content Contract",
+  "$id": "https://busiscoming.local/specs/014/homepage-content-v3.schema.json",
+  "title": "BusIsComing Homepage Content v3",
+  "description": "首页视觉系统 v1.3.1 的五故事、四段结构与三语内容合同。",
   "type": "object",
   "required": [
     "metadata",
     "navigation",
     "hero",
-    "featureShowcase",
-    "features",
-    "onlineQueryDemo",
-    "downloadSection",
-    "faq",
-    "contact",
-    "footerPrivacyLink",
+    "routeTrial",
+    "downloadDecision",
+    "supportEnding",
     "scopeExclusions",
-    "homepageExperience",
-    "homepageUiPolish",
     "figmaReference"
   ],
   "properties": {
     "metadata": {
       "type": "object",
-      "required": ["version", "lastUpdated", "sourceReferences"],
+      "required": ["version", "lastReviewed", "sourceReferences"],
       "properties": {
-        "version": { "type": "string", "minLength": 1 },
-        "lastUpdated": { "type": "string", "format": "date" },
+        "version": { "const": "3.0.0" },
+        "lastReviewed": { "type": "string", "format": "date" },
         "sourceReferences": {
           "type": "array",
           "minItems": 1,
-          "items": { "type": "string", "minLength": 1 }
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/safeReference" }
         }
       },
       "additionalProperties": false
@@ -41,17 +37,14 @@
         "brand": { "$ref": "#/$defs/localizedString" },
         "items": {
           "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "object",
-            "required": ["id", "label", "target"],
-            "properties": {
-              "id": { "type": "string", "minLength": 1 },
-              "label": { "$ref": "#/$defs/localizedString" },
-              "target": { "type": "string", "pattern": "^#" }
-            },
-            "additionalProperties": false
-          }
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            { "$ref": "#/$defs/featuresNavItem" },
+            { "$ref": "#/$defs/faqNavItem" },
+            { "$ref": "#/$defs/contactNavItem" }
+          ],
+          "items": false
         },
         "languageLabel": { "$ref": "#/$defs/localizedString" }
       },
@@ -59,109 +52,139 @@
     },
     "hero": {
       "type": "object",
-      "required": ["headline", "subheading", "bullets", "primaryAction", "secondaryAction", "apkMeta", "iphoneStatus"],
+      "required": ["eyebrow", "productPositioning", "primaryAction", "secondaryAction", "stories"],
       "properties": {
-        "headline": { "$ref": "#/$defs/localizedString" },
-        "subheading": { "$ref": "#/$defs/localizedString" },
-        "bullets": {
+        "eyebrow": { "$ref": "#/$defs/localizedString" },
+        "productPositioning": { "$ref": "#/$defs/localizedString" },
+        "primaryAction": { "$ref": "#/$defs/downloadAction" },
+        "secondaryAction": { "$ref": "#/$defs/routeAction" },
+        "stories": {
           "type": "array",
-          "minItems": 3,
-          "items": { "$ref": "#/$defs/textPair" }
-        },
-        "primaryAction": { "$ref": "#/$defs/action" },
-        "secondaryAction": { "$ref": "#/$defs/action" },
-        "apkMeta": { "$ref": "#/$defs/localizedString" },
-        "iphoneStatus": { "$ref": "#/$defs/localizedString" }
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            { "$ref": "#/$defs/routeSearchStory" },
+            { "$ref": "#/$defs/savedJourneysStory" },
+            { "$ref": "#/$defs/journeyGuidanceStory" },
+            { "$ref": "#/$defs/crossOperatorArrivalsStory" },
+            { "$ref": "#/$defs/predepartureMonitorStory" }
+          ],
+          "items": false
+        }
       },
       "additionalProperties": false
     },
-    "featureShowcase": {
-      "type": "array",
-      "minItems": 4,
-      "maxItems": 4,
-      "items": { "$ref": "#/$defs/featureShowcaseItem" }
-    },
-    "features": {
-      "type": "array",
-      "minItems": 6,
-      "items": { "$ref": "#/$defs/featureItem" }
-    },
-    "onlineQueryDemo": {
+    "routeTrial": {
       "type": "object",
       "required": [
         "title",
         "description",
-        "limitationNotice",
-        "initialEmptyTitle",
-        "initialEmptyDescription",
-        "noRoutesTitle",
-        "noRoutesDescription",
+        "originLabel",
+        "destinationLabel",
+        "queryAction",
+        "retryAction",
+        "emptyState",
+        "errorState",
+        "retainedState",
+        "metricLabels",
         "scopeNotice"
       ],
       "properties": {
         "title": { "$ref": "#/$defs/localizedString" },
         "description": { "$ref": "#/$defs/localizedString" },
-        "limitationNotice": { "$ref": "#/$defs/localizedString" },
-        "initialEmptyTitle": { "$ref": "#/$defs/localizedString" },
-        "initialEmptyDescription": { "$ref": "#/$defs/localizedString" },
-        "noRoutesTitle": { "$ref": "#/$defs/localizedString" },
-        "noRoutesDescription": { "$ref": "#/$defs/localizedString" },
+        "originLabel": { "$ref": "#/$defs/localizedString" },
+        "destinationLabel": { "$ref": "#/$defs/localizedString" },
+        "queryAction": { "$ref": "#/$defs/localizedString" },
+        "retryAction": { "$ref": "#/$defs/localizedString" },
+        "emptyState": { "$ref": "#/$defs/textPair" },
+        "errorState": { "$ref": "#/$defs/textPair" },
+        "retainedState": { "$ref": "#/$defs/localizedString" },
+        "metricLabels": {
+          "type": "object",
+          "required": ["fare", "duration", "walking", "eta"],
+          "properties": {
+            "fare": { "$ref": "#/$defs/localizedString" },
+            "duration": { "$ref": "#/$defs/localizedString" },
+            "walking": { "$ref": "#/$defs/localizedString" },
+            "eta": { "$ref": "#/$defs/localizedString" }
+          },
+          "additionalProperties": false
+        },
         "scopeNotice": { "$ref": "#/$defs/localizedString" }
       },
       "additionalProperties": false
     },
-    "downloadSection": {
+    "downloadDecision": {
       "type": "object",
-      "required": ["title", "description", "manifestRef", "androidCard", "iphoneStatus"],
+      "required": [
+        "title",
+        "description",
+        "minimumAndroid",
+        "readyAction",
+        "checkingState",
+        "unavailableState",
+        "metadataLabels",
+        "installationNote"
+      ],
       "properties": {
         "title": { "$ref": "#/$defs/localizedString" },
         "description": { "$ref": "#/$defs/localizedString" },
-        "manifestRef": { "type": "string", "minLength": 1 },
-        "androidCard": {
+        "minimumAndroid": { "$ref": "#/$defs/localizedString" },
+        "readyAction": { "$ref": "#/$defs/localizedString" },
+        "checkingState": { "$ref": "#/$defs/localizedString" },
+        "unavailableState": { "$ref": "#/$defs/localizedString" },
+        "metadataLabels": {
           "type": "object",
-          "required": ["title", "meta", "primaryAction", "backupAction"],
+          "required": ["version", "minimumSystem", "size", "updated"],
           "properties": {
-            "title": { "$ref": "#/$defs/localizedString" },
-            "meta": { "$ref": "#/$defs/localizedString" },
-            "primaryAction": { "$ref": "#/$defs/action" },
-            "backupAction": { "$ref": "#/$defs/action" }
+            "version": { "$ref": "#/$defs/localizedString" },
+            "minimumSystem": { "$ref": "#/$defs/localizedString" },
+            "size": { "$ref": "#/$defs/localizedString" },
+            "updated": { "$ref": "#/$defs/localizedString" }
           },
           "additionalProperties": false
         },
-        "iphoneStatus": { "$ref": "#/$defs/localizedString" }
+        "installationNote": { "$ref": "#/$defs/localizedString" }
       },
       "additionalProperties": false
     },
-    "faq": {
-      "type": "array",
-      "minItems": 4,
-      "items": { "$ref": "#/$defs/faqItem" }
+    "supportEnding": {
+      "type": "object",
+      "required": ["title", "faq", "contact", "privacyLink", "backToTop"],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "faq": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            { "$ref": "#/$defs/androidInstallFaq" },
+            { "$ref": "#/$defs/dataCoverageFaq" },
+            { "$ref": "#/$defs/websiteAppDifferenceFaq" },
+            { "$ref": "#/$defs/iphoneSupportFaq" }
+          ],
+          "items": false
+        },
+        "contact": { "$ref": "#/$defs/action" },
+        "privacyLink": { "$ref": "#/$defs/localizedHrefAction" },
+        "backToTop": { "$ref": "#/$defs/action" }
+      },
+      "additionalProperties": false
     },
-    "contact": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "$ref": "#/$defs/contactEntry" }
-    },
-    "footerPrivacyLink": { "$ref": "#/$defs/footerPrivacyLink" },
     "scopeExclusions": {
       "type": "array",
-      "minItems": 2,
+      "minItems": 3,
       "items": { "$ref": "#/$defs/localizedString" }
     },
-    "homepageExperience": { "$ref": "#/$defs/homepageExperience" },
-    "homepageUiPolish": { "$ref": "#/$defs/homepageUiPolish" },
     "figmaReference": {
       "type": "object",
-      "required": ["fileUrl", "pageNode", "desktopNode", "mobileNode", "downloadStatesNode", "carouselStatesNode", "notesNode", "versionNote"],
+      "required": ["fileUrl", "sectionNode", "desktopHeroNode", "mobileHeroNode", "designVersion"],
       "properties": {
         "fileUrl": { "type": "string", "format": "uri" },
-        "pageNode": { "type": "string", "minLength": 1 },
-        "desktopNode": { "type": "string", "minLength": 1 },
-        "mobileNode": { "type": "string", "minLength": 1 },
-        "downloadStatesNode": { "type": "string", "minLength": 1 },
-        "carouselStatesNode": { "type": "string", "minLength": 1 },
-        "notesNode": { "type": "string", "minLength": 1 },
-        "versionNote": { "type": "string", "minLength": 1 }
+        "sectionNode": { "const": "119:64" },
+        "desktopHeroNode": { "const": "119:176" },
+        "mobileHeroNode": { "const": "119:461" },
+        "designVersion": { "const": "Homepage Visual System v1.3.1 — FINAL" }
       },
       "additionalProperties": false
     }
@@ -178,6 +201,11 @@
       },
       "additionalProperties": false
     },
+    "safeReference": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!.*(?:/Users/|/private/var/|AndroidStudioProjects|sourcePath)).+$"
+    },
     "textPair": {
       "type": "object",
       "required": ["title", "description"],
@@ -192,155 +220,29 @@
       "required": ["label", "target"],
       "properties": {
         "label": { "$ref": "#/$defs/localizedString" },
-        "target": { "type": "string", "minLength": 1 },
-        "kind": { "enum": ["download", "anchor", "external"] },
-        "downloadFileName": { "type": "string", "minLength": 1 }
+        "target": { "type": "string", "minLength": 1 }
       },
       "additionalProperties": false
     },
-    "featureShowcaseItem": {
-      "type": "object",
-      "required": ["id", "order", "title", "description", "gallery", "sourceReference", "autoCarouselEligible"],
-      "properties": {
-        "id": {
-          "enum": [
-            "favorite-citybus-routes",
-            "route-comparison",
-            "eta-details",
-            "predeparture-monitor"
-          ]
-        },
-        "order": { "type": "integer", "minimum": 1, "maximum": 4 },
-        "title": { "$ref": "#/$defs/localizedString" },
-        "description": { "$ref": "#/$defs/localizedString" },
-        "gallery": {
+    "downloadAction": {
+      "allOf": [
+        { "$ref": "#/$defs/action" },
+        {
           "type": "object",
-          "required": [
-            "featureId",
-            "defaultImageId",
-            "manualOnly",
-            "hideStackWhenSingleImage",
-            "visualMode",
-            "lightboxEnabled",
-            "allowThumbnailControls",
-            "images"
-          ],
-          "properties": {
-            "featureId": {
-              "enum": [
-                "favorite-citybus-routes",
-                "route-comparison",
-                "eta-details",
-                "predeparture-monitor"
-              ]
-            },
-            "defaultImageId": { "type": "string", "minLength": 1 },
-        "manualOnly": { "const": true },
-        "hideStackWhenSingleImage": { "const": true },
-        "visualMode": { "const": "stair-card-deck" },
-        "lightboxEnabled": { "const": true },
-        "allowThumbnailControls": { "const": false },
-        "images": {
-              "type": "array",
-              "minItems": 1,
-              "items": { "$ref": "#/$defs/screenshotAsset" }
-            }
-          },
-          "additionalProperties": false
-        },
-        "sourceReference": { "type": "string", "minLength": 1 },
-        "autoCarouselEligible": { "const": true }
-      },
-      "additionalProperties": false
+          "properties": { "target": { "const": "#download" } }
+        }
+      ]
     },
-    "screenshotAsset": {
-      "type": "object",
-      "required": [
-        "id",
-        "sourcePath",
-        "assetPath",
-        "src",
-        "order",
-        "isDefault",
-        "desensitizationStatus",
-        "redactedItems",
-        "retainedItems",
-        "alt"
-      ],
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "sourcePath": { "type": "string", "minLength": 1 },
-        "assetPath": {
-          "type": "string",
-          "pattern": "^frontend/src/assets/app-screenshots/real/.+\\.(webp|jpg|jpeg|png)$"
-        },
-        "src": { "type": "string", "minLength": 1 },
-        "order": { "type": "integer", "minimum": 1 },
-        "isDefault": { "type": "boolean" },
-        "desensitizationStatus": { "enum": ["pending", "approved", "rejected"] },
-        "redactedItems": {
-          "type": "array",
-          "minItems": 0,
-          "items": { "type": "string", "minLength": 1 }
-        },
-        "retainedItems": {
-          "type": "array",
-          "contains": { "const": "price-time-eta-values" },
-          "items": { "type": "string", "minLength": 1 }
-        },
-        "alt": { "$ref": "#/$defs/localizedString" }
-      },
-      "additionalProperties": false
+    "routeAction": {
+      "allOf": [
+        { "$ref": "#/$defs/action" },
+        {
+          "type": "object",
+          "properties": { "target": { "const": "#route-trial" } }
+        }
+      ]
     },
-    "featureItem": {
-      "type": "object",
-      "required": ["id", "title", "description", "icon", "sourceReference"],
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "title": { "$ref": "#/$defs/localizedString" },
-        "description": { "$ref": "#/$defs/localizedString" },
-        "icon": { "type": "string", "minLength": 1 },
-        "sourceReference": { "type": "string", "minLength": 1 }
-      },
-      "additionalProperties": false
-    },
-    "demoRouteResult": {
-      "type": "object",
-      "required": ["routeNumber", "operator", "fare", "duration", "walkingDistance", "etaDisplay"],
-      "properties": {
-        "routeNumber": { "type": "string", "minLength": 1 },
-        "operator": { "type": "string", "minLength": 1 },
-        "fare": { "type": "string", "pattern": "^HK\\$" },
-        "duration": { "$ref": "#/$defs/localizedString" },
-        "walkingDistance": { "$ref": "#/$defs/localizedString" },
-        "etaDisplay": { "$ref": "#/$defs/localizedString" }
-      },
-      "additionalProperties": false
-    },
-    "faqItem": {
-      "type": "object",
-      "required": ["id", "category", "question", "answer"],
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "category": { "enum": ["android-install", "ios-status", "online-query-limit", "data-scope", "other"] },
-        "question": { "$ref": "#/$defs/localizedString" },
-        "answer": { "$ref": "#/$defs/localizedString" }
-      },
-      "additionalProperties": false
-    },
-    "contactEntry": {
-      "type": "object",
-      "required": ["id", "label", "description", "href", "priority"],
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "label": { "$ref": "#/$defs/localizedString" },
-        "description": { "$ref": "#/$defs/localizedString" },
-        "href": { "type": "string", "minLength": 1 },
-        "priority": { "enum": ["secondary"] }
-      },
-      "additionalProperties": false
-    },
-    "footerPrivacyLink": {
+    "localizedHrefAction": {
       "type": "object",
       "required": ["label", "href"],
       "properties": {
@@ -349,318 +251,189 @@
           "type": "object",
           "required": ["zh-Hant", "zh-Hans", "en"],
           "properties": {
-            "zh-Hant": { "const": "/zh-hant/privacy/" },
-            "zh-Hans": { "const": "/zh-hans/privacy/" },
-            "en": { "const": "/en/privacy/" }
+            "zh-Hant": { "type": "string", "pattern": "^/zh-hant/" },
+            "zh-Hans": { "type": "string", "pattern": "^/zh-hans/" },
+            "en": { "type": "string", "pattern": "^/en/" }
           },
           "additionalProperties": false
         }
       },
       "additionalProperties": false
     },
-    "homepageExperience": {
+    "navItem": {
       "type": "object",
-      "required": ["metadata", "carousel", "brandLogo", "contact", "localizedCopyReview", "figmaReference"],
+      "required": ["id", "label", "target"],
       "properties": {
-        "metadata": {
-          "type": "object",
-          "required": ["version", "lastUpdated"],
-          "properties": {
-            "version": { "type": "string", "pattern": "^2026-06-24\\.homepage-experience-polish" },
-            "lastUpdated": { "type": "string", "format": "date" }
-          },
-          "additionalProperties": false
-        },
-        "carousel": {
-          "type": "object",
-          "required": [
-            "autoAdvanceMs",
-            "featureOrder",
-            "visualMode",
-            "supportsSwipe",
-            "supportsDesktopDrag",
-            "supportsKeyboardSwitching",
-            "showsNumericLabels",
-            "usesThumbnailStack",
-            "usesPersistentArrows"
-          ],
-          "properties": {
-            "autoAdvanceMs": { "const": 3000 },
-            "featureOrder": {
-              "type": "array",
-              "prefixItems": [
-                { "const": "favorite-citybus-routes" },
-                { "const": "route-comparison" },
-                { "const": "eta-details" },
-                { "const": "predeparture-monitor" }
-              ],
-              "minItems": 4,
-              "maxItems": 4
-            },
-            "visualMode": { "const": "stair-card-deck" },
-            "supportsSwipe": { "const": true },
-            "supportsDesktopDrag": { "const": true },
-            "supportsKeyboardSwitching": { "const": true },
-            "showsNumericLabels": { "const": false },
-            "usesThumbnailStack": { "const": false },
-            "usesPersistentArrows": { "const": false }
-          },
-          "additionalProperties": false
-        },
-        "brandLogo": {
-          "type": "object",
-          "required": ["sourcePath", "outputPath", "backgroundRemoved", "transparent", "usesLauncherPlate", "placements"],
-          "properties": {
-            "sourcePath": {
-              "type": "string",
-              "pattern": "app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground\\.png$"
-            },
-            "outputPath": {
-              "type": "string",
-              "pattern": "^frontend/src/assets/brand/.+\\.(png|webp)$"
-            },
-            "backgroundRemoved": { "const": true },
-            "transparent": { "const": true },
-            "usesLauncherPlate": { "const": false },
-            "placements": {
-              "type": "array",
-              "allOf": [
-                { "contains": { "const": "header" } },
-                { "contains": { "const": "footer" } }
-              ],
-              "items": { "enum": ["header", "footer", "favicon"] },
-              "uniqueItems": true,
-              "minItems": 2
-            }
-          },
-          "additionalProperties": false
-        },
-        "contact": {
-          "type": "object",
-          "required": ["navLabel", "email", "href"],
-          "properties": {
-            "navLabel": {
-              "type": "object",
-              "required": ["zh-Hant", "zh-Hans", "en"],
-              "properties": {
-                "zh-Hant": { "const": "聯絡我們" },
-                "zh-Hans": { "const": "联系我们" },
-                "en": { "const": "Contact Us" }
-              },
-              "additionalProperties": false
-            },
-            "email": { "const": "hezhenyu966@gmail.com" },
-            "href": { "const": "mailto:hezhenyu966@gmail.com" }
-          },
-          "additionalProperties": false
-        },
-        "localizedCopyReview": {
-          "type": "object",
-          "required": ["scope", "zhHantTone", "enTone", "translationMode", "toneGuardrail", "allLocalesRequired"],
-          "properties": {
-            "scope": {
-              "type": "array",
-              "minItems": 8,
-              "items": {
-                "enum": [
-                  "navigation",
-                  "hero",
-                  "carousel",
-                  "features",
-                  "online-query",
-                  "download",
-                  "faq",
-                  "footer",
-                  "status",
-                  "accessibility"
-                ]
-              }
-            },
-            "zhHantTone": { "const": "hong-kong-practical-written" },
-            "enTone": { "const": "natural-restrained-product" },
-            "translationMode": { "const": "locale-adapted-not-literal" },
-            "toneGuardrail": { "const": "clear-natural-not-colloquial-or-bureaucratic" },
-            "allLocalesRequired": {
-              "type": "array",
-              "prefixItems": [
-                { "const": "zh-Hant" },
-                { "const": "zh-Hans" },
-                { "const": "en" }
-              ],
-              "minItems": 3,
-              "maxItems": 3
-            }
-          },
-          "additionalProperties": false
-        },
-        "figmaReference": {
-          "type": "object",
-          "required": ["fileUrl", "pageName", "nodeNames"],
-          "properties": {
-            "fileUrl": { "type": "string", "format": "uri" },
-            "pageName": { "const": "Homepage Experience Polish - 005" },
-            "nodeNames": {
-              "type": "array",
-              "minItems": 5,
-              "items": { "type": "string", "minLength": 1 }
-            }
-          },
-          "additionalProperties": false
-        }
+        "id": { "type": "string" },
+        "label": { "$ref": "#/$defs/localizedString" },
+        "target": { "type": "string", "pattern": "^#" }
       },
       "additionalProperties": false
     },
-    "homepageUiPolish": {
+    "featuresNavItem": {
+      "allOf": [
+        { "$ref": "#/$defs/navItem" },
+        { "type": "object", "properties": { "id": { "const": "features" }, "target": { "const": "#features" } } }
+      ]
+    },
+    "faqNavItem": {
+      "allOf": [
+        { "$ref": "#/$defs/navItem" },
+        { "type": "object", "properties": { "id": { "const": "faq" }, "target": { "const": "#faq" } } }
+      ]
+    },
+    "contactNavItem": {
+      "allOf": [
+        { "$ref": "#/$defs/navItem" },
+        { "type": "object", "properties": { "id": { "const": "contact" }, "target": { "const": "#contact" } } }
+      ]
+    },
+    "lineBreakHints": {
       "type": "object",
-      "required": ["metadata", "heroGallery", "featureGrid", "routeResultCard", "fareCopy", "figmaReference"],
+      "required": ["zh-Hant", "zh-Hans", "en"],
       "properties": {
-        "metadata": {
-          "type": "object",
-          "required": ["version", "lastUpdated"],
-          "properties": {
-            "version": { "const": "2026-06-27.homepage-ui-polish" },
-            "lastUpdated": { "type": "string", "format": "date" }
-          },
-          "additionalProperties": false
-        },
-        "heroGallery": {
-          "type": "object",
-          "required": ["desktopScale", "showZoomIndicator", "splitGestureZones", "lightbox"],
-          "properties": {
-            "desktopScale": { "const": "medium" },
-            "showZoomIndicator": { "const": false },
-            "splitGestureZones": {
-              "type": "object",
-              "required": ["screenshotZoneAction", "copyZoneAction"],
-              "properties": {
-                "screenshotZoneAction": { "const": "switch-same-feature-image" },
-                "copyZoneAction": { "const": "switch-feature" }
-              },
-              "additionalProperties": false
-            },
-            "lightbox": {
-              "type": "object",
-              "required": [
-                "enabled",
-                "sameFeatureOnly",
-                "supportsZoom",
-                "supportsPan",
-                "supportsKeyboardClose",
-                "controls"
-              ],
-              "properties": {
-                "enabled": { "const": true },
-                "sameFeatureOnly": { "const": true },
-                "supportsZoom": { "const": true },
-                "supportsPan": { "const": true },
-                "supportsKeyboardClose": { "const": true },
-                "controls": {
-                  "type": "object",
-                  "required": ["close", "zoomIn", "zoomOut", "resetZoom", "previousImage", "nextImage"],
-                  "properties": {
-                    "close": { "$ref": "#/$defs/localizedString" },
-                    "zoomIn": { "$ref": "#/$defs/localizedString" },
-                    "zoomOut": { "$ref": "#/$defs/localizedString" },
-                    "resetZoom": { "$ref": "#/$defs/localizedString" },
-                    "previousImage": { "$ref": "#/$defs/localizedString" },
-                    "nextImage": { "$ref": "#/$defs/localizedString" }
-                  },
-                  "additionalProperties": false
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        "featureGrid": {
-          "type": "object",
-          "required": ["mobileColumns", "desktopUnchanged", "minimumFeatureCount", "futureFeatureCount"],
-          "properties": {
-            "mobileColumns": { "const": 2 },
-            "desktopUnchanged": { "const": true },
-            "minimumFeatureCount": { "type": "integer", "minimum": 6 },
-            "futureFeatureCount": { "type": "integer", "minimum": 10 }
-          },
-          "additionalProperties": false
-        },
-        "routeResultCard": {
-          "type": "object",
-          "required": ["mobileCompact", "desktopUnchanged", "metricLayout", "missingStopFallback", "metrics"],
-          "properties": {
-            "mobileCompact": { "const": true },
-            "desktopUnchanged": { "const": true },
-            "metricLayout": { "const": "inline-label-value" },
-            "missingStopFallback": { "$ref": "#/$defs/localizedString" },
-            "metrics": {
-              "type": "array",
-              "minItems": 3,
-              "maxItems": 3,
-              "items": {
-                "type": "object",
-                "required": ["id", "label", "valueStyle"],
-                "properties": {
-                  "id": { "enum": ["fare", "duration", "walking"] },
-                  "label": { "$ref": "#/$defs/localizedString" },
-                  "valueStyle": { "const": "emphasized" }
-                },
-                "additionalProperties": false
-              }
-            }
-          },
-          "additionalProperties": false
-        },
-        "fareCopy": {
-          "type": "object",
-          "required": ["title", "description", "forbiddenPhrases"],
-          "properties": {
-            "title": { "$ref": "#/$defs/localizedString" },
-            "description": { "$ref": "#/$defs/localizedString" },
-            "forbiddenPhrases": {
-              "type": "array",
-              "minItems": 1,
-              "items": { "type": "string", "minLength": 1 }
-            }
-          },
-          "additionalProperties": false
-        },
-        "figmaReference": {
-          "type": "object",
-          "required": ["fileUrl", "pageName", "nodeNames", "nodeIds", "nodeIdsResolved"],
-          "properties": {
-            "fileUrl": { "type": "string", "format": "uri" },
-            "pageName": { "const": "Homepage UI Polish - 007" },
-            "nodeNames": {
-              "type": "array",
-              "minItems": 6,
-              "items": { "type": "string", "minLength": 1 }
-            },
-            "nodeIds": {
-              "type": "object",
-              "required": [
-                "Desktop 1440 / Hero Medium Screenshot Deck",
-                "Desktop 1440 / Screenshot Lightbox",
-                "Mobile 390 / Compact Feature Grid",
-                "Mobile 390 / Compact Route Result Card",
-                "Interaction States / Split Gesture Zones",
-                "Spec Notes"
-              ],
-              "properties": {
-                "Desktop 1440 / Hero Medium Screenshot Deck": { "const": "51:86" },
-                "Desktop 1440 / Screenshot Lightbox": { "const": "51:113" },
-                "Mobile 390 / Compact Feature Grid": { "const": "51:125" },
-                "Mobile 390 / Compact Route Result Card": { "const": "51:151" },
-                "Interaction States / Split Gesture Zones": { "const": "51:183" },
-                "Spec Notes": { "const": "51:194" }
-              },
-              "additionalProperties": false
-            },
-            "nodeIdsResolved": { "const": true }
-          },
-          "additionalProperties": false
-        }
+        "zh-Hant": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "zh-Hans": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "en": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
       },
       "additionalProperties": false
+    },
+    "story": {
+      "type": "object",
+      "required": ["id", "order", "numberLabel", "shortLabel", "title", "description", "lineBreakHints", "screenshotId", "alt", "factReference"],
+      "properties": {
+        "id": { "type": "string" },
+        "order": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "numberLabel": { "type": "string", "pattern": "^0[1-5]$" },
+        "shortLabel": { "$ref": "#/$defs/localizedString" },
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "lineBreakHints": { "$ref": "#/$defs/lineBreakHints" },
+        "screenshotId": { "type": "string" },
+        "alt": { "$ref": "#/$defs/localizedString" },
+        "factReference": { "$ref": "#/$defs/safeReference" }
+      },
+      "additionalProperties": false
+    },
+    "routeSearchStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        {
+          "type": "object",
+          "properties": {
+            "id": { "const": "route-search" },
+            "order": { "const": 1 },
+            "numberLabel": { "const": "01" },
+            "screenshotId": { "const": "route-search" },
+            "shortLabel": { "type": "object", "properties": { "zh-Hant": { "const": "搜尋" } } },
+            "title": { "type": "object", "properties": { "zh-Hant": { "const": "隨心搜尋，出發更輕鬆" } } },
+            "description": { "type": "object", "properties": { "zh-Hant": { "const": "輸入起終點，即時比較合適路線" } } }
+          }
+        }
+      ]
+    },
+    "savedJourneysStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        {
+          "type": "object",
+          "properties": {
+            "id": { "const": "saved-journeys" },
+            "order": { "const": 2 },
+            "numberLabel": { "const": "02" },
+            "screenshotId": { "const": "saved-journeys" },
+            "shortLabel": { "type": "object", "properties": { "zh-Hant": { "const": "行程" } } },
+            "title": { "type": "object", "properties": { "zh-Hant": { "const": "常走的路，一按更省心" } } },
+            "description": { "type": "object", "properties": { "zh-Hant": { "const": "路線、車費與候車時間集中比較，選擇更清楚" } } }
+          }
+        }
+      ]
+    },
+    "journeyGuidanceStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        {
+          "type": "object",
+          "properties": {
+            "id": { "const": "journey-guidance" },
+            "order": { "const": 3 },
+            "numberLabel": { "const": "03" },
+            "screenshotId": { "const": "journey-guidance" },
+            "shortLabel": { "type": "object", "properties": { "zh-Hant": { "const": "沿途" } } },
+            "title": { "type": "object", "properties": { "zh-Hant": { "const": "一路看清，出行更安心" } } },
+            "description": { "type": "object", "properties": { "zh-Hant": { "const": "路線、轉乘與目前位置，沿途心中有數" } } }
+          }
+        }
+      ]
+    },
+    "crossOperatorArrivalsStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        {
+          "type": "object",
+          "properties": {
+            "id": { "const": "cross-operator-arrivals" },
+            "order": { "const": 4 },
+            "numberLabel": { "const": "04" },
+            "screenshotId": { "const": "cross-operator-arrivals" },
+            "shortLabel": { "type": "object", "properties": { "zh-Hant": { "const": "班次" } } },
+            "title": { "type": "object", "properties": { "zh-Hant": { "const": "班次看得全，候車更從容" } } },
+            "description": { "type": "object", "properties": { "zh-Hant": { "const": "城巴、九巴與龍運到站時間集中呈現" } } }
+          }
+        }
+      ]
+    },
+    "predepartureMonitorStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        {
+          "type": "object",
+          "properties": {
+            "id": { "const": "predeparture-monitor" },
+            "order": { "const": 5 },
+            "numberLabel": { "const": "05" },
+            "screenshotId": { "const": "predeparture-monitor" },
+            "shortLabel": { "type": "object", "properties": { "zh-Hant": { "const": "出門" } } },
+            "title": { "type": "object", "properties": { "zh-Hant": { "const": "不用盯手機，出門更有把握" } } },
+            "description": { "type": "object", "properties": { "zh-Hant": { "const": "啟動一次，鎖屏持續更新候車與步行時間" } } }
+          }
+        }
+      ]
+    },
+    "faq": {
+      "type": "object",
+      "required": ["id", "question", "answer", "defaultOpen"],
+      "properties": {
+        "id": { "type": "string" },
+        "question": { "$ref": "#/$defs/localizedString" },
+        "answer": { "$ref": "#/$defs/localizedString" },
+        "defaultOpen": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "androidInstallFaq": {
+      "allOf": [
+        { "$ref": "#/$defs/faq" },
+        { "type": "object", "properties": { "id": { "const": "android-install" }, "defaultOpen": { "const": true } } }
+      ]
+    },
+    "dataCoverageFaq": {
+      "allOf": [
+        { "$ref": "#/$defs/faq" },
+        { "type": "object", "properties": { "id": { "const": "data-coverage" }, "defaultOpen": { "const": false } } }
+      ]
+    },
+    "websiteAppDifferenceFaq": {
+      "allOf": [
+        { "$ref": "#/$defs/faq" },
+        { "type": "object", "properties": { "id": { "const": "website-app-difference" }, "defaultOpen": { "const": false } } }
+      ]
+    },
+    "iphoneSupportFaq": {
+      "allOf": [
+        { "$ref": "#/$defs/faq" },
+        { "type": "object", "properties": { "id": { "const": "iphone-support" }, "defaultOpen": { "const": false } } }
+      ]
     }
   }
 }

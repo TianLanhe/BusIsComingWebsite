@@ -20,7 +20,7 @@ describe("OnlineQueryDemoSection", () => {
 
     fireEvent.change(screen.getByLabelText("Origin"), { target: { value: "origin free text" } });
     fireEvent.change(screen.getByLabelText("Destination"), { target: { value: "destination free text" } });
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.click(screen.getByRole("button", { name: "Compare bus routes →" }));
 
     expect((await screen.findAllByText("Choose a place from the candidate list.")).length).toBeGreaterThanOrEqual(2);
     expect(fetchSpy).not.toHaveBeenCalledWith(
@@ -83,7 +83,7 @@ describe("OnlineQueryDemoSection", () => {
 
     await choosePlace("Origin", "origin", "Origin Place");
     await choosePlace("Destination", "destination", "Destination Place");
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.click(screen.getByRole("button", { name: "Compare bus routes →" }));
 
     expect(await screen.findByText("606")).toBeInTheDocument();
     expect(screen.getByText(longOriginStop)).toBeInTheDocument();
@@ -91,14 +91,11 @@ describe("OnlineQueryDemoSection", () => {
     expect(screen.getByTestId("route-origin-stop")).toHaveAttribute("title", longOriginStop);
     expect(screen.getByTestId("route-destination-stop")).toHaveAttribute("title", longDestinationStop);
     const routeCard = screen.getByTestId("route-card");
-    expect(routeCard).toHaveAttribute("data-mobile-layout", "compact");
-    expect(screen.getByTestId("route-metrics")).toHaveAttribute("data-layout", "inline-label-value");
-    expect(screen.getByTestId("route-metric-fare")).toHaveTextContent("Fare");
-    expect(screen.getByTestId("route-metric-fare")).toHaveTextContent("$6.10");
-    expect(screen.getByTestId("route-metric-duration")).toHaveTextContent("Time");
-    expect(screen.getByTestId("route-metric-duration")).toHaveTextContent("10 min");
-    expect(screen.getByTestId("route-metric-walking")).toHaveTextContent("Walk");
-    expect(screen.getByTestId("route-metric-walking")).toHaveTextContent("266 m");
+    expect(routeCard).toContainElement(screen.getByTestId("route-metrics"));
+    expect(screen.getByTestId("route-metrics")).toHaveTextContent("Fare$6.10");
+    expect(screen.getByTestId("route-metrics")).toHaveTextContent("Time 10 min");
+    expect(screen.getByTestId("route-metrics")).toHaveTextContent("Walk 266 m");
+    expect(routeCard).not.toHaveTextContent(/Direct|Transfer/);
     expect(await screen.findByText("Wait 49 min")).toBeInTheDocument();
     expect(fetchSpy).toHaveBeenCalledWith(
       "/api/routes/query_etas",
@@ -120,7 +117,7 @@ describe("OnlineQueryDemoSection", () => {
 
     await choosePlace("Origin", "same", "Same Place");
     await choosePlace("Destination", "same", "Same Place");
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.submit(screen.getByTestId("online-query-demo").querySelector("form")!);
 
     expect(await screen.findAllByText("Origin and destination cannot be the same.")).toHaveLength(2);
     expect(fetchSpy).not.toHaveBeenCalledWith(
@@ -164,10 +161,10 @@ describe("OnlineQueryDemoSection", () => {
 
     await choosePlace("Origin", "origin", "Origin Place");
     await choosePlace("Destination", "d1", "Destination One");
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.click(screen.getByRole("button", { name: "Compare bus routes →" }));
 
     await choosePlace("Destination", "d2", "Destination Two");
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.submit(screen.getByTestId("online-query-demo").querySelector("form")!);
     expect(await screen.findByText("22X")).toBeInTheDocument();
 
     firstRouteResolve(
@@ -215,7 +212,7 @@ describe("OnlineQueryDemoSection", () => {
 
     await choosePlace("Origin", "origin", "Origin Place");
     await choosePlace("Destination", "destination", "Destination Place");
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.click(screen.getByRole("button", { name: "Compare bus routes →" }));
 
     expect(await screen.findByText("82")).toBeInTheDocument();
     expect(screen.getByTestId("route-stop-fallback")).toHaveTextContent("Stop details unavailable");
@@ -226,7 +223,7 @@ describe("OnlineQueryDemoSection", () => {
 
 async function choosePlace(label: string, keyword: string, candidateName: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value: keyword } });
-  fireEvent.click(await screen.findByRole("button", { name: candidateName }));
+  fireEvent.click(await screen.findByRole("option", { name: candidateName }));
 }
 
 function jsonEnvelope<TData extends EnvelopeData>(data: TData): Response {

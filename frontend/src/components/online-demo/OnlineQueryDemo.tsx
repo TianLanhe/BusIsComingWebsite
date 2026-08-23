@@ -1,7 +1,7 @@
-import { ArrowLeftRight, Info, Loader2, MapPin, Search } from "lucide-react";
+import { ArrowLeftRight, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
-import { onlineQueryDemo } from "../../content/onlineQueryDemo";
+import type { Dispatch, MutableRefObject, SetStateAction } from "react";
+import { homepageContent } from "../../content/homepageContent";
 import type { Locale } from "../../content/types";
 import { uiCopy } from "../../content/uiCopy";
 import {
@@ -12,29 +12,17 @@ import {
   RouteQueryClientError,
 } from "../../services/routeQueryClient";
 import type { ApiError, EtaStatus, PlaceCandidate, RouteOption } from "../../services/routeQueryTypes";
+import { WindField } from "../homepage/WindField";
 import { useI18n } from "../i18n/I18nProvider";
+import { PlaceCombobox } from "./PlaceCombobox";
+import type { PlaceFieldName, PlaceFieldState } from "./PlaceCombobox";
+import { RouteResultCard } from "./RouteResultCard";
 import styles from "./OnlineQueryDemo.module.css";
-
-type FieldName = "origin" | "destination";
-
-interface PlaceFieldState {
-  input: string;
-  selected: PlaceCandidate | null;
-  candidates: PlaceCandidate[];
-  loading: boolean;
-  touched: boolean;
-  error: string | null;
-}
 
 type QueryStatus = "idle" | "loading" | "success" | "empty" | "error";
 
 const emptyField = (): PlaceFieldState => ({
-  input: "",
-  selected: null,
-  candidates: [],
-  loading: false,
-  touched: false,
-  error: null,
+  input: "", selected: null, candidates: [], loading: false, touched: false, error: null,
 });
 
 export function OnlineQueryDemoSection() {
@@ -47,74 +35,25 @@ export function OnlineQueryDemoSection() {
   const [routeMessage, setRouteMessage] = useState<string | null>(null);
   const [retainedMessage, setRetainedMessage] = useState<string | null>(null);
   const [lastResultKey, setLastResultKey] = useState<string | null>(null);
-
-  // 用递增序号丢弃旧的地点、路线和 ETA 响应，避免快速输入或语言切换覆盖最新状态。
-  const placeRequestSeq = useRef<Record<FieldName, number>>({ origin: 0, destination: 0 });
+  const placeRequestSeq = useRef<Record<PlaceFieldName, number>>({ origin: 0, destination: 0 });
   const routeRequestSeq = useRef(0);
   const etaRequestSeq = useRef(0);
   const previousLocale = useRef<Locale>(locale);
 
-  usePlaceSearch("origin", origin, setOrigin, locale);
-  usePlaceSearch("destination", destination, setDestination, locale);
+  usePlaceSearch("origin", origin, setOrigin, locale, text, placeRequestSeq);
+  usePlaceSearch("destination", destination, setDestination, locale, text, placeRequestSeq);
 
   useEffect(() => {
-    if (previousLocale.current === locale) {
-      return;
-    }
+    if (previousLocale.current === locale) return;
     previousLocale.current = locale;
     if (origin.selected && destination.selected && routes.length > 0) {
       void runRouteSearch({ reason: "language", preserveOnFailure: true });
     }
+    // locale 切换必须保留选择和现有结果；重查失败只降级成 retained。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
-  function usePlaceSearch(
-    field: FieldName,
-    fieldState: PlaceFieldState,
-    setField: Dispatch<SetStateAction<PlaceFieldState>>,
-    language: Locale,
-  ) {
-    useEffect(() => {
-      const query = fieldState.input.trim();
-      if (!query) {
-        setField((current) => ({ ...current, candidates: [], loading: false, error: null }));
-        return;
-      }
-      if (fieldState.selected && fieldState.selected.name === fieldState.input) {
-        return;
-      }
-      const seq = placeRequestSeq.current[field] + 1;
-      placeRequestSeq.current[field] = seq;
-      const timeout = window.setTimeout(() => {
-        setField((current) => ({ ...current, loading: true, error: null }));
-        const requestId = createRouteRequestId(`places-${field}`);
-        queryPlaces({ requestId, language, query, limit: 100 })
-          .then((data) => {
-            if (placeRequestSeq.current[field] !== seq) {
-              return;
-            }
-            setField((current) => ({ ...current, candidates: data.places, loading: false, error: null }));
-          })
-          .catch((error) => {
-            if (placeRequestSeq.current[field] !== seq) {
-              return;
-            }
-            if (isAbortError(error)) {
-              return;
-            }
-            setField((current) => ({
-              ...current,
-              candidates: [],
-              loading: false,
-              error: text(uiCopy.placeSearchFailed),
-            }));
-          });
-      }, 300);
-      return () => window.clearTimeout(timeout);
-    }, [field, fieldState.input, fieldState.selected, language, setField, text]);
-  }
-
-  function updateInput(field: FieldName, value: string) {
+  function updateInput(field: PlaceFieldName, value: string) {
     const setField = field === "origin" ? setOrigin : setDestination;
     setField((current) => ({
       ...current,
@@ -123,20 +62,15 @@ export function OnlineQueryDemoSection() {
       touched: true,
       error: null,
     }));
-    clearRouteResultsAfterPlaceChange();
+    setRouteMessage(null);
+    setRetainedMessage(null);
   }
 
-  function selectPlace(field: FieldName, place: PlaceCandidate) {
+  function selectPlace(field: PlaceFieldName, place: PlaceCandidate) {
     const setField = field === "origin" ? setOrigin : setDestination;
-    setField({
-      input: place.name,
-      selected: place,
-      candidates: [],
-      loading: false,
-      touched: true,
-      error: null,
-    });
-    clearRouteResultsAfterPlaceChange();
+    setField({ input: place.name, selected: place, candidates: [], loading: false, touched: true, error: null });
+    setRouteMessage(null);
+    setRetainedMessage(null);
   }
 
   function swapPlaces() {
@@ -150,31 +84,35 @@ export function OnlineQueryDemoSection() {
     setQueryStatus("idle");
   }
 
-  function clearRouteResultsAfterPlaceChange() {
-    if (routes.length > 0 || lastResultKey || queryStatus !== "idle") {
-      setRoutes([]);
-      setEtas({});
-      setLastResultKey(null);
-      setRetainedMessage(null);
-      setRouteMessage(null);
-      setQueryStatus("idle");
+  function validateFields():
+    | { ok: true; origin: PlaceCandidate; destination: PlaceCandidate }
+    | { ok: false } {
+    const originPlace = origin.selected;
+    const destinationPlace = destination.selected;
+    let valid = true;
+    if (!originPlace || origin.input !== originPlace.name) {
+      setOrigin((current) => ({ ...current, touched: true, error: text(uiCopy.selectCandidateRequired) }));
+      valid = false;
     }
+    if (!destinationPlace || destination.input !== destinationPlace.name) {
+      setDestination((current) => ({ ...current, touched: true, error: text(uiCopy.selectCandidateRequired) }));
+      valid = false;
+    }
+    if (!valid || !originPlace || !destinationPlace) return { ok: false };
+    if (originPlace.placeToken === destinationPlace.placeToken || originPlace.name === destinationPlace.name) {
+      setOrigin((current) => ({ ...current, error: text(uiCopy.samePlaceError) }));
+      setDestination((current) => ({ ...current, error: text(uiCopy.samePlaceError) }));
+      return { ok: false };
+    }
+    return { ok: true, origin: originPlace, destination: destinationPlace };
   }
 
   async function runRouteSearch(options: { reason: "manual" | "language"; preserveOnFailure: boolean }) {
     const validation = validateFields();
-    if (!validation.ok) {
-      return;
-    }
-
-    const originPlace = validation.origin;
-    const destinationPlace = validation.destination;
-    const requestKey = selectedRouteKey(originPlace, destinationPlace);
+    if (!validation.ok) return;
+    const requestKey = selectedRouteKey(validation.origin, validation.destination);
     const preserveExisting = options.preserveOnFailure && requestKey === lastResultKey && routes.length > 0;
-    const seq = routeRequestSeq.current + 1;
-    routeRequestSeq.current = seq;
-    const requestId = createRouteRequestId("routes");
-
+    const seq = ++routeRequestSeq.current;
     setQueryStatus("loading");
     setRouteMessage(null);
     setRetainedMessage(null);
@@ -182,36 +120,26 @@ export function OnlineQueryDemoSection() {
       setRoutes([]);
       setEtas({});
     }
-
     try {
       const data = await queryRoutes({
-        requestId,
+        requestId: createRouteRequestId("routes"),
         language: locale,
-        originPlaceToken: originPlace.placeToken,
-        destinationPlaceToken: destinationPlace.placeToken,
+        originPlaceToken: validation.origin.placeToken,
+        destinationPlaceToken: validation.destination.placeToken,
       });
-      if (routeRequestSeq.current !== seq) {
-        return;
-      }
+      if (routeRequestSeq.current !== seq) return;
       setRoutes(data.routes);
       setLastResultKey(requestKey);
       setEtas(initialEtaState(data.routes));
       setQueryStatus(data.routes.length > 0 ? "success" : "empty");
-      setRouteMessage(null);
       void runEtaSearch(data.routes, locale);
     } catch (error) {
-      if (routeRequestSeq.current !== seq || isAbortError(error)) {
-        return;
-      }
+      if (routeRequestSeq.current !== seq || isAbortError(error)) return;
       const message = routeErrorMessage(error, text);
       if (preserveExisting) {
         setQueryStatus("success");
         setRouteMessage(message);
-        setRetainedMessage(
-          options.reason === "language"
-            ? `${text(uiCopy.languageRefreshFailed)} ${text(uiCopy.stillShowingPreviousResults)}`
-            : text(uiCopy.stillShowingPreviousResults),
-        );
+        setRetainedMessage(text(homepageContent.routeTrial.retainedState));
         return;
       }
       setRoutes([]);
@@ -221,391 +149,225 @@ export function OnlineQueryDemoSection() {
     }
   }
 
-  function validateFields():
-    | { ok: true; origin: PlaceCandidate; destination: PlaceCandidate }
-    | { ok: false } {
-    let valid = true;
-    const originSelected = origin.selected;
-    const destinationSelected = destination.selected;
-    if (!originSelected || origin.input !== originSelected.name) {
-      setOrigin((current) => ({ ...current, touched: true, error: text(uiCopy.selectCandidateRequired) }));
-      valid = false;
-    }
-    if (!destinationSelected || destination.input !== destinationSelected.name) {
-      setDestination((current) => ({ ...current, touched: true, error: text(uiCopy.selectCandidateRequired) }));
-      valid = false;
-    }
-    if (!valid || !originSelected || !destinationSelected) {
-      return { ok: false };
-    }
-    if (originSelected.name === destinationSelected.name || originSelected.placeToken === destinationSelected.placeToken) {
-      setOrigin((current) => ({ ...current, error: text(uiCopy.samePlaceError) }));
-      setDestination((current) => ({ ...current, error: text(uiCopy.samePlaceError) }));
-      return { ok: false };
-    }
-    return { ok: true, origin: originSelected, destination: destinationSelected };
-  }
-
   async function runEtaSearch(routeOptions: RouteOption[], language: Locale) {
-    const etaTokens = routeOptions.map((route) => route.etaToken).filter((token): token is string => Boolean(token));
-    if (etaTokens.length === 0) {
+    const tokens = routeOptions.map((route) => route.etaToken).filter((token): token is string => Boolean(token));
+    if (tokens.length === 0) {
       setEtas(markEtaUnavailable(routeOptions));
       return;
     }
-    const seq = etaRequestSeq.current + 1;
-    etaRequestSeq.current = seq;
-    const requestId = createRouteRequestId("etas");
+    const seq = ++etaRequestSeq.current;
     try {
-      const data = await queryEtas({ requestId, language, etaTokens });
-      if (etaRequestSeq.current !== seq) {
-        return;
-      }
+      const data = await queryEtas({ requestId: createRouteRequestId("etas"), language, etaTokens: tokens });
+      if (etaRequestSeq.current !== seq) return;
       setEtas((current) => {
         const next = { ...current };
-        for (const eta of data.etas) {
-          next[eta.etaToken] = eta;
-        }
+        for (const eta of data.etas) next[eta.etaToken] = eta;
         return next;
       });
     } catch {
-      if (etaRequestSeq.current !== seq) {
-        return;
-      }
-      setEtas(markEtaUnavailable(routeOptions));
+      if (etaRequestSeq.current === seq) setEtas(markEtaUnavailable(routeOptions));
     }
   }
 
-  return (
-    <section id="online-query" className={styles.section}>
-      <div className={styles.inner}>
-        <div className={styles.heading}>
-          <h2>{text(onlineQueryDemo.title)}</h2>
-          <p>{text(onlineQueryDemo.description)}</p>
-          <p>{text(onlineQueryDemo.limitationNotice)}</p>
-        </div>
+  const statusSummary = queryStatus === "loading"
+    ? text(uiCopy.queryLoadingTitle)
+    : queryStatus === "success"
+      ? routes.length + " " + text(uiCopy.routeResultsCount)
+      : queryStatus === "error"
+        ? text(homepageContent.routeTrial.errorState.title)
+        : "";
 
-        <div className={styles.demo} data-testid="online-query-demo">
+  return (
+    <section id="route-trial" className={styles.section}>
+      <WindField intensity="route" />
+      <div className={styles.inner}>
+        <header className={styles.heading}>
+          <p className={styles.eyebrow}>02 / ROUTE TRIAL</p>
+          <h2>{text(homepageContent.routeTrial.title)}</h2>
+          <p>{text(homepageContent.routeTrial.description)}</p>
+        </header>
+        <div className={styles.workbench} data-testid="online-query-demo">
           <form
-            className={styles.queryBar}
-            onSubmit={(event) => {
-              event.preventDefault();
-              void runRouteSearch({ reason: "manual", preserveOnFailure: true });
-            }}
+            className={styles.queryPanel}
+            onSubmit={(event) => { event.preventDefault(); void runRouteSearch({ reason: "manual", preserveOnFailure: true }); }}
           >
-            <PlaceInput
-              field="origin"
-              label={text(uiCopy.originLabel)}
-              state={origin}
-              placeholder={text(uiCopy.placeInputPlaceholder)}
-              loadingText={text(uiCopy.placeSearchLoading)}
+            <p className={styles.queryIndex}>01 / SET YOUR JOURNEY</p>
+            <h3>{text({ "zh-Hant": "你想去哪裡？", "zh-Hans": "你想去哪里？", en: "Where are you going?" })}</h3>
+            <PlaceCombobox
               emptyText={text(uiCopy.placeSearchEmpty)}
+              field="origin"
+              label={text(homepageContent.routeTrial.originLabel)}
+              loadingText={text(uiCopy.placeSearchLoading)}
               onInput={updateInput}
               onSelect={selectPlace}
+              placeholder={text(uiCopy.placeInputPlaceholder)}
+              state={origin}
             />
             <button className={styles.swapButton} type="button" onClick={swapPlaces} aria-label={text(uiCopy.swapPlaces)}>
-              <ArrowLeftRight aria-hidden="true" size={20} />
+              <ArrowLeftRight aria-hidden="true" size={18} />
             </button>
-            <PlaceInput
-              field="destination"
-              label={text(uiCopy.destinationLabel)}
-              state={destination}
-              placeholder={text(uiCopy.placeInputPlaceholder)}
-              loadingText={text(uiCopy.placeSearchLoading)}
+            <PlaceCombobox
               emptyText={text(uiCopy.placeSearchEmpty)}
+              field="destination"
+              label={text(homepageContent.routeTrial.destinationLabel)}
+              loadingText={text(uiCopy.placeSearchLoading)}
               onInput={updateInput}
               onSelect={selectPlace}
+              placeholder={text(uiCopy.placeInputPlaceholder)}
+              state={destination}
             />
-            <button className={styles.queryButton} type="submit" disabled={queryStatus === "loading"}>
-              {queryStatus === "loading" ? (
-                <Loader2 aria-hidden="true" className={styles.loadingIcon} size={18} />
-              ) : (
-                <Search aria-hidden="true" size={18} />
-              )}
-              {queryStatus === "loading" ? text(uiCopy.searchingButton) : text(uiCopy.queryButton)}
+            <button className={styles.queryButton} type="submit">
+              {queryStatus === "loading" ? <Loader2 aria-hidden="true" size={18} /> : null}
+              {queryStatus === "loading" ? text(uiCopy.searchingButton) : text(homepageContent.routeTrial.queryAction)}
             </button>
+            <small>{text(homepageContent.routeTrial.scopeNotice)}</small>
           </form>
 
           <div className={styles.resultPanel} data-testid="route-result-panel">
-            {renderResultPanel({
-              status: queryStatus,
-              routes,
-              etas,
-              routeMessage,
-              retainedMessage,
-              locale,
-              text,
-            })}
+            <RouteResultPanel
+              etas={etas}
+              onRetry={() => void runRouteSearch({ reason: "manual", preserveOnFailure: true })}
+              retainedMessage={retainedMessage}
+              routeMessage={routeMessage}
+              routes={routes}
+              status={queryStatus}
+            />
           </div>
-
-          <p className={styles.notice}>
-            <Info aria-hidden="true" size={18} />
-            <span>{text(onlineQueryDemo.scopeNotice)}</span>
-          </p>
+          <p className={styles.status} role="status" aria-live="polite">{statusSummary}</p>
         </div>
       </div>
     </section>
   );
 }
 
-function PlaceInput({
-  field,
-  label,
-  state,
-  placeholder,
-  loadingText,
-  emptyText,
-  onInput,
-  onSelect,
-}: {
-  field: FieldName;
-  label: string;
-  state: PlaceFieldState;
-  placeholder: string;
-  loadingText: string;
-  emptyText: string;
-  onInput: (field: FieldName, value: string) => void;
-  onSelect: (field: FieldName, place: PlaceCandidate) => void;
-}) {
-  const hasDropdown = state.input.trim().length > 0 && (!state.selected || state.selected.name !== state.input);
-  return (
-    <label className={styles.field}>
-      <span>{label}</span>
-      <input
-        aria-invalid={Boolean(state.error)}
-        autoComplete="off"
-        value={state.input}
-        placeholder={placeholder}
-        onChange={(event) => onInput(field, event.target.value)}
-      />
-      {state.error ? <em className={styles.fieldError}>{state.error}</em> : null}
-      {hasDropdown ? (
-        <div className={styles.dropdown} data-testid={`${field}-place-dropdown`}>
-          {state.loading ? <div className={styles.dropdownState}>{loadingText}</div> : null}
-          {!state.loading && state.error ? <div className={styles.dropdownState}>{state.error}</div> : null}
-          {!state.loading && !state.error && state.candidates.length === 0 ? <div className={styles.dropdownState}>{emptyText}</div> : null}
-          {!state.loading && !state.error
-            ? state.candidates.map((place) => (
-                <button key={place.placeToken} type="button" onClick={() => onSelect(field, place)}>
-                  <MapPin aria-hidden="true" size={16} />
-                  <span>{place.name}</span>
-                </button>
-              ))
-            : null}
-        </div>
-      ) : null}
-    </label>
-  );
-}
-
-function renderResultPanel({
+function RouteResultPanel({
   status,
   routes,
   etas,
   routeMessage,
   retainedMessage,
-  locale,
-  text,
+  onRetry,
 }: {
   status: QueryStatus;
   routes: RouteOption[];
   etas: Record<string, EtaStatus>;
   routeMessage: string | null;
   retainedMessage: string | null;
-  locale: Locale;
-  text: ReturnType<typeof useI18n>["text"];
+  onRetry: () => void;
 }) {
+  const { text } = useI18n();
   if (status === "loading" && routes.length === 0) {
     return (
-      <div className={styles.emptyState} data-testid="route-loading">
-        <Loader2 aria-hidden="true" size={24} />
-        <strong>{text(uiCopy.queryLoadingTitle)}</strong>
-        <span>{text(uiCopy.queryLoadingDescription)}</span>
+      <div className={styles.loadingState} data-testid="route-loading">
+        <p><strong>{text(uiCopy.queryLoadingTitle)}</strong>{text(uiCopy.queryLoadingDescription)}</p>
+        {[0, 1, 2].map((item) => <span className={styles.skeleton} key={item} />)}
       </div>
     );
   }
-
   if (status === "idle") {
-    return (
-      <div className={styles.emptyState}>
-        <strong>{text(onlineQueryDemo.initialEmptyTitle)}</strong>
-        <span>{text(onlineQueryDemo.initialEmptyDescription)}</span>
-      </div>
-    );
+    return <EmptyState title={text(homepageContent.routeTrial.emptyState.title)} description={text(homepageContent.routeTrial.emptyState.description)} />;
   }
-
   if (status === "empty") {
-    return (
-      <div className={styles.emptyState}>
-        <strong>{text(onlineQueryDemo.noRoutesTitle)}</strong>
-        <span>{text(onlineQueryDemo.noRoutesDescription)}</span>
-      </div>
-    );
+    return <EmptyState title={text(uiCopy.noRoutesTitle)} description={text(uiCopy.noRoutesDescription)} action={text(uiCopy.adjustPlaces)} onAction={onRetry} />;
   }
-
   if (status === "error" && routes.length === 0) {
     return (
-      <div className={styles.errorState}>
-        <strong>{routeMessage ?? text(uiCopy.routeQueryFailed)}</strong>
-      </div>
+      <EmptyState
+        title={text(homepageContent.routeTrial.errorState.title)}
+        description={routeMessage ?? text(homepageContent.routeTrial.errorState.description)}
+        action={text(homepageContent.routeTrial.retryAction)}
+        onAction={onRetry}
+        error
+      />
     );
   }
-
   return (
     <>
-      <div className={styles.resultHeader}>
-        <strong>{text(uiCopy.routeResultsTitle)}</strong>
-        <span>
-          {routes.length} {text(uiCopy.routeResultsCount)}
-        </span>
-      </div>
-      {retainedMessage ? <div className={styles.retainedState}>{retainedMessage}</div> : null}
-      {routeMessage ? <div className={styles.inlineError}>{routeMessage}</div> : null}
+      <header className={styles.resultHeader}>
+        <div><small>{text({ "zh-Hant": "即時比較", "zh-Hans": "即时比较", en: "LIVE COMPARISON" })}</small><strong>{routes.length} {text(uiCopy.routeResultsCount)}</strong></div>
+        {retainedMessage ? <span>{retainedMessage}</span> : null}
+      </header>
+      {routeMessage && !retainedMessage ? <p className={styles.inlineError}>{routeMessage}</p> : null}
       <div className={styles.results}>
-        {routes.map((route) => (
-          <RouteCard key={route.routeId} route={route} eta={route.etaToken ? etas[route.etaToken] : undefined} locale={locale} text={text} />
-        ))}
+        {routes.map((route) => <RouteResultCard key={route.routeId} route={route} eta={route.etaToken ? etas[route.etaToken] : undefined} />)}
       </div>
     </>
   );
 }
 
-function RouteCard({
-  route,
-  eta,
-  locale,
-  text,
-}: {
-  route: RouteOption;
-  eta?: EtaStatus;
-  locale: Locale;
-  text: ReturnType<typeof useI18n>["text"];
-}) {
-  const hasStopPath = Boolean(route.boardingStop.name && route.alightingStop.name);
-
+function EmptyState({ title, description, action, onAction, error = false }: { title: string; description: string; action?: string; onAction?: () => void; error?: boolean }) {
   return (
-    <article className={styles.routeRow} data-testid="route-card" data-mobile-layout="compact">
-      <div className={styles.routeMain}>
-        <span className={styles.routeNumber}>{route.routeNumbers.length > 0 ? route.routeNumbers.join(" -> ") : route.routeLabel}</span>
-        <em>{formatEta(route, eta, text)}</em>
-      </div>
-      {hasStopPath ? (
-        <div className={styles.stopLine}>
-          <span className={styles.stopName} data-testid="route-origin-stop" title={route.boardingStop.name}>
-            {route.boardingStop.name}
-          </span>
-          <span aria-hidden="true">→</span>
-          <span className={styles.stopName} data-testid="route-destination-stop" title={route.alightingStop.name}>
-            {route.alightingStop.name}
-          </span>
-        </div>
-      ) : (
-        <div className={styles.stopFallback} data-testid="route-stop-fallback">
-          {text(uiCopy.stopInfoUnavailable)}
-        </div>
-      )}
-      <dl className={styles.metrics} data-testid="route-metrics" data-layout="inline-label-value">
-        <div className={styles.metric} data-testid="route-metric-fare">
-          <dt className={styles.metricLabel}>{text(uiCopy.fareLabel)}</dt>
-          <dd className={styles.metricValue}>{formatFare(route.fare.amount, locale)}</dd>
-        </div>
-        <div className={styles.metric} data-testid="route-metric-duration">
-          <dt className={styles.metricLabel}>{text(uiCopy.durationLabel)}</dt>
-          <dd className={styles.metricValue}>{formatMinutes(route.durationMinutes, locale, text)}</dd>
-        </div>
-        <div className={styles.metric} data-testid="route-metric-walking">
-          <dt className={styles.metricLabel}>{text(uiCopy.walkingLabel)}</dt>
-          <dd className={styles.metricValue}>{formatMeters(route.walkingDistanceMeters, locale)}</dd>
-        </div>
-      </dl>
-    </article>
+    <div className={styles.emptyState} data-error={error ? "true" : "false"}>
+      <span className={styles.stateMark} aria-hidden="true" />
+      <strong>{title}</strong>
+      <p>{description}</p>
+      {action ? <button type="button" onClick={onAction}>{action}</button> : null}
+    </div>
   );
 }
 
-function selectedRouteKey(origin: PlaceCandidate | null, destination: PlaceCandidate | null): string | null {
-  if (!origin || !destination) {
-    return null;
-  }
-  return `${origin.placeToken}|${destination.placeToken}`;
-}
-
-function initialEtaState(routes: RouteOption[]): Record<string, EtaStatus> {
-  const now = new Date().toISOString();
-  const state: Record<string, EtaStatus> = {};
-  for (const route of routes) {
-    if (route.etaToken) {
-      state[route.etaToken] = { etaToken: route.etaToken, status: "waiting", updatedAt: now };
+function usePlaceSearch(
+  field: PlaceFieldName,
+  fieldState: PlaceFieldState,
+  setField: Dispatch<SetStateAction<PlaceFieldState>>,
+  locale: Locale,
+  text: ReturnType<typeof useI18n>["text"],
+  requestSeq: MutableRefObject<Record<PlaceFieldName, number>>,
+) {
+  useEffect(() => {
+    const query = fieldState.input.trim();
+    if (!query) {
+      setField((current) => ({ ...current, candidates: [], loading: false, error: null }));
+      return;
     }
-  }
-  return state;
+    if (fieldState.selected?.name === fieldState.input) return;
+    const seq = ++requestSeq.current[field];
+    const timeout = window.setTimeout(() => {
+      setField((current) => ({ ...current, loading: true, error: null }));
+      queryPlaces({ requestId: createRouteRequestId("places-" + field), language: locale, query, limit: 100 })
+        .then((data) => {
+          if (requestSeq.current[field] === seq) setField((current) => ({ ...current, candidates: data.places, loading: false, error: null }));
+        })
+        .catch((error) => {
+          if (requestSeq.current[field] !== seq || isAbortError(error)) return;
+          setField((current) => ({ ...current, candidates: [], loading: false, error: text(uiCopy.placeSearchFailed) }));
+        });
+    }, 300);
+    return () => window.clearTimeout(timeout);
+  }, [field, fieldState.input, fieldState.selected, locale, requestSeq, setField, text]);
 }
 
-function markEtaUnavailable(routes: RouteOption[]): Record<string, EtaStatus> {
+function selectedRouteKey(origin: PlaceCandidate, destination: PlaceCandidate) {
+  return origin.placeToken + "|" + destination.placeToken;
+}
+
+function initialEtaState(routes: RouteOption[]) {
   const now = new Date().toISOString();
-  const state: Record<string, EtaStatus> = {};
-  for (const route of routes) {
-    if (route.etaToken) {
-      state[route.etaToken] = { etaToken: route.etaToken, status: "unavailable", updatedAt: now };
-    }
-  }
-  return state;
+  return Object.fromEntries(routes.filter((route) => route.etaToken).map((route) => [route.etaToken!, { etaToken: route.etaToken!, status: "waiting", updatedAt: now } satisfies EtaStatus]));
 }
 
-function formatEta(route: RouteOption, eta: EtaStatus | undefined, text: ReturnType<typeof useI18n>["text"]): string {
-  if (!route.etaToken) {
-    return text(uiCopy.etaUnavailable);
-  }
-  if (eta?.waitMinutes != null) {
-    return `${text(uiCopy.waitLabel)} ${eta.waitMinutes} ${text(uiCopy.waitMinutesSuffix)}`;
-  }
-  if (!eta || eta.status === "waiting") {
-    return text(uiCopy.etaLoading);
-  }
-  if (eta.status === "arriving") {
-    return text(uiCopy.etaArriving);
-  }
-  if (eta.status === "unavailable") {
-    return text(uiCopy.etaUnavailable);
-  }
-  return text(uiCopy.etaUnavailable);
+function markEtaUnavailable(routes: RouteOption[]) {
+  const now = new Date().toISOString();
+  return Object.fromEntries(routes.filter((route) => route.etaToken).map((route) => [route.etaToken!, { etaToken: route.etaToken!, status: "unavailable", updatedAt: now } satisfies EtaStatus]));
 }
 
-function formatFare(amount: number, locale: Locale): string {
-  return new Intl.NumberFormat(locale, { style: "currency", currency: "HKD", currencyDisplay: "narrowSymbol" }).format(amount);
-}
-
-function formatMinutes(minutes: number, locale: Locale, text: ReturnType<typeof useI18n>["text"]): string {
-  if (locale === "en") {
-    return `${minutes} min`;
-  }
-  return `${minutes} ${text(uiCopy.waitMinutesSuffix)}`;
-}
-
-function formatMeters(meters: number, locale: Locale): string {
-  return locale === "en" ? `${meters.toLocaleString("en")} m` : `${meters.toLocaleString(locale)} 米`;
-}
-
-function routeErrorMessage(error: unknown, text: ReturnType<typeof useI18n>["text"]): string {
+function routeErrorMessage(error: unknown, text: ReturnType<typeof useI18n>["text"]) {
   const apiError = error instanceof RouteQueryClientError ? error.apiError : undefined;
   return errorMessageForCode(apiError, text);
 }
 
-function errorMessageForCode(apiError: ApiError | undefined, text: ReturnType<typeof useI18n>["text"]): string {
+function errorMessageForCode(apiError: ApiError | undefined, text: ReturnType<typeof useI18n>["text"]) {
   switch (apiError?.code) {
-    case "RATE_LIMITED":
-      return text(uiCopy.routeQueryRateLimited);
+    case "RATE_LIMITED": return text(uiCopy.routeQueryRateLimited);
     case "PLACE_TOKEN_EXPIRED":
-    case "ETA_TOKEN_EXPIRED":
-      return text(uiCopy.routeQueryTokenExpired);
+    case "ETA_TOKEN_EXPIRED": return text(uiCopy.routeQueryTokenExpired);
     case "PLACE_TOKEN_INVALID":
-    case "ETA_TOKEN_INVALID":
-      return text(uiCopy.routeQueryInvalidToken);
-    case "SAME_PLACE":
-      return text(uiCopy.samePlaceError);
-    default:
-      return text(uiCopy.routeQueryFailed);
+    case "ETA_TOKEN_INVALID": return text(uiCopy.routeQueryInvalidToken);
+    case "SAME_PLACE": return text(uiCopy.samePlaceError);
+    default: return text(uiCopy.routeQueryFailed);
   }
 }
 
-function isAbortError(error: unknown): boolean {
+function isAbortError(error: unknown) {
   return error instanceof DOMException && error.name === "AbortError";
 }

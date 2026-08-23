@@ -124,7 +124,7 @@ visitor secret 与路线 token secret 是两个独立信任边界，不能复用
 | `npm --prefix frontend run build:monitor` | 构建 `dist-monitor` |
 | `npm --prefix frontend run test:e2e` | 公开页面 Playwright |
 | `npm --prefix frontend run test:e2e:monitor` | 私有 Dashboard Playwright |
-| `npm --prefix frontend run sanitize:screenshots` | 按 manifest 和 mask plan 处理首页截图 |
+| `node frontend/scripts/prepare-homepage-story-assets.mjs` | 校验批准源指纹并安全生成五故事 540/720/1080 WebP 与 manifest |
 | `npm --prefix frontend run verify:vite-root-redirect` | 验证开发/预览根路径跳转 |
 
 Playwright 配置会按测试范围启动自己的后端和前端服务。运行前检查是否有无关进程占用对应端口，不接管用户正在使用的服务。
