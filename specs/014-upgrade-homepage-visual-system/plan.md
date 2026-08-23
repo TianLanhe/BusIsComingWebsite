@@ -32,7 +32,8 @@ DownloadDecision → SupportEnding`。
 数据库、浏览器业务缓存或持久化。语言切换继续使用现有 history/state 路径切换，不重新挂载首页状态
 
 **测试**：Vitest 2.1.8、Testing Library 16.1、AJV 8.17.1、Playwright 1.49.1、Sharp 0.35.1；
-Figma 对照、浏览器截图差异和人工动效检查作为公开 UI 补充证据
+Figma 对照、浏览器截图差异和人工动效检查作为公开 UI 补充证据；人工批准后的 browser golden 必须以
+Playwright `toHaveScreenshot()` 接入固定 Chromium/字体环境的自动回归
 
 **目标平台**：桌面 Chromium 与现代 Android 浏览器；三语静态主页 + 同源公开后端；桌面基准
 `1440×960`，手机基准 `390×844`，窄屏补充 `320px`
@@ -41,8 +42,10 @@ Figma 对照、浏览器截图差异和人工动效检查作为公开 UI 补充�
 
 **性能目标**：首屏不使用持续 JavaScript timer 或滚动监听驱动动画；风带和截图转场只改变
 `transform`、`opacity`、必要的 `filter`；五张获批源图只导入一次，并生成 manifest 可追踪的响应式
-衍生物，避免把 1080px 原图无差别发送给所有设备；所有图片预留稳定比例，首屏和状态切换不产生
-可见布局位移；新增二维码依赖在构建后记录 gzip 增量并保持为单一专用依赖
+衍生物；HeroStage 通过 `<picture>` 或 `srcSet`/`sizes` 让 320/390/1440 viewport 选择合适候选，前景图
+使用高加载优先级、后景图保持普通优先级，避免把 1080px 原图无差别发送给所有设备；所有图片写入
+真实固有尺寸并预留稳定比例，首屏和状态切换不产生可见布局位移；新增二维码依赖在构建后记录 gzip
+增量并保持为单一专用依赖
 
 **约束**：严格复现 Figma；三语 i18n；`zh-Hant` 香港实用书面语、`en` 自然克制产品表达；
 手机不是桌面缩放；主要触控目标至少 `44×44 CSS px`；支持键盘、读屏和
@@ -263,11 +266,14 @@ docs/
 4. 保留路线请求/候选/ETA 合并逻辑，按 Figma 重构 RouteTrial 工作区与结果卡，删除耗时/步行图标和
    直达/转乘标签。
 5. 保留 DownloadMetadataProvider/原生下载语义，实现非卡片 DownloadDecision、桌面真实二维码、
-   手机隐藏和风带汇聚；最低 Android 用受审校静态内容，易变值全部读 metadata。
+   手机隐藏和风带汇聚；以 IntersectionObserver 在约一半 viewport 时设置一次性 `data-converged`，
+   同一 document 内离开/重入和语言切换均不重播，reduced motion 不触发；最低 Android 用受审校静态
+   内容，易变值全部读 metadata。
 6. 把 FAQ 改为受控单开 accordion，重构联系横条与浅色页尾，维护旧锚点的兼容跳转或显式迁移测试。
 7. 同步 shared 内容/UI/路线合同和长期 UI、localization、asset provenance 文档。
 8. 执行单元、合同、build、E2E、三语/双端/320/reduced-motion、二维码同目标、截图失败与快速切换测试；
-   导出浏览器证据并与 Figma Frame 对照，任何 FR-030 漂移先修复再提交。
+   导出浏览器证据并与 Figma Frame 对照，批准后接入 `toHaveScreenshot()`，普通 E2E 不使用更新快照参数；
+   任何 FR-030 漂移先修复再提交。
 
 ## 设计后宪法复查
 

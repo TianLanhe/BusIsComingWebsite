@@ -146,8 +146,10 @@ ready/partial、empty、error、rate limited、token expired、retry、retained 
 - 固定五故事 `zh-Hant` 不得改写；其他语言等义但不得扩大能力。
 - 品牌定位统一为“香港巴士路线规划与导航 App”；页面可以说明符合条件的联营路线聚合城巴、九巴、
   龙运首程 ETA，但不能声称完整支持九巴/龙运路线规划。
-- 用户可见页面、runtime 内容或 manifest 不得包含 Android 工程、临时目录、本机绝对路径、内部类名、
+- 用户可见页面、runtime 文案/状态和公开响应不得包含 Android 工程、临时目录、本机绝对路径、内部类名、
   token、SHA 或调试信息。
+- 仅用于素材完整性与视觉审查的非渲染 provenance manifest 可以保存源文件和衍生物 SHA-256，但不得把
+  SHA 当作下载资料、用户文案或 DOM 内容输出，也不得保存本机绝对路径、token 或内部实现名称。
 
 ## 10. 状态保留合同
 
@@ -165,7 +167,9 @@ ready/partial、empty、error、rate limited、token expired、retry、retained 
 - 状态、动效、Foundations 和内容边界以 `figma.md` 的节点索引为准
 
 实现前必须导出/记录关键 Figma Frame；实现后生成相同 viewport 的浏览器 actual、overlay 和 diff。
-人工批准后才建立 Playwright browser golden。
+人工批准后才建立 Playwright browser golden，并在固定 Chromium/字体环境中以
+`expect(page).toHaveScreenshot()` 接入 E2E；后续普通测试不得自动更新 baseline。FR-030 零容忍项继续由
+独立几何/语义断言保护，不得依赖像素阈值放行。
 
 ### 11.2 零容忍失败
 
@@ -188,6 +192,8 @@ ready/partial、empty、error、rate limited、token expired、retry、retained 
 - Download：checking/ready/unavailable × desktop/mobile；QR target 一致、手机 QR 0。
 - Support：默认 FAQ、切换、键盘、三语保持 × desktop/mobile。
 - A11y/layout：44px 目标、可见焦点、无横向滚动、图片失败稳定尺寸、reduced motion。
+- Visual regression：人工批准的 browser golden 必须由 `toHaveScreenshot()` 自动比较；CI 普通运行遇到
+  未批准像素变化必须失败，只有再次完成 Figma overlay/diff 和人工批准后才可更新 baseline。
 
 ## 12. 明确不变项
 
