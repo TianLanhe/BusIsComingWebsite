@@ -20,3 +20,19 @@ test("build output is a standalone Figma plugin with native design primitives", 
   assert.doesNotMatch(output, /(?:\/Users\/|\/private\/var\/|AndroidStudioProjects)/);
   assert.doesNotMatch(output, /\n\n$/);
 });
+
+test("keeps the route title, description, and panels from overlapping", async () => {
+  const output = await readFile(outputUrl, "utf8");
+  assert.match(output, /function repairRouteTrialSpacing/);
+  assert.match(output, /Description"[^\n]+20, 126, 350/);
+  assert.match(output, /Query Panel"[^\n]+16, 158, 358, 224/);
+  assert.match(output, /Route Result"[^\n]+16, 394, 358, 421/);
+});
+
+test("keeps the mobile download heading and description from overlapping", async () => {
+  const output = await readFile(outputUrl, "utf8");
+  assert.match(output, /function repairMobileDownloadSpacing/);
+  assert.match(output, /mobile \? 171 : 214/);
+  assert.match(output, /mobile \? 209 : 267/);
+  assert.match(output, /32, 242, 326, 58/);
+});

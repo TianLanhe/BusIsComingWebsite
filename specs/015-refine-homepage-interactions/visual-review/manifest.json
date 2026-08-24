@@ -4,9 +4,11 @@
   "figmaFileUrl": "https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec",
   "refinementSectionNodeId": "136:292",
   "recordedAt": "2026-08-25",
-  "status": "partial-reference-export",
-  "captureMethod": "Figma Desktop manual export",
+  "status": "reference-gate-passed",
+  "captureMethod": "Figma Desktop local plugin and manual PNG export",
   "mcpReadback": false,
+  "referenceCount": 19,
+  "gateReport": "specs/015-refine-homepage-interactions/visual-review/figma-gate.md",
   "localeReferencePolicy": {
     "zh-Hant": "pixel-reference",
     "en": "pixel-reference",
@@ -14,53 +16,148 @@
   },
   "references": [
     {
-      "nodeId": "136:341",
-      "frameName": "01 Hero / 1440×960 / zh-Hant / Story 01",
-      "viewport": {
-        "width": 1440,
-        "height": 960
-      },
-      "locale": "zh-Hant",
-      "screenshotVariant": "zh",
-      "story": "01",
+      "nodeId": "136:341", "frameName": "01 Hero / 1440×960 / zh-Hant / Story 01",
+      "viewport": { "width": 1440, "height": 960 }, "locale": "zh-Hant", "screenshotVariant": "zh", "story": "01", "state": "settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
       "path": "specs/015-refine-homepage-interactions/visual-review/reference/desktop-1440-zh-Hant-story-01.png",
       "sha256": "e7ba76775274821163f86ba26f3b19787974460f6b6dda197258eaf690e6c270"
     },
     {
-      "nodeId": "136:390",
-      "frameName": "01 Hero / 1440×960 / en / Story 01",
-      "viewport": {
-        "width": 1440,
-        "height": 960
-      },
-      "locale": "en",
-      "screenshotVariant": "en",
-      "story": "01",
+      "nodeId": "136:390", "frameName": "01 Hero / 1440×960 / en / Story 01",
+      "viewport": { "width": 1440, "height": 960 }, "locale": "en", "screenshotVariant": "en", "story": "01", "state": "settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
       "path": "specs/015-refine-homepage-interactions/visual-review/reference/desktop-1440-en-story-01.png",
       "sha256": "91721c219fa35b19c4947b4f926bfb8895cbd7315c6261cfa8d96650f4d6a2af"
     },
     {
-      "nodeId": "136:861",
-      "frameName": "01 Hero / 390×844 / zh-Hant / Story 02",
-      "viewport": {
-        "width": 390,
-        "height": 844
-      },
-      "locale": "zh-Hant",
-      "screenshotVariant": "zh",
-      "story": "02",
+      "nodeId": "136:439", "frameName": "01 Hero / 390×844 / zh-Hant / Story 01",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "screenshotVariant": "zh", "story": "01", "state": "settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/mobile-390-zh-Hant-story-01.png",
+      "sha256": "3c775ec5b612c98953cef36c944d194a4d505f60c315b0f4e008d47c74f70b36"
+    },
+    {
+      "nodeId": "137:1236", "frameName": "01 Hero / 390×844 / en / Story 01",
+      "viewport": { "width": 390, "height": 844 }, "locale": "en", "screenshotVariant": "en", "story": "01", "state": "settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/mobile-390-en-story-01.png",
+      "sha256": "4d14eae0c0b10f4e96ac3c5a725488cd63169410d8e63a70591243d9a1432eed"
+    },
+    {
+      "nodeId": "136:484", "frameName": "01 Hero / 320×844 / zh-Hant / Story 01",
+      "viewport": { "width": 320, "height": 844 }, "locale": "zh-Hant", "screenshotVariant": "zh", "story": "01", "state": "settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/narrow-320-zh-Hant-story-01.png",
+      "sha256": "88df5d8c5c81ca8c545672b2fe5f9894ed8624b9543bc689128a281640e8417c"
+    },
+    {
+      "nodeId": "137:1281", "frameName": "01 Hero / 320×844 / en / Story 01",
+      "viewport": { "width": 320, "height": 844 }, "locale": "en", "screenshotVariant": "en", "story": "01", "state": "settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/narrow-320-en-story-01.png",
+      "sha256": "f632e489a82a334edaba47ee67d535ff6dddc9bcac208ffba1307605fbe8031d"
+    },
+    {
+      "nodeId": "137:1326", "frameName": "02 Motion / Reduced / zh-Hant / Settled",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "screenshotVariant": "zh", "story": "02", "state": "reduced-motion-settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/mobile-390-zh-Hant-reduced-motion-settled-story-02.png",
+      "sha256": "5c868d77117896afab9a0fd3cb6b76d2c8a3d33a76c63ae24f793ce9ce0fd106"
+    },
+    {
+      "nodeId": "137:1371", "frameName": "02 Motion / Reduced / en / Settled",
+      "viewport": { "width": 390, "height": 844 }, "locale": "en", "screenshotVariant": "en", "story": "02", "state": "reduced-motion-settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/mobile-390-en-reduced-motion-settled-story-02.png",
+      "sha256": "e4817357c59210d50a4d0f7f366b4d3325b8b64dd5dfcc875f0e4cea1058e1d1"
+    },
+    {
+      "nodeId": "136:529", "frameName": "02 Motion / Start",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "story": "01-to-02", "motionPhase": "start",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/motion-mobile-390-zh-Hant-start.png",
+      "sha256": "3db472d2d873b7c81c3be393c02599a4907c2522f418185d09b2f964acc55845"
+    },
+    {
+      "nodeId": "136:563", "frameName": "02 Motion / Plus 160ms",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "story": "01-to-02", "motionPhase": "plus-160ms",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/motion-mobile-390-zh-Hant-plus-160ms.png",
+      "sha256": "3f5408a7309a01457ecd181c1896bcc45afce28d40788458ef06b3de581b45d0"
+    },
+    {
+      "nodeId": "136:597", "frameName": "02 Motion / Settled",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "story": "01-to-02", "motionPhase": "settled",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/motion-mobile-390-zh-Hant-settled.png",
+      "sha256": "9fbd7ad5c388c7bdaee99fbce15439bbf108d4c658cbde9eeadc3b42b1a364f8"
+    },
+    {
+      "nodeId": "136:631", "frameName": "03 Route Trial / Mobile 390×844 / default",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "state": "default",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/route-mobile-390-default.png",
+      "sha256": "ce6a4f75cca767adb0916b96fbd3d4a4e49344a47887966b873a68c815e40354"
+    },
+    {
+      "nodeId": "136:654", "frameName": "03 Route Trial / Mobile 390×844 / candidates",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "state": "candidates",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/route-mobile-390-candidates.png",
+      "sha256": "048b756839166684ca8bede5caa86f403a458e40930b34e8806cb0643d8c7c5b"
+    },
+    {
+      "nodeId": "136:685", "frameName": "03 Route Trial / Mobile 390×844 / error",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "state": "error",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/route-mobile-390-error.png",
+      "sha256": "2108516de3bc11a82657021647ab1eebc515c79ceaf335a7fc35af2899197ff2"
+    },
+    {
+      "nodeId": "136:710", "frameName": "04 Download / desktop / ready",
+      "viewport": { "width": 1440, "height": 760 }, "locale": "zh-Hant", "platform": "desktop", "state": "ready",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/download-desktop-ready.png",
+      "sha256": "6c9a831875d48b8b23da00e2372e63ec68735ec4b733d7acee2b6e32c946e520"
+    },
+    {
+      "nodeId": "136:737", "frameName": "04 Download / mobile / ready",
+      "viewport": { "width": 390, "height": 700 }, "locale": "zh-Hant", "platform": "mobile", "state": "ready",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/download-mobile-ready.png",
+      "sha256": "210434a04f30277f09420e099b93371008bd11494137c7534c06a2434f5b3466"
+    },
+    {
+      "nodeId": "136:752", "frameName": "04 Download / desktop / unavailable",
+      "viewport": { "width": 1440, "height": 760 }, "locale": "zh-Hant", "platform": "desktop", "state": "unavailable",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/download-desktop-unavailable.png",
+      "sha256": "02433d613c067849c48b4cc3443878ef320742e49f020fa8ce1520e637dfd53d"
+    },
+    {
+      "nodeId": "136:779", "frameName": "05 Privacy / desktop",
+      "viewport": { "width": 1440, "height": 900 }, "locale": "zh-Hant", "platform": "desktop", "state": "default",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/privacy-desktop.png",
+      "sha256": "3fdcd3c2e0dcd4e1c84b199a8de320f469b6a862074f63287e0a80b1cca4610d"
+    },
+    {
+      "nodeId": "136:799", "frameName": "05 Privacy / mobile",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "platform": "mobile", "state": "default",
+      "exportMethod": "Figma Desktop manual PNG export", "exportedAt": "2026-08-25",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/privacy-mobile.png",
+      "sha256": "80fcf1729cda26032daebe2dd45cdaaf500d116aebaae35c85653bfdeba490ed"
+    }
+  ],
+  "supplementalReferences": [
+    {
+      "nodeId": "136:861", "frameName": "01 Hero / 390×844 / zh-Hant / Story 02",
+      "viewport": { "width": 390, "height": 844 }, "locale": "zh-Hant", "screenshotVariant": "zh", "story": "02", "state": "settled",
       "path": "specs/015-refine-homepage-interactions/visual-review/reference/mobile-390-zh-Hant-story-02.png",
       "sha256": "c28a61c890a040da0418f67932b67aec39d2c7572c3c30cf2d41dfc4ccb1dfca"
     }
   ],
-  "pendingReferences": [
-    "mobile 390 zh-Hant Story 01",
-    "narrow 320 zh-Hant Story 01",
-    "motion Start / Plus 160ms / Settled",
-    "route default / candidates / error",
-    "download desktop ready / mobile ready / desktop unavailable",
-    "privacy desktop / mobile"
-  ],
+  "pendingReferences": [],
   "actual": [],
   "sideBySide": [],
   "overlay": [],

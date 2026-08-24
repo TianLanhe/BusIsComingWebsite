@@ -26,7 +26,7 @@
 - [ ] T002 [P] 将 1440／390／320、zh-Hant／en Story 01、五故事双截图、start／160ms／settled、路线三态、下载分流、无日期和 Privacy 状态固化到 `docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import/src/design-contract.mjs`
 - [ ] T003 [P] 先为 Section 隔离、Frame 名称/尺寸、10 个 image fill、真实 Logo、无 Header/日期和私有路径规则编写失败测试，路径：`docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import/test/design-contract.test.mjs`、`test/build-output.test.mjs`
 - [ ] T004 实现可原子生成 015 FINAL Section 的插件模板、双截图/Logo 指纹校验和构建脚本，路径：`docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import/src/plugin-template.js`、`scripts/build.mjs`、`dist/code.js`
-- [ ] T005 使用 `HOMEPAGE_STORY_ZH_SOURCE_DIR` 与 `HOMEPAGE_STORY_EN_SOURCE_DIR` 构建并测试插件，确认输出不序列化环境值且不读写 014 Section，验证路径：`docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import/`
+- [ ] T005 使用 `BIC_FIGMA_ZH_SCREENSHOT_DIR` 与 `BIC_FIGMA_EN_SCREENSHOT_DIR` 构建并测试插件，确认输出不序列化环境值且不读写 014 Section，验证路径：`docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import/`
 - [ ] T006 在 Figma Desktop 实际运行 015 插件，选择并导出真实 refinement Section 与关键 Frame，把实际 node ID、尺寸、导出方式和 SHA 写入 `specs/015-refine-homepage-interactions/figma.md`、`visual-review/reference/`、`visual-review/manifest.json`
 - [ ] T007 逐项检查 reference 与获批 2026-08-25 设计增量一致、节点可定位、PNG 非空且无占位/私有路径，并在 `specs/015-refine-homepage-interactions/visual-review/figma-gate.md` 记录生产 UI 门禁结论
 

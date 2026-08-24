@@ -35,9 +35,10 @@ npm test
 1. 打开 [BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)。
 2. 选择 `Plugins` → `Development` → `Import plugin from manifest…`。
 3. 选择本目录的 `manifest.json`。
-4. 运行 `BusIsComing Homepage Refinement 015`，点击“生成最终设计画板”。
-5. 复制插件状态中的 Section 和关键 Frame ID，回填 `specs/015-refine-homepage-interactions/figma.md`。
+4. 运行 `BusIsComing Homepage Refinement 015`，点击“补齐并选择证据画板”。
+5. 在 Figma 右侧 Export 区导出已选择的 19 个 PNG；将文件登记到 `specs/015-refine-homepage-interactions/visual-review/manifest.json`。
+6. 复制插件状态中的 Section 和关键 Frame ID，回填 `specs/015-refine-homepage-interactions/figma.md`。
 
-插件遇到同名 FINAL 时只定位，不覆盖；遇到未完成 BUILDING 时停止，不自动删除。
+插件遇到同名 FINAL 时会幂等补齐缺失的 015 像素 reference、校正路线状态与手机下载画板的已知标题间距并选择完整证据集；不会替换既有 Frame，也不会覆盖 014。再次运行在 reference 已齐全时新增 0 个 Frame。遇到未完成 BUILDING 时停止，不自动删除。
 若节点通过 Figma Desktop 创建与导出，证据必须标记为 `Figma Desktop manual export`，
 不得声称 MCP/API readback。

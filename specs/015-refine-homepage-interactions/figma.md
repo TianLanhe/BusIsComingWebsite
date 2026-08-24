@@ -5,10 +5,10 @@
 - **文件**：[BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)
 - **历史基线**：`Homepage Visual System v1.3.1 — FINAL`
 - **本轮版本名称**：`Homepage refinement 2026-08-25 — FINAL`
-- **本轮状态**：015 Section 已于 2026-08-25 通过 Figma Desktop 本地插件真实写入并人工选择核对；Section 为 `136:292`。`zh-Hant`/`en` reference PNG 与 manifest 尚未完整登记，因此生产 UI 修改门禁仍关闭；`zh-Hans` 不设置像素级 Figma reference 门禁。
+- **本轮状态**：015 Section 已于 2026-08-25 通过 Figma Desktop 本地插件真实写入并人工选择核对；Section 为 `136:292`。19 张 `zh-Hant`/`en` 及关键状态 reference PNG 已完成原生导出、尺寸/哈希登记和视觉抽查，生产 UI 修改门禁通过；`zh-Hans` 仅做文本、溢出和几何验收，不设置像素级 Figma reference 门禁。
 - **禁止事项**：不得发明节点 ID、不得覆盖 014 Section、不得用聊天截图或浏览器实现反向充当设计源。
 
-本轮本地插件自测和 Figma Desktop 节点写入/选择核对已经完成。完成 `zh-Hant`/`en` reference export 与 manifest 后，才能修改 `frontend/src/` 的生产 UI；`zh-Hans` 后续只做浏览器文本、溢出与几何验收，不宣称像素级 Figma 对照。
+本轮本地插件自测、Figma Desktop 节点写入、19 张 reference export 与门禁核对均已完成。生产实现仍需在相同 viewport 下生成 actual、side-by-side、overlay 和 diff，门禁通过不等于生产页面已完成像素验收；`zh-Hans` 后续只做浏览器文本、溢出与几何验收，不宣称像素级 Figma 对照。
 
 ## 2. 014 只读视觉基线
 
@@ -56,11 +56,12 @@
 | --- | --- | --- |
 | refinement Section | [`136:292`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-292) | Figma Desktop 可选择；`7900×5200`；未覆盖 014 |
 | desktop 1440 zh-Hant / en | [`136:341`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-341) / [`136:390`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-390) | 两个 `1440×960` Frame 可定位；桌面繁中 Frame 已放大人工核对 |
-| mobile 390 zh-Hant | [`136:439`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-439) | `390×844`；完整四边、环形远近和下置故事轨已在同组 Story Frame 放大核对 |
-| narrow 320 zh-Hant | [`136:484`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-484) | `320×844`；节点可定位，待 reference export 后进入浏览器对照 |
+| mobile 390 zh-Hant / en | [`136:439`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-439) / [`137:1236`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=137-1236) | 两个 `390×844` Frame 已导出；完整四边、环形远近、双语截图和下置故事轨已抽查 |
+| narrow 320 zh-Hant / en | [`136:484`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-484) / [`137:1281`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=137-1281) | 两个 `320×844` Frame 已导出；三语入口、CTA、截图和故事轨无横向裁切 |
+| reduced motion zh-Hant / en | [`137:1326`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=137-1326) / [`137:1371`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=137-1371) | 两个 `390×844` Story 02 settled Frame 已导出；只表达手动瞬时换位后的稳定态 |
 | motion phases | [`136:529`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-529) / [`136:563`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-563) / [`136:597`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-597) | Start、+160ms、Settled 三帧已创建 |
-| route states | [`136:631`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-631) / [`136:654`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-654) / [`136:685`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-685) | default、candidates、error 三帧已创建 |
-| download states | [`136:710`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-710) / [`136:737`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-737) / [`136:752`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-752) | desktop ready、mobile ready、desktop unavailable；无日期 |
+| route states | [`136:631`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-631) / [`136:654`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-654) / [`136:685`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-685) | default、candidates、error 三帧已导出；标题与说明间距经插件幂等校正后无重叠 |
+| download states | [`136:710`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-710) / [`136:737`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-737) / [`136:752`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-752) | desktop ready、mobile ready、desktop unavailable 已导出；无日期；手机标题与说明间距经插件校正后无重叠 |
 | Privacy desktop / mobile | [`136:779`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-779) / [`136:799`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-799) | 真实 Logo、品牌名和返回首页入口已创建 |
 | localized screenshot matrix | [`136:819`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-819) | 五故事 × `zh-Hant`/`en` image fill；`zh-Hans` 非像素 reference |
 
@@ -70,12 +71,12 @@
 
 1. `manifest.json`、`code.js`、`ui.html` 和 README 均不引用本机绝对路径；
 2. 插件素材通过仓库内受管 Logo 和本地化截图副本导入；
-3. 重跑只定位既有 015 FINAL Section，不查找、删除或覆盖 `119:64`；
+3. 重跑对既有 015 FINAL Section 只做幂等 reference 补齐和已声明几何校正，不替换既有 Frame，也不查找、删除或覆盖 `119:64`；
 4. 自测断言 Section 名、顶层节点数、所有关键 Frame 名称、尺寸、五故事 × 两 variant image fill 和无日期文案；
 5. 设计使用原生可编辑 Figma 节点，真实截图只作为屏幕 image fill，不把整页扁平化；
 6. 失败时停止并保留旧 Section，不留下半套 FINAL 节点。
 
-本轮采用 `Figma Desktop local plugin creation + manual selection`；MCP 只完成了身份检查，随后因 Starter 调用额度不可用，未完成设计节点 readback。后续 reference PNG 导出必须记为 `Figma Desktop manual export`，不能写成 MCP/API 导出。
+本轮采用 `Figma Desktop local plugin creation + manual selection + manual PNG export`；MCP 只完成了身份检查，随后因 Starter 调用额度不可用，未完成设计节点 readback。所有 reference 均明确记为 `Figma Desktop manual PNG export`，不声称 MCP/API 导出或 readback。插件在补齐后再次运行显示“新增 0 个 Frame”，证明本轮 reference 补齐可幂等复跑。
 
 ## 7. Reference export 与证据 manifest
 
@@ -102,20 +103,26 @@ reference 与 actual 必须使用相同 viewport 和像素密度；不能把 390
 
 当前已通过 Figma Desktop 原生 PNG 导出并写入 [`visual-review/manifest.json`](./visual-review/manifest.json)：
 
-- desktop `1440×960` `zh-Hant` Story 01，节点 `136:341`；
-- desktop `1440×960` `en` Story 01，节点 `136:390`；
-- mobile `390×844` `zh-Hant` Story 02，节点 `136:861`，用于额外核对环形切换后的 settled 构图。
+- desktop `1440×960`：`zh-Hant`/`en` Story 01；
+- mobile `390×844` 与 narrow `320×844`：`zh-Hant`/`en` Story 01；
+- reduced-motion：`zh-Hant`/`en` Story 02 settled；
+- motion：Start、+160ms、Settled；
+- route：default、candidates、error；
+- download：desktop ready、mobile ready、desktop unavailable；
+- Privacy：desktop、mobile。
 
-manifest 当前明确标记为 `partial-reference-export`，未导出的 mobile Story 01、narrow、motion、route、download 和 Privacy 状态仍列在 `pendingReferences`。因此不得提前把生产门禁改为通过。
+共 19 张必需 reference；另保留 mobile `390×844` `zh-Hant` Story 02（节点 `136:861`）作为补充证据。manifest 标记为 `reference-gate-passed`，`pendingReferences` 为空；每项均记录真实节点、像素尺寸、repo-relative path 与 SHA-256。完整判定见 [`visual-review/figma-gate.md`](./visual-review/figma-gate.md)。
 
 ## 8. 高保真开门与完成判定
 
 生产 UI 开门前必须同时满足：
 
-1. 新插件自测通过；（已满足：8/8）
+1. 新插件自测通过；（已满足：11/11）
 2. 新 Section 和所有关键 Frame 在 Figma Desktop 中可真实定位；（已满足，见 §5）
-3. reference export/manifest 完整且不含占位、私有路径或伪造节点；
-4. `homepageContent` 只写入上述真实节点；
-5. 本文的“本轮状态”和节点记录表已更新为实际证据。
+3. reference export/manifest 完整且不含占位、私有路径或伪造节点；（已满足：19/19）
+4. 生产实现只允许把上述真实节点写入 `homepageContent.figmaReference.refinement`；（门禁约束已锁定，待实现阶段执行）
+5. 本文的“本轮状态”和节点记录表已更新为实际证据。（已满足）
+
+结论：Figma 参考源门禁通过，可以进入生产 UI 实现。本结论只证明设计参考完整，不证明尚未生成的浏览器 actual 已达到像素阈值。
 
 实现完成不以“看起来接近”判定。自动化像素阈值之外，标题分行、真实 Logo、完整手机四边、语言入口、环形远近、故事轨位置、桌面/手机 CTA 语义、无日期和无横向滚动均为零容忍人工复核项。

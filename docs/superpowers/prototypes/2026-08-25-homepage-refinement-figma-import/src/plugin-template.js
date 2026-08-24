@@ -6,6 +6,27 @@ figma.showUI(__html__, { width: 430, height: 560, themeColors: true });
 const FINAL_SECTION = DESIGN.finalSectionName;
 const BUILDING_SECTION = FINAL_SECTION.replace(" — FINAL", " — BUILDING");
 const COLORS = DESIGN.tokens.colors;
+const REFERENCE_EXPORT_NAMES = [
+  "01 Hero / 1440×960 / zh-Hant / Story 01",
+  "01 Hero / 1440×960 / en / Story 01",
+  "01 Hero / 390×844 / zh-Hant / Story 01",
+  "01 Hero / 390×844 / en / Story 01",
+  "01 Hero / 320×844 / zh-Hant / Story 01",
+  "01 Hero / 320×844 / en / Story 01",
+  "02 Motion / Reduced / zh-Hant / Settled",
+  "02 Motion / Reduced / en / Settled",
+  "02 Motion / Start",
+  "02 Motion / Plus 160ms",
+  "02 Motion / Settled",
+  "03 Route Trial / Mobile 390×844 / default",
+  "03 Route Trial / Mobile 390×844 / candidates",
+  "03 Route Trial / Mobile 390×844 / error",
+  "04 Download / desktop / ready",
+  "04 Download / mobile / ready",
+  "04 Download / desktop / unavailable",
+  "05 Privacy / desktop",
+  "05 Privacy / mobile",
+];
 let FONT = null;
 let ASSETS = null;
 
@@ -311,8 +332,8 @@ function createRouteTrial(parent, state, x, y) {
   addWind(board, 390, 844, true);
   label(board, `ROUTE TRIAL · ${state.toUpperCase()}`, 20, 34, 350);
   text(board, "Title", "不用先下載，現在就試一程。", 20, 65, 350, 28, "bold", COLORS.ink, { lineHeight: 1.04, letterSpacing: -4 });
-  text(board, "Description", "選擇起點和目的地，整理合適的巴士路線。", 20, 104, 350, 12, "regular", COLORS.muted, { lineHeight: 1.5 });
-  const query = frame(board, "Query Panel", 16, 145, 358, 224, solid(COLORS.white, 0.72), 20);
+  text(board, "Description", "選擇起點和目的地，整理合適的巴士路線。", 20, 126, 350, 12, "regular", COLORS.muted, { lineHeight: 1.5 });
+  const query = frame(board, "Query Panel", 16, 158, 358, 224, solid(COLORS.white, 0.72), 20);
   query.strokes = [solid(COLORS.teal, 0.14)];
   rectangle(query, "Origin", 16, 18, 278, 60, solid(COLORS.white, 0.9), 13).strokes = [solid(COLORS.teal, 0.14)];
   text(query, "Origin Label", "起點", 30, 29, 70, 9, "medium", COLORS.muted, { lineHeight: 1.1 });
@@ -324,7 +345,7 @@ function createRouteTrial(parent, state, x, y) {
   swap.strokes = [solid(COLORS.teal, 0.24)];
   text(swap, "Swap Symbol", "⇅", 0, 12, 44, 17, "bold", COLORS.teal, { lineHeight: 1, align: "CENTER" });
   createButton(query, "Compare Routes", "比較巴士路線  →", 16, 164, 330, 44, true);
-  const result = frame(board, "Route Result", 16, 389, 358, 421, solid(COLORS.white, 0.62), 20);
+  const result = frame(board, "Route Result", 16, 394, 358, 421, solid(COLORS.white, 0.62), 20);
   result.strokes = [solid(COLORS.teal, 0.12)];
   if (state === "default") {
     text(result, "State Title", "路線會在這裡出現", 24, 80, 310, 19, "bold", COLORS.ink, { lineHeight: 1.2, align: "CENTER" });
@@ -343,6 +364,19 @@ function createRouteTrial(parent, state, x, y) {
     createButton(result, "Retry", "再試一次", 94, 183, 170, 44, false);
   }
   return board;
+}
+
+function repairRouteTrialSpacing(root) {
+  const boards = root.findAll((node) => node.type === "FRAME" && node.name.startsWith("03 Route Trial / Mobile 390×844 /"));
+  boards.forEach((board) => {
+    const description = board.findOne((node) => node.name === "Description");
+    const query = board.findOne((node) => node.name === "Query Panel");
+    const result = board.findOne((node) => node.name === "Route Result");
+    if (description) description.y = 126;
+    if (query) query.y = 158;
+    if (result) result.y = 394;
+  });
+  return boards.length;
 }
 
 function createQr(parent, x, y, size, muted) {
@@ -366,12 +400,12 @@ function createDownload(parent, viewportName, state, x, y) {
   const left = (viewport.width - centerWidth) / 2;
   label(board, "ANDROID APK 下載", left, mobile ? 52 : 96, centerWidth);
   text(board, "Download Title", "路線找到了，把它帶在身邊。", left, mobile ? 85 : 134, centerWidth, mobile ? 36 : 58, "bold", COLORS.ink, { lineHeight: 1.08, letterSpacing: mobile ? -4 : -5, align: "CENTER" });
-  text(board, "Download Description", "保存常用行程，沿途查看，出門前也能持續掌握時間。", left + (mobile ? 10 : 50), mobile ? 143 : 214, centerWidth - (mobile ? 20 : 100), mobile ? 12 : 17, "regular", COLORS.muted, { lineHeight: 1.55, align: "CENTER" });
-  text(board, "Download Meta / No Date", state === "unavailable" ? "Android APK 暫時未能下載" : "v1.3.1 · Android 7.1+ · 約 2.5 MB", left, mobile ? 192 : 267, centerWidth, mobile ? 10 : 12, "medium", state === "unavailable" ? COLORS.disabled : COLORS.muted, { lineHeight: 1.3, align: "CENTER" });
+  text(board, "Download Description", "保存常用行程，沿途查看，出門前也能持續掌握時間。", left + (mobile ? 10 : 50), mobile ? 171 : 214, centerWidth - (mobile ? 20 : 100), mobile ? 12 : 17, "regular", COLORS.muted, { lineHeight: 1.55, align: "CENTER" });
+  text(board, "Download Meta / No Date", state === "unavailable" ? "Android APK 暫時未能下載" : "v1.3.1 · Android 7.1+ · 約 2.5 MB", left, mobile ? 209 : 267, centerWidth, mobile ? 10 : 12, "medium", state === "unavailable" ? COLORS.disabled : COLORS.muted, { lineHeight: 1.3, align: "CENTER" });
   if (mobile) {
-    createButton(board, "Download APK / Direct", state === "unavailable" ? "暫時無法下載" : "下載 BusIsComing  ↓", 32, 229, 326, 58, state !== "unavailable");
-    text(board, "Mobile Behavior", "手機：直接使用 metadata.downloadUrl", 32, 303, 326, 10, "medium", COLORS.teal, { lineHeight: 1.3, align: "CENTER" });
-    createPhone(board, DESIGN.stories[0], "zh-Hant", 115, 352, 160, { radius: 28 });
+    createButton(board, "Download APK / Direct", state === "unavailable" ? "暫時無法下載" : "下載 BusIsComing  ↓", 32, 242, 326, 58, state !== "unavailable");
+    text(board, "Mobile Behavior", "手機：直接使用 metadata.downloadUrl", 32, 316, 326, 10, "medium", COLORS.teal, { lineHeight: 1.3, align: "CENTER" });
+    createPhone(board, DESIGN.stories[0], "zh-Hant", 115, 356, 160, { radius: 28 });
   } else {
     createQr(board, 558, 324, 188, state === "unavailable");
     text(board, "QR Label", state === "unavailable" ? "暫時沒有可用連結" : "手機掃描下載", 530, 528, 244, 12, "bold", state === "unavailable" ? COLORS.disabled : COLORS.teal, { lineHeight: 1.2, align: "CENTER" });
@@ -380,6 +414,23 @@ function createDownload(parent, viewportName, state, x, y) {
   }
   board.setPluginData("updatedDateVisible", "false");
   return board;
+}
+
+function repairMobileDownloadSpacing(root) {
+  const board = root.findOne((node) => node.type === "FRAME" && node.name === "04 Download / mobile / ready");
+  if (!board) return 0;
+  const positions = {
+    "Download Description": 171,
+    "Download Meta / No Date": 209,
+    "Download APK / Direct": 242,
+    "Mobile Behavior": 316,
+    "Phone / 01 / zh-Hant": 356,
+  };
+  Object.entries(positions).forEach(([name, y]) => {
+    const node = board.findOne((candidate) => candidate.name === name);
+    if (node) node.y = y;
+  });
+  return 1;
 }
 
 function createPrivacy(parent, viewportName, x, y) {
@@ -524,12 +575,64 @@ function nextSectionPosition() {
   return { x: (rightEdges.length ? Math.max(...rightEdges) : 0) + 600, y: 80 };
 }
 
+function createReducedMotionReference(parent, locale, x, y) {
+  const board = createHero(parent, 1, x, y, "mobile", locale);
+  board.name = `02 Motion / Reduced / ${locale} / Settled`;
+  board.setPluginData("motionPreference", "reduce");
+  board.setPluginData("autoplay", "disabled");
+  return board;
+}
+
+async function ensureReferenceCoverage(root) {
+  const additions = [
+    {
+      name: "01 Hero / 390×844 / en / Story 01",
+      create: () => createHero(root, 0, 4140, 3860, "mobile", "en"),
+    },
+    {
+      name: "01 Hero / 320×844 / en / Story 01",
+      create: () => createHero(root, 0, 4580, 3860, "narrow", "en"),
+    },
+    {
+      name: "02 Motion / Reduced / zh-Hant / Settled",
+      create: () => createReducedMotionReference(root, "zh-Hant", 4940, 3860),
+    },
+    {
+      name: "02 Motion / Reduced / en / Settled",
+      create: () => createReducedMotionReference(root, "en", 5380, 3860),
+    },
+  ];
+  const missing = additions.filter(({ name }) => !root.findOne((node) => node.type === "FRAME" && node.name === name));
+  if (missing.length) {
+    FONT = FONT || await chooseFonts();
+    ASSETS = ASSETS || await createImages();
+  }
+  const created = missing.map(({ create }) => create());
+  root.resizeWithoutConstraints(Math.max(root.width, 7900), Math.max(root.height, 5200));
+  return created;
+}
+
+function selectReferenceFrames(root) {
+  const nodes = REFERENCE_EXPORT_NAMES.map((name) => root.findOne((node) => node.type === "FRAME" && node.name === name));
+  const missingNames = REFERENCE_EXPORT_NAMES.filter((_, index) => !nodes[index]);
+  if (missingNames.length) throw new Error(`缺少 reference Frame：${missingNames.join("、")}`);
+  nodes.forEach((node) => {
+    node.exportSettings = [{ format: "PNG", constraint: { type: "SCALE", value: 1 } }];
+  });
+  figma.currentPage.selection = nodes;
+  figma.viewport.scrollAndZoomIntoView(nodes);
+  return nodes;
+}
+
 async function generateFinalBoards() {
   const existing = figma.currentPage.findOne((node) => node.type === "SECTION" && node.name === FINAL_SECTION);
   if (existing) {
-    figma.currentPage.selection = [existing];
-    figma.viewport.scrollAndZoomIntoView([existing]);
-    post("done", "015 FINAL Section 已存在", `Section Node ID: ${existing.id}。插件没有覆盖 014 或现有内容。`);
+    const created = await ensureReferenceCoverage(existing);
+    const repairedRouteBoards = repairRouteTrialSpacing(existing);
+    const repairedDownloadBoards = repairMobileDownloadSpacing(existing);
+    const references = selectReferenceFrames(existing);
+    const referenceIndex = references.map((node) => `${node.name} ${node.id}`).join("\n");
+    post("done", "015 reference 已补齐并选择", `Section Node ID: ${existing.id}\n新增 ${created.length} 个 Frame；校正 ${repairedRouteBoards} 个路线状态 Frame 与 ${repairedDownloadBoards} 个手机下载 Frame 的标题间距；已选择 ${references.length} 个可导出 reference。插件没有覆盖 014 或替换现有 Frame。\n\n${referenceIndex}`);
     return;
   }
   const stale = figma.currentPage.findOne((node) => node.type === "SECTION" && node.name === BUILDING_SECTION);
@@ -554,6 +657,10 @@ async function generateFinalBoards() {
   const desktopEn = createHero(root, 0, 3640, 80, "desktop", "en");
   const mobileZh = createHero(root, 0, 5140, 80, "mobile", "zh-Hant");
   const narrowZh = createHero(root, 0, 5580, 80, "narrow", "zh-Hant");
+  const mobileEn = createHero(root, 0, 4140, 3860, "mobile", "en");
+  const narrowEn = createHero(root, 0, 4580, 3860, "narrow", "en");
+  const reducedZh = createReducedMotionReference(root, "zh-Hant", 4940, 3860);
+  const reducedEn = createReducedMotionReference(root, "en", 5380, 3860);
   post("P3", "生成环形转场与交互状态", "静态 storyboard 表达 start / +160ms / settled；实现按标注时序。");
   const phases = [
     { name: "Start", label: "START · 0MS", timing: "Story 01 前景；Story 02 位于右后方", title: "隨心搜尋，\n出發更輕鬆", textOpacity: 1, fromX: 93, fromY: 0, fromWidth: 204, fromOpacity: 1, fromRotation: 0, fromBlur: 0, toX: 268, toY: 54, toWidth: 122, toOpacity: 0.38, toRotation: 7, toBlur: 0.5, activeIndex: 1 },
@@ -566,9 +673,11 @@ async function generateFinalBoards() {
   const routeDefault = createRouteTrial(root, "default", 1400, 1100);
   const routeCandidates = createRouteTrial(root, "candidates", 1840, 1100);
   const routeError = createRouteTrial(root, "error", 2280, 1100);
+  repairRouteTrialSpacing(root);
   const downloadDesktop = createDownload(root, "desktop", "ready", 80, 2000);
   const downloadMobile = createDownload(root, "mobile", "ready", 1580, 2000);
   const downloadUnavailable = createDownload(root, "desktop", "unavailable", 2020, 2000);
+  repairMobileDownloadSpacing(root);
   const privacyDesktop = createPrivacy(root, "desktop", 3520, 2000);
   const privacyMobile = createPrivacy(root, "mobile", 5020, 2000);
   post("P4", "生成五故事双语素材矩阵", "zh-Hant/en 是像素 reference；zh-Hans 仅记录文本、溢出和几何验收规则。");
@@ -583,9 +692,9 @@ async function generateFinalBoards() {
     `Library ${library.id}`,
     `Desktop zh-Hant Story 01 ${desktopZh.id}`,
     `Desktop en Story 01 ${desktopEn.id}`,
-    `Mobile 390 zh-Hant Story 01 ${mobileZh.id}`,
-    `Narrow 320 zh-Hant Story 01 ${narrowZh.id}`,
-    `Motion start / +160ms / settled ${motionStart.id} / ${motion160.id} / ${motionSettled.id}`,
+    `Mobile 390 zh-Hant / en Story 01 ${mobileZh.id} / ${mobileEn.id}`,
+    `Narrow 320 zh-Hant / en Story 01 ${narrowZh.id} / ${narrowEn.id}`,
+    `Motion start / +160ms / settled ${motionStart.id} / ${motion160.id} / ${motionSettled.id}; reduced zh-Hant / en ${reducedZh.id} / ${reducedEn.id}`,
     `Route default / candidates / error ${routeDefault.id} / ${routeCandidates.id} / ${routeError.id}`,
     `Download desktop / mobile / unavailable ${downloadDesktop.id} / ${downloadMobile.id} / ${downloadUnavailable.id}`,
     `Privacy desktop / mobile ${privacyDesktop.id} / ${privacyMobile.id}`,
@@ -596,9 +705,8 @@ async function generateFinalBoards() {
   text(indexBoard, "I2", "I2：zh-Hans 不建立像素级 Figma reference，只做文本、溢出与几何验收。", 2062, 690, 1920, 14, "bold", COLORS.ink, { lineHeight: 1.5 });
   root.name = FINAL_SECTION;
   root.resizeWithoutConstraints(7900, 5200);
-  figma.currentPage.selection = [root];
-  figma.viewport.scrollAndZoomIntoView([root]);
-  post("done", "015 Figma Section 已生成", `Section Node ID: ${root.id}\nDesktop zh-Hant: ${desktopZh.id}\nDesktop en: ${desktopEn.id}\nMobile 390: ${mobileZh.id}\nNarrow 320: ${narrowZh.id}\nMotion: ${motionStart.id}, ${motion160.id}, ${motionSettled.id}\nRoute: ${routeDefault.id}, ${routeCandidates.id}, ${routeError.id}\nDownload: ${downloadDesktop.id}, ${downloadMobile.id}, ${downloadUnavailable.id}\nPrivacy: ${privacyDesktop.id}, ${privacyMobile.id}\nLocalized assets: ${assetMatrix.id}`);
+  const references = selectReferenceFrames(root);
+  post("done", "015 Figma Section 已生成", `Section Node ID: ${root.id}\nDesktop zh-Hant: ${desktopZh.id}\nDesktop en: ${desktopEn.id}\nMobile 390 zh-Hant / en: ${mobileZh.id} / ${mobileEn.id}\nNarrow 320 zh-Hant / en: ${narrowZh.id} / ${narrowEn.id}\nReduced motion zh-Hant / en: ${reducedZh.id} / ${reducedEn.id}\nMotion: ${motionStart.id}, ${motion160.id}, ${motionSettled.id}\nRoute: ${routeDefault.id}, ${routeCandidates.id}, ${routeError.id}\nDownload: ${downloadDesktop.id}, ${downloadMobile.id}, ${downloadUnavailable.id}\nPrivacy: ${privacyDesktop.id}, ${privacyMobile.id}\nLocalized assets: ${assetMatrix.id}\n已选择 ${references.length} 个可导出 reference。`);
   figma.notify("Homepage refinement 015 已生成", { timeout: 6000 });
 }
 

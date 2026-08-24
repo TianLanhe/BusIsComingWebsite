@@ -55,6 +55,29 @@ test("keeps zh-Hans out of pixel-level Figma claims", () => {
   });
 });
 
+test("defines complete zh-Hant and en pixel-reference coverage", () => {
+  assert.ok(Array.isArray(DESIGN_CONTRACT.referenceFrames), "referenceFrames must be defined");
+  assert.deepEqual(
+    DESIGN_CONTRACT.referenceFrames.map(({ viewport, locale, story, state }) => ({
+      viewport,
+      locale,
+      story,
+      state,
+    })),
+    [
+      { viewport: "desktop", locale: "zh-Hant", story: "01", state: "settled" },
+      { viewport: "desktop", locale: "en", story: "01", state: "settled" },
+      { viewport: "mobile", locale: "zh-Hant", story: "01", state: "settled" },
+      { viewport: "mobile", locale: "en", story: "01", state: "settled" },
+      { viewport: "narrow", locale: "zh-Hant", story: "01", state: "settled" },
+      { viewport: "narrow", locale: "en", story: "01", state: "settled" },
+      { viewport: "mobile", locale: "zh-Hant", story: "02", state: "reduced-motion-settled" },
+      { viewport: "mobile", locale: "en", story: "02", state: "reduced-motion-settled" },
+    ],
+  );
+  assert.equal(DESIGN_CONTRACT.existingSectionPolicy, "idempotent-reference-backfill");
+});
+
 test("pins every approved localized screenshot and the real app logo", () => {
   assert.match(DESIGN_CONTRACT.brand.imageSha256, /^[a-f0-9]{64}$/);
   const hashes = [];

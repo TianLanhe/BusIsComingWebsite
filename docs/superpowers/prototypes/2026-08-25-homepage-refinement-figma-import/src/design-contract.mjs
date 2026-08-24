@@ -13,6 +13,17 @@ export const DESIGN_CONTRACT = Object.freeze({
     en: "pixel-reference",
     "zh-Hans": "text-overflow-geometry-only",
   },
+  existingSectionPolicy: "idempotent-reference-backfill",
+  referenceFrames: [
+    { viewport: "desktop", locale: "zh-Hant", story: "01", state: "settled" },
+    { viewport: "desktop", locale: "en", story: "01", state: "settled" },
+    { viewport: "mobile", locale: "zh-Hant", story: "01", state: "settled" },
+    { viewport: "mobile", locale: "en", story: "01", state: "settled" },
+    { viewport: "narrow", locale: "zh-Hant", story: "01", state: "settled" },
+    { viewport: "narrow", locale: "en", story: "01", state: "settled" },
+    { viewport: "mobile", locale: "zh-Hant", story: "02", state: "reduced-motion-settled" },
+    { viewport: "mobile", locale: "en", story: "02", state: "reduced-motion-settled" },
+  ],
   languageOptions: [
     { locale: "zh-Hant", label: "繁" },
     { locale: "zh-Hans", label: "简" },
