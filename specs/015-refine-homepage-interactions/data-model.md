@@ -205,6 +205,7 @@ V4 不包含 Header 功能导航 items。页尾 FAQ、Privacy、返回顶部和�
 | `designVersion` | `Homepage refinement 2026-08-25` 或 Figma 中最终批准名称 |
 | `recordedAt` | 实际记录日期 |
 | `exportEvidence` | repo-relative path、像素尺寸、SHA、导出方式 |
+| `localeReferencePolicy` | `zh-Hant`/`en` 使用像素级 Figma reference；`zh-Hans` 只做文本、溢出与几何验收 |
 
 在 refinement Section 与 reference export 建立前，生产 UI 修改门禁为关闭。
 

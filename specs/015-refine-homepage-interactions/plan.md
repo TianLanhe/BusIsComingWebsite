@@ -8,7 +8,7 @@
 
 在已交付的 014 四段首页与环形五故事视觉基线上实施一次严格增量：首屏采用“首次稳定后 10 秒、自动稳定后 5 秒、手动/语言/恢复后 10 秒”的单计时器轮播；舞台先换位、约 160ms 后文字跟随、约 820ms 稳定；移除独立 Header，把真实 App Logo、品牌名和三语直达入口放入可自然划走的 Hero 首行；繁简中文与英文分别使用获批截图；桌面 Hero 下载进入第三屏，手机直接下载；手机路线交换按钮移到双输入右侧；删除下载日期，并以流式布局覆盖 `1440×960`、`390×844`、`320×844`。
 
-技术路线是“设计先锁定、合同先迁移、测试先失败、状态机再实现”：先在既有 Figma 文件中新建 015 FINAL refinement Section 和 reference evidence；再迁移内容 v4、素材 manifest v3 与长期 UI 合同；用一个 epoch-aware Hero 控制器统一自动/手动/语言/暂停/settled；Stage 只负责视觉与图片稳定信号；最后以单元、E2E、Figma 对照和人工 motion review 验证。后端、OpenAPI、路线与下载业务规则不变。
+技术路线是“设计先锁定、合同先迁移、测试先失败、状态机再实现”：先在既有 Figma 文件中新建 015 FINAL refinement Section 和 reference evidence；再迁移内容 v4、素材 manifest v3 与长期 UI 合同；用一个 epoch-aware Hero 控制器统一自动/手动/语言/暂停/settled；Stage 只负责视觉与图片稳定信号；最后以单元、E2E、Figma 对照和人工 motion review 验证。后端、OpenAPI、路线业务规则、下载资料来源与最终安装包目标不变；唯一批准的下载交互增量是 FR-023 的 desktop Hero → `#download`、mobile ready → APK 分流。
 
 ## 技术背景
 
@@ -28,7 +28,7 @@
 
 **性能目标**：每个 Hero 实例最多一个 dwell timer 与一个当前转场保护 timer；offscreen/hidden/reduced-motion 不持续轮播；只动画 transform/opacity/轻量 blur；页面只请求当前 locale variant 的响应式资源；不因截图语言切换产生 layout shift
 
-**约束**：严格对齐新版 Figma；三语；真实 App Logo；截图固定 9:16；触控目标至少 44×44；不使用整页 transform scale；不显示下载日期；不向网站或产物写入 Android 工程或一次性源目录；无可见暂停按钮并如实保留 WCAG 2.2.2 风险；不修改路线/下载业务语义
+**约束**：严格对齐新版 Figma；三语；真实 App Logo；截图固定 9:16；触控目标至少 44×44；不使用整页 transform scale；不显示下载日期；不向网站或产物写入 Android 工程或一次性源目录；无可见暂停按钮并如实保留 WCAG 2.2.2 风险；除 FR-023 的入口分流外不修改路线或下载业务语义；`zh-Hans` 只做文本、溢出和几何验收，不宣称像素级 Figma 对照
 
 **规模/范围**：公开首页 Hero、手机路线查询布局、第三屏下载呈现、Privacy 顶部和公开页尾品牌；5 个故事、2 套语言截图、30 个响应式输出、3 个主 viewport；排除 monitoring、后端、OpenAPI、Android App 和新产品能力
 
@@ -46,7 +46,7 @@
 
 **UI 可视化产物**：[figma.md](./figma.md)、[2026-08-25 refinement 设计合同](../../docs/superpowers/specs/2026-08-25-homepage-visual-system-refinement-design.md)，以及实施阶段生成的 `specs/015-refine-homepage-interactions/visual-review/`
 
-**Figma 设计引用**：[BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)；014 只读基线 `119:64`、桌面 `119:176`、手机 `119:461`。实施先创建独立 `Homepage refinement 2026-08-25 — FINAL` Section；真实节点和 reference 未记录前，生产 UI 门禁关闭
+**Figma 设计引用**：[BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)；014 只读基线 `119:64`、桌面 `119:176`、手机 `119:461`；015 独立 Section `136:292` 已通过 Figma Desktop 创建并人工选择核对。`zh-Hant`/`en` reference export 未完整登记前，生产 UI 门禁仍关闭；`zh-Hans` 不设置像素级 reference 门禁
 
 **双端适配范围**：桌面批准基准 `1440×960`，手机批准基准 `390×844`，窄屏保护 `320×844`。桌面 CTA 页面内跳到第三屏并显示二维码；手机 Hero ready 时直接下载且无二维码；手机路线为双输入左列 + 交换按钮右列；三端使用浏览器截图、几何断言和人工对照验证
 
@@ -64,7 +64,7 @@
 | 试用查询与可靠降级 | 通过 | 现有 request sequence、retained/error/ETA 规则不变；只改手机输入组布局 |
 | 现代界面与可视化评审 | 通过 | 已批准 014 Figma 与 2026-08-25 视觉增量；实施前新增 015 FINAL Section 和 reference |
 | 电脑与手机双端一致可用 | 通过 | 1440×960、390×844、320×844 与桌面/手机差异合同明确 |
-| Figma 驱动的前端规格 | 条件通过 | Figma 文件与基线可定位；015 新节点是生产代码前置门禁，见 `figma.md`，不得以未创建节点开始实现 |
+| Figma 驱动的前端规格 | 条件通过 | Figma 文件、014 基线与 015 Section `136:292` 可定位；`zh-Hant`/`en` reference export 仍是生产代码前置门禁，`zh-Hans` 按文本/溢出/几何合同验收 |
 | 服务端 DDD 架构 | 通过（N/A） | 无服务端代码 |
 | 服务端稳健性与可观测性 | 通过（N/A） | 无服务端代码 |
 | 中文注释与代码可读性 | 通过 | 只对状态机、兼容与原子导入边界添加简体中文意图注释 |
@@ -75,7 +75,7 @@
 
 - 数据与 UI 状态均可由前端显式模型表达，没有新增服务端或持久化需要。
 - 内容 v4 和 screenshot manifest v3 消除了 Header、日期与单语言截图的旧合同冲突。
-- Figma 新节点尚未生成，因此计划允许进入 tasks，但不允许生产 UI 实施；开门条件已在 `figma.md` 与 `quickstart.md` 中机器化/证据化。
+- Figma 015 Section 与关键节点已在 Figma Desktop 生成并人工选择核对；由于 `zh-Hant`/`en` reference export/manifest 尚未完整登记，生产 UI 门禁仍关闭。`zh-Hans` 不要求像素级 reference。
 - 用户明确要求不显示暂停按钮；这项可访问性风险进入复杂度跟踪和完成报告，不会被误写为完整合规。
 
 ## 项目结构
@@ -191,7 +191,7 @@ backend/                            # 本功能无改动
 5. **舞台/文案/轨道**：实现 820ms/160ms、目标 locale 图、失败壳、reduced motion 和高保真流式几何。
 6. **页面 Chrome**：移除公开 Header，加入真实品牌/直接语言入口、Privacy 返回和 Footer 品牌统一。
 7. **下载与路线**：实现同 breakpoint 的双端 CTA、删除日期、手机输入组右侧 swap，不改业务模型。
-8. **浏览器与视觉验收**：unit/build/E2E、三 viewport/三语/reduced-motion、Figma reference 对照、人工 motion review。
+8. **浏览器与视觉验收**：unit/build/E2E、三 viewport/三语/reduced-motion；`zh-Hant`/`en` 做 Figma reference 对照，`zh-Hans` 做文本、溢出与几何验收；另做人工 motion review。
 9. **边界回归**：OpenAPI lint/bundle、backend/openapi 无差异、私有路径扫描、冲突与 final status；只提交 015 范围。
 
 ## 复杂度跟踪

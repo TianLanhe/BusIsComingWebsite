@@ -5,10 +5,10 @@
 - **文件**：[BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)
 - **历史基线**：`Homepage Visual System v1.3.1 — FINAL`
 - **本轮版本名称**：`Homepage refinement 2026-08-25 — FINAL`
-- **本轮状态**：交互与视觉增量已经用户确认并形成仓库设计合同；新版 Figma Section 尚未写入，因此生产 UI 修改门禁当前关闭。
+- **本轮状态**：015 Section 已于 2026-08-25 通过 Figma Desktop 本地插件真实写入并人工选择核对；Section 为 `136:292`。`zh-Hant`/`en` reference PNG 与 manifest 尚未完整登记，因此生产 UI 修改门禁仍关闭；`zh-Hans` 不设置像素级 Figma reference 门禁。
 - **禁止事项**：不得发明节点 ID、不得覆盖 014 Section、不得用聊天截图或浏览器实现反向充当设计源。
 
-本轮实施开始时，必须先通过本地 Figma 插件把下列状态写入同一文件的独立 Section，完成插件自测、Figma Desktop 真实选择核对和 reference export 后，才能修改 `frontend/src/` 的生产 UI。
+本轮本地插件自测和 Figma Desktop 节点写入/选择核对已经完成。完成 `zh-Hant`/`en` reference export 与 manifest 后，才能修改 `frontend/src/` 的生产 UI；`zh-Hans` 后续只做浏览器文本、溢出与几何验收，不宣称像素级 Figma 对照。
 
 ## 2. 014 只读视觉基线
 
@@ -36,31 +36,33 @@
 
 | 类别 | 必须存在的 Frame/Component Set | 关键内容 |
 | --- | --- | --- |
-| Foundations | `00 Foundations / Refinement` | 真实 Logo、首行语言入口、流式间距、9:16 手机边框、820ms/160ms motion token |
-| Desktop Hero | `01 Hero / Desktop 1440×960 / zh-Hant / Story 01 / Settled` | 无 Header、首行品牌与三语、桌面 CTA 到第三屏、中文图 |
-| Desktop Hero EN | `01 Hero / Desktop 1440×960 / en / Story 01 / Settled` | 英文文案与英文图、同一构图 |
-| Mobile Hero | `01 Hero / Mobile 390×844 / zh-Hant / Story 01 / Settled` | 完整四边、环形远近、轨道在截图下、手机直接下载 |
-| Narrow Hero | `01 Hero / Narrow 320×844 / zh-Hant / Story 01 / Settled` | 三语言不隐藏、44×44、无横向滚动 |
-| Motion | `05 Motion / Story 01→02 / Start`、`Copy +160ms`、`Settled` | 舞台先行、文案后随、无明显回弹 |
-| Mobile Route | `02 Route / Mobile 390×844 / Default`、`Candidates`、`Error` | 左侧双输入、右侧交换按钮，候选/错误不推位 |
-| Download | `03 Download / Desktop / Ready`、`Mobile / Ready`、`Unavailable` | 桌面二维码、手机无二维码、无更新时间/固定日期 |
-| Privacy | `04 Privacy / Desktop`、`Mobile` | 真实 Logo、品牌名、返回首页；无功能导航 |
+| Foundations | `00 Refinement Library` | 真实 Logo、首行语言入口、流式间距、9:16 手机边框、820ms/160ms motion token |
+| Desktop Hero | `01 Hero / 1440×960 / zh-Hant / Story 01` | settled 状态；无 Header、首行品牌与三语、桌面 CTA 到第三屏、中文图 |
+| Desktop Hero EN | `01 Hero / 1440×960 / en / Story 01` | 英文文案与英文图、同一构图 |
+| Mobile Hero | `01 Hero / 390×844 / zh-Hant / Story 01` | 完整四边、环形远近、轨道在截图下、手机直接下载 |
+| Narrow Hero | `01 Hero / 320×844 / zh-Hant / Story 01` | 三语言不隐藏、44×44、无横向滚动 |
+| Motion | `02 Motion / Start`、`Plus 160ms`、`Settled` | 舞台先行、文案后随、无明显回弹 |
+| Mobile Route | `03 Route Trial / Mobile 390×844 / default`、`candidates`、`error` | 左侧双输入、右侧交换按钮，候选/错误不推位 |
+| Download | `04 Download / desktop / ready`、`mobile / ready`、`desktop / unavailable` | 桌面二维码、手机无二维码、无更新时间/固定日期 |
+| Privacy | `05 Privacy / desktop`、`mobile` | 真实 Logo、品牌名、返回首页；无功能导航 |
 
-繁体与简体共用中文截图，但三语入口、可见文字和可访问名称都要在内容合同中独立存在。除 Story 01 的双语言显式 Frame 外，其余四故事可用一个组件集的五 variant 表达，但插件自测必须证明五个 ID 和两套 image fill 均完整。
+繁体与简体共用中文截图，但三语入口、可见文字和可访问名称都要在内容合同中独立存在。Figma 的像素级 reference 只覆盖 `zh-Hant` 和 `en`；`zh-Hans` 不创建独立像素 reference，只在浏览器中验收文本、溢出、横向滚动、触控目标与关键几何。除 Story 01 的双语言显式 Frame 外，其余四故事由本轮本地化矩阵和手机 Story Frame 共同证明五个 ID 与两套 image fill 完整。
 
 ## 5. 新节点记录表
 
-以下不是待填模板，而是实施前门禁状态记录：目前没有可诚实登记的 015 Figma 节点。创建完成后，应以一次独立提交把实际节点写入本表和生产内容 `figmaReference.refinement`；在此之前不得开始生产 UI 修改。
+以下 ID 来自 2026-08-25 Figma Desktop 本地插件完成回执，并通过 Figma 页面 URL 与真实选择核对；不是 MCP/API readback。MCP 因 Starter 调用额度不可用，因此不得把本记录描述为 MCP 读取。生产内容 `figmaReference.refinement` 只能在 reference export/manifest 完整后写入。
 
-| 记录项 | 当前状态 | 开门条件 |
+| 记录项 | Figma 节点 | 核对结论 |
 | --- | --- | --- |
-| refinement Section | 未创建 | Figma Desktop 中可选择且 URL 含真实 node-id |
-| desktop 1440 | 未创建 | 画面非空，尺寸 1440×960，中文/英文节点可定位 |
-| mobile 390 | 未创建 | 画面非空，尺寸 390×844，截图四边与故事轨无覆盖 |
-| narrow 320 | 未创建 | 画面非空，尺寸 320×844，语言与触控目标完整 |
-| motion phases | 未创建 | start、160ms、settled 三帧可定位 |
-| route states | 未创建 | default、candidate、error 三帧可定位 |
-| download/privacy | 未创建 | 双端分流、无日期、Privacy 返回入口可定位 |
+| refinement Section | [`136:292`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-292) | Figma Desktop 可选择；`7900×5200`；未覆盖 014 |
+| desktop 1440 zh-Hant / en | [`136:341`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-341) / [`136:390`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-390) | 两个 `1440×960` Frame 可定位；桌面繁中 Frame 已放大人工核对 |
+| mobile 390 zh-Hant | [`136:439`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-439) | `390×844`；完整四边、环形远近和下置故事轨已在同组 Story Frame 放大核对 |
+| narrow 320 zh-Hant | [`136:484`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-484) | `320×844`；节点可定位，待 reference export 后进入浏览器对照 |
+| motion phases | [`136:529`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-529) / [`136:563`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-563) / [`136:597`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-597) | Start、+160ms、Settled 三帧已创建 |
+| route states | [`136:631`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-631) / [`136:654`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-654) / [`136:685`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-685) | default、candidates、error 三帧已创建 |
+| download states | [`136:710`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-710) / [`136:737`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-737) / [`136:752`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-752) | desktop ready、mobile ready、desktop unavailable；无日期 |
+| Privacy desktop / mobile | [`136:779`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-779) / [`136:799`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-799) | 真实 Logo、品牌名和返回首页入口已创建 |
+| localized screenshot matrix | [`136:819`](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec?node-id=136-819) | 五故事 × `zh-Hant`/`en` image fill；`zh-Hans` 非像素 reference |
 
 ## 6. 本地 Figma 插件合同
 
@@ -68,12 +70,12 @@
 
 1. `manifest.json`、`code.js`、`ui.html` 和 README 均不引用本机绝对路径；
 2. 插件素材通过仓库内受管 Logo 和本地化截图副本导入；
-3. 重跑只更新自己的 015 Section，不查找或删除 `119:64`；
+3. 重跑只定位既有 015 FINAL Section，不查找、删除或覆盖 `119:64`；
 4. 自测断言 Section 名、顶层节点数、所有关键 Frame 名称、尺寸、五故事 × 两 variant image fill 和无日期文案；
 5. 设计使用原生可编辑 Figma 节点，真实截图只作为屏幕 image fill，不把整页扁平化；
 6. 失败时停止并保留旧 Section，不留下半套 FINAL 节点。
 
-MCP 额度不可用时，允许通过 Figma Desktop 导入/运行本地插件并人工选择节点。该方法不等于 MCP/API readback，记录中必须如实写明 `Figma Desktop manual export`。
+本轮采用 `Figma Desktop local plugin creation + manual selection`；MCP 只完成了身份检查，随后因 Starter 调用额度不可用，未完成设计节点 readback。后续 reference PNG 导出必须记为 `Figma Desktop manual export`，不能写成 MCP/API 导出。
 
 ## 7. Reference export 与证据 manifest
 
@@ -98,12 +100,20 @@ specs/015-refine-homepage-interactions/visual-review/
 
 reference 与 actual 必须使用相同 viewport 和像素密度；不能把 390 图拉伸为 320，也不能把中文 reference 用于英文 actual。
 
+当前已通过 Figma Desktop 原生 PNG 导出并写入 [`visual-review/manifest.json`](./visual-review/manifest.json)：
+
+- desktop `1440×960` `zh-Hant` Story 01，节点 `136:341`；
+- desktop `1440×960` `en` Story 01，节点 `136:390`；
+- mobile `390×844` `zh-Hant` Story 02，节点 `136:861`，用于额外核对环形切换后的 settled 构图。
+
+manifest 当前明确标记为 `partial-reference-export`，未导出的 mobile Story 01、narrow、motion、route、download 和 Privacy 状态仍列在 `pendingReferences`。因此不得提前把生产门禁改为通过。
+
 ## 8. 高保真开门与完成判定
 
 生产 UI 开门前必须同时满足：
 
-1. 新插件自测通过；
-2. 新 Section 和所有关键 Frame 在 Figma Desktop 中可真实定位；
+1. 新插件自测通过；（已满足：8/8）
+2. 新 Section 和所有关键 Frame 在 Figma Desktop 中可真实定位；（已满足，见 §5）
 3. reference export/manifest 完整且不含占位、私有路径或伪造节点；
 4. `homepageContent` 只写入上述真实节点；
 5. 本文的“本轮状态”和节点记录表已更新为实际证据。

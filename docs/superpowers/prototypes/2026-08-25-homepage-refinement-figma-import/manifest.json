@@ -1,0 +1,12 @@
+{
+  "name": "BusIsComing Homepage Refinement 015",
+  "id": "busiscoming-homepage-refinement-015",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}

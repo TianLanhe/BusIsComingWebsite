@@ -1,0 +1,68 @@
+{
+  "feature": "015-refine-homepage-interactions",
+  "designVersion": "Homepage refinement 2026-08-25 — FINAL",
+  "figmaFileUrl": "https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec",
+  "refinementSectionNodeId": "136:292",
+  "recordedAt": "2026-08-25",
+  "status": "partial-reference-export",
+  "captureMethod": "Figma Desktop manual export",
+  "mcpReadback": false,
+  "localeReferencePolicy": {
+    "zh-Hant": "pixel-reference",
+    "en": "pixel-reference",
+    "zh-Hans": "text-overflow-geometry-only"
+  },
+  "references": [
+    {
+      "nodeId": "136:341",
+      "frameName": "01 Hero / 1440×960 / zh-Hant / Story 01",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "locale": "zh-Hant",
+      "screenshotVariant": "zh",
+      "story": "01",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/desktop-1440-zh-Hant-story-01.png",
+      "sha256": "e7ba76775274821163f86ba26f3b19787974460f6b6dda197258eaf690e6c270"
+    },
+    {
+      "nodeId": "136:390",
+      "frameName": "01 Hero / 1440×960 / en / Story 01",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "locale": "en",
+      "screenshotVariant": "en",
+      "story": "01",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/desktop-1440-en-story-01.png",
+      "sha256": "91721c219fa35b19c4947b4f926bfb8895cbd7315c6261cfa8d96650f4d6a2af"
+    },
+    {
+      "nodeId": "136:861",
+      "frameName": "01 Hero / 390×844 / zh-Hant / Story 02",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "locale": "zh-Hant",
+      "screenshotVariant": "zh",
+      "story": "02",
+      "path": "specs/015-refine-homepage-interactions/visual-review/reference/mobile-390-zh-Hant-story-02.png",
+      "sha256": "c28a61c890a040da0418f67932b67aec39d2c7572c3c30cf2d41dfc4ccb1dfca"
+    }
+  ],
+  "pendingReferences": [
+    "mobile 390 zh-Hant Story 01",
+    "narrow 320 zh-Hant Story 01",
+    "motion Start / Plus 160ms / Settled",
+    "route default / candidates / error",
+    "download desktop ready / mobile ready / desktop unavailable",
+    "privacy desktop / mobile"
+  ],
+  "actual": [],
+  "sideBySide": [],
+  "overlay": [],
+  "diff": []
+}

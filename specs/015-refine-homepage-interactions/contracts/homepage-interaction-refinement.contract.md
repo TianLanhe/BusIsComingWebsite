@@ -145,6 +145,8 @@
 - 无日期 metadata；
 - Privacy brand/back。
 
+像素级 Figma reference 只覆盖 `zh-Hant` 与 `en`。`zh-Hans` 共用获批中文截图，必须在真实浏览器中验证文本完整性、溢出、横向滚动、触控目标和关键几何，但不得把这些结果表述为像素级 Figma 对照。
+
 Reference export/manifest 必须包含 node ID、viewport、locale variant、state、导出方式/日期、尺寸、repo-relative path 和 SHA。没有真实节点或 export 时不得改生产 UI。
 
 实现后生成 actual、side-by-side、overlay、diff；标题分行、真实 Logo、完整手机四边、语言命中区、环形远近、CTA 语义、无日期、无横向滚动和 reduced motion 是零容忍项，不能被全图阈值豁免。
@@ -153,6 +155,7 @@ Reference export/manifest 必须包含 node ID、viewport、locale variant、sta
 
 - 四段页面顺序、五故事产品文案、路线结果卡合同、FAQ、风带与浅色页尾；
 - 路线/下载 API、OpenAPI、后端、缓存、错误与日志；
+- 除本合同明确规定的 desktop Hero → `#download`、mobile ready → APK 入口分流外，下载资料来源、最终安装包目标与第三屏下载逻辑；
 - DownloadMetadataProvider 单请求、无陈旧回退；
 - monitoring UI 与 Android App；
 - 生产运行时不读取 Figma、本机源目录或 Android 工程。

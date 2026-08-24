@@ -91,7 +91,7 @@ Playwright 主矩阵：
 
 | 范围 | 1440×960 | 390×844 | 320×844 |
 | --- | --- | --- | --- |
-| Hero | 品牌首行、自动/手动、桌面 CTA 到 `#download` | 环形舞台、手机直接下载 | 三语言、44×44、无横向滚动 |
+| Hero | 品牌首行、自动/手动、桌面 CTA 到 `#download` | 环形舞台、手机直接下载 | `zh-Hant`/`en` 对照 Figma；`zh-Hans` 只验文本、溢出、几何、44×44 与无横向滚动 |
 | Locale | zh-Hant/zh-Hans 中文图、en 英文图 | 同左且保持 story/state | 同左 |
 | Route | 业务与原桌面布局不回归 | 右侧 swap、default/candidate/error | 输入可用宽度与焦点完整 |
 | Download | QR、真实行动、无日期 | 无 QR、真实行动、无日期 | 文案/metadata 不截断 |
@@ -158,4 +158,4 @@ rg -n '^(<<<<<<<|=======|>>>>>>>)' . \
 git status --short --branch
 ```
 
-完成报告必须分别说明自动化、Figma 读取/人工导出、桌面/手机/窄屏/三语/reduced-motion 浏览器证据、真实网络和 task-owned Android 是否实际执行。没有对应证据时，不得宣称与预览一模一样。
+完成报告必须分别说明自动化、Figma 读取/人工导出、桌面/手机/窄屏/三语/reduced-motion 浏览器证据、真实网络和 task-owned Android 是否实际执行。只有 `zh-Hant`/`en` 可在证据齐全时宣称像素级 Figma 对照；`zh-Hans` 只报告文本、溢出与几何验收。没有对应证据时，不得宣称与预览一模一样。

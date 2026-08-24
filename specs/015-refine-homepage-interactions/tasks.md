@@ -6,7 +6,7 @@
 
 **测试策略**：本功能明确采用合同红测与 TDD。每个用户故事先新增或迁移失败测试，再实施对应代码；静态截图只验收 settled 帧，start／160ms／settled 由受控阶段协议与人工动效复核证明。
 
-**范围约束**：本任务清单只修改公开前端、共享内容/UI 合同、受管品牌/截图素材、Figma 增量插件及 015 证据；不得修改后端行为、OpenAPI 语义、路线算法、下载资料来源、monitoring UI、Android App 或 014 历史产物。
+**范围约束**：本任务清单只修改公开前端、共享内容/UI 合同、受管品牌/截图素材、Figma 增量插件及 015 证据；除 FR-023 批准的 desktop Hero → `#download`、mobile ready → APK 入口分流外，不得修改后端行为、OpenAPI 语义、路线算法、下载资料来源、最终安装包目标、monitoring UI、Android App 或 014 历史产物。
 
 ## 格式：`[ID] [P?] [Story] 描述`
 
@@ -151,7 +151,7 @@
 
 **目标**：让 1440×960、390×844、320×844 和中间宽度连续适配，完整保留品牌、标题、行动、9:16 手机四边、环形远近、故事轨、Privacy 返回与页尾品牌，不做整页缩放。
 
-**独立测试**：三 viewport × 三语言对照 Figma reference；resize/orientation 前后保持 story/locale/route/download/FAQ；检查无 sticky Header、无裁切/覆盖/横向滚动和所有核心目标 ≥44×44。
+**独立测试**：三 viewport 下，`zh-Hant`/`en` 对照 Figma reference，`zh-Hans` 只验证文本、溢出、无横向滚动、触控目标与关键几何；resize/orientation 前后保持 story/locale/route/download/FAQ；检查无 sticky Header、无裁切/覆盖/横向滚动和所有核心目标 ≥44×44。
 
 ### 用户故事 5 的测试与验证
 
@@ -165,7 +165,7 @@
 - [ ] T050 [US5] 对下载、路线、FAQ、联系和页尾执行流式间距/最大宽度收敛，确保首屏删除 Header 后四段锚点和内容层级不漂移，路径：`frontend/src/components/sections/DownloadSection.module.css`、`FaqSection.module.css`、`ContactStrip.module.css`、`FooterContact.module.css`、`frontend/src/components/online-demo/OnlineQueryDemo.module.css`
 - [ ] T051 [US5] 在确定性 pause 下生成三 viewport、三语言和关键故事/页面的 settled 浏览器截图并更新固定 golden，路径：`frontend/playwright/homepage-visual-regression.spec.ts`、`frontend/playwright/__screenshots__/`、`specs/015-refine-homepage-interactions/visual-review/actual/`
 - [ ] T052 [US5] 将比较脚本默认根切换到 015，并为每个同 viewport reference/actual 生成 side-by-side、50% overlay、diff 与 SHA 清单，路径：`frontend/scripts/compare-homepage-visuals.mjs`、`specs/015-refine-homepage-interactions/visual-review/`
-- [ ] T053 [US5] 逐项人工复核标题分行、真实 Logo、语言入口、环形远近、9:16 四边、故事轨、CTA、无日期、无横向滚动和 reduced motion，并记录 Figma 对照结论，路径：`specs/015-refine-homepage-interactions/visual-review/final-figma-review.md`
+- [ ] T053 [US5] 逐项人工复核标题分行、真实 Logo、语言入口、环形远近、9:16 四边、故事轨、CTA、无日期、无横向滚动和 reduced motion；记录 `zh-Hant`/`en` Figma 像素对照结论，并把 `zh-Hans` 明确记录为文本、溢出与几何验收，路径：`specs/015-refine-homepage-interactions/visual-review/final-figma-review.md`
 - [ ] T054 [US5] 运行 resize/orientation 状态保持与三 viewport 独立验收，记录 SC-008、SC-010、SC-011、SC-012 结果到 `specs/015-refine-homepage-interactions/visual-review/us5-result.md`
 
 **检查点**：US1–US5 在批准端点和窄屏保护宽度上均可独立验证，浏览器 actual 与真实 Figma reference 无阻断漂移。
