@@ -1,0 +1,370 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://busiscoming.local/specs/015/homepage-content-v4.schema.json",
+  "title": "BusIsComing Homepage Content v4",
+  "description": "首页交互优化后的三语内容合同：移除独立 Header，加入真实品牌首行与直接语言入口，并移除下载日期标签。",
+  "type": "object",
+  "required": [
+    "metadata",
+    "siteChrome",
+    "hero",
+    "routeTrial",
+    "downloadDecision",
+    "supportEnding",
+    "scopeExclusions",
+    "figmaReference"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["version", "lastReviewed", "sourceReferences"],
+      "properties": {
+        "version": { "const": "4.0.0" },
+        "lastReviewed": { "type": "string", "format": "date" },
+        "sourceReferences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/safeReference" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "siteChrome": {
+      "type": "object",
+      "required": ["brandName", "brandAssetId", "languageLabel", "languageOptions", "privacyBackHome"],
+      "properties": {
+        "brandName": {
+          "type": "object",
+          "required": ["zh-Hant", "zh-Hans", "en"],
+          "properties": {
+            "zh-Hant": { "const": "BusIsComing" },
+            "zh-Hans": { "const": "BusIsComing" },
+            "en": { "const": "BusIsComing" }
+          },
+          "additionalProperties": false
+        },
+        "brandAssetId": { "const": "busiscoming-app-logo" },
+        "languageLabel": { "$ref": "#/$defs/localizedString" },
+        "languageOptions": {
+          "type": "object",
+          "required": ["zh-Hant", "zh-Hans", "en"],
+          "properties": {
+            "zh-Hant": { "const": "繁" },
+            "zh-Hans": { "const": "简" },
+            "en": { "const": "EN" }
+          },
+          "additionalProperties": false
+        },
+        "privacyBackHome": { "$ref": "#/$defs/localizedHrefAction" }
+      },
+      "additionalProperties": false
+    },
+    "hero": {
+      "type": "object",
+      "required": ["eyebrow", "productPositioning", "primaryAction", "secondaryAction", "stories"],
+      "properties": {
+        "eyebrow": { "$ref": "#/$defs/localizedString" },
+        "productPositioning": { "$ref": "#/$defs/localizedString" },
+        "primaryAction": { "$ref": "#/$defs/downloadAction" },
+        "secondaryAction": { "$ref": "#/$defs/routeAction" },
+        "stories": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            { "$ref": "#/$defs/routeSearchStory" },
+            { "$ref": "#/$defs/savedJourneysStory" },
+            { "$ref": "#/$defs/journeyGuidanceStory" },
+            { "$ref": "#/$defs/crossOperatorArrivalsStory" },
+            { "$ref": "#/$defs/predepartureMonitorStory" }
+          ],
+          "items": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "routeTrial": {
+      "type": "object",
+      "required": [
+        "title",
+        "description",
+        "originLabel",
+        "destinationLabel",
+        "queryAction",
+        "retryAction",
+        "emptyState",
+        "errorState",
+        "retainedState",
+        "metricLabels",
+        "scopeNotice"
+      ],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "originLabel": { "$ref": "#/$defs/localizedString" },
+        "destinationLabel": { "$ref": "#/$defs/localizedString" },
+        "queryAction": { "$ref": "#/$defs/localizedString" },
+        "retryAction": { "$ref": "#/$defs/localizedString" },
+        "emptyState": { "$ref": "#/$defs/textPair" },
+        "errorState": { "$ref": "#/$defs/textPair" },
+        "retainedState": { "$ref": "#/$defs/localizedString" },
+        "metricLabels": {
+          "type": "object",
+          "required": ["fare", "duration", "walking", "eta"],
+          "properties": {
+            "fare": { "$ref": "#/$defs/localizedString" },
+            "duration": { "$ref": "#/$defs/localizedString" },
+            "walking": { "$ref": "#/$defs/localizedString" },
+            "eta": { "$ref": "#/$defs/localizedString" }
+          },
+          "additionalProperties": false
+        },
+        "scopeNotice": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "downloadDecision": {
+      "type": "object",
+      "required": [
+        "title",
+        "description",
+        "minimumAndroid",
+        "readyAction",
+        "checkingState",
+        "unavailableState",
+        "metadataLabels",
+        "installationNote"
+      ],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "minimumAndroid": { "$ref": "#/$defs/localizedString" },
+        "readyAction": { "$ref": "#/$defs/localizedString" },
+        "checkingState": { "$ref": "#/$defs/localizedString" },
+        "unavailableState": { "$ref": "#/$defs/localizedString" },
+        "metadataLabels": {
+          "type": "object",
+          "required": ["version", "minimumSystem", "size"],
+          "properties": {
+            "version": { "$ref": "#/$defs/localizedString" },
+            "minimumSystem": { "$ref": "#/$defs/localizedString" },
+            "size": { "$ref": "#/$defs/localizedString" }
+          },
+          "additionalProperties": false
+        },
+        "installationNote": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "supportEnding": {
+      "type": "object",
+      "required": ["title", "faq", "contact", "privacyLink", "backToTop"],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "faq": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            { "$ref": "#/$defs/androidInstallFaq" },
+            { "$ref": "#/$defs/dataCoverageFaq" },
+            { "$ref": "#/$defs/websiteAppDifferenceFaq" },
+            { "$ref": "#/$defs/iphoneSupportFaq" }
+          ],
+          "items": false
+        },
+        "contact": { "$ref": "#/$defs/action" },
+        "privacyLink": { "$ref": "#/$defs/localizedHrefAction" },
+        "backToTop": { "$ref": "#/$defs/action" }
+      },
+      "additionalProperties": false
+    },
+    "scopeExclusions": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "#/$defs/localizedString" }
+    },
+    "figmaReference": {
+      "type": "object",
+      "required": ["fileUrl", "baseline", "refinement"],
+      "properties": {
+        "fileUrl": { "type": "string", "format": "uri" },
+        "baseline": {
+          "type": "object",
+          "required": ["sectionNode", "desktopHeroNode", "mobileHeroNode", "designVersion"],
+          "properties": {
+            "sectionNode": { "const": "119:64" },
+            "desktopHeroNode": { "const": "119:176" },
+            "mobileHeroNode": { "const": "119:461" },
+            "designVersion": { "const": "Homepage Visual System v1.3.1 — FINAL" }
+          },
+          "additionalProperties": false
+        },
+        "refinement": {
+          "type": "object",
+          "required": ["sectionNode", "desktopHeroNode", "mobileHeroNode", "narrowHeroNode", "designVersion"],
+          "properties": {
+            "sectionNode": { "$ref": "#/$defs/figmaNodeId" },
+            "desktopHeroNode": { "$ref": "#/$defs/figmaNodeId" },
+            "mobileHeroNode": { "$ref": "#/$defs/figmaNodeId" },
+            "narrowHeroNode": { "$ref": "#/$defs/figmaNodeId" },
+            "designVersion": { "const": "Homepage refinement 2026-08-25 — FINAL" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "localizedString": {
+      "type": "object",
+      "required": ["zh-Hant", "zh-Hans", "en"],
+      "properties": {
+        "zh-Hant": { "type": "string", "minLength": 1 },
+        "zh-Hans": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "safeReference": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!.*(?:/Users/|/private/var/|AndroidStudioProjects|sourcePath)).+$"
+    },
+    "figmaNodeId": {
+      "type": "string",
+      "pattern": "^[0-9]+:[0-9]+$"
+    },
+    "textPair": {
+      "type": "object",
+      "required": ["title", "description"],
+      "properties": {
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": ["label", "target"],
+      "properties": {
+        "label": { "$ref": "#/$defs/localizedString" },
+        "target": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "downloadAction": {
+      "allOf": [
+        { "$ref": "#/$defs/action" },
+        { "type": "object", "properties": { "target": { "const": "#download" } } }
+      ]
+    },
+    "routeAction": {
+      "allOf": [
+        { "$ref": "#/$defs/action" },
+        { "type": "object", "properties": { "target": { "const": "#route-trial" } } }
+      ]
+    },
+    "localizedHrefAction": {
+      "type": "object",
+      "required": ["label", "href"],
+      "properties": {
+        "label": { "$ref": "#/$defs/localizedString" },
+        "href": {
+          "type": "object",
+          "required": ["zh-Hant", "zh-Hans", "en"],
+          "properties": {
+            "zh-Hant": { "type": "string", "pattern": "^/zh-hant/" },
+            "zh-Hans": { "type": "string", "pattern": "^/zh-hans/" },
+            "en": { "type": "string", "pattern": "^/en/" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "lineBreakHints": {
+      "type": "object",
+      "required": ["zh-Hant", "zh-Hans", "en"],
+      "properties": {
+        "zh-Hant": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "zh-Hans": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "en": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "story": {
+      "type": "object",
+      "required": ["id", "order", "numberLabel", "shortLabel", "title", "description", "lineBreakHints", "screenshotId", "alt", "factReference"],
+      "properties": {
+        "id": { "type": "string" },
+        "order": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "numberLabel": { "type": "string", "pattern": "^0[1-5]$" },
+        "shortLabel": { "$ref": "#/$defs/localizedString" },
+        "title": { "$ref": "#/$defs/localizedString" },
+        "description": { "$ref": "#/$defs/localizedString" },
+        "lineBreakHints": { "$ref": "#/$defs/lineBreakHints" },
+        "screenshotId": { "type": "string" },
+        "alt": { "$ref": "#/$defs/localizedString" },
+        "factReference": { "$ref": "#/$defs/safeReference" }
+      },
+      "additionalProperties": false
+    },
+    "routeSearchStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        { "type": "object", "properties": { "id": { "const": "route-search" }, "order": { "const": 1 }, "numberLabel": { "const": "01" }, "screenshotId": { "const": "route-search" } } }
+      ]
+    },
+    "savedJourneysStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        { "type": "object", "properties": { "id": { "const": "saved-journeys" }, "order": { "const": 2 }, "numberLabel": { "const": "02" }, "screenshotId": { "const": "saved-journeys" } } }
+      ]
+    },
+    "journeyGuidanceStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        { "type": "object", "properties": { "id": { "const": "journey-guidance" }, "order": { "const": 3 }, "numberLabel": { "const": "03" }, "screenshotId": { "const": "journey-guidance" } } }
+      ]
+    },
+    "crossOperatorArrivalsStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        { "type": "object", "properties": { "id": { "const": "cross-operator-arrivals" }, "order": { "const": 4 }, "numberLabel": { "const": "04" }, "screenshotId": { "const": "cross-operator-arrivals" } } }
+      ]
+    },
+    "predepartureMonitorStory": {
+      "allOf": [
+        { "$ref": "#/$defs/story" },
+        { "type": "object", "properties": { "id": { "const": "predeparture-monitor" }, "order": { "const": 5 }, "numberLabel": { "const": "05" }, "screenshotId": { "const": "predeparture-monitor" } } }
+      ]
+    },
+    "faq": {
+      "type": "object",
+      "required": ["id", "question", "answer", "defaultOpen"],
+      "properties": {
+        "id": { "type": "string" },
+        "question": { "$ref": "#/$defs/localizedString" },
+        "answer": { "$ref": "#/$defs/localizedString" },
+        "defaultOpen": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "androidInstallFaq": {
+      "allOf": [{ "$ref": "#/$defs/faq" }, { "type": "object", "properties": { "id": { "const": "android-install" }, "defaultOpen": { "const": true } } }]
+    },
+    "dataCoverageFaq": {
+      "allOf": [{ "$ref": "#/$defs/faq" }, { "type": "object", "properties": { "id": { "const": "data-coverage" }, "defaultOpen": { "const": false } } }]
+    },
+    "websiteAppDifferenceFaq": {
+      "allOf": [{ "$ref": "#/$defs/faq" }, { "type": "object", "properties": { "id": { "const": "website-app-difference" }, "defaultOpen": { "const": false } } }]
+    },
+    "iphoneSupportFaq": {
+      "allOf": [{ "$ref": "#/$defs/faq" }, { "type": "object", "properties": { "id": { "const": "iphone-support" }, "defaultOpen": { "const": false } } }]
+    }
+  }
+}
