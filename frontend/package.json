@@ -10,6 +10,7 @@
     "build:public": "tsc --noEmit -p tsconfig.json && vite build && node scripts/generate-locale-pages.mjs",
     "build:monitor": "tsc --noEmit -p tsconfig.json && vite build --config vite.monitor.config.ts",
     "sanitize:screenshots": "node scripts/sanitize-homepage-screenshots.mjs",
+    "prepare:homepage-story-assets": "node scripts/prepare-homepage-story-assets.mjs",
     "visual:compare": "node scripts/compare-homepage-visuals.mjs",
     "test": "vitest run",
     "test:unit": "vitest run",

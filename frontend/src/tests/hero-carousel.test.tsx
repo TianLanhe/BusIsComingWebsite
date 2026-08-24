@@ -11,7 +11,13 @@ function StoryHarness() {
   const [active, setActive] = useState<HeroStoryId>("route-search");
   return (
     <I18nProvider>
-      <HeroStoryStage stories={homepageStories} activeStoryId={active} />
+      <HeroStoryStage
+        stories={homepageStories}
+        requestedStoryId={active}
+        settledStoryId={active}
+        transitionEpoch={0}
+        onSettled={() => undefined}
+      />
       <HeroStoryRail stories={homepageStories} activeStoryId={active} onSelect={setActive} />
     </I18nProvider>
   );
@@ -30,7 +36,7 @@ describe("five-story hero stage", () => {
     expect(screen.getAllByRole("img")).toHaveLength(1);
   });
 
-  it("switches only on explicit story-button input and never auto-advances", () => {
+  it("switches when a story button is selected", () => {
     window.history.replaceState({}, "", "/en/");
     render(<StoryHarness />);
     const saved = screen.getByRole("button", { name: /02.*Trips/ });

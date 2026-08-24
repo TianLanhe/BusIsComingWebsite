@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://busiscoming.local/specs/014/homepage-content-v3.schema.json",
-  "title": "BusIsComing Homepage Content v3",
-  "description": "首页视觉系统 v1.3.1 的五故事、四段结构与三语内容合同。",
+  "$id": "https://busiscoming.local/specs/015/homepage-content-v4.schema.json",
+  "title": "BusIsComing Homepage Content v4",
+  "description": "首页交互优化后的三语内容合同：移除独立 Header，加入真实品牌首行与直接语言入口，并移除下载日期标签。",
   "type": "object",
   "required": [
     "metadata",
-    "navigation",
+    "siteChrome",
     "hero",
     "routeTrial",
     "downloadDecision",
@@ -19,7 +19,7 @@
       "type": "object",
       "required": ["version", "lastReviewed", "sourceReferences"],
       "properties": {
-        "version": { "const": "3.0.0" },
+        "version": { "const": "4.0.0" },
         "lastReviewed": { "type": "string", "format": "date" },
         "sourceReferences": {
           "type": "array",
@@ -30,23 +30,33 @@
       },
       "additionalProperties": false
     },
-    "navigation": {
+    "siteChrome": {
       "type": "object",
-      "required": ["brand", "items", "languageLabel"],
+      "required": ["brandName", "brandAssetId", "languageLabel", "languageOptions", "privacyBackHome"],
       "properties": {
-        "brand": { "$ref": "#/$defs/localizedString" },
-        "items": {
-          "type": "array",
-          "minItems": 3,
-          "maxItems": 3,
-          "prefixItems": [
-            { "$ref": "#/$defs/featuresNavItem" },
-            { "$ref": "#/$defs/faqNavItem" },
-            { "$ref": "#/$defs/contactNavItem" }
-          ],
-          "items": false
+        "brandName": {
+          "type": "object",
+          "required": ["zh-Hant", "zh-Hans", "en"],
+          "properties": {
+            "zh-Hant": { "const": "BusIsComing" },
+            "zh-Hans": { "const": "BusIsComing" },
+            "en": { "const": "BusIsComing" }
+          },
+          "additionalProperties": false
         },
-        "languageLabel": { "$ref": "#/$defs/localizedString" }
+        "brandAssetId": { "const": "busiscoming-app-logo" },
+        "languageLabel": { "$ref": "#/$defs/localizedString" },
+        "languageOptions": {
+          "type": "object",
+          "required": ["zh-Hant", "zh-Hans", "en"],
+          "properties": {
+            "zh-Hant": { "const": "繁" },
+            "zh-Hans": { "const": "简" },
+            "en": { "const": "EN" }
+          },
+          "additionalProperties": false
+        },
+        "privacyBackHome": { "$ref": "#/$defs/localizedHrefAction" }
       },
       "additionalProperties": false
     },
@@ -135,12 +145,11 @@
         "unavailableState": { "$ref": "#/$defs/localizedString" },
         "metadataLabels": {
           "type": "object",
-          "required": ["version", "minimumSystem", "size", "updated"],
+          "required": ["version", "minimumSystem", "size"],
           "properties": {
             "version": { "$ref": "#/$defs/localizedString" },
             "minimumSystem": { "$ref": "#/$defs/localizedString" },
-            "size": { "$ref": "#/$defs/localizedString" },
-            "updated": { "$ref": "#/$defs/localizedString" }
+            "size": { "$ref": "#/$defs/localizedString" }
           },
           "additionalProperties": false
         },
@@ -178,13 +187,32 @@
     },
     "figmaReference": {
       "type": "object",
-      "required": ["fileUrl", "sectionNode", "desktopHeroNode", "mobileHeroNode", "designVersion"],
+      "required": ["fileUrl", "baseline", "refinement"],
       "properties": {
         "fileUrl": { "type": "string", "format": "uri" },
-        "sectionNode": { "const": "119:64" },
-        "desktopHeroNode": { "const": "119:176" },
-        "mobileHeroNode": { "const": "119:461" },
-        "designVersion": { "const": "Homepage Visual System v1.3.1 — FINAL" }
+        "baseline": {
+          "type": "object",
+          "required": ["sectionNode", "desktopHeroNode", "mobileHeroNode", "designVersion"],
+          "properties": {
+            "sectionNode": { "const": "119:64" },
+            "desktopHeroNode": { "const": "119:176" },
+            "mobileHeroNode": { "const": "119:461" },
+            "designVersion": { "const": "Homepage Visual System v1.3.1 — FINAL" }
+          },
+          "additionalProperties": false
+        },
+        "refinement": {
+          "type": "object",
+          "required": ["sectionNode", "desktopHeroNode", "mobileHeroNode", "narrowHeroNode", "designVersion"],
+          "properties": {
+            "sectionNode": { "$ref": "#/$defs/figmaNodeId" },
+            "desktopHeroNode": { "$ref": "#/$defs/figmaNodeId" },
+            "mobileHeroNode": { "$ref": "#/$defs/figmaNodeId" },
+            "narrowHeroNode": { "$ref": "#/$defs/figmaNodeId" },
+            "designVersion": { "const": "Homepage refinement 2026-08-25 — FINAL" }
+          },
+          "additionalProperties": false
+        }
       },
       "additionalProperties": false
     }
@@ -205,6 +233,10 @@
       "type": "string",
       "minLength": 1,
       "pattern": "^(?!.*(?:/Users/|/private/var/|AndroidStudioProjects|sourcePath)).+$"
+    },
+    "figmaNodeId": {
+      "type": "string",
+      "pattern": "^[0-9]+:[0-9]+$"
     },
     "textPair": {
       "type": "object",

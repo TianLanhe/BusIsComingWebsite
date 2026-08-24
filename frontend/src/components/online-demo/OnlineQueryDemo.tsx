@@ -193,29 +193,33 @@ export function OnlineQueryDemoSection() {
           >
             <p className={styles.queryIndex}>01 / SET YOUR JOURNEY</p>
             <h3>{text({ "zh-Hant": "你想去哪裡？", "zh-Hans": "你想去哪里？", en: "Where are you going?" })}</h3>
-            <PlaceCombobox
-              emptyText={text(uiCopy.placeSearchEmpty)}
-              field="origin"
-              label={text(homepageContent.routeTrial.originLabel)}
-              loadingText={text(uiCopy.placeSearchLoading)}
-              onInput={updateInput}
-              onSelect={selectPlace}
-              placeholder={text(uiCopy.placeInputPlaceholder)}
-              state={origin}
-            />
-            <button className={styles.swapButton} type="button" onClick={swapPlaces} aria-label={text(uiCopy.swapPlaces)}>
-              <ArrowLeftRight aria-hidden="true" size={18} />
-            </button>
-            <PlaceCombobox
-              emptyText={text(uiCopy.placeSearchEmpty)}
-              field="destination"
-              label={text(homepageContent.routeTrial.destinationLabel)}
-              loadingText={text(uiCopy.placeSearchLoading)}
-              onInput={updateInput}
-              onSelect={selectPlace}
-              placeholder={text(uiCopy.placeInputPlaceholder)}
-              state={destination}
-            />
+            <div className={styles.placeControls} data-testid="journey-place-controls">
+              <div className={styles.inputStack} data-testid="journey-input-stack">
+                <PlaceCombobox
+                  emptyText={text(uiCopy.placeSearchEmpty)}
+                  field="origin"
+                  label={text(homepageContent.routeTrial.originLabel)}
+                  loadingText={text(uiCopy.placeSearchLoading)}
+                  onInput={updateInput}
+                  onSelect={selectPlace}
+                  placeholder={text(uiCopy.placeInputPlaceholder)}
+                  state={origin}
+                />
+                <PlaceCombobox
+                  emptyText={text(uiCopy.placeSearchEmpty)}
+                  field="destination"
+                  label={text(homepageContent.routeTrial.destinationLabel)}
+                  loadingText={text(uiCopy.placeSearchLoading)}
+                  onInput={updateInput}
+                  onSelect={selectPlace}
+                  placeholder={text(uiCopy.placeInputPlaceholder)}
+                  state={destination}
+                />
+              </div>
+              <button className={styles.swapButton} type="button" onClick={swapPlaces} aria-label={text(uiCopy.swapPlaces)}>
+                <ArrowLeftRight aria-hidden="true" size={18} />
+              </button>
+            </div>
             <button className={styles.queryButton} type="submit">
               {queryStatus === "loading" ? <Loader2 aria-hidden="true" size={18} /> : null}
               {queryStatus === "loading" ? text(uiCopy.searchingButton) : text(homepageContent.routeTrial.queryAction)}

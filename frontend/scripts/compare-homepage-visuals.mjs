@@ -4,7 +4,7 @@ import path from "node:path";
 import process from "node:process";
 import sharp from "sharp";
 
-const defaultReviewRoot = path.resolve(process.cwd(), "../specs/014-upgrade-homepage-visual-system/visual-review");
+const defaultReviewRoot = path.resolve(process.cwd(), "../specs/015-refine-homepage-interactions/visual-review");
 
 function assertInsideReviewRoot(candidate, reviewRoot) {
   const resolved = path.resolve(candidate);
@@ -25,7 +25,7 @@ export async function compareImages({ referencePath, actualPath, basename, revie
   const sideBySidePath = assertInsideReviewRoot(path.join(reviewRoot, "side-by-side", `${basename}.png`), reviewRoot);
   const overlayPath = assertInsideReviewRoot(path.join(reviewRoot, "overlay", `${basename}.png`), reviewRoot);
   const diffPath = assertInsideReviewRoot(path.join(reviewRoot, "diff", `${basename}.png`), reviewRoot);
-  await Promise.all(["side-by-side", "overlay", "diff"].map((directory) => mkdir(path.join(reviewRoot, directory), { recursive: true })));
+  await Promise.all(["side-by-side", "overlay", "diff", "comparisons"].map((directory) => mkdir(path.join(reviewRoot, directory), { recursive: true })));
 
   const referenceImage = sharp(reference).removeAlpha();
   const actualImage = sharp(actual).removeAlpha();
@@ -65,7 +65,24 @@ export async function compareImages({ referencePath, actualPath, basename, revie
     overlayPath: path.relative(reviewRoot, overlayPath),
     diffPath: path.relative(reviewRoot, diffPath),
   };
-  await writeFile(assertInsideReviewRoot(path.join(reviewRoot, "comparison-manifest.json"), reviewRoot), `${JSON.stringify(result, null, 2)}\n`);
+  const comparisonPath = assertInsideReviewRoot(path.join(reviewRoot, "comparisons", `${basename}.json`), reviewRoot);
+  const indexPath = assertInsideReviewRoot(path.join(reviewRoot, "comparison-manifest.json"), reviewRoot);
+  await writeFile(comparisonPath, `${JSON.stringify(result, null, 2)}\n`);
+
+  let comparisons = [];
+  try {
+    const existing = JSON.parse(await readFile(indexPath, "utf8"));
+    comparisons = Array.isArray(existing.comparisons)
+      ? existing.comparisons
+      : existing.basename
+        ? [existing]
+        : [];
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
+  comparisons = comparisons.filter((entry) => entry.basename !== basename).concat(result)
+    .sort((left, right) => left.basename.localeCompare(right.basename));
+  await writeFile(indexPath, `${JSON.stringify({ comparisons }, null, 2)}\n`);
   return result;
 }
 

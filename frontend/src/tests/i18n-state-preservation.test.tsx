@@ -60,8 +60,7 @@ describe("homepage locale state preservation", () => {
     fireEvent.click(screen.getByRole("button", { name: "Compare bus routes →" }));
     expect(await screen.findByText("606")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Choose language" }));
-    fireEvent.click(screen.getByRole("menuitem", { name: "简体中文" }));
+    fireEvent.click(screen.getByRole("link", { name: "简" }));
 
     await waitFor(() => expect(screen.getByTestId("hero-title")).toHaveTextContent("班次看得全，候车更从容"));
     expect(screen.getByRole("button", { name: /04.*班次/ })).toHaveAttribute("aria-pressed", "true");

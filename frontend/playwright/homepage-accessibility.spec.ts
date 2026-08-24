@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { expectNoHorizontalOverflow } from "./helpers/homepageVisual";
 
-test("navigation, stories, FAQ, and primary actions remain keyboard and touch reachable", async ({ page }) => {
+test("language links, stories, FAQ, and primary actions remain keyboard and touch reachable", async ({ page }) => {
   await page.goto("/en/");
-  const targets = page.locator("header a, header button, #features a, #features button, #faq button, #contact a, footer a");
+  const targets = page.locator("#features a, #features button, #faq button, #contact a, footer a");
   const targetCount = await targets.count();
   for (let index = 0; index < targetCount; index += 1) {
     const target = targets.nth(index);

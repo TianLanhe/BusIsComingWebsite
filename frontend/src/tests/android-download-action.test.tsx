@@ -42,6 +42,7 @@ describe("Android download action", () => {
     expect(action).toHaveAttribute("download", "BusIsComing-v1.3.1.apk");
     expect(screen.getByTestId("download-metadata-line")).toHaveTextContent("v1.3.1");
     expect(screen.getByTestId("download-metadata-line")).toHaveTextContent("Android 7.1+");
+    expect(screen.getByTestId("download-metadata-line")).not.toHaveTextContent("21/08/2026");
     action.addEventListener("click", (event) => event.preventDefault(), { once: true });
     fireEvent.click(action);
     expect(fetchMock).toHaveBeenCalledTimes(1);

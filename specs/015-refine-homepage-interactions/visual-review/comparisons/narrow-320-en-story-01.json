@@ -1,0 +1,10 @@
+{
+  "basename": "narrow-320-en-story-01",
+  "width": 320,
+  "height": 844,
+  "referenceSha256": "f632e489a82a334edaba47ee67d535ff6dddc9bcac208ffba1307605fbe8031d",
+  "actualSha256": "cafeeef731f2508b97a2f57e0274153ccd00abaf9dedd8fce09de22913ec77ed",
+  "sideBySidePath": "side-by-side/narrow-320-en-story-01.png",
+  "overlayPath": "overlay/narrow-320-en-story-01.png",
+  "diffPath": "diff/narrow-320-en-story-01.png"
+}

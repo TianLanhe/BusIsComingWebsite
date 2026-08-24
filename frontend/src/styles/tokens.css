@@ -68,8 +68,8 @@
   --text-route: 800 18px / 1 var(--font-sans);
   --text-overline: 780 12px / 1.2 var(--font-sans);
 
-  --motion-orbit-mobile: 880ms;
-  --motion-orbit-desktop: 520ms;
+  --motion-orbit-mobile: 820ms;
+  --motion-orbit-desktop: 820ms;
   --motion-ease-orbit: cubic-bezier(.18, .82, .18, 1);
   --motion-ease-soft: cubic-bezier(.2, .8, .2, 1);
 }

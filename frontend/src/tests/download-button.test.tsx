@@ -20,6 +20,16 @@ describe("homepage download entries", () => {
   beforeEach(() => {
     resetDownloadMetadataForTests();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("routes the desktop Hero action to the download section without exposing an APK download", async () => {
+    vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(readyMetadata), { status: 200, headers: { "Content-Type": "application/json" } })));
+    renderWithI18n(<DownloadMetadataProvider><HeroSection /></DownloadMetadataProvider>, { locale: "en" });
+    const action = await screen.findByRole("link", { name: "Download Android App" });
+    expect(action).toHaveAttribute("href", "#download");
+    expect(action).not.toHaveAttribute("download");
   });
 
   it("shares one verified metadata request across Hero and Download", async () => {
@@ -28,7 +38,7 @@ describe("homepage download entries", () => {
     renderWithI18n(<DownloadMetadataProvider><HeroSection /><DownloadSection /></DownloadMetadataProvider>, { locale: "en" });
     const hero = within(document.querySelector("#features") as HTMLElement);
     const download = within(document.querySelector("#download") as HTMLElement);
-    expect(await hero.findByRole("link", { name: "Download Android App" })).toHaveAttribute("download", "BusIsComing-v1.3.1.apk");
+    expect(await hero.findByRole("link", { name: /Download (?:Android )?App/ })).toHaveAttribute("download", "BusIsComing-v1.3.1.apk");
     expect(await download.findByRole("link", { name: "Download BusIsComing" })).toHaveAttribute("href", "/api/downloads/android/latest");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });

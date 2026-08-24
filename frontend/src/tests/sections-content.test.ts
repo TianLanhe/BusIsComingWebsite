@@ -16,14 +16,20 @@ describe("downstream sections content", () => {
     expect(homepageContent.supportEnding.faq.filter((item) => item.defaultOpen)).toHaveLength(1);
   });
 
-  it("keeps navigation and support links complete in every locale", () => {
-    expect(homepageContent.navigation.items.map((item) => item.id)).toEqual(["features", "faq", "contact"]);
+  it("keeps direct language and support links complete in every locale", () => {
+    expect(homepageContent.siteChrome.languageOptions).toEqual({ "zh-Hant": "繁", "zh-Hans": "简", en: "EN" });
     for (const locale of locales) {
-      expect(homepageContent.navigation.items.every((item) => item.label[locale].length > 0)).toBe(true);
+      expect(homepageContent.siteChrome.brandName[locale]).toBe("BusIsComing");
+      expect(homepageContent.siteChrome.languageLabel[locale]).toBeTruthy();
       expect(homepageContent.supportEnding.privacyLink.label[locale]).toBeTruthy();
       expect(homepageContent.scopeExclusions.every((entry) => entry[locale].length > 0)).toBe(true);
     }
     expect(homepageContent.supportEnding.contact.target).toBe("mailto:hezhenyu966@gmail.com");
+  });
+
+  it("never exposes a download date label", () => {
+    expect(Object.keys(homepageContent.downloadDecision.metadataLabels)).toEqual(["version", "minimumSystem", "size"]);
+    expect(JSON.stringify(homepageContent.downloadDecision)).not.toMatch(/updated|更新日期|最後更新|last updated/i);
   });
 
   it("positions the app as a bus product that can grow beyond one operator", () => {

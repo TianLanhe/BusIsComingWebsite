@@ -35,8 +35,15 @@
 }
 
 .hero {
-  width: 214px;
+  width: 224px;
+  min-height: 54px;
+  border-radius: 18px;
+  gap: 10px;
+  padding-inline: 14px;
+  font-size: 15px;
 }
+
+.hero span:first-child { white-space: nowrap; }
 
 .section {
   min-width: 246px;
@@ -61,8 +68,9 @@
 
 @media (max-width: 520px) {
   .hero {
-    width: 190px;
+    width: auto;
     min-height: 44px;
+    border-radius: 16px;
     padding: 0 14px;
     font-size: 13px;
   }
@@ -75,7 +83,8 @@
 
 @media (max-width: 350px) {
   .hero {
-    width: 166px;
+    gap: 8px;
+    padding-inline: 10px;
     font-size: 11.5px;
   }
 }

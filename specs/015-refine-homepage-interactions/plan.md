@@ -46,7 +46,7 @@
 
 **UI 可视化产物**：[figma.md](./figma.md)、[2026-08-25 refinement 设计合同](../../docs/superpowers/specs/2026-08-25-homepage-visual-system-refinement-design.md)，以及实施阶段生成的 `specs/015-refine-homepage-interactions/visual-review/`
 
-**Figma 设计引用**：[BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)；014 只读基线 `119:64`、桌面 `119:176`、手机 `119:461`；015 独立 Section `136:292` 已通过 Figma Desktop 创建并人工选择核对。`zh-Hant`/`en` reference export 未完整登记前，生产 UI 门禁仍关闭；`zh-Hans` 不设置像素级 reference 门禁
+**Figma 设计引用**：[BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)；014 只读基线 `119:64`、桌面 `119:176`、手机 `119:461`；015 独立 Section `136:292` 已通过 Figma Desktop 创建并人工选择核对。19 张 `zh-Hant`/`en` 及关键状态 reference 已完成原生导出、尺寸/哈希登记与视觉抽查，生产 UI 门禁通过；`zh-Hans` 不设置像素级 reference 门禁
 
 **双端适配范围**：桌面批准基准 `1440×960`，手机批准基准 `390×844`，窄屏保护 `320×844`。桌面 CTA 页面内跳到第三屏并显示二维码；手机 Hero ready 时直接下载且无二维码；手机路线为双输入左列 + 交换按钮右列；三端使用浏览器截图、几何断言和人工对照验证
 
@@ -64,7 +64,7 @@
 | 试用查询与可靠降级 | 通过 | 现有 request sequence、retained/error/ETA 规则不变；只改手机输入组布局 |
 | 现代界面与可视化评审 | 通过 | 已批准 014 Figma 与 2026-08-25 视觉增量；实施前新增 015 FINAL Section 和 reference |
 | 电脑与手机双端一致可用 | 通过 | 1440×960、390×844、320×844 与桌面/手机差异合同明确 |
-| Figma 驱动的前端规格 | 条件通过 | Figma 文件、014 基线与 015 Section `136:292` 可定位；`zh-Hant`/`en` reference export 仍是生产代码前置门禁，`zh-Hans` 按文本/溢出/几何合同验收 |
+| Figma 驱动的前端规格 | 通过 | Figma 文件、014 基线与 015 Section `136:292` 可定位；19 张 `zh-Hant`/`en` 及关键状态 reference 已登记并通过门禁，`zh-Hans` 按文本/溢出/几何合同验收 |
 | 服务端 DDD 架构 | 通过（N/A） | 无服务端代码 |
 | 服务端稳健性与可观测性 | 通过（N/A） | 无服务端代码 |
 | 中文注释与代码可读性 | 通过 | 只对状态机、兼容与原子导入边界添加简体中文意图注释 |
@@ -75,7 +75,7 @@
 
 - 数据与 UI 状态均可由前端显式模型表达，没有新增服务端或持久化需要。
 - 内容 v4 和 screenshot manifest v3 消除了 Header、日期与单语言截图的旧合同冲突。
-- Figma 015 Section 与关键节点已在 Figma Desktop 生成并人工选择核对；由于 `zh-Hant`/`en` reference export/manifest 尚未完整登记，生产 UI 门禁仍关闭。`zh-Hans` 不要求像素级 reference。
+- Figma 015 Section 与关键节点已在 Figma Desktop 生成并人工选择核对；`zh-Hant`/`en` reference export/manifest 已完成 19/19 登记，生产 UI 门禁通过。`zh-Hans` 不要求像素级 reference。
 - 用户明确要求不显示暂停按钮；这项可访问性风险进入复杂度跟踪和完成报告，不会被误写为完整合规。
 
 ## 项目结构

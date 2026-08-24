@@ -1,81 +1,55 @@
-# UI 状态契约：首页视觉系统 v1.3.1
+# UI 状态契约：首页交互优化 v1.3.1
 
-## 适用范围
+## 适用范围与权威
 
-本契约覆盖公开三语首页的 Header、五故事 Hero、共享下载入口、FAQ 和跨语言状态保持。路线试查的
-业务状态继续由 `route-query-ui-state.md` 约束。Figma 最终 Section `119:64` 是视觉权威，
-`specs/014-upgrade-homepage-visual-system/contracts/homepage-visual-system.contract.md` 是完整
-feature 合同。
+本契约覆盖公开三语首页的轻量品牌首行、五故事 Hero、下载分流、FAQ、Privacy 与跨语言/resize 状态保持。路线业务状态仍由 `route-query-ui-state.md` 约束。完整视觉以 Figma 基线 Section `119:64` 与 015 refinement Section `136:292` 共同为准；015 只修改明确批准的交互和局部布局，不重画 014 构图。
 
-本版取代旧四故事、3 秒自动播放、`stair-card-deck`、拖拽、同故事画廊、lightbox、FeatureGrid
-和功能证据标签。生产代码和测试不得同时保留两套模型。
+## 轻量品牌首行
 
-## Header
+- 首页不渲染独立 Header、导航占位、汉堡或语言 disclosure。
+- 品牌首行处于 Hero 正常文档流，随页面自然划走，不 sticky。
+- 左侧使用真实 `busiscoming-icon.webp` 与品牌名；右侧同时显示 `繁 · 简 · EN`。
+- 三项语言均为真实本地化 URL，一次可达，当前项使用 `aria-current="page"`；目标至少 44×44 CSS px。
+- Privacy 与 Footer 复用同一真实 App Logo；旧 BrandMark 不能作为公开页面主标识。
 
-- 桌面和手机必须同时显示品牌、功能、FAQ、联系和语言入口。
-- 390px 不得退化为仅显示联系或汉堡菜单；320px 可视觉隐藏品牌文字，但保留可访问名称。
-- 语言入口使用 disclosure，具备 `aria-expanded`、Escape 关闭和焦点恢复。
-- 所有主要目标至少 `44×44 CSS px`，并提供可见 `:focus-visible`。
+## 五故事状态机
 
-## 五故事 Hero
+固定顺序为 `route-search`、`saved-journeys`、`journey-guidance`、`cross-operator-arrivals`、`predeparture-monitor`。业务状态区分 `requestedStoryId` 与 `settledStoryId`，每次选择递增 `transitionEpoch`；旧 epoch 的 load、decode、transitionend 或 fallback 不得覆盖新选择。
 
-唯一状态源为 `activeStoryId`，固定顺序是：
+- 首次 settled 后停留 10 秒；自动 settled 后 5 秒；手动选择、语言切换或暂停恢复后重新停留 10 秒。
+- 同一时刻只有一个 dwell timer。hover、播放区 focus、页面不可见、Hero 离屏、视觉回归 pause 任一成立即暂停；原因全部清除后以 10 秒重新开始。
+- 用户确认“不提供可见暂停按钮”；此限制必须在可访问性记录中如实说明。
+- 点击故事按钮后，舞台立即移动，约 160ms 后文字跟随，约 820ms 进入 settled；fallback 只处理丢失事件。
+- 自动切换不抢焦点且不触发 live region；最终手动 settled 只原子播报一次。
+- reduced motion 立即交换，但保留 front/near/far 的静态远近层级。
 
-1. `route-search`
-2. `saved-journeys`
-3. `journey-guidance`
-4. `cross-operator-arrivals`
-5. `predeparture-monitor`
-
-状态必须在同一次 render 中同步标题、说明、前景截图、五个环形槽位、选中按钮和 live region。每次
-恰有一个 `front`、两个 `near`、两个 `far`。后景不可点击、不可聚焦、空 alt 且
-`aria-hidden=true`；只有前景图暴露三语 alt。
-
-故事按钮显示 `01–05` 与本地化短标签，支持 pointer、touch、Arrow、Home、End。禁止 autoplay、
-drag/swipe、lightbox 和隐藏上一页/下一页控件。连续快速选择以后最后一次选择必须胜出。
-
-标准动效手机约 880ms、桌面约 520ms，使用 x/y/scale/rotate/opacity/blur/z-index 形成环形前后交换，
-不得退化为平面队列或单纯淡入淡出。reduced motion 立即换槽，但保留静态远近层级。
-
-## 风带
-
-- Hero、Route、Download 使用 3–5 层白色/浅绿背景，强度逐段收敛；Support 静止。
-- 周期分布在 10–22 秒，只动画 transform、opacity、scale，不动画布局。
-- 所有风带层均为装饰，不能获取 pointer/focus，overscan 不得产生水平滚动。
-- reduced motion 下持续 animation 数量必须为 0。
-- 禁止紫色色块、霓虹、深色潮汐、固定底浪和影响文字对比度的动画。
+每个 settled 帧必须恰有一个 front、两个 near、两个 far。背景图不可点击、不可聚焦、空 alt 且 `aria-hidden=true`；只有当前前景图提供本地化 alt。繁中与简中只使用 `zh` 资产，英文只使用 `en` 资产；目标语言图片失败时显示同尺寸目标语言失败壳，禁止跨语言回退。
 
 ## 下载入口
 
-Hero 和 DownloadDecision 共用一个 `DownloadMetadataProvider`：
+Hero 与下载区共享 `DownloadMetadataProvider`，下载状态仍为 `checking`、`ready`、`unavailable`。
 
-| 状态 | 主行动 | 信息 | 桌面 QR | 手机 QR |
-| --- | --- | --- | --- | --- |
-| `checking` | 不可操作、无 href | 检查中 | 无 | 无 |
-| `ready` | 原生 `<a download>` | version、Android 7.1+、size、updated 同权重 | 有 | 无 |
-| `unavailable` | 不可操作、无 href | 单一暂不可用说明 | 无 | 无 |
+- desktop（与 QR 一致，`min-width: 821px`）：Hero 主行动始终是无 `download` 属性的 `#download` 锚点。
+- mobile：只有 ready 才渲染真实 APK href 与 `download`；checking/unavailable 不提供 href。
+- 下载区行动、二维码和 mobile ready 行动必须收敛到同一个 metadata URL。
+- 所有状态均不展示 `lastUpdated` 或静态日期；ready 只展示版本、Android 7.1+ 与本地化大小。
+- 禁止 User-Agent 分流、远程/静态备用二维码、Blob 下载、伪进度、BUILD、SHA、sourcePath 或旧版本回退。
 
-QR 值必须等于 `new URL(metadata.downloadUrl, window.location.origin).href`，与按钮最终 URL 相同，
-不成为第二个焦点目标。禁止远程 QR、静态备用 QR、Blob 下载、虚假进度、BUILD、SHA、sourcePath
-和陈旧版本回退。
+## 路线试查布局
 
-DownloadDecision 首次进入约 50% viewport 时只触发一次 `data-converged=true`；离开重入和语言
-切换均不重播。reduced motion 不观察、不触发，组件卸载清理 observer。
+手机端 origin/destination 输入面在左侧垂直排列，交换按钮位于右侧并相对两个真实输入面整体居中。候选列表、错误与已选状态不得改变按钮锚点；按钮至少 44×44，页面无横向滚动。`swapPlaces()`、request sequence、路线查询、ETA 与 retained 语义不变。
 
-## FAQ 与收尾
+## 三语、响应式与视觉稳定
 
-- FAQ 恰有 Android 安装、数据覆盖、网站与 App 区别、iPhone 支持四项。
-- 默认展开 `android-install`，同一时间最多一项；稳定 ID 在语言切换后保持。
-- 原生 button 负责 `aria-expanded/aria-controls`，panel 负责 `aria-labelledby`，加减号仅装饰。
-- FAQ 后依次是联系横条与浅色 SiteFooter；保留当前语言 Privacy 和返回顶部。
-- 禁止独立 FAQ 卡片、深色页尾或新的营销屏。
+- 所有可见文案、alt、aria label、状态和失败壳覆盖 `zh-Hant`、`zh-Hans`、`en`。
+- 切换语言不 reload、不以 locale key 重挂载，并保持当前故事、scroll/hash、路线输入与结果、下载状态、FAQ ID。
+- resize/orientation 不重置上述状态，不通过 `transform: scale()` 整页缩放。
+- 1440×960、390×844、320×844 与中间宽度无横向滚动；手机 9:16 前景四边完整，故事轨处于舞台下方正常文档流，不能覆盖截图。
+- 视觉回归只在字体、目标 locale 图片及最新 epoch settled 后截图；`zh-Hant`/`en` 对照 Figma，`zh-Hans` 只作文本、溢出和几何验收。
 
-## 三语、响应式与状态保持
+## 风带、FAQ 与收尾
 
-- 所有可见文字、alt、aria label、状态和错误映射覆盖 `zh-Hant`、`zh-Hans`、`en`。
-- 语言切换不得 reload 或以 locale key 重挂载首页；当前故事、hash/scroll、路线输入与有效结果、
-  下载状态和 FAQ ID 均保持。
-- 1440×960、390×844 和 320px 必须无横向滚动。手机截图四边完整、无硬件开孔，故事轨在正常文档
-  流并位于舞台下方，不得覆盖截图。
-- 首页总体定位是香港巴士路线规划与导航 App；符合条件的联营路线首程 ETA 不得扩写为完整跨营运商
-  路线规划。
+- Hero、Route、Download 使用白色/浅绿远近风带，只动画 transform、opacity、scale；reduced motion 下持续 animation 为 0。
+- 禁止紫色色块、霓虹、深色底浪、固定潮汐和影响对比度的动画。
+- FAQ 保持 Android 安装、数据覆盖、网站与 App 区别、iPhone 支持四项，同一时间最多展开一项。
+- FAQ 后仍为联系横条和浅色 Footer；不新增营销屏。

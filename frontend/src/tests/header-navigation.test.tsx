@@ -1,28 +1,25 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { AppBrand } from "../components/brand/AppBrand";
 import { I18nProvider } from "../components/i18n/I18nProvider";
-import { Header } from "../components/sections/Header";
+import { InlineLanguageLinks } from "../components/i18n/InlineLanguageLinks";
 
-describe("homepage Header", () => {
-  it("keeps all primary destinations and the language disclosure in the DOM", () => {
-    window.history.replaceState({}, "", "/zh-hant/");
-    render(<I18nProvider><Header /></I18nProvider>);
-    expect(screen.getByRole("link", { name: "功能" })).toHaveAttribute("href", "#features");
-    expect(screen.getByRole("link", { name: "常見問題" })).toHaveAttribute("href", "#faq");
-    expect(screen.getByRole("link", { name: "聯絡我們" })).toHaveAttribute("href", "#contact");
-    const trigger = screen.getByRole("button", { name: "選擇語言" });
-    expect(trigger).toHaveAttribute("aria-expanded", "false");
-    fireEvent.click(trigger);
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getAllByRole("menuitem")).toHaveLength(3);
-    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
-    expect(trigger).toHaveFocus();
+describe("lightweight homepage chrome", () => {
+  it("uses the real app logo and exposes all language destinations directly", () => {
+    window.history.replaceState({}, "", "/zh-hant/#features");
+    render(<I18nProvider><AppBrand /><InlineLanguageLinks /></I18nProvider>);
+    expect(screen.getByRole("img", { name: "BusIsComing" })).toHaveAttribute("src", expect.stringContaining("busiscoming-icon"));
+    expect(screen.getByRole("link", { name: "繁" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "简" })).toHaveAttribute("href", "/zh-hans/#features");
+    expect(screen.getByRole("link", { name: "EN" })).toHaveAttribute("href", "/en/#features");
+    expect(screen.queryByRole("button", { name: /語言|语言|language/i })).toBeNull();
   });
 
-  it("keeps privacy navigation localized while hiding its language switcher", () => {
-    window.history.replaceState({}, "", "/en/privacy/");
-    render(<I18nProvider><Header pageId="privacy" hideLanguageSwitcher /></I18nProvider>);
-    expect(screen.getByRole("link", { name: "Features" })).toHaveAttribute("href", "/en/#features");
-    expect(screen.queryByRole("button", { name: "Choose language" })).toBeNull();
+  it("changes locale without reloading the page", () => {
+    window.history.replaceState({}, "", "/en/");
+    render(<I18nProvider><InlineLanguageLinks /></I18nProvider>);
+    fireEvent.click(screen.getByRole("link", { name: "简" }));
+    expect(window.location.pathname).toBe("/zh-hans/");
+    expect(screen.getByRole("link", { name: "简" })).toHaveAttribute("aria-current", "page");
   });
 });

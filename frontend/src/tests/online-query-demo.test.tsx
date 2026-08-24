@@ -14,6 +14,16 @@ describe("OnlineQueryDemoSection", () => {
     vi.restoreAllMocks();
   });
 
+  it("groups both place inputs beside one swap control without changing their semantics", () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonEnvelope({ places: [], expiresAt: "2026-06-16T12:00:00Z" }));
+    renderWithI18n(<OnlineQueryDemoSection />, { locale: "en" });
+    const controls = screen.getByTestId("journey-place-controls");
+    const stack = screen.getByTestId("journey-input-stack");
+    expect(stack).toContainElement(screen.getByLabelText("Origin"));
+    expect(stack).toContainElement(screen.getByLabelText("Destination"));
+    expect(controls).toContainElement(screen.getByRole("button", { name: "Swap origin and destination" }));
+  });
+
   it("requires candidate selection and does not submit free-text route queries", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonEnvelope({ places: [], expiresAt: "2026-06-16T12:00:00Z" }));
     renderWithI18n(<OnlineQueryDemoSection />, { locale: "en" });

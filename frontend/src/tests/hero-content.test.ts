@@ -19,10 +19,11 @@ describe("hero content", () => {
 
   it("pins implementation to the final Figma contract", () => {
     expect(homepageContent.figmaReference.fileUrl).toContain("figma.com");
-    expect(homepageContent.figmaReference.sectionNode).toBe("119:64");
-    expect(homepageContent.figmaReference.desktopHeroNode).toBe("119:176");
-    expect(homepageContent.figmaReference.mobileHeroNode).toBe("119:461");
-    expect(homepageContent.figmaReference.designVersion).toContain("FINAL");
+    expect(homepageContent.figmaReference.baseline.sectionNode).toBe("119:64");
+    expect(homepageContent.figmaReference.baseline.desktopHeroNode).toBe("119:176");
+    expect(homepageContent.figmaReference.baseline.mobileHeroNode).toBe("119:461");
+    expect(homepageContent.figmaReference.refinement.sectionNode).toBe("136:292");
+    expect(homepageContent.figmaReference.refinement.designVersion).toContain("FINAL");
   });
 
   it("preserves the approved Traditional Chinese story copy exactly", () => {

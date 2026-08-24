@@ -3,7 +3,6 @@ import { DownloadMetadataProvider } from "../components/download/DownloadMetadat
 import { FaqSection } from "../components/sections/FaqSection";
 import { ContactStrip } from "../components/sections/ContactStrip";
 import { FooterContact } from "../components/sections/FooterContact";
-import { Header } from "../components/sections/Header";
 import { HeroSection } from "../components/hero/HeroSection";
 import { OnlineQueryDemoSection } from "../components/online-demo/OnlineQueryDemo";
 import { PrivacyPolicyPage } from "../components/privacy/PrivacyPolicyPage";
@@ -17,7 +16,6 @@ export function App() {
   const page = (
     <div id="top">
       <SeoHead pageId={pageId} />
-      <Header pageId={pageId} hideLanguageSwitcher={isPrivacyPage} />
       {isPrivacyPage ? (
         <PrivacyPolicyPage />
       ) : (

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { I18nProvider, useI18n } from "../components/i18n/I18nProvider";
-import { LanguageSwitcher } from "../components/i18n/LanguageSwitcher";
+import { InlineLanguageLinks } from "../components/i18n/InlineLanguageLinks";
 import { SeoHead } from "../components/seo/SeoHead";
 import {
   alternateLinksForPage,
@@ -23,7 +23,7 @@ function renderSeoHarness() {
   return render(
     <I18nProvider>
       <SeoHead />
-      <LanguageSwitcher label="Language" />
+      <InlineLanguageLinks />
       <LocaleProbe />
     </I18nProvider>,
   );
@@ -67,8 +67,7 @@ describe("localized SEO routing", () => {
 
     renderSeoHarness();
 
-    fireEvent.click(screen.getByRole("button", { name: "Language" }));
-    const english = screen.getByRole("menuitem", { name: "English" });
+    const english = screen.getByRole("link", { name: "EN" });
     expect(english).toHaveAttribute("href", "/en/#features");
     fireEvent.click(english);
 

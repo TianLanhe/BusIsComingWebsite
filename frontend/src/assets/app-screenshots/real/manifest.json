@@ -1,262 +1,507 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "3.0.0",
   "appVersion": "1.3.1",
-  "approvedAt": "2026-08-21",
+  "approvedAt": "2026-08-25",
+  "localeVariantByLocale": {
+    "zh-Hant": "zh",
+    "zh-Hans": "zh",
+    "en": "en"
+  },
   "assets": [
     {
       "id": "route-search",
       "storyId": "route-search",
       "order": 1,
-      "sourceFingerprint": {
-        "width": 1080,
-        "height": 2172,
-        "sha256": "d9621d2a93b348d01eb83ce4917bc5d0b249e5d24d9ce7450aa57384a0c74989"
-      },
-      "outputs": [
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/route-search-540.webp",
-          "width": 540,
-          "height": 1086,
-          "format": "webp",
-          "sizeBytes": 50058,
-          "sha256": "c7ef22cd37343de5b1f1317a2aba069043879462ff4d4b0d644bc50f2bd4e588"
+      "variants": {
+        "zh": {
+          "sourceFileName": "01-search-freely.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "b3234b875dcb682e042cab173b831b23e9aa66f0b434f6d67d59e9d37146d8ce"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/route-search-zh-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 46708,
+              "sha256": "b190f93515f4337575b6cdff790d73fb52b8022b3bf15b43610a151d76b9db01"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/route-search-zh-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 67902,
+              "sha256": "f54c0252b0d2fc9d1b645d0f8ca16817bd03ccb7cf00cd262b899f437c0be729"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/route-search-zh-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 113474,
+              "sha256": "32e232526b0770f48b7cbdba0a32143192ef6ed429e857860a0f4a208859ffcc"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/route-search-720.webp",
-          "width": 720,
-          "height": 1448,
-          "format": "webp",
-          "sizeBytes": 70000,
-          "sha256": "e3a3225e774fc4e75117f7691f02fd862c49186bb5fedc7fac63c894ad857a89"
-        },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/route-search-1080.webp",
-          "width": 1080,
-          "height": 2172,
-          "format": "webp",
-          "sizeBytes": 112056,
-          "sha256": "cd8772883753ec9f1109d24a5f2aa4aeeec8d95208cbe14204ce3c5e04bda139"
+        "en": {
+          "sourceFileName": "01-search-freely-en.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "7c68e28ee80060e22fd8cf05a14c40cb750e85593b6156277a103467126e11c2"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/route-search-en-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 44044,
+              "sha256": "cb93ce56d30885eed5e0af1658642bd680973eb38378c72e7e442abbc91f05c1"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/route-search-en-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 63588,
+              "sha256": "cf429260fd733195a5296eeccb6dc9459bb3a84138f2ff25a2ab3f559e7450df"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/route-search-en-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 103080,
+              "sha256": "aaee5f9bae39552d4997a21e7bd043a0e1abbbec1fbf58a208eaf1e86c72c8cc"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         }
-      ],
-      "approvalStatus": "approved",
-      "desensitizationStatus": "approved",
-      "redactedItems": [],
-      "retainedItems": [
-        "approved-product-ui",
-        "route-and-arrival-values",
-        "app-navigation"
-      ],
+      },
       "alt": {
         "zh-Hant": "本次行程及候選巴士路線",
         "zh-Hans": "本次行程及候选巴士路线",
         "en": "Current journey and suggested bus routes"
       },
-      "approvedAt": "2026-08-21",
-      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
+      "provenanceLabel": "User-provided v1.3.1 localized core-value screenshots approved for Figma refinement 136:292"
     },
     {
       "id": "saved-journeys",
       "storyId": "saved-journeys",
       "order": 2,
-      "sourceFingerprint": {
-        "width": 1080,
-        "height": 2172,
-        "sha256": "f5ff363cc192ebca12b8426f9aebab3fad20565381365ba941e21529503c3eb9"
-      },
-      "outputs": [
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-540.webp",
-          "width": 540,
-          "height": 1086,
-          "format": "webp",
-          "sizeBytes": 56854,
-          "sha256": "a42916806b005594bb174e5c02e38aee63d67081a56b6335c9601e2dc208d864"
+      "variants": {
+        "zh": {
+          "sourceFileName": "02-saved-journey.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "c2a1555fb593e64712cb6173c88097d562b9935e625227fa144f3e9227a2c0a6"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-zh-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 49690,
+              "sha256": "8d201f03a7710113e93b107f1d256aa568d447617f6143e0f2146ff14aafc698"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-zh-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 73196,
+              "sha256": "4f73c9fb5c7a540aa860b3bf4a8517b5ddcea4ef1d49073201c303f39427915c"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-zh-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 121926,
+              "sha256": "a6db389c4a1d797fd6dc1c8ce56dc99b96731c65ff8032353518fcb5d397af69"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-720.webp",
-          "width": 720,
-          "height": 1448,
-          "format": "webp",
-          "sizeBytes": 80016,
-          "sha256": "7785d715721e3f2120a71a72884183fdac213b0e1918e6b1ae5da8c44c7dbb41"
-        },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-1080.webp",
-          "width": 1080,
-          "height": 2172,
-          "format": "webp",
-          "sizeBytes": 127436,
-          "sha256": "f59f9e2751e10ba276520ddc50a698fc0e7f14891658269f5dbdbe8e1cfdb919"
+        "en": {
+          "sourceFileName": "02-saved-journey-en.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "25d47c68b61afdd9a1738f082899493f7e9599c369a92dff72f1f0de967e2fb2"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-en-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 47642,
+              "sha256": "39e2a532d3b146fbe55ecfe8731a8c5dcf389e51227990b8524a647383c33032"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-en-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 68146,
+              "sha256": "d64c9ac3f6d0696ceb667e9d4971b80a0652459d655f29f6c5b2d0f65320a40f"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/saved-journeys-en-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 111772,
+              "sha256": "f186094b27134008aeb678eaa42fa04265bae3af480a0f98a1b043d2b17644e4"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         }
-      ],
-      "approvalStatus": "approved",
-      "desensitizationStatus": "approved",
-      "redactedItems": [],
-      "retainedItems": [
-        "approved-product-ui",
-        "route-and-arrival-values",
-        "app-navigation"
-      ],
+      },
       "alt": {
         "zh-Hant": "常用行程及巴士路線比較",
-        "zh-Hans": "常用行程及巴士路线比较",
+        "zh-Hans": "常走的路，一按更省心",
         "en": "Saved journeys and bus route comparison"
       },
-      "approvedAt": "2026-08-21",
-      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
+      "provenanceLabel": "User-provided v1.3.1 localized core-value screenshots approved for Figma refinement 136:292"
     },
     {
       "id": "journey-guidance",
       "storyId": "journey-guidance",
       "order": 3,
-      "sourceFingerprint": {
-        "width": 1080,
-        "height": 2172,
-        "sha256": "10db41131df140927ed347d7a83c26f83e23ee5344c6873c411b2062571bebfd"
-      },
-      "outputs": [
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-540.webp",
-          "width": 540,
-          "height": 1086,
-          "format": "webp",
-          "sizeBytes": 100562,
-          "sha256": "7ec99c07e09ad998f92916081af7bbcde07d9a10afb3e6a1c80afaf3040bc8d0"
+      "variants": {
+        "zh": {
+          "sourceFileName": "03-route-detail.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "cba019119377be69dcf75f99a1f21aa0002dad7bc60a896d049b6e2bef64df58"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-zh-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 70890,
+              "sha256": "6f004d1bbf13eb6dd4fe636a65601e9b47df08d1f455ef494e8808b311ae2916"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-zh-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 106112,
+              "sha256": "73b61c4a965d5b8e4e322ebca3aba7a945f033f74f0f0c526a80fff3bb6eb1de"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-zh-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 185930,
+              "sha256": "04faded2df30ba63d872d7933286f1c5d0e7f4c8049a605ff85b6d1b0a48e1b5"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-720.webp",
-          "width": 720,
-          "height": 1448,
-          "format": "webp",
-          "sizeBytes": 149932,
-          "sha256": "6996317fcadeed530425d8df949a314737ce192db84f4a01db3eef6619d91466"
-        },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-1080.webp",
-          "width": 1080,
-          "height": 2172,
-          "format": "webp",
-          "sizeBytes": 240688,
-          "sha256": "72297d39eb223663729d802e93e4a41d6ccb9cb2b433424efc65c7c0afe96e73"
+        "en": {
+          "sourceFileName": "03-route-detail-en.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "5d3aea154a443dfa09267409939a14e074a03a80c7fdd654e9687b412b651a95"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-en-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 77006,
+              "sha256": "2887b10d0e0fab4a6843c9312ca32612cae5b0024f2ae5304b9fdf21fb7e5ed2"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-en-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 112944,
+              "sha256": "43f434e6274c6f7577251287df31096af01c7bcf34a587e67f2181147305df24"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/journey-guidance-en-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 190660,
+              "sha256": "10ad74a90578ed43a2278417481a947ddf99737501df28b2fdc220a7b21a3c8e"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         }
-      ],
-      "approvalStatus": "approved",
-      "desensitizationStatus": "approved",
-      "redactedItems": [],
-      "retainedItems": [
-        "approved-product-ui",
-        "route-and-arrival-values",
-        "app-navigation"
-      ],
+      },
       "alt": {
         "zh-Hant": "路線、轉乘與目前位置畫面",
         "zh-Hans": "路线、换乘与当前位置画面",
         "en": "Route, transfers, and current position view"
       },
-      "approvedAt": "2026-08-21",
-      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
+      "provenanceLabel": "User-provided v1.3.1 localized core-value screenshots approved for Figma refinement 136:292"
     },
     {
       "id": "cross-operator-arrivals",
       "storyId": "cross-operator-arrivals",
       "order": 4,
-      "sourceFingerprint": {
-        "width": 1080,
-        "height": 2172,
-        "sha256": "9af05fc114796d05e887b8b3dd1e2b127393efb9a7c2b23cd7e1476dc2ece4a1"
-      },
-      "outputs": [
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-540.webp",
-          "width": 540,
-          "height": 1086,
-          "format": "webp",
-          "sizeBytes": 38186,
-          "sha256": "fdf7e002e5d651adba7d3c017537b29b26259188e2a1aec0a0c52cb7434b6073"
+      "variants": {
+        "zh": {
+          "sourceFileName": "04-cross-operator-arrivals.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "b479882ff58f2ffd573968d79f34553a8a8d852ba5d1e40576f929b7d8c63e87"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-zh-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 39174,
+              "sha256": "c6c27d6dbca771da967b339e2c90323cd45bfa6078fb5f6f6c6c41fa674fa5f6"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-zh-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 57440,
+              "sha256": "56af4a6320fc6c9f3027a73de2d24edd0b074801b94c355a0061ad7d65e57d8c"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-zh-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 93104,
+              "sha256": "433786146fad3d4a904bcfab7187588b7ddad8c682638c88a5352811cac8367c"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-720.webp",
-          "width": 720,
-          "height": 1448,
-          "format": "webp",
-          "sizeBytes": 53086,
-          "sha256": "09d12fc2b92ff34ff5d86321396835f6ebf742626423bab2b4a3e79080d08e78"
-        },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-1080.webp",
-          "width": 1080,
-          "height": 2172,
-          "format": "webp",
-          "sizeBytes": 80850,
-          "sha256": "b64990410f47b417a8456a58f22cb9998f66450872390bbb1edce513a3bf32fb"
+        "en": {
+          "sourceFileName": "04-cross-operator-arrivals-en.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "42d211fb8c27a5193ba0871e74c5185ad2fbc6cd07cc5655b33540a08655c001"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-en-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 39010,
+              "sha256": "2afe9e390fa8d0953f5963af4ad17443cc7c6c0058f46a492bbd08602b328c89"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-en-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 55376,
+              "sha256": "a47bdd19c035c33926a7055e84c2ea7aa89138730101d91743e2881668f9bccc"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/cross-operator-arrivals-en-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 89334,
+              "sha256": "292fd8a0fbb5799b213a971626c3b5101337f1a5805306a2d342c225d7b0a519"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         }
-      ],
-      "approvalStatus": "approved",
-      "desensitizationStatus": "approved",
-      "redactedItems": [],
-      "retainedItems": [
-        "approved-product-ui",
-        "route-and-arrival-values",
-        "app-navigation"
-      ],
+      },
       "alt": {
         "zh-Hant": "跨營運商巴士到站時間",
         "zh-Hans": "跨运营商巴士到站时间",
         "en": "Bus arrivals across operators for an eligible route"
       },
-      "approvedAt": "2026-08-21",
-      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
+      "provenanceLabel": "User-provided v1.3.1 localized core-value screenshots approved for Figma refinement 136:292"
     },
     {
       "id": "predeparture-monitor",
       "storyId": "predeparture-monitor",
       "order": 5,
-      "sourceFingerprint": {
-        "width": 1080,
-        "height": 2400,
-        "sha256": "1cda8c7ff30823be5b95498dfd640bf124f4e3886851cd5ab6ad7968c4afa1bd"
-      },
-      "outputs": [
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-540.webp",
-          "width": 540,
-          "height": 1200,
-          "format": "webp",
-          "sizeBytes": 27722,
-          "sha256": "0d6e0f32aebe08ff7831b8c0f9c5f1fea306efb96120b89a89ce67ebbb597745"
+      "variants": {
+        "zh": {
+          "sourceFileName": "05-monitor-reminder.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "f9099ff1543636689efd5e15b59d17149cb8f547956b47287525370c5ac52dac"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-zh-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 37426,
+              "sha256": "3811ce9f5b1fd08d9a1572c91a03f3d82478ac0c9bfd323eb111eb60e6ba3e8d"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-zh-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 55528,
+              "sha256": "afc9f4df6bb9632fd9a77bf23ff4dd86878d7ede30865fd81f175a35391d8695"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-zh-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 94878,
+              "sha256": "a6af7f6c8199e4e05f7f5e463dc3488e131195ff24d6ba7aff5797d6a7827cb6"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-720.webp",
-          "width": 720,
-          "height": 1600,
-          "format": "webp",
-          "sizeBytes": 39024,
-          "sha256": "2ca53700c34235ae36bcf49c8a656ef5fa25659fcc0a5493f69979f2e4744328"
-        },
-        {
-          "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-1080.webp",
-          "width": 1080,
-          "height": 2400,
-          "format": "webp",
-          "sizeBytes": 59940,
-          "sha256": "d99e4e2091157e2ddd3faf740c27b6d5b1c178dd730f0b0a8bb12b3d2cc3ed0b"
+        "en": {
+          "sourceFileName": "05-monitor-reminder-en.png",
+          "sourceFingerprint": {
+            "width": 1080,
+            "height": 1920,
+            "sha256": "c035484e1deb8556e9d36dd53fa1f63d50f51c4617a56f1c9049d6451a0cd100"
+          },
+          "outputs": [
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-en-540.webp",
+              "width": 540,
+              "height": 960,
+              "format": "webp",
+              "sizeBytes": 42886,
+              "sha256": "ec9f7d26360fd5af51a776cdb862a66a06907c4520edfe28f710b938d4127c20"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-en-720.webp",
+              "width": 720,
+              "height": 1280,
+              "format": "webp",
+              "sizeBytes": 61946,
+              "sha256": "80d657ee03386f0648a72fd9d0e021d907d17fb02bddaeb73ee1bcf69737480f"
+            },
+            {
+              "assetPath": "frontend/src/assets/app-screenshots/real/predeparture-monitor-en-1080.webp",
+              "width": 1080,
+              "height": 1920,
+              "format": "webp",
+              "sizeBytes": 100804,
+              "sha256": "35aa93cfe85ef86c38c162a9f1789097a014bb3add4eb54b349e5cc1657c543d"
+            }
+          ],
+          "approvalStatus": "approved",
+          "desensitizationStatus": "approved",
+          "redactedItems": [],
+          "retainedItems": [
+            "approved-product-ui",
+            "route-and-arrival-values",
+            "app-navigation"
+          ],
+          "approvedAt": "2026-08-25"
         }
-      ],
-      "approvalStatus": "approved",
-      "desensitizationStatus": "approved",
-      "redactedItems": [],
-      "retainedItems": [
-        "approved-product-ui",
-        "route-and-arrival-values",
-        "app-navigation"
-      ],
+      },
       "alt": {
         "zh-Hant": "鎖屏上的候車與步行監控",
         "zh-Hans": "锁屏上的候车与步行监控",
         "en": "Waiting and walking updates on the lock screen"
       },
-      "approvedAt": "2026-08-21",
-      "provenanceLabel": "User-provided v1.3.1 core-value screenshot approved in Figma 119:64"
+      "provenanceLabel": "User-provided v1.3.1 localized core-value screenshots approved for Figma refinement 136:292"
     }
   ]
 }

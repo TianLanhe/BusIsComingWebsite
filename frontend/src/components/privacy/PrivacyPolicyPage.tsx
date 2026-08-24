@@ -1,8 +1,10 @@
 import { ArrowLeft, BadgeX, Mail, MapPinned, ServerCog, ShieldCheck, type LucideIcon } from "lucide-react";
 import { homePathForLocale } from "../../content/pageRouting";
+import { homepageContent } from "../../content/homepageContent";
 import { privacyPolicyContent } from "../../content/privacyPolicyContent";
 import type { SummaryCardId } from "../../content/types";
 import { useI18n } from "../i18n/I18nProvider";
+import { AppBrand } from "../brand/AppBrand";
 import styles from "./PrivacyPolicyPage.module.css";
 
 const summaryIcons: Record<SummaryCardId, LucideIcon> = {
@@ -20,10 +22,13 @@ export function PrivacyPolicyPage() {
   return (
     <main className={styles.page}>
       <article className={styles.article} aria-labelledby="privacy-title">
-        <a className={styles.backLink} href={homePathForLocale(locale)}>
-          <ArrowLeft aria-hidden="true" size={18} />
-          {locale === "en" ? "Back to homepage" : locale === "zh-Hans" ? "返回首页" : "返回首頁"}
-        </a>
+        <div className={styles.chrome} data-testid="privacy-chrome">
+          <AppBrand href={homePathForLocale(locale)} />
+          <a className={styles.backLink} href={homePathForLocale(locale)}>
+            <ArrowLeft aria-hidden="true" size={18} />
+            {text(homepageContent.siteChrome.privacyBackHome.label)}
+          </a>
+        </div>
 
         <header className={styles.hero}>
           <p className={styles.eyebrow}>{text(hero.eyebrow)}</p>

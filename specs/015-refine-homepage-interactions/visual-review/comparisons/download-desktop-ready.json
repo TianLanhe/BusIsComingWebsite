@@ -1,0 +1,10 @@
+{
+  "basename": "download-desktop-ready",
+  "width": 1440,
+  "height": 760,
+  "referenceSha256": "6c9a831875d48b8b23da00e2372e63ec68735ec4b733d7acee2b6e32c946e520",
+  "actualSha256": "4ae92f9e2f5daa1ffa81bcde60f9b7d314babe36cfb7ba6fcefc929daee4ae4b",
+  "sideBySidePath": "side-by-side/download-desktop-ready.png",
+  "overlayPath": "overlay/download-desktop-ready.png",
+  "diffPath": "diff/download-desktop-ready.png"
+}

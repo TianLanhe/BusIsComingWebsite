@@ -8,14 +8,15 @@ export function HeroStoryRail({
   stories,
   activeStoryId,
   onSelect,
+  announcement = "",
 }: {
   stories: HeroStory[];
   activeStoryId: HeroStoryId;
   onSelect: (storyId: HeroStoryId) => void;
+  announcement?: string;
 }) {
   const { text } = useI18n();
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const activeStory = stories.find((story) => story.id === activeStoryId) ?? stories[0];
 
   function moveFrom(index: number, event: KeyboardEvent<HTMLButtonElement>) {
     let target = index;
@@ -55,7 +56,7 @@ export function HeroStoryRail({
         })}
       </div>
       <p className={styles.live} aria-live="polite" aria-atomic="true">
-        {text(activeStory.title)}。{text(activeStory.description)}
+        {announcement}
       </p>
     </div>
   );

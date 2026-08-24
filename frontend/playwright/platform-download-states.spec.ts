@@ -15,8 +15,7 @@ test("download metadata and action survive in-page language switching without an
   });
   await page.goto("/zh-hant/#download");
   await expect(page.locator("#download").getByRole("link", { name: "下載 BusIsComing" })).toBeVisible();
-  await page.locator("header").getByRole("button", { name: "選擇語言" }).click();
-  await page.getByRole("menuitem", { name: "English" }).click();
+  await page.getByRole("navigation", { name: "選擇語言" }).getByRole("link", { name: /EN/ }).click();
   await expect(page.locator("#download").getByRole("link", { name: "Download BusIsComing" })).toBeVisible();
   expect(requests).toBe(1);
 });

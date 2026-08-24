@@ -61,7 +61,7 @@ export default defineConfig({
     },
     {
       name: "mobile-320",
-      use: { viewport: { width: 320, height: 720 }, isMobile: true },
+      use: { viewport: { width: 320, height: 844 }, isMobile: true },
     },
   ],
 });

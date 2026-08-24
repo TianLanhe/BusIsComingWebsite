@@ -158,8 +158,44 @@
     }
   ],
   "pendingReferences": [],
-  "actual": [],
-  "sideBySide": [],
-  "overlay": [],
-  "diff": []
+  "actual": [
+    "actual/desktop-1440-zh-Hant-story-01.png",
+    "actual/desktop-1440-en-story-01.png",
+    "actual/mobile-390-zh-Hant-story-01.png",
+    "actual/mobile-390-en-story-01.png",
+    "actual/narrow-320-zh-Hant-story-01.png",
+    "actual/narrow-320-en-story-01.png",
+    "actual/download-desktop-ready.png",
+    "actual/download-mobile-ready.png"
+  ],
+  "sideBySide": [
+    "side-by-side/desktop-1440-zh-Hant-story-01.png",
+    "side-by-side/desktop-1440-en-story-01.png",
+    "side-by-side/mobile-390-zh-Hant-story-01.png",
+    "side-by-side/mobile-390-en-story-01.png",
+    "side-by-side/narrow-320-zh-Hant-story-01.png",
+    "side-by-side/narrow-320-en-story-01.png",
+    "side-by-side/download-desktop-ready.png",
+    "side-by-side/download-mobile-ready.png"
+  ],
+  "overlay": [
+    "overlay/desktop-1440-zh-Hant-story-01.png",
+    "overlay/desktop-1440-en-story-01.png",
+    "overlay/mobile-390-zh-Hant-story-01.png",
+    "overlay/mobile-390-en-story-01.png",
+    "overlay/narrow-320-zh-Hant-story-01.png",
+    "overlay/narrow-320-en-story-01.png",
+    "overlay/download-desktop-ready.png",
+    "overlay/download-mobile-ready.png"
+  ],
+  "diff": [
+    "diff/desktop-1440-zh-Hant-story-01.png",
+    "diff/desktop-1440-en-story-01.png",
+    "diff/mobile-390-zh-Hant-story-01.png",
+    "diff/mobile-390-en-story-01.png",
+    "diff/narrow-320-zh-Hant-story-01.png",
+    "diff/narrow-320-en-story-01.png",
+    "diff/download-desktop-ready.png",
+    "diff/download-mobile-ready.png"
+  ]
 }

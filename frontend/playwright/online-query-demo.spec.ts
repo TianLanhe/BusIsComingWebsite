@@ -1,5 +1,56 @@
 import { expect, test } from "@playwright/test";
 
+async function expectMobilePlaceGeometry(page: import("@playwright/test").Page) {
+  const controls = page.getByTestId("journey-place-controls");
+  const stack = page.getByTestId("journey-input-stack");
+  const swap = controls.getByRole("button", { name: /Swap origin and destination|交換起點和終點|交换起点和终点/ });
+  const [controlsBox, stackBox, swapBox] = await Promise.all([
+    controls.boundingBox(),
+    stack.boundingBox(),
+    swap.boundingBox(),
+  ]);
+  expect(controlsBox).not.toBeNull();
+  expect(stackBox).not.toBeNull();
+  expect(swapBox).not.toBeNull();
+  expect(swapBox!.width).toBeGreaterThanOrEqual(44);
+  expect(swapBox!.height).toBeGreaterThanOrEqual(44);
+  expect(swapBox!.x).toBeGreaterThanOrEqual(stackBox!.x + stackBox!.width + 8);
+  expect(Math.abs((swapBox!.y + swapBox!.height / 2) - (stackBox!.y + 64))).toBeLessThanOrEqual(2);
+  expect(swapBox!.x + swapBox!.width).toBeLessThanOrEqual(controlsBox!.x + controlsBox!.width + 1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+}
+
+test("mobile journey inputs keep the swap control on their right in default, candidate, and error states", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "desktop-1440", "mobile geometry contract");
+  let failPlaceSearch = false;
+  await page.route("**/api/routes/query_places", async (route) => {
+    if (failPlaceSearch) {
+      await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ requestId: "places-error", data: null, error: { code: "EXTERNAL_SERVICE_UNAVAILABLE", message: "unavailable" } }) });
+      return;
+    }
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ requestId: "places-ok", data: { places: [{ placeToken: "place-1", name: "晨灣匯", provider: "citybus", expiresAt: "2026-08-25T12:15:00Z" }], expiresAt: "2026-08-25T12:15:00Z" }, error: null }),
+    });
+  });
+
+  await page.goto("/zh-hant/#route-trial");
+  await page.locator("#route-trial").evaluate((element) => element.scrollIntoView({ block: "start" }));
+  await expectMobilePlaceGeometry(page);
+
+  const origin = page.getByRole("combobox", { name: "起點" });
+  await origin.fill("晨灣");
+  await expect(page.getByTestId("origin-place-dropdown")).toBeVisible();
+  await expectMobilePlaceGeometry(page);
+  await page.getByRole("option", { name: "晨灣匯" }).click();
+  await expectMobilePlaceGeometry(page);
+
+  failPlaceSearch = true;
+  await page.getByRole("combobox", { name: "目的地" }).fill("錯誤地點");
+  await expect(page.getByText("地點搜尋暫不可用，請稍後再試。")).toBeVisible();
+  await expectMobilePlaceGeometry(page);
+});
+
 test("online query selects places, shows loading, renders route cards, and updates ETA", async ({ page }) => {
   const longOriginStop = "Very Long Origin Stop Name Near Hing Wah Estate Bus Terminus";
   const longDestinationStop = "Very Long Destination Stop Name Near Yue Wan Estate Shopping Centre";
@@ -116,8 +167,7 @@ test("online query selects places, shows loading, renders route cards, and updat
   await page.locator("#route-trial").evaluate((element) => element.scrollIntoView({ block: "start" }));
 
 
-  await page.locator("header").getByRole("button", { name: "Choose language" }).click();
-  await page.getByRole("menuitem", { name: "简体中文" }).click();
+  await page.getByRole("navigation", { name: "Choose language" }).getByRole("link", { name: /简/ }).click();
   await expect(page.getByText(/暂未更新，仍显示上次结果|Not refreshed — showing the previous result/)).toBeVisible();
   await page.locator("#route-trial").evaluate((element) => element.scrollIntoView({ block: "start" }));
 });

@@ -29,11 +29,10 @@ describe("homepage APK metadata", () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(readyMetadata), { status: 200, headers: { "Content-Type": "application/json" } }));
     vi.stubGlobal("fetch", fetchMock);
     renderApp();
-    expect(await screen.findByRole("link", { name: "Download Android App" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: /Download (?:Android )?App/ })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Download BusIsComing" })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByRole("button", { name: "Choose language" }));
-    fireEvent.click(await screen.findByRole("menuitem", { name: "简体中文" }));
+    fireEvent.click(screen.getByRole("link", { name: "简" }));
     expect(await screen.findByRole("link", { name: "下载 Android App" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "下载 BusIsComing" })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);

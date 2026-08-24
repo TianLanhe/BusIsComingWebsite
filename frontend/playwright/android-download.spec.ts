@@ -10,13 +10,15 @@ test("ready metadata creates native links and one desktop-only QR target", async
     }),
   }));
   await page.goto("/en/");
-  await expect(page.locator("a[download='BusIsComing.apk']")).toHaveCount(2);
+  await expect(page.locator("a[download='BusIsComing.apk']")).toHaveCount(testInfo.project.name === "desktop-1440" ? 1 : 2);
   await expect(page.locator("a[href^='blob:']")).toHaveCount(0);
   const qr = page.locator("#download [data-testid='download-qr-code']");
   if (testInfo.project.name === "desktop-1440") {
+    await expect(page.locator("#features").getByRole("link", { name: "Download Android App" })).toHaveAttribute("href", "#download");
     await expect(qr).toBeVisible();
     await expect(qr).toHaveAttribute("data-qrcode-value", `http://127.0.0.1:5184${downloadUrl}`);
   } else {
+    await expect(page.locator("#features").getByRole("link", { name: "Download App" })).toHaveAttribute("download", "BusIsComing.apk");
     await expect(qr).toHaveCount(0);
   }
 });

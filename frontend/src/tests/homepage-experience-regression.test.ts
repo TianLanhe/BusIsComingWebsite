@@ -19,4 +19,11 @@ describe("homepage visual-system regression guards", () => {
     expect(content).not.toContain("stair-card-deck");
     expect(content).not.toContain("lightbox");
   });
+
+  it("retires the independent Header contract without losing support actions", () => {
+    expect(homepageContent).not.toHaveProperty("navigation");
+    expect(homepageContent.siteChrome.languageOptions).toEqual({ "zh-Hant": "繁", "zh-Hans": "简", en: "EN" });
+    expect(homepageContent.supportEnding.contact.target).toBe("mailto:hezhenyu966@gmail.com");
+    expect(homepageContent.supportEnding.privacyLink.href.en).toBe("/en/privacy/");
+  });
 });

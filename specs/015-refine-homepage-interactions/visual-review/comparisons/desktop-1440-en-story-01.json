@@ -1,0 +1,10 @@
+{
+  "basename": "desktop-1440-en-story-01",
+  "width": 1440,
+  "height": 960,
+  "referenceSha256": "91721c219fa35b19c4947b4f926bfb8895cbd7315c6261cfa8d96650f4d6a2af",
+  "actualSha256": "e017fba442b94f096de167b99a2d2b20dcd443da70cfe3eb324265c70f824730",
+  "sideBySidePath": "side-by-side/desktop-1440-en-story-01.png",
+  "overlayPath": "overlay/desktop-1440-en-story-01.png",
+  "diffPath": "diff/desktop-1440-en-story-01.png"
+}

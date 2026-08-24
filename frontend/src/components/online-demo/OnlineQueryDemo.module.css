@@ -171,6 +171,18 @@
   cursor: pointer;
 }
 
+.placeControls {
+  display: grid;
+  gap: 14px;
+}
+
+.inputStack {
+  display: contents;
+}
+
+.placeControls .swapButton { grid-row: 2; }
+.inputStack > :nth-child(2) { grid-row: 3; }
+
 .queryButton,
 .emptyState button {
   display: inline-flex;
@@ -416,6 +428,25 @@
   .workbench { grid-template-columns: 1fr; min-height: 0; border-radius: 20px; }
   .queryPanel { border-radius: 20px; padding: 22px 18px; }
   .queryPanel h3 { font-size: 21px; }
+  .placeControls {
+    grid-template-columns: minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 10px;
+  }
+  .inputStack {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1;
+    gap: 12px;
+    min-width: 0;
+  }
+  .inputStack > :nth-child(2) { grid-row: auto; }
+  .placeControls .swapButton {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    margin: 42px 0 0;
+  }
   .resultPanel { min-height: 430px; padding: 20px 16px; }
   .emptyState, .loadingState { min-height: 390px; }
 }

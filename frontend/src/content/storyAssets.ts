@@ -1,56 +1,80 @@
-import routeSearch540 from "../assets/app-screenshots/real/route-search-540.webp";
-import routeSearch720 from "../assets/app-screenshots/real/route-search-720.webp";
-import routeSearch1080 from "../assets/app-screenshots/real/route-search-1080.webp";
-import savedJourneys540 from "../assets/app-screenshots/real/saved-journeys-540.webp";
-import savedJourneys720 from "../assets/app-screenshots/real/saved-journeys-720.webp";
-import savedJourneys1080 from "../assets/app-screenshots/real/saved-journeys-1080.webp";
-import journeyGuidance540 from "../assets/app-screenshots/real/journey-guidance-540.webp";
-import journeyGuidance720 from "../assets/app-screenshots/real/journey-guidance-720.webp";
-import journeyGuidance1080 from "../assets/app-screenshots/real/journey-guidance-1080.webp";
-import arrivals540 from "../assets/app-screenshots/real/cross-operator-arrivals-540.webp";
-import arrivals720 from "../assets/app-screenshots/real/cross-operator-arrivals-720.webp";
-import arrivals1080 from "../assets/app-screenshots/real/cross-operator-arrivals-1080.webp";
-import monitor540 from "../assets/app-screenshots/real/predeparture-monitor-540.webp";
-import monitor720 from "../assets/app-screenshots/real/predeparture-monitor-720.webp";
-import monitor1080 from "../assets/app-screenshots/real/predeparture-monitor-1080.webp";
-import type { HeroStoryId } from "./types";
+import routeSearchZh540 from "../assets/app-screenshots/real/route-search-zh-540.webp";
+import routeSearchZh720 from "../assets/app-screenshots/real/route-search-zh-720.webp";
+import routeSearchZh1080 from "../assets/app-screenshots/real/route-search-zh-1080.webp";
+import routeSearchEn540 from "../assets/app-screenshots/real/route-search-en-540.webp";
+import routeSearchEn720 from "../assets/app-screenshots/real/route-search-en-720.webp";
+import routeSearchEn1080 from "../assets/app-screenshots/real/route-search-en-1080.webp";
+import savedJourneysZh540 from "../assets/app-screenshots/real/saved-journeys-zh-540.webp";
+import savedJourneysZh720 from "../assets/app-screenshots/real/saved-journeys-zh-720.webp";
+import savedJourneysZh1080 from "../assets/app-screenshots/real/saved-journeys-zh-1080.webp";
+import savedJourneysEn540 from "../assets/app-screenshots/real/saved-journeys-en-540.webp";
+import savedJourneysEn720 from "../assets/app-screenshots/real/saved-journeys-en-720.webp";
+import savedJourneysEn1080 from "../assets/app-screenshots/real/saved-journeys-en-1080.webp";
+import journeyGuidanceZh540 from "../assets/app-screenshots/real/journey-guidance-zh-540.webp";
+import journeyGuidanceZh720 from "../assets/app-screenshots/real/journey-guidance-zh-720.webp";
+import journeyGuidanceZh1080 from "../assets/app-screenshots/real/journey-guidance-zh-1080.webp";
+import journeyGuidanceEn540 from "../assets/app-screenshots/real/journey-guidance-en-540.webp";
+import journeyGuidanceEn720 from "../assets/app-screenshots/real/journey-guidance-en-720.webp";
+import journeyGuidanceEn1080 from "../assets/app-screenshots/real/journey-guidance-en-1080.webp";
+import arrivalsZh540 from "../assets/app-screenshots/real/cross-operator-arrivals-zh-540.webp";
+import arrivalsZh720 from "../assets/app-screenshots/real/cross-operator-arrivals-zh-720.webp";
+import arrivalsZh1080 from "../assets/app-screenshots/real/cross-operator-arrivals-zh-1080.webp";
+import arrivalsEn540 from "../assets/app-screenshots/real/cross-operator-arrivals-en-540.webp";
+import arrivalsEn720 from "../assets/app-screenshots/real/cross-operator-arrivals-en-720.webp";
+import arrivalsEn1080 from "../assets/app-screenshots/real/cross-operator-arrivals-en-1080.webp";
+import monitorZh540 from "../assets/app-screenshots/real/predeparture-monitor-zh-540.webp";
+import monitorZh720 from "../assets/app-screenshots/real/predeparture-monitor-zh-720.webp";
+import monitorZh1080 from "../assets/app-screenshots/real/predeparture-monitor-zh-1080.webp";
+import monitorEn540 from "../assets/app-screenshots/real/predeparture-monitor-en-540.webp";
+import monitorEn720 from "../assets/app-screenshots/real/predeparture-monitor-en-720.webp";
+import monitorEn1080 from "../assets/app-screenshots/real/predeparture-monitor-en-1080.webp";
+import type { HeroStoryId, Locale } from "./types";
+
+export type StoryAssetLocaleVariant = "zh" | "en";
 
 export interface StoryAssetSource {
   src: string;
   srcSet: string;
-  width: number;
-  height: number;
+  width: 1080;
+  height: 1920;
 }
 
-export const storyAssets: Record<HeroStoryId, StoryAssetSource> = {
+const source = (small: string, medium: string, large: string): StoryAssetSource => ({
+  src: medium,
+  srcSet: `${small} 540w, ${medium} 720w, ${large} 1080w`,
+  width: 1080,
+  height: 1920,
+});
+
+export const storyAssetLocaleVariant: Record<Locale, StoryAssetLocaleVariant> = {
+  "zh-Hant": "zh",
+  "zh-Hans": "zh",
+  en: "en",
+};
+
+export const storyAssets: Record<HeroStoryId, Record<StoryAssetLocaleVariant, StoryAssetSource>> = {
   "route-search": {
-    src: routeSearch720,
-    srcSet: `${routeSearch540} 540w, ${routeSearch720} 720w, ${routeSearch1080} 1080w`,
-    width: 1080,
-    height: 2172,
+    zh: source(routeSearchZh540, routeSearchZh720, routeSearchZh1080),
+    en: source(routeSearchEn540, routeSearchEn720, routeSearchEn1080),
   },
   "saved-journeys": {
-    src: savedJourneys720,
-    srcSet: `${savedJourneys540} 540w, ${savedJourneys720} 720w, ${savedJourneys1080} 1080w`,
-    width: 1080,
-    height: 2172,
+    zh: source(savedJourneysZh540, savedJourneysZh720, savedJourneysZh1080),
+    en: source(savedJourneysEn540, savedJourneysEn720, savedJourneysEn1080),
   },
   "journey-guidance": {
-    src: journeyGuidance720,
-    srcSet: `${journeyGuidance540} 540w, ${journeyGuidance720} 720w, ${journeyGuidance1080} 1080w`,
-    width: 1080,
-    height: 2172,
+    zh: source(journeyGuidanceZh540, journeyGuidanceZh720, journeyGuidanceZh1080),
+    en: source(journeyGuidanceEn540, journeyGuidanceEn720, journeyGuidanceEn1080),
   },
   "cross-operator-arrivals": {
-    src: arrivals720,
-    srcSet: `${arrivals540} 540w, ${arrivals720} 720w, ${arrivals1080} 1080w`,
-    width: 1080,
-    height: 2172,
+    zh: source(arrivalsZh540, arrivalsZh720, arrivalsZh1080),
+    en: source(arrivalsEn540, arrivalsEn720, arrivalsEn1080),
   },
   "predeparture-monitor": {
-    src: monitor720,
-    srcSet: `${monitor540} 540w, ${monitor720} 720w, ${monitor1080} 1080w`,
-    width: 1080,
-    height: 2400,
+    zh: source(monitorZh540, monitorZh720, monitorZh1080),
+    en: source(monitorEn540, monitorEn720, monitorEn1080),
   },
 };
+
+export function getStoryAsset(storyId: HeroStoryId, locale: Locale): StoryAssetSource {
+  return storyAssets[storyId][storyAssetLocaleVariant[locale]];
+}

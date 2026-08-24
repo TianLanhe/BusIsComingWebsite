@@ -1,0 +1,10 @@
+{
+  "basename": "mobile-390-en-story-01",
+  "width": 390,
+  "height": 844,
+  "referenceSha256": "4d14eae0c0b10f4e96ac3c5a725488cd63169410d8e63a70591243d9a1432eed",
+  "actualSha256": "30b78fb34cd413f6e5e316120716d9287191b91f11d9f07cc6e9cf73b93d5a1e",
+  "sideBySidePath": "side-by-side/mobile-390-en-story-01.png",
+  "overlayPath": "overlay/mobile-390-en-story-01.png",
+  "diffPath": "diff/mobile-390-en-story-01.png"
+}

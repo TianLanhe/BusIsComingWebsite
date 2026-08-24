@@ -1,10 +1,10 @@
-import { mkdir, rm } from "node:fs/promises";
+import { mkdir, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { afterAll, describe, expect, it } from "vitest";
 import { compareImages } from "../../scripts/compare-homepage-visuals.mjs";
 
-const root = path.resolve("../specs/014-upgrade-homepage-visual-system/visual-review");
+const root = path.resolve("../specs/015-refine-homepage-interactions/visual-review");
 const fixtureRoot = path.join(root, "test-fixtures");
 
 afterAll(() => rm(fixtureRoot, { recursive: true, force: true }));
@@ -21,5 +21,8 @@ describe("homepage visual comparison", () => {
     expect(result.referenceSha256).toHaveLength(64);
     expect(result.actualSha256).toHaveLength(64);
     expect(result.sideBySidePath).toBe("side-by-side/unit-contract.png");
+    const index = JSON.parse(await readFile(path.join(fixtureRoot, "comparison-manifest.json"), "utf8"));
+    expect(index.comparisons).toEqual([result]);
+    expect(JSON.parse(await readFile(path.join(fixtureRoot, "comparisons/unit-contract.json"), "utf8"))).toEqual(result);
   });
 });

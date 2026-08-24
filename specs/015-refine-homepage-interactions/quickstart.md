@@ -30,8 +30,8 @@
 一次性源目录只通过进程环境传入，不写入仓库：
 
 ```bash
-HOMEPAGE_STORY_ZH_SOURCE_DIR=/path/to/approved-zh \
-HOMEPAGE_STORY_EN_SOURCE_DIR=/path/to/approved-en \
+BIC_FIGMA_ZH_SCREENSHOT_DIR=/path/to/approved-zh \
+BIC_FIGMA_EN_SCREENSHOT_DIR=/path/to/approved-en \
 npm --prefix frontend run prepare:homepage-story-assets
 ```
 

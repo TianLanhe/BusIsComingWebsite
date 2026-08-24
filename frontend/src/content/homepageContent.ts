@@ -1,17 +1,18 @@
 import { homepageStories } from "./homepageStories";
 import { sourceReferenceList, sourceReferences } from "./sourceReferences";
-import type { HomepageContentV3 } from "./types";
+import type { HomepageContentV4 } from "./types";
 
-export const homepageContent: HomepageContentV3 = {
-  metadata: { version: "3.0.0", lastReviewed: "2026-08-24", sourceReferences: sourceReferenceList },
-  navigation: {
-    brand: { "zh-Hant": "BusIsComing", "zh-Hans": "BusIsComing", en: "BusIsComing" },
-    items: [
-      { id: "features", label: { "zh-Hant": "功能", "zh-Hans": "功能", en: "Features" }, target: "#features" },
-      { id: "faq", label: { "zh-Hant": "常見問題", "zh-Hans": "常见问题", en: "FAQ" }, target: "#faq" },
-      { id: "contact", label: { "zh-Hant": "聯絡我們", "zh-Hans": "联系我们", en: "Contact" }, target: "#contact" },
-    ],
+export const homepageContent: HomepageContentV4 = {
+  metadata: { version: "4.0.0", lastReviewed: "2026-08-25", sourceReferences: sourceReferenceList },
+  siteChrome: {
+    brandName: { "zh-Hant": "BusIsComing", "zh-Hans": "BusIsComing", en: "BusIsComing" },
+    brandAssetId: "busiscoming-app-logo",
     languageLabel: { "zh-Hant": "選擇語言", "zh-Hans": "选择语言", en: "Choose language" },
+    languageOptions: { "zh-Hant": "繁", "zh-Hans": "简", en: "EN" },
+    privacyBackHome: {
+      label: { "zh-Hant": "返回首頁", "zh-Hans": "返回首页", en: "Back to homepage" },
+      href: { "zh-Hant": "/zh-hant/", "zh-Hans": "/zh-hans/", en: "/en/" },
+    },
   },
   hero: {
     eyebrow: { "zh-Hant": "香港巴士出行 APP", "zh-Hans": "香港巴士出行 APP", en: "HONG KONG BUS APP" },
@@ -93,9 +94,9 @@ export const homepageContent: HomepageContentV3 = {
       en: "Found your route? Take it with you.",
     },
     description: {
-      "zh-Hant": "下載 Android App，保存常用行程，沿途查看並在出門前持續掌握時間。",
-      "zh-Hans": "下载 Android App，保存常用行程，沿途查看并在出门前持续掌握时间。",
-      en: "Download the Android app to save journeys, follow the route, and keep departure timing close at hand.",
+      "zh-Hant": "保存常用行程，沿途查看，出門前也能持續掌握時間。",
+      "zh-Hans": "保存常用行程，沿途查看，出门前也能持续掌握时间。",
+      en: "Save regular journeys, follow the route, and keep departure timing close at hand.",
     },
     minimumAndroid: { "zh-Hant": "Android 7.1+", "zh-Hans": "Android 7.1+", en: "Android 7.1+" },
     readyAction: { "zh-Hant": "下載 BusIsComing", "zh-Hans": "下载 BusIsComing", en: "Download BusIsComing" },
@@ -109,7 +110,6 @@ export const homepageContent: HomepageContentV3 = {
       version: { "zh-Hant": "版本", "zh-Hans": "版本", en: "Version" },
       minimumSystem: { "zh-Hant": "系統", "zh-Hans": "系统", en: "System" },
       size: { "zh-Hant": "大小", "zh-Hans": "大小", en: "Size" },
-      updated: { "zh-Hant": "更新", "zh-Hans": "更新", en: "Updated" },
     },
     installationNote: {
       "zh-Hant": "下載後依照 Android 畫面提示安裝。",
@@ -185,9 +185,18 @@ export const homepageContent: HomepageContentV3 = {
   ],
   figmaReference: {
     fileUrl: sourceReferences.figma,
-    sectionNode: "119:64",
-    desktopHeroNode: "119:176",
-    mobileHeroNode: "119:461",
-    designVersion: "Homepage Visual System v1.3.1 — FINAL",
+    baseline: {
+      sectionNode: "119:64",
+      desktopHeroNode: "119:176",
+      mobileHeroNode: "119:461",
+      designVersion: "Homepage Visual System v1.3.1 — FINAL",
+    },
+    refinement: {
+      sectionNode: "136:292",
+      desktopHeroNode: "136:341",
+      mobileHeroNode: "136:439",
+      narrowHeroNode: "136:484",
+      designVersion: "Homepage refinement 2026-08-25 — FINAL",
+    },
   },
 };

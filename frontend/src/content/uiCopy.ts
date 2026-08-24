@@ -1,6 +1,16 @@
 import type { LocalizedString } from "./types";
 
 export const uiCopy = {
+  footerFaqLink: {
+    "zh-Hant": "常見問題",
+    "zh-Hans": "常见问题",
+    en: "FAQ",
+  },
+  screenshotUnavailable: {
+    "zh-Hant": "截圖暫時未能顯示",
+    "zh-Hans": "截图暂时无法显示",
+    en: "Screenshot temporarily unavailable",
+  },
   heroTrust: {
     "zh-Hant": "不收集個人資料 · 聚焦日常巴士出行",
     "zh-Hans": "不收集个人资料 · 聚焦日常巴士出行",
@@ -230,6 +240,26 @@ export const uiCopy = {
     "zh-Hant": "下載 App",
     "zh-Hans": "下载 App",
     en: "Download App",
+  },
+  heroMobileRouteAction: {
+    "zh-Hant": "路線試查 →",
+    "zh-Hans": "路线试查 →",
+    en: "Try routes →",
+  },
+  downloadSectionEyebrow: {
+    "zh-Hant": "ANDROID APK 下載",
+    "zh-Hans": "ANDROID APK 下载",
+    en: "ANDROID APK DOWNLOAD",
+  },
+  downloadQrLabel: {
+    "zh-Hant": "手機掃描下載",
+    "zh-Hans": "手机扫码下载",
+    en: "Scan with your phone",
+  },
+  approximateSizePrefix: {
+    "zh-Hant": "約",
+    "zh-Hans": "约",
+    en: "~",
   },
   heroJourneyContextLabel: {
     "zh-Hant": "本次行程",

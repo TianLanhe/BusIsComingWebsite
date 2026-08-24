@@ -16,18 +16,22 @@ async function stub(page: Page, state: "checking" | "ready" | "unavailable") {
 }
 
 for (const state of ["checking", "ready", "unavailable"] as const) {
-  test(`${state} keeps two stable actions and never fabricates progress`, async ({ page }) => {
+  test(`${state} keeps two stable actions and never fabricates progress`, async ({ page }, testInfo) => {
     await stub(page, state);
     await page.goto("/en/");
-    await expect(page.locator(`[data-download-state='android-${state}']`)).toHaveCount(2);
+    await expect(page.locator(`[data-download-state='android-${state}']`)).toHaveCount(testInfo.project.name === "desktop-1440" ? 1 : 2);
     if (state === "ready") {
-      await expect(page.locator("#features [data-download-state='android-ready']")).toHaveAttribute("href", "/api/downloads/android/latest");
+      await expect(page.locator("#features [data-download-state]")).toHaveAttribute(
+        "href",
+        testInfo.project.name === "desktop-1440" ? "#download" : "/api/downloads/android/latest",
+      );
       await expect(page.locator("#download [data-download-state='android-ready']")).toHaveAttribute("download", "BusIsComing.apk");
       await expect(page.getByTestId("download-metadata-line")).toHaveCount(2);
     } else {
       await expect(page.locator("#features a[href*='/api/downloads/android/latest']")).toHaveCount(0);
       await expect(page.locator("#download svg")).toHaveCount(0);
     }
+    await expect(page.getByText("2026-08-24")).toHaveCount(0);
     await expect(page.getByText(/SHA|BUILD|install progress/i)).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
   });

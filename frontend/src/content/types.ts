@@ -38,18 +38,23 @@ export interface ManagedScreenshotOutput {
   sha256: string;
 }
 
-export interface ManagedScreenshotAsset {
-  id: HeroStoryId;
-  storyId: HeroStoryId;
-  order: number;
-  sourceFingerprint: { width: number; height: number; sha256: string };
+export interface ManagedScreenshotVariant {
+  sourceFileName: string;
+  sourceFingerprint: { width: 1080; height: 1920; sha256: string };
   outputs: ManagedScreenshotOutput[];
   approvalStatus: "approved";
   desensitizationStatus: "approved";
   redactedItems: string[];
   retainedItems: string[];
-  alt: LocalizedString;
   approvedAt: string;
+}
+
+export interface ManagedScreenshotAsset {
+  id: HeroStoryId;
+  storyId: HeroStoryId;
+  order: number;
+  variants: Record<"zh" | "en", ManagedScreenshotVariant>;
+  alt: LocalizedString;
   provenanceLabel: string;
 }
 
@@ -60,16 +65,18 @@ export interface HomepageFaqItem {
   defaultOpen: boolean;
 }
 
-export interface HomepageContentV3 {
+export interface HomepageContentV4 {
   metadata: {
-    version: "3.0.0";
+    version: "4.0.0";
     lastReviewed: string;
     sourceReferences: string[];
   };
-  navigation: {
-    brand: LocalizedString;
-    items: Array<{ id: "features" | "faq" | "contact"; label: LocalizedString; target: string }>;
+  siteChrome: {
+    brandName: LocalizedString;
+    brandAssetId: "busiscoming-app-logo";
     languageLabel: LocalizedString;
+    languageOptions: Record<Locale, string>;
+    privacyBackHome: { label: LocalizedString; href: Record<Locale, string> };
   };
   hero: {
     eyebrow: LocalizedString;
@@ -98,7 +105,7 @@ export interface HomepageContentV3 {
     readyAction: LocalizedString;
     checkingState: LocalizedString;
     unavailableState: LocalizedString;
-    metadataLabels: Record<"version" | "minimumSystem" | "size" | "updated", LocalizedString>;
+    metadataLabels: Record<"version" | "minimumSystem" | "size", LocalizedString>;
     installationNote: LocalizedString;
   };
   supportEnding: {
@@ -111,14 +118,23 @@ export interface HomepageContentV3 {
   scopeExclusions: LocalizedString[];
   figmaReference: {
     fileUrl: string;
-    sectionNode: "119:64";
-    desktopHeroNode: "119:176";
-    mobileHeroNode: "119:461";
-    designVersion: "Homepage Visual System v1.3.1 — FINAL";
+    baseline: {
+      sectionNode: "119:64";
+      desktopHeroNode: "119:176";
+      mobileHeroNode: "119:461";
+      designVersion: "Homepage Visual System v1.3.1 — FINAL";
+    };
+    refinement: {
+      sectionNode: "136:292";
+      desktopHeroNode: "136:341";
+      mobileHeroNode: "136:439";
+      narrowHeroNode: "136:484";
+      designVersion: "Homepage refinement 2026-08-25 — FINAL";
+    };
   };
 }
 
-export type HomePageContent = HomepageContentV3;
+export type HomePageContent = HomepageContentV4;
 
 export type SummaryCardId =
   | "no-account-identity"

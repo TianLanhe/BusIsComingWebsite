@@ -6,11 +6,11 @@
 
 | 文件 | 当前规格 | 用途 |
 | --- | --- | --- |
-| `frontend/src/assets/brand/busiscoming-logo-foreground.png` | 512×512 RGBA PNG | header、footer、README 主 logo |
+| `frontend/src/assets/brand/busiscoming-logo-foreground.png` | 512×512 RGBA PNG | README 与历史导出兼容素材 |
 | `frontend/public/favicon.webp` | 96×96、带透明通道 | 浏览器 favicon |
-| `frontend/src/assets/brand/busiscoming-icon.webp` | 192×192、带透明通道 | 历史完整 launcher 素材，不作为当前网站 logo |
+| `frontend/src/assets/brand/busiscoming-icon.webp` | 192×192、带透明通道；SHA-256 `7792487ed26a317e248af26dd4b085507d1797a7448856f09ae18e062a478bf6` | Hero、Privacy、Footer 的当前真实 App Logo |
 
-当前 foreground 来源为 Android 主项目受管的 launcher foreground 资源。网站只保存导出的公开品牌文件和来源说明，运行时不读取 Android 工程或本机路径。
+当前网站品牌入口使用经 015 Figma 门禁批准的完整 App Logo；foreground 只保留作 README/历史导出兼容。网站只保存公开品牌文件和来源说明，运行时不读取 Android 工程或本机路径。
 
 导出规则：
 
@@ -18,7 +18,7 @@
 - 按非透明像素裁切，保留安全边距；
 - 输出透明 512×512 PNG；
 - favicon 从同一 foreground 口径生成 96×96 WebP；
-- header、footer 和 favicon 不改用 lucide 巴士、渐变底板或自制圆角图标。
+- Hero、Privacy、Footer 和 favicon 不改用 lucide 巴士、自制渐变底板或临时圆角图标。
 
 Android 源资源或品牌决策变化时，先核对 Android 主项目当前资源，再重新导出并更新本文件、相关 Figma 和视觉测试。不要只替换网站图片而留下错误来源记录。
 
@@ -42,10 +42,10 @@ frontend/src/assets/app-screenshots/real/
 
 ## Manifest 规则
 
-每个 asset 必须：
+manifest v3 将繁中/简中映射到 `zh`，英文映射到 `en`。每个 asset 必须：
 
 - 使用 schema 允许的 `storyId` 并与五故事一一对应；
-- 保存源截图宽高和 SHA-256，但不保存本机绝对源路径；
+- 为 `zh`、`en` 分别保存 1080×1920 源截图宽高和 SHA-256，但不保存本机绝对源路径；
 - 生成 540/720/1080 三种 WebP 衍生物并保存尺寸、字节数和 SHA-256；
 - 只引用 `frontend/src/assets/app-screenshots/real/` 内的受管衍生文件；
 - 提供 `zh-Hant`、`zh-Hans`、`en` 非空 alt；
@@ -55,8 +55,8 @@ frontend/src/assets/app-screenshots/real/
 契约位置：
 
 ```text
-specs/014-upgrade-homepage-visual-system/contracts/
-screenshot-assets-v131.manifest.schema.json
+specs/015-refine-homepage-interactions/contracts/
+screenshot-assets-v131-localized.manifest.schema.json
 ```
 
 `frontend/src/tests/screenshot-assets-contract.test.ts` 同时验证 schema、五故事映射、衍生指纹、批准状态、三语 alt 和无本机路径。
@@ -81,7 +81,9 @@ screenshot-assets-v131.manifest.schema.json
 ## 当前处理脚本
 
 ```bash
-node frontend/scripts/prepare-homepage-story-assets.mjs
+BIC_FIGMA_ZH_SCREENSHOT_DIR=/approved/zh/output \
+BIC_FIGMA_EN_SCREENSHOT_DIR=/approved/en/output \
+npm --prefix frontend run prepare:homepage-story-assets
 ```
 
 `frontend/scripts/prepare-homepage-story-assets.mjs` 从明确列出的、已批准且只读的源截图生成新的 WebP 路径，先验证源 SHA，再写入 540/720/1080 衍生物与 manifest。它不会在原路径覆盖源图，也不会运行旧的 mask 坐标流程。旧 `sanitize:screenshots` 不得用于这组 v1.3.1 资产。
@@ -94,7 +96,7 @@ node frontend/scripts/prepare-homepage-story-assets.mjs
 4. 运行 `prepare-homepage-story-assets.mjs`，逐张放大检查输出并核对 manifest。
 5. 更新 `storyAssets.ts` 的静态 import 映射；manifest 中存在但未映射的图片不能进入页面。
 6. 运行契约测试、构建和桌面/手机 Playwright。
-8. 涉及场景、层级或交互变化时，更新对应 Figma 与 feature 文档。
+7. 涉及场景、层级或交互变化时，更新对应 Figma 与 feature 文档。
 
 常用验证：
 

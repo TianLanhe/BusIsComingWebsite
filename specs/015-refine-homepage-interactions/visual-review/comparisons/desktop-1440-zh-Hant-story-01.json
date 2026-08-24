@@ -1,0 +1,10 @@
+{
+  "basename": "desktop-1440-zh-Hant-story-01",
+  "width": 1440,
+  "height": 960,
+  "referenceSha256": "e7ba76775274821163f86ba26f3b19787974460f6b6dda197258eaf690e6c270",
+  "actualSha256": "78feaeb3c97ece5953b31dbcbb897eb95f82102c6ac9af45e74bf5bdee014cba",
+  "sideBySidePath": "side-by-side/desktop-1440-zh-Hant-story-01.png",
+  "overlayPath": "overlay/desktop-1440-zh-Hant-story-01.png",
+  "diffPath": "diff/desktop-1440-zh-Hant-story-01.png"
+}

@@ -6,6 +6,7 @@ import { expect, type Page } from "@playwright/test";
  */
 export async function waitForHomepageVisual(page: Page) {
   await page.evaluate(async () => {
+    document.documentElement.dataset.visualPaused = "true";
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     document.documentElement.style.scrollBehavior = "auto";
     document.body.style.scrollBehavior = "auto";
@@ -17,15 +18,21 @@ export async function waitForHomepageVisual(page: Page) {
       resolve();
     }));
     await document.fonts.ready;
-    const images = Array.from(document.querySelectorAll<HTMLImageElement>("[data-testid='hero-story-stage'] img"));
+    const stage = document.querySelector<HTMLElement>("[data-testid='hero-story-stage']");
+    const requestedId = stage?.dataset.requestedStoryId;
+    const images = Array.from(document.querySelectorAll<HTMLImageElement>(
+      requestedId ? `[data-testid='hero-story-stage'] [data-story-id='${requestedId}'] img` : "[data-testid='hero-story-stage'] img",
+    ));
     await Promise.all(images.map((image) => image.complete ? image.decode().catch(() => undefined) : new Promise<void>((resolve) => {
       image.addEventListener("load", () => resolve(), { once: true });
       image.addEventListener("error", () => resolve(), { once: true });
     })));
-    document.documentElement.dataset.visualPaused = "true";
   });
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-  await expect(page.getByTestId("hero-story-stage")).toHaveAttribute("data-transitioning", "false");
+  await expect(page.getByTestId("hero-story-stage")).toHaveAttribute("data-transition-state", "settled");
+  await expect.poll(() => page.getByTestId("hero-story-stage").evaluate((element) => (
+    element.getAttribute("data-requested-story-id") === element.getAttribute("data-settled-story-id")
+  ))).toBe(true);
 }
 
 export async function expectNoHorizontalOverflow(page: Page) {

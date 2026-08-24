@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
   }));
 });
 
-test("five resident phones rotate only through explicit story controls", async ({ page }) => {
+test("five resident phones keep final state through rapid explicit story controls", async ({ page }) => {
   await page.goto("/zh-hant/");
   const stage = page.getByTestId("hero-story-stage");
   await expect(stage.locator("figure")).toHaveCount(5);
@@ -30,10 +30,33 @@ test("five resident phones rotate only through explicit story controls", async (
   await expectNoHorizontalOverflow(page);
 });
 
+test("phone stage moves first and copy follows after the approved 160ms beat", async ({ page }) => {
+  await page.goto("/zh-hant/");
+  const stage = page.getByTestId("hero-story-stage");
+  const title = page.getByTestId("hero-title");
+  await expect(title).toContainText("隨心搜尋");
+
+  await page.getByRole("button", { name: /02.*行程/ }).click();
+  await expect(stage.locator('[data-story-id="saved-journeys"]')).toHaveAttribute("data-slot", "front");
+  await expect(title).toContainText("隨心搜尋");
+  await page.waitForTimeout(170);
+  await expect(title).toContainText("常走的路");
+  await expect(page.locator('[data-copy-phase="exiting"]')).toHaveCount(1);
+});
+
 test("reduced motion swaps stories without a transition timer", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en/");
   await page.getByRole("button", { name: /05.*Leave/ }).click();
-  await expect(page.getByTestId("hero-story-stage")).toHaveAttribute("data-transitioning", "false");
+  await expect(page.getByTestId("hero-story-stage")).toHaveAttribute("data-transition-state", "settled");
   await expect(page.getByTestId("hero-story-stage").locator('[data-story-id="predeparture-monitor"]')).toHaveAttribute("data-slot", "front");
+});
+
+test("story controls retain roving keyboard focus after a pointer selection", async ({ page }) => {
+  await page.goto("/en/");
+  const second = page.locator('[role="group"] button[data-story-id="saved-journeys"]');
+  await second.click();
+  await expect(second).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator('[role="group"] button[data-story-id="journey-guidance"]')).toBeFocused();
 });

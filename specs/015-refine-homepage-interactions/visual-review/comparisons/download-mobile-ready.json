@@ -1,0 +1,10 @@
+{
+  "basename": "download-mobile-ready",
+  "width": 390,
+  "height": 700,
+  "referenceSha256": "210434a04f30277f09420e099b93371008bd11494137c7534c06a2434f5b3466",
+  "actualSha256": "527a104911ece0cafca8d30c0dc8c12034815f7306870693b563119ba952e1a1",
+  "sideBySidePath": "side-by-side/download-mobile-ready.png",
+  "overlayPath": "overlay/download-mobile-ready.png",
+  "diffPath": "diff/download-mobile-ready.png"
+}

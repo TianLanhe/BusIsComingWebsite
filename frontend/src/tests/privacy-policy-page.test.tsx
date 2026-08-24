@@ -17,8 +17,10 @@ describe("privacy policy page", () => {
     expect(screen.getByText("2026-07-22")).toBeInTheDocument();
     expect(screen.getAllByText("hezhenyu966@gmail.com")).toHaveLength(1);
     expect(screen.queryByTitle("English")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "功能" })).toHaveAttribute("href", "/zh-hant/#features");
-    expect(screen.getAllByRole("link", { name: "常見問題" })[0]).toHaveAttribute("href", "/zh-hant/#faq");
+    const chrome = screen.getByTestId("privacy-chrome");
+    expect(within(chrome).getByRole("img", { name: "BusIsComing" })).toHaveAttribute("src", expect.stringContaining("busiscoming-icon"));
+    expect(within(chrome).getByRole("link", { name: /返回首頁/ })).toHaveAttribute("href", "/zh-hant/");
+    expect(screen.queryByRole("link", { name: "功能" })).toBeNull();
     expect(screen.getByRole("link", { name: "私隱政策" })).toHaveAttribute("href", "/zh-hant/privacy/");
   });
 
