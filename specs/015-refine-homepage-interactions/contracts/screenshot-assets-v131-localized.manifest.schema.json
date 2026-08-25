@@ -59,7 +59,7 @@
       "required": ["width", "height", "sha256"],
       "properties": {
         "width": { "const": 1080 },
-        "height": { "const": 1920 },
+        "height": { "enum": [2172, 2400] },
         "sha256": { "$ref": "#/$defs/sha256" }
       },
       "additionalProperties": false
@@ -67,19 +67,19 @@
     "output540": {
       "allOf": [
         { "$ref": "#/$defs/output" },
-        { "type": "object", "properties": { "width": { "const": 540 }, "height": { "const": 960 } } }
+        { "type": "object", "properties": { "width": { "const": 540 }, "height": { "const": 1086 } } }
       ]
     },
     "output720": {
       "allOf": [
         { "$ref": "#/$defs/output" },
-        { "type": "object", "properties": { "width": { "const": 720 }, "height": { "const": 1280 } } }
+        { "type": "object", "properties": { "width": { "const": 720 }, "height": { "const": 1448 } } }
       ]
     },
     "output1080": {
       "allOf": [
         { "$ref": "#/$defs/output" },
-        { "type": "object", "properties": { "width": { "const": 1080 }, "height": { "const": 1920 } } }
+        { "type": "object", "properties": { "width": { "const": 1080 }, "height": { "const": 2172 } } }
       ]
     },
     "output": {

@@ -101,7 +101,7 @@
 
 ## 8. 双语言截图 manifest v3
 
-**决策**：新建 `screenshot-assets-v131-localized.manifest.schema.json`，生产 manifest 升级为 `3.0.0`。顶层固定 `zh-Hant → zh`、`zh-Hans → zh`、`en → en`；每个故事包含 `zh` 和 `en` variant，每个 variant 记录源 basename、1080×1920 指纹、批准/脱敏状态和 540×960、720×1280、1080×1920 三个 WebP 输出，共 30 个受管文件。
+**决策**：新建 `screenshot-assets-v131-localized.manifest.schema.json`，生产 manifest 升级为 `3.0.0`。顶层固定 `zh-Hant → zh`、`zh-Hans → zh`、`en → en`；每个故事包含 `zh` 和 `en` variant。最终纠偏后的 raw 源中故事 01–04 为 1080×2172，故事 05 锁屏图为 1080×2400；每个 variant 记录源 basename、实际尺寸指纹、批准/脱敏状态，并从顶部对齐等比生成 540×1086、720×1448、1080×2172 三个 WebP，共 30 个受管文件。故事 05 只裁去底部多余区域并排除监控设置页。
 
 文件使用 `{storyId}-{zh|en}-{width}.webp`；前端集中映射 `storyId → localeVariant → sourceSet`。目标 variant 失败只显示目标语言 alt 的同尺寸失败壳，禁止跨语言回退。
 
@@ -155,7 +155,7 @@
 
 **决策**：1440×960、390×844 是批准端点，320×844 是窄屏保护。使用共享 token、`clamp()`、百分比、grid/flex 和 max-width 连续调整标题、间距、手机宽度、环形位移和故事轨；不对整页使用 transform scale。
 
-删除旧 Header 相关的 `100svh - 82/58px`、负 anchor offset 和全局 scroll margin。逐步移除 980–1440 区间对固定 1440 画布坐标的依赖；新 9:16 素材的手机几何只按 015 Figma refinement 校准。
+删除旧 Header 相关的 `100svh - 82/58px`、负 anchor offset 和全局 scroll margin。逐步移除 980–1440 区间对固定 1440 画布坐标的依赖；手机框和受管截图统一使用批准 raw 的 1080:2172 修长比例，图片在内屏顶部对齐等比覆盖，不能因边框 inset 再次产生上下露底。
 
 **理由**：当前 1181/980 两次突变和多个固定坐标会在中等宽度裁切或突然换构图。整体缩放又会牺牲可读性和触控目标。
 
@@ -210,4 +210,4 @@
 
 ## 研究结论
 
-没有遗留待确认事项。Phase 1 可按 homepage content v4、本地化素材 manifest v3、Hero interaction delta contract、Figma refinement 记录和 quickstart 验证指南继续设计；后端、OpenAPI、monitoring 与 Android App 均不进入实现范围。
+产品与实现决策没有遗留待确认事项。2026-08-26 的 `1080:2172` 手机比例纠偏已进入浏览器实现、素材合同和本地 Figma 插件，但线上 Figma 刷新仍受 Starter MCP 额度限制；完成前只承认浏览器几何与视觉基线，不承认新比例已有线上 Figma 像素级对照。后端、OpenAPI、monitoring 与 Android App 均不进入实现范围。

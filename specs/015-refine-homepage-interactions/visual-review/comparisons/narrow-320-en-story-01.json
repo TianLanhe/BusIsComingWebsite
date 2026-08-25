@@ -2,8 +2,8 @@
   "basename": "narrow-320-en-story-01",
   "width": 320,
   "height": 844,
-  "referenceSha256": "f632e489a82a334edaba47ee67d535ff6dddc9bcac208ffba1307605fbe8031d",
-  "actualSha256": "cafeeef731f2508b97a2f57e0274153ccd00abaf9dedd8fce09de22913ec77ed",
+  "referenceSha256": "98b0bf926a52159c86566eb23e1a40254f8e350df974f83dcb1306370c7cd037",
+  "actualSha256": "5b2074485e30b8b8ad03d3eb79e93986307c24bfcdfcff62e04ca225eb7deacd",
   "sideBySidePath": "side-by-side/narrow-320-en-story-01.png",
   "overlayPath": "overlay/narrow-320-en-story-01.png",
   "diffPath": "diff/narrow-320-en-story-01.png"

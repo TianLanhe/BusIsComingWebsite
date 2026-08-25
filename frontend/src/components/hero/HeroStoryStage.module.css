@@ -24,7 +24,8 @@
   top: 0;
   left: 50%;
   width: 356px;
-  aspect-ratio: 9 / 16;
+  /* 与批准的 1080×2172 原始界面保持同一修长比例；边框内距不参与截图比例。 */
+  aspect-ratio: 1080 / 2172;
   margin: 0;
   padding: 8px;
   overflow: hidden;
@@ -51,9 +52,11 @@
 }
 
 .screen img {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: top center;
   background: #e8f2ef;
 }
 
@@ -193,7 +196,9 @@
 
 @media (max-width: 980px) {
   .stage {
-    height: 430px;
+    height: 100%;
+    min-height: 411px;
+    max-height: 430px;
   }
 
   .phone {
@@ -216,7 +221,7 @@
 
   .phone[data-slot="front"] {
     --phone-x: 0px;
-    --phone-center-y: 181.333px;
+    --phone-center-y: 205px;
     --phone-rotate: 0deg;
   }
 
@@ -256,10 +261,10 @@
 }
 
 @media (max-width: 350px) {
-  .stage { height: 392px; }
+  .stage { min-height: 375px; max-height: 392px; }
   .phone { width: 186px; border-radius: 30px; }
   .screen { border-radius: 25px; }
-  .phone[data-slot="front"] { --phone-center-y: 165.333px; }
+  .phone[data-slot="front"] { --phone-center-y: 187px; }
   .phone[data-slot="near-left"] { --phone-x: -104px; --phone-center-y: 143.444px; --phone-scale: .655914; }
   .phone[data-slot="near-right"] { --phone-x: 104px; --phone-center-y: 143.444px; --phone-scale: .655914; }
   .phone[data-slot="far-left"] { --phone-x: -98px; --phone-center-y: 150.222px; --phone-scale: .473118; }

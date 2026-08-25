@@ -118,8 +118,8 @@
 | 字段 | 规则 |
 | --- | --- |
 | `sourceFileName` | 仅 basename，不含 `/` 或 `\` |
-| `sourceFingerprint` | 固定 1080×1920 与批准 SHA-256 |
-| `outputs` | 恰有 540×960、720×1280、1080×1920 三个 WebP |
+| `sourceFingerprint` | 故事 01–04 固定 1080×2172、故事 05 锁屏图固定 1080×2400，并记录批准 SHA-256 |
+| `outputs` | 从 raw 源顶部对齐等比生成，恰有 540×1086、720×1448、1080×2172 三个 WebP |
 | `approvalStatus` | `approved` |
 | `desensitizationStatus` | `approved` |
 | `redactedItems` / `retainedItems` | 记录公开检查边界 |

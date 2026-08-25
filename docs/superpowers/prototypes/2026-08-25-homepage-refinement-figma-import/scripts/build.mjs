@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
+import { createRequire } from "node:module";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -23,6 +24,8 @@ if (!zhRoot || !enRoot) {
 const template = await readFile(sourceTemplate, "utf8");
 const images = {};
 const execFileAsync = promisify(execFile);
+const requireFromFrontend = createRequire(new URL("../../../../../frontend/package.json", import.meta.url));
+const sharp = requireFromFrontend("sharp");
 
 async function convertWebpToPng(sourcePath) {
   const tempDirectory = await mkdtemp(join(tmpdir(), "bic-figma-logo-"));
@@ -35,21 +38,27 @@ async function convertWebpToPng(sourcePath) {
   }
 }
 
-async function loadImage(root, contract) {
+async function loadImage(root, contract, assetKey = contract.image) {
   const sourcePath = `${root.replace(/\/$/, "")}/${contract.image}`;
   const bytes = await readFile(sourcePath);
   const digest = createHash("sha256").update(bytes).digest("hex");
   if (digest !== contract.sha256) throw new Error(`Approved asset contract mismatch: ${contract.image}`);
-  const embeddedBytes = contract.image.endsWith(".webp") ? await convertWebpToPng(sourcePath) : bytes;
+  let embeddedBytes = contract.image.endsWith(".webp") ? await convertWebpToPng(sourcePath) : bytes;
   const isPng = embeddedBytes.subarray(1, 4).toString("ascii") === "PNG";
   if (isPng) {
     const width = embeddedBytes.readUInt32BE(16);
     const height = embeddedBytes.readUInt32BE(20);
     const expectedWidth = contract.width || 1080;
-    const expectedHeight = contract.height || 1920;
+    const expectedHeight = contract.height || 2172;
     if (width !== expectedWidth || height !== expectedHeight) throw new Error(`Approved asset dimensions mismatch: ${contract.image}`);
+    if (expectedWidth === 1080 && expectedHeight > 2172) {
+      embeddedBytes = await sharp(embeddedBytes)
+        .extract({ left: 0, top: 0, width: 1080, height: 2172 })
+        .png()
+        .toBuffer();
+    }
   }
-  images[contract.image] = embeddedBytes.toString("base64");
+  images[assetKey] = embeddedBytes.toString("base64");
 }
 
 await loadImage(brandRoot, {
@@ -60,8 +69,8 @@ await loadImage(brandRoot, {
 });
 
 for (const story of DESIGN_CONTRACT.stories) {
-  await loadImage(zhRoot, story.screenshots.zh);
-  await loadImage(enRoot, story.screenshots.en);
+  await loadImage(zhRoot, story.screenshots.zh, story.screenshots.zh.assetKey);
+  await loadImage(enRoot, story.screenshots.en, story.screenshots.en.assetKey);
 }
 
 const output = template

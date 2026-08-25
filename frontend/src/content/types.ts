@@ -40,7 +40,7 @@ export interface ManagedScreenshotOutput {
 
 export interface ManagedScreenshotVariant {
   sourceFileName: string;
-  sourceFingerprint: { width: 1080; height: 1920; sha256: string };
+  sourceFingerprint: { width: 1080; height: 2172 | 2400; sha256: string };
   outputs: ManagedScreenshotOutput[];
   approvalStatus: "approved";
   desensitizationStatus: "approved";

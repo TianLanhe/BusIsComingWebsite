@@ -15,21 +15,22 @@
 - 导出方式：Figma Desktop 原生手动 PNG export
 - MCP 状态：Starter 调用额度不可用，未进行节点 readback；本文不宣称 MCP/API 创建或导出
 - 幂等性：reference 补齐后再次运行插件，回执为“新增 0 个 Frame”
+- 素材刷新：2026-08-26 原位刷新 97 个本地化截图 fill，新增 0 个 Frame；19 张 required 与 1 张补充 reference 重新导出
 
 ## 门禁检查
 
 | 检查项 | 结果 | 证据 |
 | --- | --- | --- |
-| 插件合同与构建测试 | PASS | 设计合同、私有路径防泄漏、19 个 reference、路线与手机下载标题间距均有自动测试 |
+| 插件合同与构建测试 | PASS | 13 个测试覆盖设计合同、私有路径防泄漏、19 个 required reference、唯一故事/语言素材键、Story 05 锁屏限定、路线与手机下载标题间距 |
 | Figma 节点可定位 | PASS | 015 Section 与 19 个 required Frame 均由 Desktop 插件回执给出真实 node ID |
 | 必需 reference 完整 | PASS | `manifest.json` 为 `reference-gate-passed`，`referenceCount` 为 19，`pendingReferences` 为空 |
 | PNG 像素尺寸 | PASS | 1440×960、390×844、320×844、1440×760、390×700、1440×900 与对应 Frame 一致 |
 | PNG 完整性 | PASS | 19 张 required PNG 均非空，repo-relative path 可读，SHA-256 与 manifest 一致 |
-| 视觉抽查 | PASS | 19 张 required PNG 逐张查看；Logo、语言入口、标题分行、完整手机边框、环形层次、故事轨、路线三态、下载双端与 Privacy 无裁切或重叠 |
+| 视觉抽查 | PASS | 19 张 required PNG 与 1 张补充 PNG 已重新导出；逐张查看 Logo、语言入口、标题分行、完整手机边框、环形层次、故事轨、路线三态、下载双端与 Privacy，无裁切或重叠；中文 Frame 显示中文 App 截图，英文 Frame 显示英文 App 截图 |
 | 禁止项 | PASS | 无独立 Header、抽象 Logo、灵动岛、下载日期、紫色色块、深色底部潮汐或整页缩放 |
 | 私有路径与占位 | PASS | 插件构建产物、manifest 与文档不包含一次性截图源目录；reference 不是聊天截图或浏览器占位 |
 
-视觉复核发现并在 Figma 中修复了两个几何问题：路线三态标题与说明重叠、手机下载标题与说明重叠。两项均先加入失败测试，再由幂等插件校正既有 Frame 并重新导出；最终 PNG 已复核无重叠。
+视觉复核发现并在 Figma 中修复了两个几何问题：路线三态标题与说明重叠、手机下载标题与说明重叠。两项均先加入失败测试，再由幂等插件校正既有 Frame 并重新导出；最终 PNG 已复核无重叠。后续素材复核又发现中英文同名源文件可能发生键冲突，现已改为唯一故事/语言键并原位刷新；该修复只替换 image fill，不改 Frame、构图或动效。
 
 ## Reference 覆盖
 

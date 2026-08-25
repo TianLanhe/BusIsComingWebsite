@@ -36,3 +36,16 @@ test("keeps the mobile download heading and description from overlapping", async
   assert.match(output, /mobile \? 209 : 267/);
   assert.match(output, /32, 242, 326, 58/);
 });
+
+test("refreshes every existing localized phone ratio and screenshot fill without replacing approved frames", async () => {
+  const output = await readFile(outputUrl, "utf8");
+  assert.match(output, /function refreshLocalizedPhoneAssets/);
+  assert.match(output, /node\.name === "App Screenshot"/);
+  assert.match(output, /targetHeight = phone\.width \* 2172 \/ 1080/);
+  assert.match(output, /phone\.resizeWithoutConstraints\(phone\.width, targetHeight\)/);
+  assert.match(output, /screen\.resizeWithoutConstraints\(phone\.width - inset \* 2, targetHeight - inset \* 2\)/);
+  assert.match(output, /screen\.fills = \[imageFill\(variant\.assetKey\)\]/);
+  assert.match(output, /refreshLocalizedPhoneAssets\(existing\)/);
+  assert.match(output, /01 Hero \/ 390×844 \/ zh-Hant \/ Story 02/);
+  assert.match(output, /REFERENCE_EXPORT_NAMES\.concat\(SUPPLEMENTAL_EXPORT_NAMES\)/);
+});

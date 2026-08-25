@@ -75,17 +75,41 @@ test("defines complete zh-Hant and en pixel-reference coverage", () => {
       { viewport: "mobile", locale: "en", story: "02", state: "reduced-motion-settled" },
     ],
   );
-  assert.equal(DESIGN_CONTRACT.existingSectionPolicy, "idempotent-reference-backfill");
+  assert.equal(DESIGN_CONTRACT.existingSectionPolicy, "idempotent-reference-backfill-and-screenshot-refresh");
 });
 
 test("pins every approved localized screenshot and the real app logo", () => {
   assert.match(DESIGN_CONTRACT.brand.imageSha256, /^[a-f0-9]{64}$/);
   const hashes = [];
+  const assetKeys = [];
   for (const story of DESIGN_CONTRACT.stories) {
     for (const variant of Object.values(story.screenshots)) {
       assert.match(variant.sha256, /^[a-f0-9]{64}$/);
+      assert.match(variant.assetKey, /^[a-z-]+:(?:zh|en)$/);
       hashes.push(variant.sha256);
+      assetKeys.push(variant.assetKey);
     }
   }
   assert.equal(new Set(hashes).size, 10);
+  assert.equal(new Set(assetKeys).size, 10, "localized screenshot assets must never share an embedded-image key");
+});
+
+test("pins the corrected raw screenshot set and uses only the lock-screen image for story five", () => {
+  assert.deepEqual(
+    DESIGN_CONTRACT.stories.map((story) => ({
+      id: story.id,
+      zh: story.screenshots.zh.image,
+      en: story.screenshots.en.image,
+      zhHeight: story.screenshots.zh.height,
+      enHeight: story.screenshots.en.height,
+    })),
+    [
+      { id: "route-search", zh: "01-search-freely-raw.png", en: "01-search-freely-raw.png", zhHeight: 2172, enHeight: 2172 },
+      { id: "saved-journeys", zh: "02-saved-journey-raw.png", en: "02-saved-journey-raw.png", zhHeight: 2172, enHeight: 2172 },
+      { id: "journey-guidance", zh: "03-route-detail-raw.png", en: "03-route-detail-raw.png", zhHeight: 2172, enHeight: 2172 },
+      { id: "cross-operator-arrivals", zh: "04-cross-operator-arrivals-raw.png", en: "04-cross-operator-arrivals-raw.png", zhHeight: 2172, enHeight: 2172 },
+      { id: "predeparture-monitor", zh: "05-lockscreen-expanded-raw.png", en: "05-monitor-lockscreen-raw.png", zhHeight: 2400, enHeight: 2400 },
+    ],
+  );
+  assert.doesNotMatch(JSON.stringify(DESIGN_CONTRACT.stories), /monitor-settings/);
 });

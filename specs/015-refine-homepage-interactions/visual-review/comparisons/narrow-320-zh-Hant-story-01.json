@@ -2,8 +2,8 @@
   "basename": "narrow-320-zh-Hant-story-01",
   "width": 320,
   "height": 844,
-  "referenceSha256": "88df5d8c5c81ca8c545672b2fe5f9894ed8624b9543bc689128a281640e8417c",
-  "actualSha256": "8e466ac5f36293b048d0d477877147c3002895cc7d39e42b5f27b1f6f81257c2",
+  "referenceSha256": "44e6b642306fe77592bcd30ff66cf1c59ba74b0afc171e9fbcb735eb9a6c237d",
+  "actualSha256": "2abcab3e8270ca6c00013c8b227473815cee85a2ca61730d5119945e19c68f3a",
   "sideBySidePath": "side-by-side/narrow-320-zh-Hant-story-01.png",
   "overlayPath": "overlay/narrow-320-zh-Hant-story-01.png",
   "diffPath": "diff/narrow-320-zh-Hant-story-01.png"

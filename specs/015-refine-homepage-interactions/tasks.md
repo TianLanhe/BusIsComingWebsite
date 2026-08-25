@@ -41,12 +41,12 @@
 **关键要求**：合同测试先失败；截图导入必须原子完成；本阶段不得修改后端、OpenAPI 或 014 文件。
 
 - [X] T008 [P] 先把 Header navigation、manual-only、download updated 的旧断言迁移为 015 失败合同测试，路径：`frontend/src/tests/content-contract.test.ts`、`frontend/src/tests/homepage-experience-regression.test.ts`、`frontend/src/tests/sections-content.test.ts`
-- [X] T009 [P] 先为 manifest v3、5×2×3 唯一输出、1080×1920 指纹、原子失败不改文件和私有路径防泄漏编写失败测试，路径：`frontend/src/tests/screenshot-assets-contract.test.ts`、`frontend/src/tests/prepare-homepage-story-assets.test.ts`
+- [X] T009 [P] 先为 manifest v3、5×2×3 唯一输出、raw 源实际尺寸与 SHA 指纹、故事 05 锁屏限定、原子失败不改文件和私有路径防泄漏编写失败测试，路径：`frontend/src/tests/screenshot-assets-contract.test.ts`、`frontend/src/tests/prepare-homepage-story-assets.test.ts`
 - [X] T010 将 feature 内容 v4 与交互增量同步为长期权威合同，替换 `shared/contracts/homepage-content.schema.json` 并增量更新 `shared/contracts/ui-state-contract.md`，保持 `shared/contracts/route-query-ui-state.md` 与 `shared/contracts/openapi/` 不变
 - [X] T011 将内容实例和 TypeScript 类型迁移到 `HomepageContentV4`，加入 `siteChrome` 与真实 Figma refinement 节点、移除 navigation/updated，并更新来源引用，路径：`frontend/src/content/types.ts`、`homepageContent.ts`、`sourceReferences.ts`
 - [X] T012 重构双源截图准备脚本并补充 npm 命令：先在临时 staging 校验 10 个 basename/SHA/尺寸并生成 30 个 WebP，成功后原子替换且错误不输出环境值，路径：`frontend/scripts/prepare-homepage-story-assets.mjs`、`frontend/package.json`
 - [X] T013 使用两个环境变量执行原子导入，生成 `{storyId}-{zh|en}-{540|720|1080}.webp` 和 manifest v3，并核对 30 个受管输出，路径：`frontend/src/assets/app-screenshots/real/`
-- [X] T014 将截图运行时映射升级为 `storyId → locale variant → src/srcSet` 且固定 9:16 固有尺寸，不提供跨语言回退，路径：`frontend/src/content/storyAssets.ts`、`frontend/src/content/types.ts`
+- [X] T014 将截图运行时映射升级为 `storyId → locale variant → src/srcSet` 且固定 1080:2172 固有尺寸，不提供跨语言回退，路径：`frontend/src/content/storyAssets.ts`、`frontend/src/content/types.ts`
 - [X] T015 校验 192×192 透明真实 App Logo 的批准 SHA，更新其 Hero/Privacy/Footer 用途与旧 BrandMark 退役边界，路径：`docs/asset-provenance.md`、`frontend/src/tests/screenshot-assets-contract.test.ts`
 - [X] T016 [P] 将 Playwright 窄屏改为 320×844，并让视觉 helper 通过 `visual-review` pause、字体、目标图片和最新 epoch settled 稳定截图，路径：`frontend/playwright.config.ts`、`frontend/playwright/helpers/homepageVisual.ts`、`frontend/src/tests/visual-comparison-script.test.ts`
 - [X] T017 运行 AJV/内容/素材聚焦测试并扫描 014 未改、后端/OpenAPI 无差异和私有路径泄漏，检查路径：`specs/015-refine-homepage-interactions/contracts/`、`shared/contracts/`、`frontend/src/assets/app-screenshots/real/`、`backend/`
@@ -96,7 +96,7 @@
 - [X] T029 [P] [US2] 建立复用真实 `busiscoming-icon.webp` 的轻量品牌组件并保留可访问名称，路径：`frontend/src/components/brand/AppBrand.tsx`、`AppBrand.module.css`
 - [X] T030 [P] [US2] 建立同时显示三语、真实 href、脚本内切换和 `aria-current` 的直达语言组件，路径：`frontend/src/components/i18n/InlineLanguageLinks.tsx`、`InlineLanguageLinks.module.css`
 - [X] T031 [US2] 将品牌与语言组件放入 Hero 正常文档流，并从公开首页移除独立 Header/占位且保持 I18nProvider 不重挂载，路径：`frontend/src/components/hero/HeroSection.tsx`、`frontend/src/app/App.tsx`
-- [X] T032 [US2] 让前景图按 locale variant 切换、保持 9:16 槽位，并在 decode/load 失败时渲染目标语言同尺寸失败壳，路径：`frontend/src/components/hero/HeroStoryStage.tsx`、`frontend/src/components/hero/HeroStoryStage.module.css`
+- [X] T032 [US2] 让前景图按 locale variant 切换、保持 1080:2172 槽位并顶部对齐等比覆盖内屏，在 decode/load 失败时渲染目标语言同尺寸失败壳，路径：`frontend/src/components/hero/HeroStoryStage.tsx`、`frontend/src/components/hero/HeroStoryStage.module.css`
 - [X] T033 [US2] 更新三语 alt/aria/error 文本并独立审校繁中香港语气和英文产品语气，路径：`frontend/src/content/homepageStories.ts`、`frontend/src/content/uiCopy.ts`
 - [X] T034 [US2] 运行 15 组合、状态保持、无 Header 和截图失败 E2E，并保存双语言 settled 证据与结论，路径：`specs/015-refine-homepage-interactions/visual-review/us2-result.md`、`visual-review/actual/`
 
@@ -149,7 +149,7 @@
 
 ## 阶段 7：用户故事 5 - 在不同屏幕上获得一致的高保真构图（优先级：P2）
 
-**目标**：让 1440×960、390×844、320×844 和中间宽度连续适配，完整保留品牌、标题、行动、9:16 手机四边、环形远近、故事轨、Privacy 返回与页尾品牌，不做整页缩放。
+**目标**：让 1440×960、390×844、320×844 和中间宽度连续适配，完整保留品牌、标题、行动、1080:2172 修长手机四边与无露底内屏、环形远近、故事轨、Privacy 返回与页尾品牌，不做整页缩放。
 
 **独立测试**：三 viewport 下，`zh-Hant`/`en` 对照 Figma reference，`zh-Hans` 只验证文本、溢出、无横向滚动、触控目标与关键几何；resize/orientation 前后保持 story/locale/route/download/FAQ；检查无 sticky Header、无裁切/覆盖/横向滚动和所有核心目标 ≥44×44。
 
@@ -165,8 +165,10 @@
 - [X] T050 [US5] 对下载、路线、FAQ、联系和页尾执行流式间距/最大宽度收敛，确保首屏删除 Header 后四段锚点和内容层级不漂移，路径：`frontend/src/components/sections/DownloadSection.module.css`、`FaqSection.module.css`、`ContactStrip.module.css`、`FooterContact.module.css`、`frontend/src/components/online-demo/OnlineQueryDemo.module.css`
 - [X] T051 [US5] 在确定性 pause 下生成三 viewport、三语言和关键故事/页面的 settled 浏览器截图并更新固定 golden，路径：`frontend/playwright/homepage-visual-regression.spec.ts`、`frontend/playwright/__screenshots__/`、`specs/015-refine-homepage-interactions/visual-review/actual/`
 - [X] T052 [US5] 将比较脚本默认根切换到 015，并为每个同 viewport reference/actual 生成 side-by-side、50% overlay、diff 与 SHA 清单，路径：`frontend/scripts/compare-homepage-visuals.mjs`、`specs/015-refine-homepage-interactions/visual-review/`
-- [X] T053 [US5] 逐项人工复核标题分行、真实 Logo、语言入口、环形远近、9:16 四边、故事轨、CTA、无日期、无横向滚动和 reduced motion；记录 `zh-Hant`/`en` Figma 像素对照结论，并把 `zh-Hans` 明确记录为文本、溢出与几何验收，路径：`specs/015-refine-homepage-interactions/visual-review/final-figma-review.md`
+- [X] T053 [US5] 逐项人工复核标题分行、真实 Logo、语言入口、环形远近、手机四边、故事轨、CTA、无日期、无横向滚动和 reduced motion；记录 `zh-Hant`/`en` 当时 Figma 像素对照结论，并把 `zh-Hans` 明确记录为文本、溢出与几何验收，路径：`specs/015-refine-homepage-interactions/visual-review/final-figma-review.md`
 - [X] T054 [US5] 运行 resize/orientation 状态保持与三 viewport 独立验收，记录 SC-008、SC-010、SC-011、SC-012 结果到 `specs/015-refine-homepage-interactions/visual-review/us5-result.md`
+- [X] T055 [US5] 纠正手机框与受管截图为 `1080:2172`，用顶部对齐等比覆盖消除五故事在 1440×960、390×844、320×844 的上下露底，并更新三语五故事 browser golden，路径：`frontend/src/components/hero/HeroStoryStage.module.css`、`frontend/src/assets/app-screenshots/real/`、`frontend/playwright/homepage-hero.spec.ts`
+- [ ] T056 [US5] Figma MCP 额度恢复后运行已更新的本地导入插件，刷新线上 015 Section 的手机外壳、内屏 fill 和 Node ID 视觉证据；完成前不得宣称本次 `1080:2172` 纠偏已有线上 Figma 像素级对照，路径：`docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import/`、`specs/015-refine-homepage-interactions/figma.md`
 
 **检查点**：US1–US5 在批准端点和窄屏保护宽度上均可独立验证，浏览器 actual 与真实 Figma reference 无阻断漂移。
 
@@ -265,7 +267,7 @@ Figma 门禁 → 共享基础 ┬→ US1 自动故事 ─→ US2 语言/截图 �
 ```text
 并行：T046 chrome/privacy/resize unit tests
 并行：T047 responsive/accessibility E2E
-汇合：T048 → T049 → T050 → T051 → T052 → T053 → T054
+汇合：T048 → T049 → T050 → T051 → T052 → T053 → T054 → T055；T056 由外部 Figma MCP 额度恢复触发
 ```
 
 ---
@@ -293,7 +295,7 @@ Figma 门禁 → 共享基础 ┬→ US1 自动故事 ─→ US2 语言/截图 �
 
 - 每个用户故事的测试先于实现，聚焦测试和独立证据均通过。
 - Figma 新节点、reference、actual、overlay 和 diff 均可追溯，且零容忍视觉项无阻断漂移。
-- 61 个任务全部保持严格 checklist 格式；没有无路径、无故事标签或错误 `[P]` 标记的任务。
+- 所有任务保持严格 checklist 格式；没有无路径、无故事标签或错误 `[P]` 标记。T056 是唯一由外部 Figma MCP 额度阻塞的线上设计同步项，完成前不得误报新比例已有 Figma 像素级验收。
 - 三语、三 viewport、减少动态效果、失败/降级、状态保持和已知暂停限制都有证据。
 - 后端、OpenAPI、monitoring、Android App 和 014 历史基线无本功能修改。
 - 最终自动提交只包含本功能范围，工作区无冲突标记和未说明改动。

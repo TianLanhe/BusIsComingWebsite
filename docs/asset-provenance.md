@@ -45,8 +45,8 @@ frontend/src/assets/app-screenshots/real/
 manifest v3 将繁中/简中映射到 `zh`，英文映射到 `en`。每个 asset 必须：
 
 - 使用 schema 允许的 `storyId` 并与五故事一一对应；
-- 为 `zh`、`en` 分别保存 1080×1920 源截图宽高和 SHA-256，但不保存本机绝对源路径；
-- 生成 540/720/1080 三种 WebP 衍生物并保存尺寸、字节数和 SHA-256；
+- 为 `zh`、`en` 分别保存原始截图宽高和 SHA-256，但不保存本机绝对源路径；故事 01–04 的批准源为 1080×2172，故事 05 的锁屏批准源为 1080×2400；
+- 从顶部对齐等比裁出 9:16 画面，再生成 540×960、720×1280、1080×1920 三种 WebP 衍生物并保存尺寸、字节数和 SHA-256；不得用非等比缩放压扁界面；
 - 只引用 `frontend/src/assets/app-screenshots/real/` 内的受管衍生文件；
 - 提供 `zh-Hant`、`zh-Hans`、`en` 非空 alt；
 - 使用 `approved` 发布和脱敏状态；
@@ -81,12 +81,12 @@ screenshot-assets-v131-localized.manifest.schema.json
 ## 当前处理脚本
 
 ```bash
-BIC_FIGMA_ZH_SCREENSHOT_DIR=/approved/zh/output \
-BIC_FIGMA_EN_SCREENSHOT_DIR=/approved/en/output \
+BIC_FIGMA_ZH_SCREENSHOT_DIR=/approved/zh/raw \
+BIC_FIGMA_EN_SCREENSHOT_DIR=/approved/en/raw \
 npm --prefix frontend run prepare:homepage-story-assets
 ```
 
-`frontend/scripts/prepare-homepage-story-assets.mjs` 从明确列出的、已批准且只读的源截图生成新的 WebP 路径，先验证源 SHA，再写入 540/720/1080 衍生物与 manifest。它不会在原路径覆盖源图，也不会运行旧的 mask 坐标流程。旧 `sanitize:screenshots` 不得用于这组 v1.3.1 资产。
+`frontend/scripts/prepare-homepage-story-assets.mjs` 从明确列出的、已批准且只读的 raw 源截图生成新的 WebP 路径，先验证 basename、尺寸与 SHA，再以顶部对齐的 `cover` 规则生成 540/720/1080 衍生物和 manifest。故事 05 只允许锁屏通知截图，不能使用监控设置页。脚本不会在原路径覆盖源图，也不会运行旧的 mask 坐标流程。旧 `sanitize:screenshots` 不得用于这组 v1.3.1 资产。
 
 ## 更新流程
 

@@ -5,10 +5,10 @@
 - **文件**：[BusIsComing Website — Homepage v1 Spec](https://www.figma.com/design/LAm6RjzFuFHsHFlcipx8pU/BusIsComing-Website---Homepage-v1-Spec)
 - **历史基线**：`Homepage Visual System v1.3.1 — FINAL`
 - **本轮版本名称**：`Homepage refinement 2026-08-25 — FINAL`
-- **本轮状态**：015 Section 已于 2026-08-25 通过 Figma Desktop 本地插件真实写入并人工选择核对；Section 为 `136:292`。19 张 `zh-Hant`/`en` 及关键状态 reference PNG 已完成原生导出、尺寸/哈希登记和视觉抽查，生产 UI 修改门禁通过；`zh-Hans` 仅做文本、溢出和几何验收，不设置像素级 Figma reference 门禁。
+- **本轮状态**：015 Section 已于 2026-08-25 通过 Figma Desktop 本地插件真实写入并人工选择核对；Section 为 `136:292`。2026-08-26 按批准的 v1.3.1 素材映射原位刷新 97 个本地化截图 fill，新增 0 个 Frame，既有节点 ID、布局和动效规格保持不变。19 张 required reference 与 1 张补充 reference 已重新原生导出、登记哈希并完成中英文视觉抽查；`zh-Hans` 仅做文本、溢出和几何验收，不设置像素级 Figma reference 门禁。
 - **禁止事项**：不得发明节点 ID、不得覆盖 014 Section、不得用聊天截图或浏览器实现反向充当设计源。
 
-本轮本地插件自测、Figma Desktop 节点写入、19 张 reference export 与门禁核对均已完成。生产实现仍需在相同 viewport 下生成 actual、side-by-side、overlay 和 diff，门禁通过不等于生产页面已完成像素验收；`zh-Hans` 后续只做浏览器文本、溢出与几何验收，不宣称像素级 Figma 对照。
+本轮本地插件自测、Figma Desktop 节点写入、19 张 required reference 与 1 张补充 reference export、浏览器 actual 及对照材料均已完成。截图键使用“故事 ID + 语言”唯一标识，避免中英文同名源文件相互覆盖；Story 05 只允许锁屏监控截图。`zh-Hans` 只做浏览器文本、溢出与几何验收，不宣称像素级 Figma 对照。
 
 ## 2. 014 只读视觉基线
 
@@ -28,7 +28,13 @@
 - 新 Figma 插件落点：`docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import/`
 - 新视觉证据落点：`specs/015-refine-homepage-interactions/visual-review/`
 
-真实 App Logo 固定使用 `frontend/src/assets/brand/busiscoming-icon.webp`。五个故事的中文与英文源文件映射、批准 SHA 和替代文本以本轮设计合同 §7.1 为权威；Figma 插件和生产素材脚本都只消费固定后的受管副本，不能在 Figma 或网站记录一次性源目录。
+真实 App Logo 固定使用 `frontend/src/assets/brand/busiscoming-icon.webp`。五个故事的中文与英文源文件映射、批准 SHA 和替代文本以本轮设计合同 §7.1 为权威；Story 05 的中文和英文均只使用锁屏监控图，不导入设置页。Figma 插件和生产素材脚本都只消费固定后的受管副本，不能在 Figma 或网站记录一次性源目录。
+
+### 2026-08-26 手机内屏比例纠偏状态
+
+- 浏览器实现、受管 WebP、manifest/schema 与本地 Figma 导入插件均已统一为 `1080:2172`；内屏使用顶部对齐等比覆盖，消除边框 inset 导致的上下露底。
+- Figma 插件刷新既有 015 Section 时会同时调整每个 `Phone / NN / locale` 外壳及其 `App Screenshot` 子节点的高度，不只替换 image fill。
+- 本次尝试通过 Figma MCP 更新线上文件时命中 Starter 方案调用额度上限，工具未执行任何写入。因此下述旧 Node ID 仍只证明此前版本；在额度恢复并重新运行插件、导出和对照前，不宣称线上 Figma 已完成本次比例纠偏或像素级复核。
 
 ## 4. 新 FINAL Section 必须覆盖的节点
 
@@ -36,7 +42,7 @@
 
 | 类别 | 必须存在的 Frame/Component Set | 关键内容 |
 | --- | --- | --- |
-| Foundations | `00 Refinement Library` | 真实 Logo、首行语言入口、流式间距、9:16 手机边框、820ms/160ms motion token |
+| Foundations | `00 Refinement Library` | 真实 Logo、首行语言入口、流式间距、1080:2172 修长手机边框与顶部覆盖内屏、820ms/160ms motion token |
 | Desktop Hero | `01 Hero / 1440×960 / zh-Hant / Story 01` | settled 状态；无 Header、首行品牌与三语、桌面 CTA 到第三屏、中文图 |
 | Desktop Hero EN | `01 Hero / 1440×960 / en / Story 01` | 英文文案与英文图、同一构图 |
 | Mobile Hero | `01 Hero / 390×844 / zh-Hant / Story 01` | 完整四边、环形远近、轨道在截图下、手机直接下载 |

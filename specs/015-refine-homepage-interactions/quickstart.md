@@ -35,7 +35,7 @@ BIC_FIGMA_EN_SCREENSHOT_DIR=/path/to/approved-en \
 npm --prefix frontend run prepare:homepage-story-assets
 ```
 
-实现后的脚本必须先在临时 staging 中完成 10 个源 basename、1080×1920 尺寸、批准 SHA、30 个 WebP 输出和 manifest v3 校验，再原子替换受管资源。任何校验失败都不能改变当前受管文件。
+实现后的脚本必须先在临时 staging 中完成 10 个 raw 源 basename、实际批准尺寸、批准 SHA、顶部对齐等比处理、30 个 1080:2172 WebP 输出和 manifest v3 校验，再原子替换受管资源。任何校验失败都不能改变当前受管文件；故事 05 只能使用锁屏通知图。
 
 不得把上述示例值替换成实际本机路径后提交；命令、错误、manifest 与构建产物均不输出环境变量值。
 
@@ -60,7 +60,7 @@ npm --prefix frontend run test -- content-contract screenshot-assets-contract i1
 - 五故事 ID、顺序、三语文案和截图 ID 一一对应；
 - locale mapping 固定为繁简中文→zh、英文→en；
 - 5 个 story × 2 个 variant × 3 个 width = 30 个唯一 WebP；
-- 每个源是 1080×1920，每个输出严格为 540×960、720×1280、1080×1920；
+- 故事 01–04 的源为 1080×2172，故事 05 锁屏源为 1080×2400；每个输出顶部对齐等比生成 540×1086、720×1448、1080×2172；
 - 生产内容、manifest、错误和构建不含本机、Android 工程或临时目录。
 
 ## 6. 单元测试与构建
@@ -118,7 +118,7 @@ Playwright 主矩阵：
 
 不得用任意 sleep 作为唯一稳定条件。静态 golden 只截 settled；start、约 160ms 与 settled 三相通过受控阶段协议和人工 motion review。
 
-对每个 reference 生成同 viewport 的 actual、side-by-side、50% overlay 和 diff。现有 `toHaveScreenshot` 全图阈值可继续保护抗锯齿噪音，但以下独立断言保持零容忍：标题分行、Logo、语言入口、手机四边、9:16 比例、环形前后层级、故事轨不覆盖、CTA 语义、无日期、无横向滚动、触控目标和后景可访问性。
+对每个 reference 生成同 viewport 的 actual、side-by-side、50% overlay 和 diff。现有 `toHaveScreenshot` 全图阈值可继续保护抗锯齿噪音，但以下独立断言保持零容忍：标题分行、Logo、语言入口、手机四边、1080:2172 修长比例、内屏上下无露底、环形前后层级、故事轨不覆盖、CTA 语义、无日期、无横向滚动、触控目标和后景可访问性。
 
 ## 9. 人工动效复核
 

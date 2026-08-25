@@ -2,8 +2,8 @@
   "basename": "mobile-390-en-story-01",
   "width": 390,
   "height": 844,
-  "referenceSha256": "4d14eae0c0b10f4e96ac3c5a725488cd63169410d8e63a70591243d9a1432eed",
-  "actualSha256": "30b78fb34cd413f6e5e316120716d9287191b91f11d9f07cc6e9cf73b93d5a1e",
+  "referenceSha256": "7068c3256c7d4d00a2a576d09892b609e847e2e429a74bd8345f36305a79067b",
+  "actualSha256": "3e4209bced06e6f004e49c3da60c64cd77a9e5b8b0e5778fa2cfff46a9e59018",
   "sideBySidePath": "side-by-side/mobile-390-en-story-01.png",
   "overlayPath": "overlay/mobile-390-en-story-01.png",
   "diffPath": "diff/mobile-390-en-story-01.png"

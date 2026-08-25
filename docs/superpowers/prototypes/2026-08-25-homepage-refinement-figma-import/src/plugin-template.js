@@ -27,6 +27,9 @@ const REFERENCE_EXPORT_NAMES = [
   "05 Privacy / desktop",
   "05 Privacy / mobile",
 ];
+const SUPPLEMENTAL_EXPORT_NAMES = [
+  "01 Hero / 390×844 / zh-Hant / Story 02",
+];
 let FONT = null;
 let ASSETS = null;
 
@@ -199,7 +202,7 @@ function createButton(parent, name, labelValue, x, y, width, height, primary) {
 
 function createPhone(parent, story, locale, x, y, width, options) {
   const settings = options || {};
-  const height = width * 16 / 9;
+  const height = width * 2172 / 1080;
   const shell = frame(parent, settings.name || `Phone / ${story.number} / ${locale}`, x, y, width, height, gradient([
     { position: 0, color: "#91a6a2", opacity: 1 },
     { position: 0.17, color: "#244846", opacity: 1 },
@@ -214,7 +217,7 @@ function createPhone(parent, story, locale, x, y, width, options) {
   else if (!settings.noShadow) applyShadow(shell, "phone");
   const inset = Math.max(5, width * 0.026);
   const variant = locale === "en" ? story.screenshots.en : story.screenshots.zh;
-  const screen = rectangle(shell, "App Screenshot", inset, inset, width - inset * 2, height - inset * 2, imageFill(variant.image), Math.max(16, (settings.radius || width * 0.14) - inset));
+  const screen = rectangle(shell, "App Screenshot", inset, inset, width - inset * 2, height - inset * 2, imageFill(variant.assetKey), Math.max(16, (settings.radius || width * 0.14) - inset));
   screen.setPluginData("alt", story.alt[locale] || story.alt["zh-Hant"]);
   shell.setPluginData("localeVariant", locale === "en" ? "en" : "zh");
   shell.setPluginData("screenshotSha256", variant.sha256);
@@ -613,8 +616,9 @@ async function ensureReferenceCoverage(root) {
 }
 
 function selectReferenceFrames(root) {
-  const nodes = REFERENCE_EXPORT_NAMES.map((name) => root.findOne((node) => node.type === "FRAME" && node.name === name));
-  const missingNames = REFERENCE_EXPORT_NAMES.filter((_, index) => !nodes[index]);
+  const exportNames = REFERENCE_EXPORT_NAMES.concat(SUPPLEMENTAL_EXPORT_NAMES);
+  const nodes = exportNames.map((name) => root.findOne((node) => node.type === "FRAME" && node.name === name));
+  const missingNames = exportNames.filter((_, index) => !nodes[index]);
   if (missingNames.length) throw new Error(`缺少 reference Frame：${missingNames.join("、")}`);
   nodes.forEach((node) => {
     node.exportSettings = [{ format: "PNG", constraint: { type: "SCALE", value: 1 } }];
@@ -624,15 +628,41 @@ function selectReferenceFrames(root) {
   return nodes;
 }
 
+function refreshLocalizedPhoneAssets(root) {
+  if (!ASSETS) throw new Error("截图资源尚未载入，不能刷新现有 Figma image fill。");
+  const storyByNumber = new Map(DESIGN.stories.map((story) => [story.number, story]));
+  const screens = root.findAll((node) => node.type === "RECTANGLE" && node.name === "App Screenshot");
+  let refreshed = 0;
+  for (const screen of screens) {
+    const match = screen.parent?.name.match(/^Phone \/ (\d{2}) \/ (zh-Hant|en)$/);
+    if (!match) continue;
+    const story = storyByNumber.get(match[1]);
+    if (!story) continue;
+    const variant = match[2] === "en" ? story.screenshots.en : story.screenshots.zh;
+    const phone = screen.parent;
+    const inset = Math.max(5, phone.width * 0.026);
+    const targetHeight = phone.width * 2172 / 1080;
+    phone.resizeWithoutConstraints(phone.width, targetHeight);
+    screen.x = inset;
+    screen.y = inset;
+    screen.resizeWithoutConstraints(phone.width - inset * 2, targetHeight - inset * 2);
+    screen.fills = [imageFill(variant.assetKey)];
+    refreshed += 1;
+  }
+  return refreshed;
+}
+
 async function generateFinalBoards() {
   const existing = figma.currentPage.findOne((node) => node.type === "SECTION" && node.name === FINAL_SECTION);
   if (existing) {
+    ASSETS = ASSETS || await createImages();
     const created = await ensureReferenceCoverage(existing);
+    const refreshedScreenshots = refreshLocalizedPhoneAssets(existing);
     const repairedRouteBoards = repairRouteTrialSpacing(existing);
     const repairedDownloadBoards = repairMobileDownloadSpacing(existing);
     const references = selectReferenceFrames(existing);
     const referenceIndex = references.map((node) => `${node.name} ${node.id}`).join("\n");
-    post("done", "015 reference 已补齐并选择", `Section Node ID: ${existing.id}\n新增 ${created.length} 个 Frame；校正 ${repairedRouteBoards} 个路线状态 Frame 与 ${repairedDownloadBoards} 个手机下载 Frame 的标题间距；已选择 ${references.length} 个可导出 reference。插件没有覆盖 014 或替换现有 Frame。\n\n${referenceIndex}`);
+    post("done", "015 reference 已刷新并选择", `Section Node ID: ${existing.id}\n刷新 ${refreshedScreenshots} 个中英文 App Screenshot image fill；新增 ${created.length} 个 Frame；校正 ${repairedRouteBoards} 个路线状态 Frame 与 ${repairedDownloadBoards} 个手机下载 Frame 的标题间距；已选择 19 个 required reference 与 ${SUPPLEMENTAL_EXPORT_NAMES.length} 个 supplemental reference。插件没有覆盖 014 或替换现有 Frame。\n\n${referenceIndex}`);
     return;
   }
   const stale = figma.currentPage.findOne((node) => node.type === "SECTION" && node.name === BUILDING_SECTION);

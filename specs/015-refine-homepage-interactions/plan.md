@@ -28,7 +28,7 @@
 
 **性能目标**：每个 Hero 实例最多一个 dwell timer 与一个当前转场保护 timer；offscreen/hidden/reduced-motion 不持续轮播；只动画 transform/opacity/轻量 blur；页面只请求当前 locale variant 的响应式资源；不因截图语言切换产生 layout shift
 
-**约束**：严格对齐新版 Figma；三语；真实 App Logo；截图固定 9:16；触控目标至少 44×44；不使用整页 transform scale；不显示下载日期；不向网站或产物写入 Android 工程或一次性源目录；无可见暂停按钮并如实保留 WCAG 2.2.2 风险；除 FR-023 的入口分流外不修改路线或下载业务语义；`zh-Hans` 只做文本、溢出和几何验收，不宣称像素级 Figma 对照
+**约束**：严格对齐新版 Figma；三语；真实 App Logo；手机内屏固定为批准 raw 截图的 1080:2172 修长比例并以顶部对齐等比覆盖消除露底；触控目标至少 44×44；不使用整页 transform scale；不显示下载日期；不向网站或产物写入 Android 工程或一次性源目录；无可见暂停按钮并如实保留 WCAG 2.2.2 风险；除 FR-023 的入口分流外不修改路线或下载业务语义；`zh-Hans` 只做文本、溢出和几何验收，不宣称像素级 Figma 对照
 
 **规模/范围**：公开首页 Hero、手机路线查询布局、第三屏下载呈现、Privacy 顶部和公开页尾品牌；5 个故事、2 套语言截图、30 个响应式输出、3 个主 viewport；排除 monitoring、后端、OpenAPI、Android App 和新产品能力
 
@@ -186,7 +186,7 @@ backend/                            # 本功能无改动
 
 1. **Figma 门禁**：创建 015 插件、FINAL Section、真实节点、reference export/manifest，并更新 `figma.md`。
 2. **合同红测**：先迁移 feature→shared 内容/UI 合同和测试，让旧 Header、日期、单语言图、manual-only 预期明确失败。
-3. **素材原子导入**：导入两套 1080×1920 批准源，生成 30 个 WebP/manifest v3，更新来源文档并验证 Logo 指纹。
+3. **素材原子导入**：导入两套批准 raw 源（故事 01–04 为 1080×2172，故事 05 锁屏图为 1080×2400），顶部对齐等比生成 30 个 1080:2172 WebP/manifest v3，更新来源文档并验证 Logo 指纹；第五项只裁去锁屏源底部多余区域并排除监控设置页。
 4. **Hero 控制器 TDD**：实现单 timer、epoch、settled、pause reasons、10/5 秒、播报和清理。
 5. **舞台/文案/轨道**：实现 820ms/160ms、目标 locale 图、失败壳、reduced motion 和高保真流式几何。
 6. **页面 Chrome**：移除公开 Header，加入真实品牌/直接语言入口、Privacy 返回和 Footer 品牌统一。

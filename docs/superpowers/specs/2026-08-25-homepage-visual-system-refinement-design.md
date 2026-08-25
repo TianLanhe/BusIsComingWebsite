@@ -147,28 +147,28 @@ reduced-motion 下取消自动轮播、环形位移、文字滑动和 blur 变�
 
 ### 7.1 源素材映射
 
-两套获批源图均为 1080×1920。导入时按以下固定映射校验文件名、尺寸与 SHA-256：
+两套获批源图宽度均为 1080；故事 01–04 高度为 2172，故事 05 锁屏图高度为 2400。导入时按以下固定映射校验文件名、尺寸与 SHA-256：
 
 | 故事 ID | 中文源图 | 中文 SHA-256 | 英文源图 | 英文 SHA-256 |
 | --- | --- | --- | --- | --- |
-| `route-search` | `01-search-freely.png` | `b3234b875dcb682e042cab173b831b23e9aa66f0b434f6d67d59e9d37146d8ce` | `01-search-freely-en.png` | `7c68e28ee80060e22fd8cf05a14c40cb750e85593b6156277a103467126e11c2` |
-| `saved-journeys` | `02-saved-journey.png` | `c2a1555fb593e64712cb6173c88097d562b9935e625227fa144f3e9227a2c0a6` | `02-saved-journey-en.png` | `25d47c68b61afdd9a1738f082899493f7e9599c369a92dff72f1f0de967e2fb2` |
-| `journey-guidance` | `03-route-detail.png` | `cba019119377be69dcf75f99a1f21aa0002dad7bc60a896d049b6e2bef64df58` | `03-route-detail-en.png` | `5d3aea154a443dfa09267409939a14e074a03a80c7fdd654e9687b412b651a95` |
-| `cross-operator-arrivals` | `04-cross-operator-arrivals.png` | `b479882ff58f2ffd573968d79f34553a8a8d852ba5d1e40576f929b7d8c63e87` | `04-cross-operator-arrivals-en.png` | `42d211fb8c27a5193ba0871e74c5185ad2fbc6cd07cc5655b33540a08655c001` |
-| `predeparture-monitor` | `05-monitor-reminder.png` | `f9099ff1543636689efd5e15b59d17149cb8f547956b47287525370c5ac52dac` | `05-monitor-reminder-en.png` | `c035484e1deb8556e9d36dd53fa1f63d50f51c4617a56f1c9049d6451a0cd100` |
+| `route-search` | `01-search-freely-raw.png` | `d9621d2a93b348d01eb83ce4917bc5d0b249e5d24d9ce7450aa57384a0c74989` | `01-search-freely-raw.png` | `c61507546663f144a161146929f77bd06dd0c19d5c892ae57568fea3f07dcf9f` |
+| `saved-journeys` | `02-saved-journey-raw.png` | `f5ff363cc192ebca12b8426f9aebab3fad20565381365ba941e21529503c3eb9` | `02-saved-journey-raw.png` | `c145f5aaaa67365b879c1502209731990ed018668b5bdcfdaf27e7faf433ccae` |
+| `journey-guidance` | `03-route-detail-raw.png` | `10db41131df140927ed347d7a83c26f83e23ee5344c6873c411b2062571bebfd` | `03-route-detail-raw.png` | `c44f2233f5ae90b9c662e339a28873323752be0ba1f72b8e392b04aee35ecc6f` |
+| `cross-operator-arrivals` | `04-cross-operator-arrivals-raw.png` | `9af05fc114796d05e887b8b3dd1e2b127393efb9a7c2b23cd7e1476dc2ece4a1` | `04-cross-operator-arrivals-raw.png` | `d0690de1a81b8f23b1e4c5be9eb80e2a0451b430247d336fa399cf575a2b1dbe` |
+| `predeparture-monitor` | `05-lockscreen-expanded-raw.png` | `1cda8c7ff30823be5b95498dfd640bf124f4e3886851cd5ab6ad7968c4afa1bd` | `05-monitor-lockscreen-raw.png` | `7c1f8d1bcce3934e3594cdf609b98673f2509ec060c2aecf5b7d51037e099162` |
 
 用户提供的临时目录只是一次性导入源，不进入运行时、manifest、文档或构建产物。
 
 ### 7.2 衍生资源与运行映射
 
-每套五图分别生成 540、720、1080 宽 WebP，共 30 个衍生文件。文件名必须包含语言集以避免碰撞，例如：
+每套五图分别生成 540×1086、720×1448、1080×2172 WebP，共 30 个衍生文件。故事 01–04 保留完整固有画面；故事 05 只从顶部对齐裁去底部多余区域。文件名必须包含语言集以避免碰撞，例如：
 
 - `route-search-zh-540.webp`；
 - `route-search-en-540.webp`。
 
 manifest 升级为按故事保存 `zh` 与 `en` 两个 locale variant；每个 variant 记录源尺寸、源 SHA、三个衍生尺寸、字节数和衍生 SHA。`zh-Hant`、`zh-Hans` 映射到 `zh`，`en` 映射到 `en`。
 
-Hero 五张手机仍常驻 DOM，但只使用当前 locale variant。切换语言时保持固定手机宽高和槽位，通过图片 decode 与稳定失败 shell 避免闪白、拉伸和 layout shift；加载失败不得回退到另一语言截图。
+Hero 五张手机仍常驻 DOM，但只使用当前 locale variant。切换语言时保持固定的 1080:2172 修长手机比例和槽位；图片顶部对齐等比覆盖内屏，通过 decode 与稳定失败 shell 避免闪白、压扁、上下露底和 layout shift；加载失败不得回退到另一语言截图。
 
 ## 8. 响应式构图
 
@@ -177,7 +177,7 @@ Hero 五张手机仍常驻 DOM，但只使用当前 locale variant。切换语�
 - 标题、主要间距、手机舞台、辅助说明和故事轨在各自 min/max 内保持同一比例趋势；
 - 正文和 metadata 保持可读下限；
 - 所有交互目标不小于 44×44；
-- 截图按 1080×1920 固有比例显示，手机外壳不得压扁或裁边；
+- 截图与手机外壳按 1080×2172 固有比例显示，内屏不得压扁、裁边或在顶部／底部露底；
 - 390×844 继续在首个主要 viewport 内呈现首行、标题、说明、两个 CTA、完整前景手机和故事轨；
 - 320 等极窄屏不隐藏品牌、语言、CTA 或故事按钮，允许必要换行和轻微向下延伸；
 - 大于批准桌面宽度时限制内容最大宽度，避免标题与舞台无限拉开。

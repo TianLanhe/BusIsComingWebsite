@@ -36,14 +36,14 @@ export interface StoryAssetSource {
   src: string;
   srcSet: string;
   width: 1080;
-  height: 1920;
+  height: 2172;
 }
 
 const source = (small: string, medium: string, large: string): StoryAssetSource => ({
   src: medium,
   srcSet: `${small} 540w, ${medium} 720w, ${large} 1080w`,
   width: 1080,
-  height: 1920,
+  height: 2172,
 });
 
 export const storyAssetLocaleVariant: Record<Locale, StoryAssetLocaleVariant> = {

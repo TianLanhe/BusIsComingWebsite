@@ -13,7 +13,7 @@ export const DESIGN_CONTRACT = Object.freeze({
     en: "pixel-reference",
     "zh-Hans": "text-overflow-geometry-only",
   },
-  existingSectionPolicy: "idempotent-reference-backfill",
+  existingSectionPolicy: "idempotent-reference-backfill-and-screenshot-refresh",
   referenceFrames: [
     { viewport: "desktop", locale: "zh-Hant", story: "01", state: "settled" },
     { viewport: "desktop", locale: "en", story: "01", state: "settled" },
@@ -46,8 +46,8 @@ export const DESIGN_CONTRACT = Object.freeze({
       description: { "zh-Hant": "輸入起終點，即時比較合適路線", en: "Enter your start and destination to compare suitable bus routes." },
       alt: { "zh-Hant": "本次行程及候選巴士路線", en: "Current journey and suggested bus routes" },
       screenshots: {
-        zh: { image: "01-search-freely.png", sha256: "b3234b875dcb682e042cab173b831b23e9aa66f0b434f6d67d59e9d37146d8ce" },
-        en: { image: "01-search-freely-en.png", sha256: "7c68e28ee80060e22fd8cf05a14c40cb750e85593b6156277a103467126e11c2" },
+        zh: { assetKey: "route-search:zh", image: "01-search-freely-raw.png", sha256: "d9621d2a93b348d01eb83ce4917bc5d0b249e5d24d9ce7450aa57384a0c74989", width: 1080, height: 2172 },
+        en: { assetKey: "route-search:en", image: "01-search-freely-raw.png", sha256: "c61507546663f144a161146929f77bd06dd0c19d5c892ae57568fea3f07dcf9f", width: 1080, height: 2172 },
       },
     },
     {
@@ -59,8 +59,8 @@ export const DESIGN_CONTRACT = Object.freeze({
       description: { "zh-Hant": "路線、車費與候車時間集中比較，選擇更清楚", en: "Compare routes, fares, and waiting times together for a clearer choice." },
       alt: { "zh-Hant": "常用行程及巴士路線比較", en: "Saved journeys and bus route comparison" },
       screenshots: {
-        zh: { image: "02-saved-journey.png", sha256: "c2a1555fb593e64712cb6173c88097d562b9935e625227fa144f3e9227a2c0a6" },
-        en: { image: "02-saved-journey-en.png", sha256: "25d47c68b61afdd9a1738f082899493f7e9599c369a92dff72f1f0de967e2fb2" },
+        zh: { assetKey: "saved-journeys:zh", image: "02-saved-journey-raw.png", sha256: "f5ff363cc192ebca12b8426f9aebab3fad20565381365ba941e21529503c3eb9", width: 1080, height: 2172 },
+        en: { assetKey: "saved-journeys:en", image: "02-saved-journey-raw.png", sha256: "c145f5aaaa67365b879c1502209731990ed018668b5bdcfdaf27e7faf433ccae", width: 1080, height: 2172 },
       },
     },
     {
@@ -72,8 +72,8 @@ export const DESIGN_CONTRACT = Object.freeze({
       description: { "zh-Hant": "路線、轉乘與目前位置，沿途心中有數", en: "Keep the route, transfers, and your current position in view along the way." },
       alt: { "zh-Hant": "路線、轉乘與目前位置畫面", en: "Route, transfers, and current position view" },
       screenshots: {
-        zh: { image: "03-route-detail.png", sha256: "cba019119377be69dcf75f99a1f21aa0002dad7bc60a896d049b6e2bef64df58" },
-        en: { image: "03-route-detail-en.png", sha256: "5d3aea154a443dfa09267409939a14e074a03a80c7fdd654e9687b412b651a95" },
+        zh: { assetKey: "journey-guidance:zh", image: "03-route-detail-raw.png", sha256: "10db41131df140927ed347d7a83c26f83e23ee5344c6873c411b2062571bebfd", width: 1080, height: 2172 },
+        en: { assetKey: "journey-guidance:en", image: "03-route-detail-raw.png", sha256: "c44f2233f5ae90b9c662e339a28873323752be0ba1f72b8e392b04aee35ecc6f", width: 1080, height: 2172 },
       },
     },
     {
@@ -85,8 +85,8 @@ export const DESIGN_CONTRACT = Object.freeze({
       description: { "zh-Hant": "城巴、九巴與龍運到站時間集中呈現", en: "See Citybus, KMB, and Long Win arrival times together on eligible joint routes." },
       alt: { "zh-Hant": "跨營運商巴士到站時間", en: "Bus arrivals across operators for an eligible route" },
       screenshots: {
-        zh: { image: "04-cross-operator-arrivals.png", sha256: "b479882ff58f2ffd573968d79f34553a8a8d852ba5d1e40576f929b7d8c63e87" },
-        en: { image: "04-cross-operator-arrivals-en.png", sha256: "42d211fb8c27a5193ba0871e74c5185ad2fbc6cd07cc5655b33540a08655c001" },
+        zh: { assetKey: "cross-operator-arrivals:zh", image: "04-cross-operator-arrivals-raw.png", sha256: "9af05fc114796d05e887b8b3dd1e2b127393efb9a7c2b23cd7e1476dc2ece4a1", width: 1080, height: 2172 },
+        en: { assetKey: "cross-operator-arrivals:en", image: "04-cross-operator-arrivals-raw.png", sha256: "d0690de1a81b8f23b1e4c5be9eb80e2a0451b430247d336fa399cf575a2b1dbe", width: 1080, height: 2172 },
       },
     },
     {
@@ -98,8 +98,8 @@ export const DESIGN_CONTRACT = Object.freeze({
       description: { "zh-Hant": "啟動一次，鎖屏持續更新候車與步行時間", en: "Start once and keep waiting and walking times updated on your lock screen." },
       alt: { "zh-Hant": "鎖屏上的候車與步行監控", en: "Waiting and walking updates on the lock screen" },
       screenshots: {
-        zh: { image: "05-monitor-reminder.png", sha256: "f9099ff1543636689efd5e15b59d17149cb8f547956b47287525370c5ac52dac" },
-        en: { image: "05-monitor-reminder-en.png", sha256: "c035484e1deb8556e9d36dd53fa1f63d50f51c4617a56f1c9049d6451a0cd100" },
+        zh: { assetKey: "predeparture-monitor:zh", image: "05-lockscreen-expanded-raw.png", sha256: "1cda8c7ff30823be5b95498dfd640bf124f4e3886851cd5ab6ad7968c4afa1bd", width: 1080, height: 2400 },
+        en: { assetKey: "predeparture-monitor:en", image: "05-monitor-lockscreen-raw.png", sha256: "7c1f8d1bcce3934e3594cdf609b98673f2509ec060c2aecf5b7d51037e099162", width: 1080, height: 2400 },
       },
     },
   ],

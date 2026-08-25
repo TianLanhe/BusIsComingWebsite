@@ -1,13 +1,13 @@
 # 015 最终验证记录
 
-日期：2026-08-25
+日期：2026-08-26
 
 ## 自动化结果
 
 | 范围 | 命令 | 结果 |
 | --- | --- | --- |
-| Figma 插件合同 | 在 `docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import` 运行 `npm test` | 通过：11 个测试 |
-| 单元与组件 | `npm --prefix frontend run test` | 通过：54 个文件、217 个测试 |
+| Figma 插件合同 | 在 `docs/superpowers/prototypes/2026-08-25-homepage-refinement-figma-import` 运行 `npm test` | 通过：13 个测试 |
+| 单元与组件 | `npm --prefix frontend run test` | 通过：54 个文件、218 个测试 |
 | 公开与监控构建 | `npm --prefix frontend run build` | 通过；公开 JS 244.98 kB（gzip 81.13 kB），CSS 42.34 kB（gzip 9.48 kB） |
 | 完整浏览器回归 | `npm --prefix frontend run test:e2e` | 通过：75 个，按项目条件跳过 3 个；未使用 `--update-snapshots` |
 | 固定视觉回归 | `npx playwright test playwright/homepage-visual-regression.spec.ts` | 通过：12 个，覆盖 1440/390/320、三语五故事和三段 section |
@@ -18,6 +18,8 @@
 ## 视觉与交互证据
 
 - Figma 015 FINAL Section 为 `136:292`；19 张 required reference 在生产 UI 修改前通过门禁。
+- 2026-08-26 原位刷新 97 个本地化截图 fill，新增 0 个 Frame；19 张 required 与 1 张补充 reference 重新导出并登记哈希，节点 ID、构图和动效规格保持不变。
+- 中文与英文使用独立故事/语言素材键；Story 05 的中英文均只使用锁屏监控截图，未导入设置页。
 - Hero 的 zh-Hant/en 在 1440×960、390×844、320×844 各有同尺寸 reference/actual、side-by-side、overlay、diff 与 SHA 清单。
 - Download ready 的 1440×760、390×700 同样完成对照；真实二维码和安装提示属于批准的生产语义差异。
 - zh-Hans 在三 viewport 和五故事上通过文本、溢出、横向滚动、44px 与关键几何验证，不宣称 Figma 像素级对照。

@@ -338,8 +338,13 @@
   }
 
   .visual {
+    /*
+     * 批准视口有余量时允许舞台增长，维持既有故事轨位置；手机浏览器 chrome
+     * 压缩可用高度时只收掉前景手机下方的空余区，不得把 204px 宽手机本身
+     * 或正常文档流中的故事轨挤进彼此。
+     */
     flex: 1 1 380px;
-    min-height: 350px;
+    min-height: 411px;
     width: 100%;
     margin-top: 13px;
     padding: 0;
@@ -364,7 +369,7 @@
   .description { margin-top: 22px; font-size: 11.5px; }
   .description:lang(en) { margin-top: 32px; font-size: 11.5px; }
   .copy[data-copy-locale="en"] .actions { margin-top: 12px; }
-  .visual { flex-basis: 392px; margin-top: 21px; }
+  .visual { flex-basis: 392px; min-height: 375px; margin-top: 21px; }
   .actions { gap: 8px; }
   .secondaryAction { font-size: 11.5px; }
   .inner > :last-child { align-self: center; width: 300px; }
