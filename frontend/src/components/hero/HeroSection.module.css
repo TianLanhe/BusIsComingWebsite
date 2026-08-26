@@ -1,4 +1,5 @@
 .hero {
+  --hero-px: 1px;
   position: relative;
   min-height: 100svh;
   overflow: hidden;
@@ -209,14 +210,88 @@
 }
 
 @media (min-width: 1181px) {
+  .hero {
+    /*
+     * 1440×960 是获批桌面构图。桌面设计像素同时受视口宽、高限制，
+     * 让短屏完整收进首屏、宽大屏同步放大；不用 transform/zoom 改变坐标或命中区。
+     */
+    --hero-px: min(.069444444vw, .104166667svh);
+    display: grid;
+    place-items: center;
+  }
+
   .inner {
     display: block;
+    width: calc(var(--hero-px) * 1440);
+    height: calc(var(--hero-px) * 960);
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0 calc(var(--hero-px) * 82);
   }
 
   .copy {
     position: relative;
     z-index: 9;
-    width: 570px;
+    width: calc(var(--hero-px) * 570);
+    padding-top: calc(var(--hero-px) * 134.4);
+  }
+
+  .chrome {
+    top: calc(var(--hero-px) * 36);
+    right: calc(var(--hero-px) * 72);
+    left: calc(var(--hero-px) * 72);
+  }
+
+  .eyebrow {
+    gap: calc(var(--hero-px) * 14);
+    margin-bottom: calc(var(--hero-px) * 28);
+    font-size: calc(var(--hero-px) * 12);
+  }
+
+  .copy h1 {
+    font-size: calc(var(--hero-px) * 84);
+  }
+
+  .copy h1:lang(en) {
+    font-size: calc(var(--hero-px) * 70);
+  }
+
+  .copy h1[data-story-id="cross-operator-arrivals"]:lang(en) {
+    font-size: calc(var(--hero-px) * 52);
+  }
+
+  .description {
+    max-width: calc(var(--hero-px) * 540);
+    margin-top: calc(var(--hero-px) * 33);
+    font-size: calc(var(--hero-px) * 20);
+  }
+
+  .description:lang(en) {
+    max-width: calc(var(--hero-px) * 610);
+    margin-top: calc(var(--hero-px) * 49);
+    font-size: calc(var(--hero-px) * 18);
+  }
+
+  .actions {
+    gap: calc(var(--hero-px) * 12);
+    margin-top: calc(var(--hero-px) * 36);
+  }
+
+  .copy[data-copy-locale="en"] .actions {
+    margin-top: calc(var(--hero-px) * 42);
+  }
+
+  .secondaryAction {
+    width: calc(var(--hero-px) * 190);
+    min-height: max(44px, calc(var(--hero-px) * 54));
+    border-width: max(1px, calc(var(--hero-px) * 2));
+    border-radius: calc(var(--hero-px) * 18);
+    font-size: calc(var(--hero-px) * 15);
+  }
+
+  .copy > :last-child {
+    margin-top: calc(var(--hero-px) * 17);
   }
 
   .visual {
@@ -226,16 +301,37 @@
   }
 
   .contextNote {
-    top: 690px;
+    top: calc(var(--hero-px) * 690);
     right: auto;
     bottom: auto;
-    left: 736px;
+    left: calc(var(--hero-px) * 736);
+    gap: calc(var(--hero-px) * 9);
+    width: calc(var(--hero-px) * 276);
+    height: calc(var(--hero-px) * 134);
+    border-radius: calc(var(--hero-px) * 22);
+    padding: calc(var(--hero-px) * 20) calc(var(--hero-px) * 22);
+  }
+
+  .contextNote small {
+    font-size: calc(var(--hero-px) * 12);
+  }
+
+  .contextNote strong {
+    font-size: calc(var(--hero-px) * 23);
+  }
+
+  .contextNote strong:lang(en) {
+    font-size: calc(var(--hero-px) * 18);
+  }
+
+  .contextNote span {
+    font-size: calc(var(--hero-px) * 11);
   }
 
   .inner > :last-child {
     position: absolute;
-    top: 747px;
-    left: 82px;
+    top: calc(var(--hero-px) * 747);
+    left: calc(var(--hero-px) * 82);
     margin: 0;
   }
 }

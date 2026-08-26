@@ -56,6 +56,21 @@
   font-size: 19px;
 }
 
+@media (min-width: 1181px) {
+  .hero {
+    width: calc(var(--hero-px) * 224);
+    min-height: max(44px, calc(var(--hero-px) * 54));
+    gap: calc(var(--hero-px) * 10);
+    border-radius: calc(var(--hero-px) * 18);
+    padding-inline: calc(var(--hero-px) * 14);
+    font-size: calc(var(--hero-px) * 15);
+  }
+
+  .hero .arrow {
+    font-size: calc(var(--hero-px) * 19);
+  }
+}
+
 .disabled,
 .disabled:hover {
   border-color: rgba(8, 100, 93, .16);

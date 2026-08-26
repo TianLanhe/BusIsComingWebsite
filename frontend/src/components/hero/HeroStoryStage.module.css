@@ -131,35 +131,35 @@
  */
 @media (min-width: 1181px) {
   .stage {
-    height: 960px;
+    height: calc(var(--hero-px) * 960);
     contain: layout;
   }
 
   .phone {
-    --phone-center-x: 1095px;
-    --phone-center-y: 385.333px;
-    width: clamp(280px, 22.9167vw, 330px);
-    padding: 8.58px;
-    border-radius: 54px;
+    --phone-center-x: calc(var(--hero-px) * 1095);
+    --phone-center-y: calc(var(--hero-px) * 385.333);
+    width: calc(var(--hero-px) * 330);
+    padding: calc(var(--hero-px) * 8.58);
+    border-radius: calc(var(--hero-px) * 54);
     top: var(--phone-center-y);
     left: var(--phone-center-x);
     transform: translate3d(-50%, -50%, 0) scale(var(--phone-scale)) rotate(var(--phone-rotate));
     transform-origin: 50% 50%;
   }
 
-  .screen { border-radius: 45.42px; }
+  .screen { border-radius: calc(var(--hero-px) * 45.42); }
 
   .phone[data-slot="front"] {
-    --phone-center-x: clamp(1034px, calc(23.5521vw + 755.85px), 1095px);
-    --phone-center-y: 385.333px;
+    --phone-center-x: calc(var(--hero-px) * 1095);
+    --phone-center-y: calc(var(--hero-px) * 385.333);
     --phone-y: 0px;
     --phone-scale: 1;
     --phone-rotate: 2.5deg;
   }
 
   .phone[data-slot="near-left"] {
-    --phone-center-x: clamp(790px, calc(34.749vw + 379.6px), 880px);
-    --phone-center-y: 414.556px;
+    --phone-center-x: calc(var(--hero-px) * 880);
+    --phone-center-y: calc(var(--hero-px) * 414.556);
     --phone-y: 0px;
     --phone-scale: .666667;
     --phone-rotate: -9deg;
@@ -167,8 +167,8 @@
   }
 
   .phone[data-slot="near-right"] {
-    --phone-center-x: clamp(1090px, calc(66.0232vw + 310.27px), 1261px);
-    --phone-center-y: 397.667px;
+    --phone-center-x: calc(var(--hero-px) * 1261);
+    --phone-center-y: calc(var(--hero-px) * 397.667);
     --phone-y: 0px;
     --phone-scale: .636364;
     --phone-rotate: 9deg;
@@ -176,8 +176,8 @@
   }
 
   .phone[data-slot="far-left"] {
-    --phone-center-x: clamp(880px, calc(31.6602vw + 506.1px), 962px);
-    --phone-center-y: 397.111px;
+    --phone-center-x: calc(var(--hero-px) * 962);
+    --phone-center-y: calc(var(--hero-px) * 397.111);
     --phone-scale: .787879;
     --phone-rotate: -5.5deg;
     --phone-opacity: .45;
@@ -185,8 +185,8 @@
   }
 
   .phone[data-slot="far-right"] {
-    --phone-center-x: clamp(1068px, calc(55.5985vw + 411.37px), 1212px);
-    --phone-center-y: 385.778px;
+    --phone-center-x: calc(var(--hero-px) * 1212);
+    --phone-center-y: calc(var(--hero-px) * 385.778);
     --phone-scale: .769697;
     --phone-rotate: 5.5deg;
     --phone-opacity: .43;

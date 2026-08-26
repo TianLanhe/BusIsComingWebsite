@@ -25,6 +25,19 @@
   height: 44px;
 }
 
+@media (min-width: 1181px) {
+  .brand[data-compact="true"] {
+    gap: calc(var(--hero-px) * 12);
+    min-height: max(44px, calc(var(--hero-px) * 44));
+    font-size: calc(var(--hero-px) * 24);
+  }
+
+  .brand[data-compact="true"] img {
+    width: calc(var(--hero-px) * 44);
+    height: calc(var(--hero-px) * 44);
+  }
+}
+
 @media (max-width: 520px) {
   .brand[data-compact="true"] { gap: 8px; min-height: 44px; font-size: 16px; }
   .brand[data-compact="true"] img { width: 32px; height: 32px; }

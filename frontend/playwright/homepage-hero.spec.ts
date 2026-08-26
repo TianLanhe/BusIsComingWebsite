@@ -94,3 +94,78 @@ test("mobile browser chrome cannot compress the phone stage under the story rail
     await expectNoHorizontalOverflow(page);
   }
 });
+
+test("desktop hero scales the approved 1440 by 960 composition without clipping or empty dead space", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-1440", "桌面连续缩放只需在 desktop context 验收");
+
+  await page.route("**/api/downloads/android/latest/metadata", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify(metadata) }));
+
+  const desktopViewports = [
+    {
+      viewport: { width: 1470, height: 801 },
+      stage: { x: 134.25, width: 1201.5, height: 801 },
+      phoneWidth: 275.344,
+      railWidth: 475.594,
+      titleSize: 70.088,
+    },
+    {
+      viewport: { width: 1728, height: 962 },
+      stage: { x: 142.5, width: 1443, height: 962 },
+      phoneWidth: 330.688,
+      railWidth: 571.188,
+      titleSize: 84.175,
+    },
+    {
+      viewport: { width: 2560, height: 1318 },
+      stage: { x: 291.5, width: 1977, height: 1318 },
+      phoneWidth: 453.063,
+      railWidth: 782.563,
+      titleSize: 115.325,
+    },
+    {
+      viewport: { width: 3840, height: 2160 },
+      stage: { x: 300, width: 3240, height: 2160 },
+      phoneWidth: 742.5,
+      railWidth: 1282.5,
+      titleSize: 189,
+      sourceWidthLabel: "1080",
+    },
+  ];
+
+  for (const expected of desktopViewports) {
+    await page.setViewportSize(expected.viewport);
+    await page.goto("/zh-hant/");
+    await waitForHomepageVisual(page);
+
+    const stageBox = await page.getByTestId("hero-story-stage").boundingBox();
+    const frontPhone = page.locator('[data-slot="front"]');
+    const frontBox = await frontPhone.boundingBox();
+    const frontWidth = await frontPhone.evaluate((phone) => phone.offsetWidth);
+    const rail = page.getByRole("group", { name: /五個功能故事/ });
+    const railBox = await rail.boundingBox();
+    const titleSize = Number.parseFloat(await page.getByTestId("hero-title").evaluate((title) => getComputedStyle(title).fontSize));
+
+    expect(stageBox).not.toBeNull();
+    expect(frontBox).not.toBeNull();
+    expect(railBox).not.toBeNull();
+    expect(Math.abs(stageBox!.x - expected.stage.x)).toBeLessThan(1.5);
+    expect(Math.abs(stageBox!.width - expected.stage.width)).toBeLessThan(1.5);
+    expect(Math.abs(stageBox!.height - expected.stage.height)).toBeLessThan(1.5);
+    expect(Math.abs(frontWidth - expected.phoneWidth)).toBeLessThan(1.5);
+    expect(Math.abs(railBox!.width - expected.railWidth)).toBeLessThan(1.5);
+    expect(Math.abs(titleSize - expected.titleSize)).toBeLessThan(.75);
+    expect(railBox!.y + railBox!.height).toBeLessThanOrEqual(expected.viewport.height);
+
+    const labelsFit = await rail.locator("button").evaluateAll((buttons) => buttons.every((button) => {
+      const railRect = button.parentElement?.getBoundingClientRect();
+      const labelRect = button.lastElementChild?.getBoundingClientRect();
+      return Boolean(railRect && labelRect && labelRect.bottom <= railRect.bottom && labelRect.bottom <= window.innerHeight);
+    }));
+    expect(labelsFit).toBe(true);
+    if (expected.sourceWidthLabel) {
+      const currentSrc = await frontPhone.locator("img").evaluate((image) => image.currentSrc);
+      expect(currentSrc).toContain(`-${expected.sourceWidthLabel}.webp`);
+    }
+    await expectNoHorizontalOverflow(page);
+  }
+});

@@ -40,6 +40,19 @@
   outline-offset: -5px;
 }
 
+@media (min-width: 1181px) {
+  .languages a {
+    min-width: max(44px, calc(var(--hero-px) * 44));
+    min-height: max(44px, calc(var(--hero-px) * 44));
+    font-size: calc(var(--hero-px) * 14);
+  }
+
+  .languages a[aria-current="page"]::after {
+    width: calc(var(--hero-px) * 23);
+    height: max(2px, calc(var(--hero-px) * 2));
+  }
+}
+
 @media (max-width: 520px) {
   .languages a { min-width: 36px; min-height: 44px; font-size: 13px; }
   .languages a[aria-current="page"]::after { width: 19px; }

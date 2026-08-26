@@ -126,7 +126,7 @@ export function HeroStoryStage({
                       if (node) imageRefs.current.set(story.id, node);
                       else imageRefs.current.delete(story.id);
                     }}
-                    sizes="(max-width: 350px) 194px, (max-width: 520px) 214px, (max-width: 980px) 280px, 356px"
+                    sizes="(min-width: 1181px) min(22.9167vw, 34.375vh), (max-width: 350px) 194px, (max-width: 520px) 214px, (max-width: 980px) 280px, 356px"
                     src={asset.src}
                     srcSet={asset.srcSet}
                     width={asset.width}

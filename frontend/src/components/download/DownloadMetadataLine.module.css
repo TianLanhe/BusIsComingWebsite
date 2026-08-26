@@ -12,6 +12,16 @@
   font-size: 11px;
 }
 
+@media (min-width: 1181px) {
+  .line {
+    gap: calc(var(--hero-px) * 7);
+  }
+
+  .line[data-compact="true"] {
+    font-size: calc(var(--hero-px) * 11);
+  }
+}
+
 @media (max-width: 520px) {
   .line { gap: 5px; font-size: 11px; }
 }

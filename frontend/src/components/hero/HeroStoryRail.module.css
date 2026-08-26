@@ -90,6 +90,41 @@
   clip: rect(0 0 0 0);
 }
 
+@media (min-width: 1181px) {
+  .wrapper {
+    width: calc(var(--hero-px) * 570);
+  }
+
+  .rail {
+    height: calc(var(--hero-px) * 92);
+    border-radius: calc(var(--hero-px) * 22);
+  }
+
+  .track {
+    top: calc(var(--hero-px) * 30);
+  }
+
+  .story {
+    grid-template-rows: calc(var(--hero-px) * 48) 1fr;
+    min-height: calc(var(--hero-px) * 78);
+    margin-block: calc(var(--hero-px) * 5);
+  }
+
+  .number {
+    min-width: calc(var(--hero-px) * 48);
+    height: calc(var(--hero-px) * 42);
+    font-size: calc(var(--hero-px) * 14);
+  }
+
+  .label {
+    font-size: calc(var(--hero-px) * 12);
+  }
+
+  .story[data-active="true"] .number {
+    min-width: calc(var(--hero-px) * 72);
+  }
+}
+
 @media (max-width: 980px) {
   .wrapper { width: 100%; }
   .rail { height: 82px; border-radius: 18px; background: rgba(255, 255, 255, .8); }
