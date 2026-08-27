@@ -141,8 +141,8 @@
     width: calc(var(--hero-px) * 330);
     padding: calc(var(--hero-px) * 8.58);
     border-radius: calc(var(--hero-px) * 54);
-    top: var(--phone-center-y);
-    left: var(--phone-center-x);
+    top: calc(var(--phone-center-y) + var(--hero-visual-shift-y));
+    left: calc(var(--phone-center-x) + var(--hero-visual-shift-x));
     transform: translate3d(-50%, -50%, 0) scale(var(--phone-scale)) rotate(var(--phone-rotate));
     transform-origin: 50% 50%;
   }

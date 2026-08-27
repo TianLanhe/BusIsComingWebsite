@@ -216,6 +216,9 @@
      * 让短屏完整收进首屏、宽大屏同步放大；不用 transform/zoom 改变坐标或命中区。
      */
     --hero-px: min(.069444444vw, .104166667svh);
+    /* 桌面舞台避让语言入口并收紧右侧留白；手机断点继续沿用原坐标。 */
+    --hero-visual-shift-x: calc(var(--hero-px) * 40);
+    --hero-visual-shift-y: calc(var(--hero-px) * 48);
     display: grid;
     place-items: center;
   }
@@ -301,10 +304,10 @@
   }
 
   .contextNote {
-    top: calc(var(--hero-px) * 690);
+    top: calc(var(--hero-px) * 690 + var(--hero-visual-shift-y));
     right: auto;
     bottom: auto;
-    left: calc(var(--hero-px) * 736);
+    left: calc(var(--hero-px) * 736 + var(--hero-visual-shift-x));
     gap: calc(var(--hero-px) * 9);
     width: calc(var(--hero-px) * 276);
     height: calc(var(--hero-px) * 134);

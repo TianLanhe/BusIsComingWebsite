@@ -65,9 +65,9 @@ test("mobile browser chrome cannot compress the phone stage under the story rail
   await page.route("**/api/downloads/android/latest/metadata", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify(metadata) }));
 
   const mobileViewports = [
-    { width: 390, height: 720, phoneWidth: 204 },
-    { width: 320, height: 720, phoneWidth: 186 },
-    { width: 432, height: 760, phoneWidth: 204 },
+    { width: 390, height: 720, phoneWidth: 204, phoneCenterY: 205 },
+    { width: 320, height: 720, phoneWidth: 186, phoneCenterY: 187 },
+    { width: 432, height: 760, phoneWidth: 204, phoneCenterY: 205 },
   ];
 
   for (const viewport of mobileViewports) {
@@ -89,6 +89,8 @@ test("mobile browser chrome cannot compress the phone stage under the story rail
     }));
     expect(frameSize.width).toBe(viewport.phoneWidth);
     expect(frameSize.width / frameSize.height).toBeCloseTo(1080 / 2172, 2);
+    expect(Math.abs(frontBox!.x + frontBox!.width / 2 - viewport.width / 2)).toBeLessThan(1);
+    expect(Math.abs(frontBox!.y + frontBox!.height / 2 - stageBox!.y - viewport.phoneCenterY)).toBeLessThan(1);
     expect(frontBox!.y + frontBox!.height).toBeLessThanOrEqual(railBox!.y);
     expect(stageBox!.y + stageBox!.height).toBeLessThanOrEqual(railBox!.y + 1);
     await expectNoHorizontalOverflow(page);
@@ -140,6 +142,12 @@ test("desktop hero scales the approved 1440 by 960 composition without clipping 
     const stageBox = await page.getByTestId("hero-story-stage").boundingBox();
     const frontPhone = page.locator('[data-slot="front"]');
     const frontBox = await frontPhone.boundingBox();
+    const phoneBoxes = await page.locator("#features figure").evaluateAll((phones) => phones.map((phone) => {
+      const box = phone.getBoundingClientRect();
+      return { right: box.right };
+    }));
+    const languageBox = await page.getByRole("navigation", { name: "選擇語言" }).boundingBox();
+    const contextNoteBox = await page.locator("#features aside").boundingBox();
     const frontWidth = await frontPhone.evaluate((phone) => phone.offsetWidth);
     const rail = page.getByRole("group", { name: /五個功能故事/ });
     const railBox = await rail.boundingBox();
@@ -147,6 +155,8 @@ test("desktop hero scales the approved 1440 by 960 composition without clipping 
 
     expect(stageBox).not.toBeNull();
     expect(frontBox).not.toBeNull();
+    expect(languageBox).not.toBeNull();
+    expect(contextNoteBox).not.toBeNull();
     expect(railBox).not.toBeNull();
     expect(Math.abs(stageBox!.x - expected.stage.x)).toBeLessThan(1.5);
     expect(Math.abs(stageBox!.width - expected.stage.width)).toBeLessThan(1.5);
@@ -155,6 +165,14 @@ test("desktop hero scales the approved 1440 by 960 composition without clipping 
     expect(Math.abs(railBox!.width - expected.railWidth)).toBeLessThan(1.5);
     expect(Math.abs(titleSize - expected.titleSize)).toBeLessThan(.75);
     expect(railBox!.y + railBox!.height).toBeLessThanOrEqual(expected.viewport.height);
+
+    const designScale = Math.min(expected.viewport.width / 1440, expected.viewport.height / 960);
+    const visualRightGap = stageBox!.x + stageBox!.width - Math.max(...phoneBoxes.map((box) => box.right));
+    expect(visualRightGap).toBeGreaterThanOrEqual(-1);
+    expect(visualRightGap).toBeLessThanOrEqual(designScale * 6);
+    expect(frontBox!.y - languageBox!.y - languageBox!.height).toBeGreaterThanOrEqual(4);
+    expect(Math.abs(contextNoteBox!.x - stageBox!.x - designScale * 776)).toBeLessThan(1.5);
+    expect(Math.abs(contextNoteBox!.y - stageBox!.y - designScale * 738)).toBeLessThan(1.5);
 
     const labelsFit = await rail.locator("button").evaluateAll((buttons) => buttons.every((button) => {
       const railRect = button.parentElement?.getBoundingClientRect();
